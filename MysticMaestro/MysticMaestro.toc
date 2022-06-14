@@ -5,7 +5,7 @@
 ## Notes: Auction house automation addon for mystic enchants
 ## DefaultState: Enabled
 ## LoadOnDemand: 0
-## SavedVariables: MysticMaestroSaved
+## SavedVariables: MysticMaestroDB
 
 embeds.xml
 MysticMaestro.lua

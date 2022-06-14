@@ -45,3 +45,25 @@ end
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro",myOptionsTable)
 
 MM:RegisterChatCommand("mm","OpenMenu")
+
+local defaults = {
+  profile = {
+    optionA = true,
+    optionB = false,
+    suboptions = {
+      subOptionA = false,
+      subOptionB = true,
+    },
+  }
+}
+
+function MM:OnInitialize()
+  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB", defaults)
+  self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
+  self.db.RegisterCallback(self, "OnProfileCopied", "RefreshConfig")
+  self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
+end
+
+function MM:RefreshConfig()
+  -- would do some stuff here
+end
