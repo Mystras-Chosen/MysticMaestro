@@ -44,4 +44,4 @@ end
 
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro",myOptionsTable)
 
-MM:RegisterChatCommand("mm","mystic","maestro")
+MM:RegisterChatCommand("mm","OpenMenu")
