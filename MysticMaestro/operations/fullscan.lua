@@ -35,11 +35,12 @@ local function getAHItemEnchantName(index)
 end
 
 function MM:AUCTION_ITEM_LIST_UPDATE()
+  print("update")
   if scanInProgress == true then
     scanInProgress = false
     local listings = self.db.realm.RE_AH_LISTINGS
     local numBatchAuctions, totalAuctions = GetNumAuctionItems("list")
-    print(numBatchAuctions)
+    print(numBatchAuctions or "no batch auctions")
     if numBatchAuctions > 0 then
       for i=1, numBatchAuctions do
         local name, _, _, _, _, level, _, _, buyoutPrice, _, seller = GetAuctionItemInfo("list", i);
@@ -47,8 +48,8 @@ function MM:AUCTION_ITEM_LIST_UPDATE()
           local enchantName = getAHItemEnchantName(i)
           print("enchantName = " .. (enchantName or "nil"))
           if enchantName then
-            listings[enchantName][time] = listings[enchantName][time] or {}
-            table.insert(listings[enchantName][time], {
+            listings[enchantName][lastScanTime] = listings[enchantName][lastScanTime] or {}
+            table.insert(listings[enchantName][lastScanTime], {
               seller = seller,
               timeLeft = GetAuctionItemTimeLeft("list", i),
               buyoutPrice = buyoutPrice
