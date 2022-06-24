@@ -44,7 +44,7 @@ end
 
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro",myOptionsTable)
 
-MM:RegisterChatCommand("mm","OpenMenu")
+--MM:RegisterChatCommand("mm","OpenMenu")
 
 local defaults = {
   profile = {
@@ -57,13 +57,87 @@ local defaults = {
   }
 }
 
-function MM:OnInitialize()
-  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB", defaults)
-  self.db.RegisterCallback(self, "OnProfileChanged", "RefreshConfig")
-  self.db.RegisterCallback(self, "OnProfileCopied", "RefreshConfig")
-  self.db.RegisterCallback(self, "OnProfileReset", "RefreshConfig")
-end
 
 function MM:RefreshConfig()
   -- would do some stuff here
+end
+
+
+
+
+
+
+
+local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
+
+local enchantMT = {
+  __index = function(t, k)
+    return t[MYSTIC_ENCHANTS[k].spellName]
+  end
+}
+
+local function initializeDB()
+  local listings = {}
+  local stats = {}
+  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
+    listings[enchantData.spellName] = {}
+    stats[enchantData.spellName] = {}
+  end
+  return listings, stats
+end
+
+local function injectDB(listings, statistics)
+  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
+    if MM.db.realm.RE_AH_LISTINGS[enchantData.spellName] == nil then
+      MM.db.realm.RE_AH_LISTINGS[enchantData.spellName] = {}
+      MM.db.realm.RE_AH_STATISTICS[enchantData.spellName] = {}
+    end
+  end
+end
+
+function MM:OnInitialize()
+  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
+  if not self.db.realm.RE_AH_LISTINGS then
+    self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS = initializeDB()
+  else
+    injectDB(self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS)
+  end
+  setmetatable(self.db.realm.RE_AH_LISTINGS, enchantMT)
+  setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
+end
+
+local scanInProgress, lastScanTime
+local function remainingTime()
+  if lastScanTime then
+    local secondsRemaining = lastScanTime + 900 - GetTime()
+    return math.floor(secondsRemaining / 60) .. ":" .. string.format("%02d", secondsRemaining % 60)
+  else
+    return "Unknown"
+  end
+end
+
+function MM:ProcessSlashCommand(input)
+  input = input:lower()
+  if input:match("^fullscan$") then
+    MM:HandleFullScan()
+  else
+    MM:Print("Command not recognized")
+  end
+end
+
+MM:RegisterChatCommand("mm","ProcessSlashCommand")
+
+function MM:HandleFullScan()
+  local AuctionFrame = _G["AuctionFrame"]
+  if AuctionFrame and AuctionFrame:IsShown() then
+    if select(2, CanSendAuctionQuery()) then
+      scanInProgress = true
+      lastScanTime = GetTime()
+      QueryAuctionItems ("", nil, nil, 0, 0, 0, 0, 0, 0, true)
+    else
+      MM:Print("Full scan not available. Time remaining: " .. remainingTime())
+    end
+  else
+    MM:Print("Auction house window must be open to perform scan")
+  end
 end
