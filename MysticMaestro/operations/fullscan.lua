@@ -35,7 +35,6 @@ local function getAHItemEnchantName(index)
 end
 
 function MM:AUCTION_ITEM_LIST_UPDATE()
-  print("update")
   if scanInProgress == true then
     scanInProgress = false
     local listings = self.db.realm.RE_AH_LISTINGS

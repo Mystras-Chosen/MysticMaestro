@@ -68,11 +68,11 @@ end
 
 
 
-local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
+local GetSpellInfo = GetSpellInfo
 
 local enchantMT = {
   __index = function(t, k)
-    return t[MYSTIC_ENCHANTS[k].spellName]
+    return t[GetSpellInfo(k)]
   end
 }
 
@@ -86,20 +86,24 @@ end
 local function initializeDB()
   local listings = {}
   local stats = {}
-  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    local spellName = cleanEnchantSpellName(enchantData.spellName)
-    listings[spellName] = {}
-    stats[spellName] = {}
+  for enchantID in pairs(MYSTIC_ENCHANTS) do
+    if enchantID ~= 0 then
+      local spellName = GetSpellInfo(enchantID)
+      listings[spellName] = {}
+      stats[spellName] = {}
+    end
   end
   return listings, stats
 end
 
 local function injectDB(listings, statistics)
-  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    local spellName = cleanEnchantSpellName(enchantData.spellName)
-    if listings[spellName] == nil then
-      listings[spellName] = {}
-      statistics[spellName] = {}
+  for enchantID in pairs(MYSTIC_ENCHANTS) do
+    if enchantID ~= 0 then
+      local spellName = GetSpellInfo(enchantID)
+      if listings[spellName] == nil then
+        listings[spellName] = {}
+        statistics[spellName] = {}
+      end
     end
   end
 end
