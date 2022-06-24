@@ -1,6 +1,6 @@
 ## Interface: 30300
 ## Title: Mystic Maestro
-## Author: polihayse, thebbandit
+## Author: polihayse, bandit
 ## Version: 1.0.0
 ## Notes: Auction house automation addon for mystic enchants
 ## DefaultState: Enabled
@@ -9,3 +9,4 @@
 
 embeds.xml
 MysticMaestro.lua
+operations.xml
