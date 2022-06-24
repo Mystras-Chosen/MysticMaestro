@@ -43,7 +43,7 @@ function MM:AUCTION_ITEM_LIST_UPDATE()
     print(numBatchAuctions or "no batch auctions")
     if numBatchAuctions > 0 then
       for i=1, numBatchAuctions do
-        local name, _, _, _, _, level, _, _, buyoutPrice, _, seller = GetAuctionItemInfo("list", i);
+        local name, _, _, _, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i);
         if name:find("Insignia") and level == 15 and buyoutPrice then
           local enchantName = getAHItemEnchantName(i)
           print("enchantName = " .. (enchantName or "nil"))
