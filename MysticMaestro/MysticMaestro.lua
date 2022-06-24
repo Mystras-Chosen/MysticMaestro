@@ -110,6 +110,8 @@ function MM:ProcessSlashCommand(input)
   input = input:lower()
   if input:match("^fullscan$") then
     MM:HandleFullScan()
+  elseif input:match("^slowscan$") then
+    MM:HandleSlowScan()
   else
     MM:Print("Command not recognized")
   end
