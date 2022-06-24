@@ -88,9 +88,9 @@ end
 
 local function injectDB(listings, statistics)
   for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    if MM.db.realm.RE_AH_LISTINGS[enchantData.spellName] == nil then
-      MM.db.realm.RE_AH_LISTINGS[enchantData.spellName] = {}
-      MM.db.realm.RE_AH_STATISTICS[enchantData.spellName] = {}
+    if listings[enchantData.spellName] == nil then
+      listings[enchantData.spellName] = {}
+      statistics[enchantData.spellName] = {}
     end
   end
 end
