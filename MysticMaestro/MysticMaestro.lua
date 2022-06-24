@@ -77,7 +77,7 @@ local enchantMT = {
 }
 
 local function cleanEnchantSpellName(spellName)
-  if spellName:find("Effect$") then
+  if spellName:find("Effect$") and spellName ~= "Mpemba Effect" then
     return spellName:match("(.-) Effect$")
   end
   return spellName
