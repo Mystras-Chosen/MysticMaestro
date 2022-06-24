@@ -1,7 +1,7 @@
 local addonName, addonTable = ...
 
 local AceAddon = LibStub("AceAddon-3.0")
-local MM = AceAddon:NewAddon("MysticMaestro", "AceConsole-3.0")
+local MM = AceAddon:NewAddon("MysticMaestro", "AceConsole-3.0", "AceEvent-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 local Dialog = LibStub("AceConfigDialog-3.0")
 
@@ -76,21 +76,30 @@ local enchantMT = {
   end
 }
 
+local function cleanEnchantSpellName(spellName)
+  if spellName:find("Effect$") then
+    return spellName:match("(.-) Effect$")
+  end
+  return spellName
+end
+
 local function initializeDB()
   local listings = {}
   local stats = {}
   for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    listings[enchantData.spellName] = {}
-    stats[enchantData.spellName] = {}
+    local spellName = cleanEnchantSpellName(enchantData.spellName)
+    listings[spellName] = {}
+    stats[spellName] = {}
   end
   return listings, stats
 end
 
 local function injectDB(listings, statistics)
   for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    if listings[enchantData.spellName] == nil then
-      listings[enchantData.spellName] = {}
-      statistics[enchantData.spellName] = {}
+    local spellName = cleanEnchantSpellName(enchantData.spellName)
+    if listings[spellName] == nil then
+      listings[spellName] = {}
+      statistics[spellName] = {}
     end
   end
 end
