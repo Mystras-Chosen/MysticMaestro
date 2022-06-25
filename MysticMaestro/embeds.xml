@@ -16,4 +16,6 @@
 	<Include file="Libs\AceSerializer-3.0\AceSerializer-3.0.xml" />
     <Include file="Libs\AceTab-3.0\AceTab-3.0.xml" />
 	<Include file="Libs\AceTimer-3.0\AceTimer-3.0.xml" />
+
+    <Script file="Libs\LibGraph-2.0.lua" />
 </Ui>
