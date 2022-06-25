@@ -121,11 +121,13 @@ function MM:OnInitialize()
 end
 
 function MM:ProcessSlashCommand(input)
-  input = input:lower()
-  if input:match("^fullscan$") then
+  local lowerInput = input:lower()
+  if lowerInput:match("^fullscan$") then
     MM:HandleFullScan()
-  elseif input:match("^slowscan$") then
+  elseif lowerInput:match("^slowscan$") then
     MM:HandleSlowScan()
+  elseif lowerInput:match("^graph") then
+    MM:HandleGraph(input:match("^%w+%s+(.+)"))
   else
     MM:Print("Command not recognized")
   end
