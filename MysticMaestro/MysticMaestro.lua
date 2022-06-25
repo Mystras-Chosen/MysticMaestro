@@ -72,23 +72,23 @@ local GetSpellInfo = GetSpellInfo
 
 local enchantMT = {
   __index = function(t, k)
-    return t[GetSpellInfo(k)]
+    if type(k) == "number" then
+      return t[GetSpellInfo(k)]
+    elseif type(k) == "string" then
+      local newListing = {}
+      t[k] = newListing
+      return newListing
+    end
   end
 }
-
-local function cleanEnchantSpellName(spellName)
-  if spellName:find("Effect$") and spellName ~= "Mpemba Effect" then
-    return spellName:match("(.-) Effect$")
-  end
-  return spellName
-end
 
 local function initializeDB()
   local listings = {}
   local stats = {}
-  for enchantID in pairs(MYSTIC_ENCHANTS) do
-    if enchantID ~= 0 then
-      local spellName = GetSpellInfo(enchantID)
+  for _, enchantData in pairs(MYSTIC_ENCHANTS) do
+    local spellID = enchantData.spellID
+    if spellID ~= 0 then
+      local spellName = GetSpellInfo(spellID)
       listings[spellName] = {}
       stats[spellName] = {}
     end
@@ -97,9 +97,10 @@ local function initializeDB()
 end
 
 local function injectDB(listings, statistics)
-  for enchantID in pairs(MYSTIC_ENCHANTS) do
-    if enchantID ~= 0 then
-      local spellName = GetSpellInfo(enchantID)
+  for _, enchantData in pairs(MYSTIC_ENCHANTS) do
+    local spellID = enchantData.spellID
+    if spellID ~= 0 then
+      local spellName = GetSpellInfo(spellID)
       if listings[spellName] == nil then
         listings[spellName] = {}
         statistics[spellName] = {}
