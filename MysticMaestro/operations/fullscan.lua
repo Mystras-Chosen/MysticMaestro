@@ -13,18 +13,16 @@ local function remainingTime()
 end
 
 function MM:HandleFullScan()
-  local AuctionFrame = _G["AuctionFrame"]
-  if AuctionFrame and AuctionFrame:IsShown() then
-    if select(2, CanSendAuctionQuery()) then
-      self:InitializeDatabase()
-      scanInProgress = true
-      lastScanTime = time()
-      QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
-    else
-      MM:Print("Full scan not available. Time remaining: " .. remainingTime())
-    end
+  if not self:ValidateAHIsOpen() then
+    return
+  end
+  if select(2, CanSendAuctionQuery()) then
+    self:InitializeDatabase()
+    scanInProgress = true
+    lastScanTime = time()
+    QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
   else
-    MM:Print("Auction house window must be open to perform scan")
+    MM:Print("Full scan not available. Time remaining: " .. remainingTime())
   end
 end
 
@@ -41,8 +39,8 @@ function MM:AUCTION_ITEM_LIST_UPDATE()
     local listings = self.db.realm.RE_AH_LISTINGS
     local numBatchAuctions, totalAuctions = GetNumAuctionItems("list")
     if numBatchAuctions > 0 then
-      for i=1, numBatchAuctions do
-        local name, _, _, _, _, level, _, _, buyoutPrice = GetAuctionItemInfo("list", i);
+      for i = 1, numBatchAuctions do
+        local name, _, _, _, _, level, _, _, buyoutPrice = GetAuctionItemInfo("list", i)
         if name and name:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0 then
           local enchantName = getAHItemEnchantName(i)
           if enchantName then

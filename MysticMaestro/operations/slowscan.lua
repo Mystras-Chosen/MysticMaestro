@@ -52,25 +52,33 @@ local function addToQueue(scanTypes)
 	end
 end
 
-local function getStartingIndex(scanType)
+local function getStartingIndex(queue, scanType)
+	local lastEnchantScanned = MM.db.realm["LAST_" .. scanType:upper() .. "_ENCHANT_SCANNED"]
+	if lastEnchantScanned then
+		-- considered binary search, but the list is only partially sorted if more than one scan type involved
+		for i = 1, #queue do
+			if queue[i] == lastEnchantScanned then
+				return i + 1
+			end
+		end
+	else
+		return 1
+	end
 end
 
+local currentIndex, slowScanInProgress
+
 function MM:HandleSlowScan(slowScanParams)
+	if not self:ValidateAHIsOpen() then
+		return
+	end
 	local scanTypes = validateSlowScanParams(slowScanParams)
 	if scanTypes then
 		addToQueue(scanTypes)
-		-- get index that we should start at
-		local startingIndex = getStartingIndex(scanTypes[1])
-	-- kick off scan at index
+		currentIndex = getStartingIndex(scanTypes[1])
+		slowScanInProgress = true
+		performScan(currentIndex)
 	end
-
-	--[[
-	local AuctionFrame = _G["AuctionFrame"]
-	if AuctionFrame and AuctionFrame:IsShown() then
-		MM:Print("Auction house window is open and we did a slow scan! ;)")
-	else
-		MM:Print("Auction house window must be open to perform scan")
-	end]]
 end
 
 -- set up event handler. the same event for fullscan will be used, so we should consider using non-default handler function names.
