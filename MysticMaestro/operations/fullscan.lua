@@ -17,7 +17,7 @@ function MM:HandleFullScan()
     return
   end
   if select(2, CanSendAuctionQuery()) then
-    self:InitializeDatabase()
+    self:UpdateDatabase()
     scanInProgress = true
     lastScanTime = time()
     QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
@@ -33,7 +33,7 @@ local function getAHItemEnchantName(index)
   return result
 end
 
-function MM:AUCTION_ITEM_LIST_UPDATE()
+function MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
   if scanInProgress == true then
     scanInProgress = false
     local listings = self.db.realm.RE_AH_LISTINGS
@@ -53,4 +53,4 @@ function MM:AUCTION_ITEM_LIST_UPDATE()
   end
 end
 
-MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
+MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Fullscan_AUCTION_ITEM_LIST_UPDATE")

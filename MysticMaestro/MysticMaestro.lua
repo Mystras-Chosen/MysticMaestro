@@ -79,42 +79,10 @@ local enchantMT = {
   end
 }
 
-function MM:InitializeDatabase()
-  local listings = {}
-  local stats = {}
-  for _, enchantData in pairs(MYSTIC_ENCHANTS) do
-    local spellID = enchantData.spellID
-    if spellID ~= 0 then
-      local spellName = GetSpellInfo(spellID)
-      listings[spellName] = {}
-      stats[spellName] = {}
-    end
-  end
-  self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS = listings, stats
-  setmetatable(self.db.realm.RE_AH_LISTINGS, enchantMT)
-  setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
-end
-
-function MM:InjectDatabase()
-  local listings, statistics = self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS
-  for _, enchantData in pairs(MYSTIC_ENCHANTS) do
-    local spellID = enchantData.spellID
-    if spellID ~= 0 then
-      local spellName = GetSpellInfo(spellID)
-      if listings[spellName] == nil then
-        listings[spellName] = {}
-        statistics[spellName] = {}
-      end
-    end
-  end
-  setmetatable(self.db.realm.RE_AH_LISTINGS, enchantMT)
-  setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
-end
-
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
   if self.db.realm.RE_AH_LISTINGS then
-    self:InjectDatabase()
+    self:UpdateDatabase()
   end
 end
 
@@ -135,7 +103,12 @@ MM:RegisterChatCommand("mm", "ProcessSlashCommand")
 
 function MM:TooltipHandler(tooltip, ...)
   -- print(tooltip:GetItem())
-  tooltip:AddDoubleLine("Mystic","Maestro")
+  tooltip:AddDoubleLine("Mystic", "Maestro")
 end
 
-GameTooltip:HookScript("OnTooltipSetItem", function(...) MM:TooltipHandler(...) end)
+GameTooltip:HookScript(
+  "OnTooltipSetItem",
+  function(...)
+    MM:TooltipHandler(...)
+  end
+)
