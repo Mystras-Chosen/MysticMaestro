@@ -6,16 +6,20 @@ local AceGUI = LibStub("AceGUI-3.0")
 local Dialog = LibStub("AceConfigDialog-3.0")
 
 local myOptionsTable = {
-	name = "Mystic Maestro",
-	handler = MM,
+  name = "Mystic Maestro",
+  handler = MM,
   type = "group",
   args = {
     enable = {
       name = "Enable",
       desc = "Enables / disables the addon",
       type = "toggle",
-      set = function(info,val) MM.enabled = val end,
-      get = function(info) return MM.enabled end
+      set = function(info, val)
+        MM.enabled = val
+      end,
+      get = function(info)
+        return MM.enabled
+      end
     } --,
     -- moreoptions={
     --   name = "More Options",
@@ -28,21 +32,21 @@ local myOptionsTable = {
 }
 
 function MM:OpenMenu()
-	if UnitAffectingCombat("player") then
-			if Dialog.OpenFrames["Mystic Maestro"] then
-					Dialog:Close("Mystic Maestro")
-			end
-			return
-	end
+  if UnitAffectingCombat("player") then
+    if Dialog.OpenFrames["Mystic Maestro"] then
+      Dialog:Close("Mystic Maestro")
+    end
+    return
+  end
 
-	if Dialog.OpenFrames["Mystic Maestro"] then
-			Dialog:Close("Mystic Maestro")
-	else
-			Dialog:Open("Mystic Maestro")
-	end
+  if Dialog.OpenFrames["Mystic Maestro"] then
+    Dialog:Close("Mystic Maestro")
+  else
+    Dialog:Open("Mystic Maestro")
+  end
 end
 
-LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro",myOptionsTable)
+LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro", myOptionsTable)
 
 --MM:RegisterChatCommand("mm","OpenMenu")
 
@@ -52,21 +56,14 @@ local defaults = {
     optionB = false,
     suboptions = {
       subOptionA = false,
-      subOptionB = true,
-    },
+      subOptionB = true
+    }
   }
 }
-
 
 function MM:RefreshConfig()
   -- would do some stuff here
 end
-
-
-
-
-
-
 
 local GetSpellInfo = GetSpellInfo
 
@@ -114,7 +111,6 @@ function MM:InjectDatabase()
   setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
 end
 
-
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
   if db.realm.RE_AH_LISTINGS then
@@ -127,7 +123,7 @@ function MM:ProcessSlashCommand(input)
   if lowerInput:match("^fullscan$") then
     MM:HandleFullScan()
   elseif lowerInput:match("^slowscan$") then
-    MM:HandleSlowScan()
+    MM:HandleSlowScan(input:match("^%w+%s+(.+)"))
   elseif lowerInput:match("^graph") then
     MM:HandleGraph(input:match("^%w+%s+(.+)"))
   else
@@ -135,4 +131,4 @@ function MM:ProcessSlashCommand(input)
   end
 end
 
-MM:RegisterChatCommand("mm","ProcessSlashCommand")
+MM:RegisterChatCommand("mm", "ProcessSlashCommand")
