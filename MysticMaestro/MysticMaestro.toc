@@ -8,5 +8,6 @@
 ## SavedVariables: MysticMaestroDB
 
 embeds.xml
+utils/common.lua
 MysticMaestro.lua
 operations.xml
