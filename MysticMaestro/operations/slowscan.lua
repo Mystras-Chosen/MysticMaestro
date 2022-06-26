@@ -30,7 +30,7 @@ local function getAlphabetizedEnchantList(qualityName, enchantQuality)
 		enchants = {}
 		for _, enchantData in pairs(MYSTIC_ENCHANTS) do
 			if enchantData.quality == enchantQuality then
-				table.insert(enchants, GetSpellInfo(enchantData.spellID))
+				table.insert(enchants, (GetSpellInfo(enchantData.spellID)))
 			end
 		end
 		table.sort(enchants)
@@ -68,7 +68,8 @@ end
 
 local currentIndex, slowScanInProgress
 
-local function performScan()
+local function performScan(currentIndex)
+	QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
 end
 
 function MM:HandleSlowScan(slowScanParams)
@@ -78,13 +79,16 @@ function MM:HandleSlowScan(slowScanParams)
 	local scanTypes = validateSlowScanParams(slowScanParams)
 	if scanTypes then
 		addToQueue(scanTypes)
-		currentIndex = getStartingIndex(scanTypes[1])
+		currentIndex = getStartingIndex(queue, scanTypes[1])
 		slowScanInProgress = true
 		performScan(currentIndex)
 	end
 end
 
 function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
+	if slowScanInProgress then
+		print(GetNumAuctionItems("list"))
+	end
 end
 
 MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Slowscan_AUCTION_ITEM_LIST_UPDATE")

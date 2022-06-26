@@ -90,7 +90,7 @@ function MM:ProcessSlashCommand(input)
   local lowerInput = input:lower()
   if lowerInput:match("^fullscan$") then
     MM:HandleFullScan()
-  elseif lowerInput:match("^slowscan$") then
+  elseif lowerInput:match("^slowscan") then
     MM:HandleSlowScan(input:match("^%w+%s+(.+)"))
   elseif lowerInput:match("^graph") then
     MM:HandleGraph(input:match("^%w+%s+(.+)"))
