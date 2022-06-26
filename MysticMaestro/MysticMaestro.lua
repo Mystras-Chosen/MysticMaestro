@@ -134,12 +134,7 @@ end
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")
 
 function MM:TooltipHandler(tooltip, ...)
-  local string = ""
-  local k, v
-  for k, v in pairs(tooltip) do
-    string = string .. k .. ": " .. v .. "\n"
-  end  
-  print(string)
+  print(tooltip:GetItem())
 end
 
 GameTooltip:HookScript("OnTooltipSetItem", function(...) MM:TooltipHandler(...) end)
