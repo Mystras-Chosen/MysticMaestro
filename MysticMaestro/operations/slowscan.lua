@@ -39,18 +39,29 @@ local function getAlphabetizedEnchantList(qualityName, enchantQuality)
 	return enchants
 end
 
-local function startSlowScan(scanType)
-	local enchantQuality = scanType == "rare" and 3 or (scanType == "epic" and 4 or 5)
-	local enchants = getAlphabetizedEnchantList(scanType, enchantQuality)
-	-- start scan from where we left off of it is mentioned in the database.  otherwise, start from beginning.
+local queue
+
+local function addToQueue(scanTypes)
+	queue = {}
+	for _, scanType in ipairs(scanTypes) do
+		local enchantQuality = scanType == "rare" and 3 or (scanType == "epic" and 4 or 5)
+		local enchants = getAlphabetizedEnchantList(scanType, enchantQuality)
+		for _, enchant in ipairs(enchants) do
+			table.insert(queue, enchant)
+		end
+	end
+end
+
+local function getStartingIndex(scanType)
 end
 
 function MM:HandleSlowScan(slowScanParams)
 	local scanTypes = validateSlowScanParams(slowScanParams)
 	if scanTypes then
-		for _, scanType in ipairs(scanTypes) do -- this can't be a loop. need to schedule multiple quality scans another way.
-			startSlowScan(scanType)
-		end
+		addToQueue(scanTypes)
+		-- get index that we should start at
+		local startingIndex = getStartingIndex(scanTypes[1])
+	-- kick off scan at index
 	end
 
 	--[[
