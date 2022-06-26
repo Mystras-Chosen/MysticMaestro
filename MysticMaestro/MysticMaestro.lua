@@ -134,7 +134,8 @@ end
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")
 
 function MM:TooltipHandler(tooltip, ...)
-  print(tooltip:GetItem())
+  -- print(tooltip:GetItem())
+  tooltip:AddDoubleLine("Mystic","Maestro")
 end
 
 GameTooltip:HookScript("OnTooltipSetItem", function(...) MM:TooltipHandler(...) end)
