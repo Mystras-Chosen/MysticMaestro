@@ -66,7 +66,7 @@ local function getStartingIndex(queue, scanType)
 	end
 end
 
-local currentIndex, slowScanInProgress
+local startingIndex, currentIndex, slowScanInProgress
 
 local function performScan(currentIndex)
 	QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
@@ -77,18 +77,34 @@ function MM:HandleSlowScan(slowScanParams)
 		return
 	end
 	local scanTypes = validateSlowScanParams(slowScanParams)
-	if scanTypes then
+	if scanTypes and not CanSendAuctionQuery() then
+		MM:Print("Scan not ready. Wait a moment and try again.")
+	elseif scanTypes then
 		addToQueue(scanTypes)
-		currentIndex = getStartingIndex(queue, scanTypes[1])
+		startingIndex = getStartingIndex(queue, scanTypes[1])
+		currentIndex = startingIndex
 		slowScanInProgress = true
 		performScan(currentIndex)
 	end
 end
 
+local scanPending
 function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 	if slowScanInProgress then
-		print(GetNumAuctionItems("list"))
+		MM:CollectAuctionData(time())
+		currentIndex = currentIndex + 1
+		scanPending = true
+		performScan(currentIndex)
 	end
 end
 
 MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Slowscan_AUCTION_ITEM_LIST_UPDATE")
+
+local function onUpdate()
+	if scanPending and CanSendAuctionQuery() then
+		scanPending = false
+		performScan(currentIndex)
+	end
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)

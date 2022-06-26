@@ -5,6 +5,8 @@ local MM = AceAddon:NewAddon("MysticMaestro", "AceConsole-3.0", "AceEvent-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 local Dialog = LibStub("AceConfigDialog-3.0")
 
+MM.OnUpdateFrame = CreateFrame("Frame")
+
 local myOptionsTable = {
   name = "Mystic Maestro",
   handler = MM,
