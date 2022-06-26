@@ -113,7 +113,7 @@ end
 
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
-  if db.realm.RE_AH_LISTINGS then
+  if self.db.realm.RE_AH_LISTINGS then
     self:InjectDatabase()
   end
 end
@@ -132,3 +132,14 @@ function MM:ProcessSlashCommand(input)
 end
 
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")
+
+function MM:TooltipHandler(tooltip, ...)
+  local string = ""
+  local k, v
+  for k, v in pairs(tooltip) do
+    string = string .. k .. ": " .. v .. "\n"
+  end  
+  print(string)
+end
+
+GameTooltip:HookScript("OnTooltipSetItem", function(...) MM:TooltipHandler(...) end)
