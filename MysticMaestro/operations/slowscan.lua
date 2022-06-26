@@ -68,6 +68,9 @@ end
 
 local currentIndex, slowScanInProgress
 
+local function performScan()
+end
+
 function MM:HandleSlowScan(slowScanParams)
 	if not self:ValidateAHIsOpen() then
 		return
@@ -81,6 +84,7 @@ function MM:HandleSlowScan(slowScanParams)
 	end
 end
 
--- set up event handler. the same event for fullscan will be used, so we should consider using non-default handler function names.
--- ex. function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE() end
--- MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Slowscan_AUCTION_ITEM_LIST_UPDATE")
+function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
+end
+
+MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Slowscan_AUCTION_ITEM_LIST_UPDATE")
