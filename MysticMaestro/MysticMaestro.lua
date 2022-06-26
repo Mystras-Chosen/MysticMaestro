@@ -82,7 +82,7 @@ local enchantMT = {
   end
 }
 
-local function initializeDB()
+function MM:InitializeDatabase()
   local listings = {}
   local stats = {}
   for _, enchantData in pairs(MYSTIC_ENCHANTS) do
@@ -93,10 +93,13 @@ local function initializeDB()
       stats[spellName] = {}
     end
   end
-  return listings, stats
+  self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS = listings, stats
+  setmetatable(self.db.realm.RE_AH_LISTINGS, enchantMT)
+  setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
 end
 
-local function injectDB(listings, statistics)
+function MM:InjectDatabase()
+  local listings, statistics = self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS
   for _, enchantData in pairs(MYSTIC_ENCHANTS) do
     local spellID = enchantData.spellID
     if spellID ~= 0 then
@@ -107,17 +110,16 @@ local function injectDB(listings, statistics)
       end
     end
   end
+  setmetatable(self.db.realm.RE_AH_LISTINGS, enchantMT)
+  setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
 end
+
 
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
-  if not self.db.realm.RE_AH_LISTINGS then
-    self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS = initializeDB()
-  else
-    injectDB(self.db.realm.RE_AH_LISTINGS, self.db.realm.RE_AH_STATISTICS)
+  if db.realm.RE_AH_LISTINGS then
+    self:InjectDatabase()
   end
-  setmetatable(self.db.realm.RE_AH_LISTINGS, enchantMT)
-  setmetatable(self.db.realm.RE_AH_STATISTICS, enchantMT)
 end
 
 function MM:ProcessSlashCommand(input)

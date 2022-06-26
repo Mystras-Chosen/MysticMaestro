@@ -16,6 +16,7 @@ function MM:HandleFullScan()
   local AuctionFrame = _G["AuctionFrame"]
   if AuctionFrame and AuctionFrame:IsShown() then
     if select(2, CanSendAuctionQuery()) then
+      self:InitializeDatabase()
       scanInProgress = true
       lastScanTime = time()
       QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
