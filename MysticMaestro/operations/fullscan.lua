@@ -39,20 +39,14 @@ function MM:AUCTION_ITEM_LIST_UPDATE()
     scanInProgress = false
     local listings = self.db.realm.RE_AH_LISTINGS
     local numBatchAuctions, totalAuctions = GetNumAuctionItems("list")
-    print(numBatchAuctions or "no batch auctions")
     if numBatchAuctions > 0 then
       for i=1, numBatchAuctions do
-        local name, _, _, _, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i);
-        if name:find("Insignia") and level == 15 and buyoutPrice then
+        local name, _, _, _, _, level, _, _, buyoutPrice = GetAuctionItemInfo("list", i);
+        if name:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0 then
           local enchantName = getAHItemEnchantName(i)
-          print("enchantName = " .. (enchantName or "nil"))
           if enchantName then
             listings[enchantName][lastScanTime] = listings[enchantName][lastScanTime] or {}
-            table.insert(listings[enchantName][lastScanTime], {
-              seller = seller,
-              timeLeft = GetAuctionItemTimeLeft("list", i),
-              buyoutPrice = buyoutPrice
-            })
+            table.insert(listings[enchantName][lastScanTime], buyoutPrice)
           end
         end
       end

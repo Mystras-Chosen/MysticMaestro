@@ -58,6 +58,20 @@ end
 
 local function sortData(data)
     -- TODO: need to sort the data by it's x value or the graph looks weird
+    -- selection sort
+    local temp, currentMin, currentMinIndex
+    for i=1, #data do
+        for j=i, #data do
+            if not currentMin or currentMin[1] > data[j][1] then
+                currentMin = data[j]
+                currentMinIndex = j
+            end
+        end
+        temp = data[i]
+        data[i] = currentMin
+        data[currentMinIndex] = temp
+        currentMin = nil
+    end
 end
 
 local function updateYAxis(data)
@@ -74,6 +88,7 @@ local function drawGraph(enchantListingData)
     g:ResetData()
     local data = createMysticEnchantData(enchantListingData)
     sortData(data)
+    for _, v in ipairs(data) do print(v[1], v[2]) end
     g:AddDataSeries(data, {1.0,0.0,0.0,0.8})
     updateYAxis(data)
 end
