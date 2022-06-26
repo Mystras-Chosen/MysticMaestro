@@ -42,7 +42,7 @@ function MM:AUCTION_ITEM_LIST_UPDATE()
     if numBatchAuctions > 0 then
       for i=1, numBatchAuctions do
         local name, _, _, _, _, level, _, _, buyoutPrice = GetAuctionItemInfo("list", i);
-        if name:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0 then
+        if name and name:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0 then
           local enchantName = getAHItemEnchantName(i)
           if enchantName then
             listings[enchantName][lastScanTime] = listings[enchantName][lastScanTime] or {}
