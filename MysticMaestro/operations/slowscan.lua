@@ -94,21 +94,30 @@ function MM:HandleSlowScan(slowScanParams)
 	end
 end
 
-local scanPending
+local scanPending, retryTime
 function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 	if slowScanInProgress then
-		self:CollectAuctionData(time(), queue[currentIndex])
-		self.db.realm["LAST_" .. currentScanType:upper() .. "_ENCHANT_SCANNED"] = queue[currentIndex]
-		currentIndex = currentIndex % #queue + 1
-		if not self[currentScanType:upper() .. "_ENCHANTS"][queue[currentIndex]] then
-			currentScanTypeIndex = currentScanTypeIndex + 1
-			currentScanType = scanTypes[currentScanTypeIndex]
-		end
-		if currentScanType and currentIndex ~= startingIndex then
-			scanPending = true
-		else
-			MM:Print("Slow scan finished")
-			slowScanInProgress = false
+		print(queue[currentIndex])
+		local scanSuccessful = self:CollectAuctionData(time(), queue[currentIndex])
+		if scanSuccessful or retryTime then
+			self.db.realm["LAST_" .. currentScanType:upper() .. "_ENCHANT_SCANNED"] = queue[currentIndex]
+			currentIndex = currentIndex % #queue + 1
+			if not self[currentScanType:upper() .. "_ENCHANTS"][queue[currentIndex]] then
+				currentScanTypeIndex = currentScanTypeIndex % #scanTypes + 1
+				currentScanType = scanTypes[currentScanTypeIndex]
+			end
+			if currentIndex ~= startingIndex then
+				print((currentIndex + #queue - startingIndex) % #queue, #queue)
+				print(currentIndex, startingIndex)
+				scanPending = true
+			else
+				MM:Print("Slow scan finished")
+				slowScanInProgress = false
+			end
+			retryTime = nil
+		elseif not retryTime then
+			-- wait a second and try again
+			retryTime = GetTime()
 		end
 	end
 end
@@ -118,6 +127,8 @@ MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Slowscan_AUCTION_ITEM_LIST_UPDATE"
 local function onUpdate()
 	if scanPending and CanSendAuctionQuery() then
 		scanPending = false
+		performScan(currentIndex)
+	elseif retryTime and GetTime() - retryTime > 1 then
 		performScan(currentIndex)
 	end
 end

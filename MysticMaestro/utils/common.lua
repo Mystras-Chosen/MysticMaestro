@@ -48,5 +48,7 @@ function MM:CollectAuctionData(scanTime, expectedEnchantName)
         end
       end
     end
+    return true
   end
+  return false
 end
