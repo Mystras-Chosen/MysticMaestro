@@ -30,7 +30,9 @@ local function getAlphabetizedEnchantList(qualityName, enchantQuality)
 		enchants = {}
 		for _, enchantData in pairs(MYSTIC_ENCHANTS) do
 			if enchantData.quality == enchantQuality then
-				table.insert(enchants, (GetSpellInfo(enchantData.spellID)))
+				local enchantName = GetSpellInfo(enchantData.spellID)
+				table.insert(enchants, enchantName)
+				enchants[enchantName] = true
 			end
 		end
 		table.sort(enchants)
@@ -72,16 +74,20 @@ local function performScan(currentIndex)
 	QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
 end
 
+local scanTypes, currentScanTypeIndex, currentScanType
+
 function MM:HandleSlowScan(slowScanParams)
 	if not self:ValidateAHIsOpen() then
 		return
 	end
-	local scanTypes = validateSlowScanParams(slowScanParams)
+	scanTypes = validateSlowScanParams(slowScanParams)
 	if scanTypes and not CanSendAuctionQuery() then
 		MM:Print("Scan not ready. Wait a moment and try again.")
 	elseif scanTypes then
 		addToQueue(scanTypes)
-		startingIndex = getStartingIndex(queue, scanTypes[1])
+		currentScanTypeIndex = 1
+		currentScanType = scanTypes[currentScanTypeIndex]
+		startingIndex = getStartingIndex(queue, currentScanType)
 		currentIndex = startingIndex
 		slowScanInProgress = true
 		performScan(currentIndex)
@@ -91,10 +97,19 @@ end
 local scanPending
 function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 	if slowScanInProgress then
-		MM:CollectAuctionData(time())
-		currentIndex = currentIndex + 1
-		scanPending = true
-		performScan(currentIndex)
+		self:CollectAuctionData(time(), queue[currentIndex])
+		self.db.realm["LAST_" .. currentScanType:upper() .. "_ENCHANT_SCANNED"] = queue[currentIndex]
+		currentIndex = currentIndex % #queue + 1
+		if not self[currentScanType:upper() .. "_ENCHANTS"][queue[currentIndex]] then
+			currentScanTypeIndex = currentScanTypeIndex + 1
+			currentScanType = scanTypes[currentScanTypeIndex]
+		end
+		if currentScanType and currentIndex ~= startingIndex then
+			scanPending = true
+		else
+			MM:Print("Slow scan finished")
+			slowScanInProgress = false
+		end
 	end
 end
 
