@@ -108,9 +108,9 @@ function MM:TooltipHandler(tooltip, ...)
     local enchantStats = self.db.realm.RE_AH_STATISTICS[enchantName]
     tooltip:AddDoubleLine("Mystic Maestro", enchantName)
     tooltip:AddDoubleLine("Number Listed", enchantStats.listed or 0.0)
-    tooltip:AddDoubleLine("Minimum BO", enchantStats.min or 0.0)
-    tooltip:AddDoubleLine("Median BO", enchantStats.median or 0.0)
-    tooltip:AddDoubleLine("Average BO", enchantStats.avg or 0.0)
+    tooltip:AddDoubleLine("Minimum BO", enchantStats.minVal or 0.0)
+    tooltip:AddDoubleLine("Median BO", enchantStats.medVal or 0.0)
+    tooltip:AddDoubleLine("Average BO", enchantStats.avgVal or 0.0)
   end
 end
 

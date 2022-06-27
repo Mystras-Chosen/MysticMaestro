@@ -35,9 +35,38 @@ function MM:CollectAuctionData(scanTime, expectedEnchantName)
         end
       end
     end
+    if enchantFound then MM:CalculateStats(enchantName,scanTime) end
     return enchantFound
   end
   return false
+end
+
+function MM:CalculateStats(nameRE,sTime)
+  local listings = self.db.realm.RE_AH_LISTINGS[nameRE]
+  local listing = listings[sTime]
+  local statistics = self.db.realm.RE_AH_STATISTICS[nameRE]
+  local stats = statistics[sTime]
+  local minVal, topVal, count, tally = 0, 0, 0, 0
+  for k, v in pairs(listing) do
+    if v > 0 and (v < minVal or minVal == 0) then
+      minVal = v
+    end
+    if v > topVal then
+      topVal = v
+    end
+    if v ~= nil then
+      tally = tally + v
+      count = count + 1
+    end
+  end
+  if count then
+    local midKey = floor(count/2)
+    stats.medVal = listing[midKey]
+    stats.avgVal = round(tally/count)
+    stats.minVal = minVal
+    stats.topVal = topVal
+    stats.listed = count
+  end
 end
 
 local qualityValue = {
