@@ -60,7 +60,7 @@ local function getStartingIndex(queue, scanType)
 		-- considered binary search, but the list is only partially sorted if more than one scan type involved
 		for i = 1, #queue do
 			if queue[i] == lastEnchantScanned then
-				return i + 1
+				return i % #queue + 1
 			end
 		end
 	else
@@ -94,12 +94,12 @@ function MM:HandleSlowScan(slowScanParams)
 	end
 end
 
-local scanPending, retryTime
+local scanPending, retryTime, retrying
 function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 	if slowScanInProgress then
-		print(queue[currentIndex])
 		local scanSuccessful = self:CollectAuctionData(time(), queue[currentIndex])
-		if scanSuccessful or retryTime then
+		if scanSuccessful or retrying then
+			self:Print(string.format("%s: %d/%d", queue[currentIndex], (currentIndex + #queue - startingIndex) % #queue + 1, #queue))
 			self.db.realm["LAST_" .. currentScanType:upper() .. "_ENCHANT_SCANNED"] = queue[currentIndex]
 			currentIndex = currentIndex % #queue + 1
 			if not self[currentScanType:upper() .. "_ENCHANTS"][queue[currentIndex]] then
@@ -107,16 +107,15 @@ function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 				currentScanType = scanTypes[currentScanTypeIndex]
 			end
 			if currentIndex ~= startingIndex then
-				print((currentIndex + #queue - startingIndex) % #queue, #queue)
-				print(currentIndex, startingIndex)
 				scanPending = true
 			else
-				MM:Print("Slow scan finished")
+				self:Print("Slow scan finished")
 				slowScanInProgress = false
 			end
 			retryTime = nil
+			retrying = nil
 		elseif not retryTime then
-			-- wait a second and try again
+			-- wait a moment and try again
 			retryTime = GetTime()
 		end
 	end
@@ -128,7 +127,8 @@ local function onUpdate()
 	if scanPending and CanSendAuctionQuery() then
 		scanPending = false
 		performScan(currentIndex)
-	elseif retryTime and GetTime() - retryTime > 1 then
+	elseif retryTime and GetTime() - retryTime > .1 then
+		retrying = true
 		performScan(currentIndex)
 	end
 end
