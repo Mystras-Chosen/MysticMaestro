@@ -39,3 +39,27 @@ function MM:CollectAuctionData(scanTime, expectedEnchantName)
   end
   return false
 end
+
+local qualityValue = {
+  uncommon = 2,
+  rare = 3,
+  epic = 4,
+  legendary = 5
+}
+
+function MM:GetAlphabetizedEnchantList(qualityName)
+	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
+	if not enchants then
+		enchants = {}
+		for _, enchantData in pairs(MYSTIC_ENCHANTS) do
+			if enchantData.quality == qualityValue[qualityName] then
+				local enchantName = GetSpellInfo(enchantData.spellID)
+				table.insert(enchants, enchantName)
+				enchants[enchantName] = true
+			end
+		end
+		table.sort(enchants)
+		MM[qualityName:upper() .. "_ENCHANTS"] = enchants
+	end
+	return enchants
+end
