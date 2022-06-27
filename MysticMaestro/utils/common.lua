@@ -12,8 +12,11 @@ end
 function MM:GetAHItemEnchantName(index)
   GameTooltip:SetOwner(_G["BrowseButton1Item"], "ANCHOR_NONE") -- not sure why this makes it work.  should look into it.
   GameTooltip:SetAuctionItem("list", index)
-  local result = GameTooltip:Match("Equip: (.- %- %w+) %- .+") or GameTooltip:Match("Equip: (.-) %- .+")
-  return result
+  return MM:MatchTooltipRE(GameTooltip)
+end
+
+function MM:MatchTooltipRE(TT)
+  return TT:Match("Equip: (.- %- %w+) %- .+") or TT:Match("Equip: (.-) %- .+")
 end
 
 function MM:CollectAuctionData(scanTime, expectedEnchantName)
