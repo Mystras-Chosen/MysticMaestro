@@ -114,8 +114,12 @@ local function clearRetryFlag()
 	end
 end
 
-local function printScanProgress()
-	MM:Print(string.format("%s: %d/%d", queue[currentIndex], (currentIndex + #queue - startingIndex) % #queue + 1, #queue))
+local function printScanProgress(scanSuccessful)
+	MM:Print(string.format("%s: %d/%d %s",
+	queue[currentIndex],
+	(currentIndex + #queue - startingIndex) % #queue + 1,
+	#queue,
+	scanSuccessful and "" or "None Listed"))
 end
 
 local function recordLastQualityEnchantScanned()
@@ -134,7 +138,7 @@ function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 		local scanSuccessful = self:CollectAuctionData(time(), queue[currentIndex])
 		if scanSuccessful or retrying then
 			clearRetryFlag()
-			printScanProgress()
+			printScanProgress(scanSuccessful)
 			recordLastQualityEnchantScanned()
 			currentIndex = currentIndex % #queue + 1
 
