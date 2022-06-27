@@ -103,8 +103,15 @@ end
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")
 
 function MM:TooltipHandler(tooltip, ...)
-  -- print(tooltip:GetItem())
-  tooltip:AddDoubleLine("Mystic", "Maestro")
+  local enchantName = MM:MatchTooltipRE(tooltip)
+  if enchantName then
+    local enchantStats = self.db.realm.RE_AH_STATISTICS[enchantName]
+    tooltip:AddDoubleLine("Mystic Maestro", enchantName)
+    tooltip:AddDoubleLine("Number Listed", enchantStats.listed or 0.0)
+    tooltip:AddDoubleLine("Minimum BO", enchantStats.min or 0.0)
+    tooltip:AddDoubleLine("Median BO", enchantStats.median or 0.0)
+    tooltip:AddDoubleLine("Average BO", enchantStats.avg or 0.0)
+  end
 end
 
 GameTooltip:HookScript(
