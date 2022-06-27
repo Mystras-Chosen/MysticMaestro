@@ -16,6 +16,16 @@ local function scanOptionsToString()
 	return result
 end
 
+local function getAllOperations()
+	local all = {}
+	for qualityName, active in pairs(validScanOptions) do
+		if active and qualityName ~= "all" then
+			table.insert(all, qualityName)
+		end
+	end
+	return all
+end
+
 local function parseScanQualities(slowScanParams)
 	local scanQualityNames = {}
 	for t in slowScanParams:gmatch("(%w+)") do
@@ -24,7 +34,7 @@ local function parseScanQualities(slowScanParams)
 			return false
 		end
 		if t:lower() == "all" then
-			return {"legendary", "epic", "rare", "uncommon"}
+			return getAllOperations()
 		else
 			table.insert(scanQualityNames, t)
 		end
@@ -34,7 +44,7 @@ end
 
 local function validateSlowScanParams(slowScanParams)
 	if not slowScanParams or slowScanParams == "" then
-		MM:Print(string.format("No scan option specified. Valid options: uncommon, rare, epic, legendary, all", scanOptionsToString()))
+		MM:Print(string.format("No scan option specified. Valid options: %s", scanOptionsToString()))
 		return false
 	end
 	return parseScanQualities(slowScanParams)
