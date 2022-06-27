@@ -83,9 +83,8 @@ local enchantMT = {
 
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
-  if self.db.realm.RE_AH_LISTINGS then
-    self:UpdateDatabase()
-  end
+  self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
+  self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
 end
 
 function MM:ProcessSlashCommand(input)

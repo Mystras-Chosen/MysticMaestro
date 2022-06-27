@@ -127,7 +127,7 @@ local function onUpdate()
 	if scanPending and CanSendAuctionQuery() then
 		scanPending = false
 		performScan(currentIndex)
-	elseif retryTime and GetTime() - retryTime > .1 then
+	elseif retryTime and GetTime() - retryTime > .2 then
 		retrying = true
 		performScan(currentIndex)
 	end

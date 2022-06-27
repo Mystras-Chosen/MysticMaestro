@@ -15,7 +15,6 @@ function MM:HandleFullScan()
     return
   end
   if select(2, CanSendAuctionQuery()) then
-    self:UpdateDatabase()
     scanInProgress = true
     lastScanTime = time()
     QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
