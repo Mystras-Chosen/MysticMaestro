@@ -26,9 +26,9 @@ local function getAllOperations()
 	return all
 end
 
-local function parseScanQualities(slowScanParams)
+local function parseScanQualities(scanParams)
 	local scanQualityNames = {}
-	for t in slowScanParams:gmatch("(%w+)") do
+	for t in scanParams:gmatch("(%w+)") do
 		if not validScanOptions[t:lower()] then
 			MM:Print(string.format('Scan option "%s" is invalid. Valid options: %s', t:lower(), scanOptionsToString()))
 			return false
@@ -42,12 +42,12 @@ local function parseScanQualities(slowScanParams)
 	return scanQualityNames
 end
 
-local function validateSlowScanParams(slowScanParams)
-	if not slowScanParams or slowScanParams == "" then
+local function validateScanParams(scanParams)
+	if not scanParams or scanParams == "" then
 		MM:Print(string.format("No scan option specified. Valid options: %s", scanOptionsToString()))
 		return false
 	end
-	return parseScanQualities(slowScanParams)
+	return parseScanQualities(scanParams)
 end
 
 local queue
@@ -77,7 +77,7 @@ end
 
 local scanQualityNames, currentScanQualityIndex, currentScanQuality
 local startingIndex, currentIndex
-local slowScanInProgress
+local scanInProgress
 
 local function initializeScan(scanQualityNames)
 	createQueue(scanQualityNames)
@@ -85,18 +85,18 @@ local function initializeScan(scanQualityNames)
 	currentScanQuality = scanQualityNames[currentScanQualityIndex]
 	startingIndex = getStartingIndex(queue, currentScanQuality)
 	currentIndex = startingIndex
-	slowScanInProgress = true
+	scanInProgress = true
 end
 
 local function performScan(currentIndex)
 	QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
 end
 
-function MM:HandleSlowScan(slowScanParams)
+function MM:HandleScan(scanParams)
 	if not self:ValidateAHIsOpen() then
 		return
 	end
-	scanQualityNames = validateSlowScanParams(slowScanParams)
+	scanQualityNames = validateScanParams(scanParams)
 	if scanQualityNames and not CanSendAuctionQuery() then
 		MM:Print("Scan not ready. Wait a moment and try again.")
 	elseif scanQualityNames then
@@ -133,8 +133,8 @@ local function updateScanDetails()
 	end
 end
 
-function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
-	if slowScanInProgress then
+function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
+	if scanInProgress then
 		local scanSuccessful = self:CollectAuctionData(time(), queue[currentIndex])
 		if scanSuccessful or retrying then
 			clearRetryFlag()
@@ -147,7 +147,7 @@ function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 				scanPending = true
 			else
 				self:Print("Slow scan finished")
-				slowScanInProgress = false
+				scanInProgress = false
 			end
 		elseif not retryTime then
 			retryTime = GetTime()
@@ -155,7 +155,7 @@ function MM:Slowscan_AUCTION_ITEM_LIST_UPDATE()
 	end
 end
 
-MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Slowscan_AUCTION_ITEM_LIST_UPDATE")
+MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Scan_AUCTION_ITEM_LIST_UPDATE")
 
 local function onUpdate()
 	if scanPending and CanSendAuctionQuery() then
