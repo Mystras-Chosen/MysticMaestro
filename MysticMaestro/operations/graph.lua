@@ -23,7 +23,6 @@ local function validateEnchant(enchantName)
 end
 
 local g = Graph:CreateGraphLine("MysticEnchantStatsGraph", UIParent, "CENTER", "CENTER", 90, 90, 500, 150)
-g:SetXAxis(0, 1)
 g:SetYLabels(true)
 g:SetGridColor({0.5, 0.5, 0.5, 0.5})
 g:SetAxisDrawing(true, true)
@@ -68,13 +67,24 @@ end
 
 local daysDisplayedInGraph = 10
 
+local function shiftGraphForGridLineAlignment(data, leftBound, rightBound)
+    local correction = rightBound % 86400
+    rightBound = rightBound - correction
+    leftBound = leftBound - correction
+    g:SetXAxis(leftBound, rightBound)
+    for _, point in ipairs(data) do
+      point[1] = point[1] - correction
+    end
+    return leftBound, rightBound
+end
+
 local function updateXAxisRange(data)
   local currentTime = time()
   local currentDateTime = date("%H %M %S", currentTime)
   local hours, minutes, seconds = currentDateTime:match("(%d+) (%d+) (%d+)")
   local rightBound = currentTime - hours * 3600 - minutes * 60 - seconds + 86400
   local leftBound = rightBound - daysDisplayedInGraph * 86400
-  g:SetXAxis(leftBound, rightBound)
+  return shiftGraphForGridLineAlignment(data, leftBound, rightBound)
 end
 
 local function updateYAxisRange(data)
@@ -95,6 +105,7 @@ local function drawGraph(enchantListingData)
   updateYAxisRange(data)
   
   g:SetGridSpacing(86400, 20)
+  g:CreateGridlines()
 end
 
 function MM:HandleGraph(enchantName)
