@@ -85,6 +85,9 @@ function MM:CalculateStats(nameRE,sTime)
   end
   if count then
     local midKey = floor(count/2)
+    if midKey < 1 then
+      midKey = 1
+    end
     local medVal = listing[midKey]
     local avgVal = floor(tally/count)
 
