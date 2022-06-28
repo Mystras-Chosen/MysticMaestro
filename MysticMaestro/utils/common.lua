@@ -69,7 +69,7 @@ end
 --   else return math.ceil(num-.5) end
 -- end
 
-function round(num, numDecimalPlaces)
+function MM:round(num, numDecimalPlaces)
   local mult = 10^(numDecimalPlaces or 0)
   return math.floor(num * mult + 0.5) / mult
 end
@@ -96,12 +96,12 @@ function MM:CalculateStats(nameRE,sTime)
   if count then
     local midKey
     if count > 1 then
-      midKey = round(count/2)
+      midKey = MM:round(count/2)
     else
       midKey = 1
     end
     local medVal = listing[midKey]
-    local avgVal = round(tally/count, -2)
+    local avgVal = MM:round(tally/count, -2)
 
     a.medVal ,b.medVal = medVal ,medVal
     a.avgVal ,b.avgVal = avgVal ,avgVal

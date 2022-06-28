@@ -1,19 +1,21 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+local function addLinesTooltip(tt, name)
+  local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
+  tt:AddDoubleLine("MM: "..name, (stats and stats.listed or "None" ) .. " Listed")
+  if stats ~= nil then
+    local ttMin = MM:round((stats.minVal or 0.0) / 10000)
+    local ttMed = MM:round((stats.medVal or 0.0) / 10000)
+    local ttAvg = MM:round((stats.avgVal or 0.0) / 10000)
+    local ttTop = MM:round((stats.topVal or 0.0) / 10000)
+    tt:AddDoubleLine("Min (Med/Avg/Top)", ttMin.."g ("..ttMed.."g/"..ttAvg.."g/"..ttTop.."g)")
+  end
+end
+
 function MM:TooltipHandler(tooltip, ...)
   local enchantName = MM:MatchTooltipRE(tooltip)
   if enchantName then
-    local enchantStats = self.db.realm.RE_AH_STATISTICS[enchantName]["current"]
-    tooltip:AddDoubleLine("Mystic Maestro", enchantName)
-    if enchantStats ~= nil then
-      local ttMin = (enchantStats.minVal or 0.0) / 10000
-      local ttMed = (enchantStats.medVal or 0.0) / 10000
-      local ttAvg = (enchantStats.avgVal or 0.0) / 10000
-      tooltip:AddDoubleLine("Number Listed", enchantStats.listed or 0.0)
-      tooltip:AddDoubleLine("Min/Med/Avg", "("..ttMin.."/"..ttMed.."/"..ttAvg..")")
-    else
-      tooltip:AddDoubleLine("Number Listed", "none found")
-    end
+    addLinesTooltip(tooltip, enchantName)
   end
 end
 
