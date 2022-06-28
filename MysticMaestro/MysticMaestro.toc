@@ -7,8 +7,8 @@
 ## LoadOnDemand: 0
 ## SavedVariables: MysticMaestroDB
 
-embeds.xml
+Libs\embeds.xml
 MysticMaestro.lua
 utils\common.lua
 utils\tooltip.lua
-operations.xml
+operations\operations.xml
