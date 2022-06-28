@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local function addLinesTooltip(tt, name)
   local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
@@ -12,16 +12,33 @@ local function addLinesTooltip(tt, name)
   end
 end
 
-function MM:TooltipHandler(tooltip, ...)
-  local enchantName = MM:MatchTooltipRE(tooltip)
-  if enchantName then
-    addLinesTooltip(tooltip, enchantName)
+function MM:TooltipHandler(tooltip, event)
+  local enchant
+  -- Handle Item Tooltips
+  if event == "OnTooltipSetItem" then
+    enchant = MM:MatchTooltipRE(tooltip)
+  -- Handle Spell Tooltips
+  elseif event == "OnTooltipSetSpell" then
+    enchant = select(3 , tooltip:GetSpell())
+    if MYSTIC_ENCHANTS[enchant] == nil then
+      return
+    end
+  end
+  if enchant then
+    addLinesTooltip(tooltip, enchant)
   end
 end
 
 GameTooltip:HookScript(
   "OnTooltipSetItem",
-  function(...)
-    MM:TooltipHandler(...)
+  function(self)
+    MM:TooltipHandler(self, "OnTooltipSetItem")
+  end
+)
+
+GameTooltip:HookScript(
+  "OnTooltipSetSpell",
+  function(self)
+    MM:TooltipHandler(self, "OnTooltipSetSpell")
   end
 )
