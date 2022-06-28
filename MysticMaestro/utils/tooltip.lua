@@ -1,14 +1,45 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local function addLinesTooltip(tt, name)
+local function cTxt(text, color)
+  colors = {
+    ["red"] = "|cffff0000",
+    ["green"] = "|cff00ff00",
+    ["blue"] = "|cff0000ff",
+    ["gold"] = "|cffffd700",
+    ["white"] = "|cffffffff",
+  }
+  return (colors[color] or "|cffffffff") .. text .. "|r"
+end
+
+local tGold = cTxt("g","gold")
+
+local function getNameAndID(input)
+  local Name, ID
+  if type(input) == "number" then
+    ID = input
+    Name = GetSpellInfo(input)
+  end
+  if ID == nil then
+    ID = MM.RE_LOOKUP[input]
+  end
+  return Name, ID
+end
+
+local function addLinesTooltip(tt, input)
+  local name, reID = getNameAndID(name)
   local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
-  tt:AddDoubleLine("MM: "..name, (stats and stats.listed or "None" ) .. " Listed")
+  local dataRE = MYSTIC_ENCHANTS[reID]
+  local mmText
+  if dataRE then
+    mmText = cTxt("MM: ", dataRE.known and "green" or "red")
+  end
+  tt:AddDoubleLine(mmText..name, (stats and stats.listed or "None" ) .. " Listed")
   if stats ~= nil then
     local ttMin = MM:round((stats.minVal or 0.0) / 10000)
     local ttMed = MM:round((stats.medVal or 0.0) / 10000)
     local ttAvg = MM:round((stats.avgVal or 0.0) / 10000)
     local ttTop = MM:round((stats.topVal or 0.0) / 10000)
-    tt:AddDoubleLine("Min (Med/Avg/Top)", ttMin.."g ("..ttMed.."g/"..ttAvg.."g/"..ttTop.."g)")
+    tt:AddDoubleLine("Min (Med/Avg/Top)", cTxt(ttMin)..tGold.." ("..cTxt(ttMed)..tGold.."/"..cTxt(ttAvg)..tGold.."/"..cTxt(ttTop)..tGold..")")
   end
 end
 
