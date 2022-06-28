@@ -22,35 +22,11 @@ local myOptionsTable = {
       get = function(info)
         return MM.enabled
       end
-    } --,
-    -- moreoptions={
-    --   name = "More Options",
-    --   type = "group",
-    --   args={
-    --     -- more options go here
-    --   }
-    -- }
+    } 
   }
 }
 
-function MM:OpenMenu()
-  if UnitAffectingCombat("player") then
-    if Dialog.OpenFrames["Mystic Maestro"] then
-      Dialog:Close("Mystic Maestro")
-    end
-    return
-  end
-
-  if Dialog.OpenFrames["Mystic Maestro"] then
-    Dialog:Close("Mystic Maestro")
-  else
-    Dialog:Open("Mystic Maestro")
-  end
-end
-
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro", myOptionsTable)
-
---MM:RegisterChatCommand("mm","OpenMenu")
 
 local defaults = {
   profile = {
@@ -62,10 +38,6 @@ local defaults = {
     }
   }
 }
-
-function MM:RefreshConfig()
-  -- would do some stuff here
-end
 
 local GetSpellInfo = GetSpellInfo
 
@@ -96,9 +68,22 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^graph") then
     MM:HandleGraph(input:match("^%w+%s+(.+)"))
   elseif input == "" then
-    -- open GUI
+    if UnitAffectingCombat("player") then
+      if Dialog.OpenFrames["Mystic Maestro"] then
+        Dialog:Close("Mystic Maestro")
+      end
+      return
+    end
+  
+    if Dialog.OpenFrames["Mystic Maestro"] then
+      Dialog:Close("Mystic Maestro")
+    else
+      Dialog:Open("Mystic Maestro")
+    end
   else
     MM:Print("Command not recognized")
+    MM:Print("Valid input is scan, fullscan, graph")
+    MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
   end
 end
 
