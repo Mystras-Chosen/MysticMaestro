@@ -14,22 +14,22 @@ end
 local tGold = cTxt("g","gold")
 
 local function getNameAndID(input)
-  local Name, ID
+  local nameRE, idRE
   if type(input) == "number" then
-    ID = input
-    Name = GetSpellInfo(input)
+    idRE = input
+    nameRE = GetSpellInfo(input)
+  else
+    idRE = MM.RE_LOOKUP[input]
+    nameRE = input
   end
-  if ID == nil then
-    ID = MM.RE_LOOKUP[input]
-  end
-  return Name, ID
+  return nameRE, idRE
 end
 
 local function addLinesTooltip(tt, input)
-  local name, reID = getNameAndID(name)
+  local name, reID = getNameAndID(input)
   local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
   local dataRE = MYSTIC_ENCHANTS[reID]
-  local mmText
+  local mmText = "MM: "
   if dataRE then
     mmText = cTxt("MM: ", dataRE.known and "green" or "red")
   end
