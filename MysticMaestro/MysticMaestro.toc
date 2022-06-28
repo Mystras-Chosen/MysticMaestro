@@ -10,4 +10,5 @@
 embeds.xml
 MysticMaestro.lua
 utils\common.lua
+utils\tooltip.lua
 operations.xml
