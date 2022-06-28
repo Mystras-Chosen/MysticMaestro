@@ -37,18 +37,29 @@ local function averageBuyout(buyouts)
   return sum / #buyouts
 end
 
+local function minimumBuyout(buyouts)
+  local minimum
+  for _, buyout in ipairs(buyouts) do
+    minimum = (not minimum or buyout < minimum) and buyout or minimum
+  end
+  return minimum
+end
+
 local function createMysticEnchantData(enchantListingData)
-  local data = {}
+  local averageData, minimumData = {}, {}
   for timeStamp, buyouts in pairs(enchantListingData) do
     if #buyouts ~= 0 then
-      local dataEntry = {
+      table.insert(averageData, {
         timeStamp,
         averageBuyout(buyouts) / 10000 -- convert copper to gold
-      }
-      table.insert(data, dataEntry)
+      })
+      table.insert(minimumData, {
+        timeStamp,
+        minimumBuyout(buyouts) / 10000 -- convert copper to gold
+      })
     end
   end
-  return data
+  return averageData, minimumData
 end
 
 local function sortData(data)
@@ -69,29 +80,30 @@ end
 
 local daysDisplayedInGraph = 10
 
-local function shiftGraphForGridLineAlignment(data, leftBound, rightBound)
+local function shiftGraphForGridLineAlignment(averageData, minimumData, leftBound, rightBound)
     local correction = rightBound % 86400
     rightBound = rightBound - correction
     leftBound = leftBound - correction
     g:SetXAxis(leftBound, rightBound)
-    for _, point in ipairs(data) do
-      point[1] = point[1] - correction
+    for i=1, #averageData do
+      averageData[i][1] = averageData[i][1] - correction
+      minimumData[i][1] = minimumData[i][1] - correction
     end
     return leftBound, rightBound
 end
 
-local function updateXAxisRange(data)
+local function updateXAxisRange(averageData, minimumData)
   local currentTime = time()
   local currentDateTime = date("%H %M %S", currentTime)
   local hours, minutes, seconds = currentDateTime:match("(%d+) (%d+) (%d+)")
   local rightBound = currentTime - hours * 3600 - minutes * 60 - seconds + 86400
   local leftBound = rightBound - daysDisplayedInGraph * 86400
-  return shiftGraphForGridLineAlignment(data, leftBound, rightBound)
+  return shiftGraphForGridLineAlignment(averageData, minimumData, leftBound, rightBound)
 end
 
-local function updateYAxisRange(data)
+local function updateYAxisRange(averageData)
   local maxBuyout = -1
-  for _, point in ipairs(data) do
+  for _, point in ipairs(averageData) do
     maxBuyout = point[2] > maxBuyout and point[2] or maxBuyout
   end
   g:SetYAxis(0, maxBuyout > 100 and maxBuyout or 100)
@@ -100,14 +112,14 @@ end
 local function drawGraph(enchantListingData)
   g:Show()
   g:ResetData()
-  local data = createMysticEnchantData(enchantListingData)
-  sortData(data)
-  g:AddDataSeries(data, {1.0, 0.0, 0.0, 0.8})
-  updateXAxisRange(data)
-  updateYAxisRange(data)
-  
+  local averageData, minimumData = createMysticEnchantData(enchantListingData)
+  sortData(averageData)
+  sortData(minimumData)
+  updateXAxisRange(averageData, minimumData)
+  updateYAxisRange(averageData)
+  g:AddDataSeries(averageData, {1.0, 0.0, 0.0, 0.8})
+  g:AddDataSeries(minimumData, {0.0, 1.0, 0.0, 0.8})
   g:SetGridSpacing(86400, 20)
-  g:CreateGridlines()
 end
 
 function MM:HandleGraph(enchantName)
