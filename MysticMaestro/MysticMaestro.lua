@@ -26,6 +26,12 @@ local myOptionsTable = {
   }
 }
 
+MM.RE_LOOKUP = {}
+for k, v in pairs(MYSTIC_ENCHANTS) do
+  local enchantName = GetSpellInfo(v.spellID)
+  MM.RE_LOOKUP[enchantName] = v.spellID
+end
+
 LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro", myOptionsTable)
 
 local defaults = {
