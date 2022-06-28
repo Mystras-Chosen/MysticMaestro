@@ -40,11 +40,13 @@ end
 local function createMysticEnchantData(enchantListingData)
   local data = {}
   for timeStamp, buyouts in pairs(enchantListingData) do
-    local dataEntry = {
-      timeStamp,
-      averageBuyout(buyouts) / 10000 -- convert copper to gold
-    }
-    table.insert(data, dataEntry)
+    if #buyouts ~= 0 then
+      local dataEntry = {
+        timeStamp,
+        averageBuyout(buyouts) / 10000 -- convert copper to gold
+      }
+      table.insert(data, dataEntry)
+    end
   end
   return data
 end
