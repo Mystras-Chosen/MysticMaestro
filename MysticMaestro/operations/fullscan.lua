@@ -26,7 +26,7 @@ end
 function MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
   if scanInProgress == true then
     scanInProgress = false
-    self:CollectAuctionData(lastScanTime)
+    self:CollectAllREData(lastScanTime)
   end
 end
 

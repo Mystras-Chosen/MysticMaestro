@@ -19,26 +19,49 @@ function MM:MatchTooltipRE(TT)
   return TT:Match("Equip: (.- %- %w+) %- .+") or TT:Match("Equip: (.-) %- .+")
 end
 
-function MM:CollectAuctionData(scanTime, expectedEnchantName)
+local function getAuctionInfo(i)
+  local itemName, _, _, _, _, level, _, _, buyoutPrice, _, seller = GetAuctionItemInfo("list", i)
+  return itemName, level, buyoutPrice, seller
+end
+
+local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
+  local trinketFound = itemName and itemName:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0
+  local enchantName = MM:GetAHItemEnchantName(i)
+  return trinketFound and enchantName, enchantName
+end
+
+function MM:CollectSpecificREData(scanTime, expectedEnchantName)
   local listings = self.db.realm.RE_AH_LISTINGS
-  local numBatchAuctions, totalAuctions = GetNumAuctionItems("list")
+  listings[expectedEnchantName][scanTime] = listings[expectedEnchantName][scanTime] or {}
+  local enchantFound = false
+  local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
-    local enchantFound = false
     for i = 1, numBatchAuctions do
-      local name, _, _, _, _, level, _, _, buyoutPrice = GetAuctionItemInfo("list", i)
-      if name and name:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0 then
-        local enchantName = self:GetAHItemEnchantName(i)
-        if enchantName and (not expectedEnchantName or enchantName == expectedEnchantName) then
-          enchantFound = true
-          listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
-          table.insert(listings[enchantName][scanTime], buyoutPrice)
-        end
+      local itemName, level, buyoutPrice = getAuctionInfo(i)
+      local enchantTrinketFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
+      if enchantTrinketFound and enchantName == expectedEnchantName then
+        enchantFound = true
+        table.insert(listings[enchantName][scanTime], buyoutPrice)
       end
     end
-    if enchantFound then MM:CalculateStats(enchantName,scanTime) end
-    return enchantFound
   end
-  return false
+  if enchantFound then MM:CalculateStats(expectedEnchantName,scanTime) end
+  return enchantFound
+end
+
+function MM:CollectAllREData(scanTime)
+  local listings = self.db.realm.RE_AH_LISTINGS
+  local numBatchAuctions = GetNumAuctionItems("list")
+  if numBatchAuctions > 0 then
+    for i = 1, numBatchAuctions do
+      local itemName, level, buyoutPrice = getAuctionInfo(i)
+      local enchantTrinketFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice)
+      if enchantTrinketFound then
+        listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
+        table.insert(listings[enchantName][scanTime], buyoutPrice)
+      end
+    end
+  end
 end
 
 function MM:CalculateStats(nameRE,sTime)

@@ -133,9 +133,15 @@ local function updateScanDetails()
 	end
 end
 
+local retryScanTime
+
+-- event triggers a lot, potentially on the same frame
 function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
-	if scanInProgress then
-		local scanSuccessful = self:CollectAuctionData(time(), queue[currentIndex])
+	-- if scan is active and not currently waiting for a retry
+	if scanInProgress and (not retryTime or retrying) then
+		-- trinkets with searched enchants are sometimes not found when they exist
+		local scanTime = retrying and retryScanTime or time()
+		local scanSuccessful = self:CollectSpecificREData(scanTime, queue[currentIndex])
 		if scanSuccessful or retrying then
 			clearRetryFlag()
 			printScanProgress(scanSuccessful)
@@ -150,6 +156,7 @@ function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
 				scanInProgress = false
 			end
 		elseif not retryTime then
+			retryScanTime = scanTime
 			retryTime = GetTime()
 		end
 	end
@@ -161,7 +168,7 @@ local function onUpdate()
 	if scanPending and CanSendAuctionQuery() then
 		scanPending = false
 		performScan(currentIndex)
-	elseif retryTime and GetTime() - retryTime > .2 then
+	elseif retryTime and GetTime() - retryTime > .4 then
 		retrying = true
 		performScan(currentIndex)
 	end

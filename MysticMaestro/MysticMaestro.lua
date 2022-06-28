@@ -95,6 +95,8 @@ function MM:ProcessSlashCommand(input)
     MM:HandleScan(input:match("^%w+%s+(.+)"))
   elseif lowerInput:match("^graph") then
     MM:HandleGraph(input:match("^%w+%s+(.+)"))
+  elseif input == "" then
+    -- open GUI
   else
     MM:Print("Command not recognized")
   end
