@@ -66,7 +66,10 @@ end
 
 function MM:CalculateStats(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
-  local stats = self.db.realm.RE_AH_STATISTICS[nameRE][sTime]
+  local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
+  stats[sTime] = stats[sTime] or {}
+  stats["current"] = stats["current"] or {}
+  local a, b = stats[sTime], stats["current"]
   local minVal, topVal, count, tally = 0, 0, 0, 0
   for k, v in pairs(listing) do
     if v > 0 and (v < minVal or minVal == 0) then
@@ -82,11 +85,14 @@ function MM:CalculateStats(nameRE,sTime)
   end
   if count then
     local midKey = floor(count/2)
-    stats.medVal = listing[midKey]
-    stats.avgVal = round(tally/count)
-    stats.minVal = minVal
-    stats.topVal = topVal
-    stats.listed = count
+    local medVal = listing[midKey]
+    local avgVal = floor(tally/count)
+
+    a.medVal ,b.medVal = medVal ,medVal
+    a.avgVal ,b.avgVal = avgVal ,avgVal
+    a.minVal ,b.minVal = minVal ,minVal
+    a.topVal ,b.topVal = topVal ,topVal
+    a.listed ,b.listed = count ,count
   end
 end
 
