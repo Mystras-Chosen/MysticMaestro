@@ -1,7 +1,7 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local validScanOptions = {
-	uncommon = true,
+	uncommon = false,
 	rare = true,
 	epic = true,
 	legendary = true,

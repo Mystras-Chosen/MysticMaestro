@@ -64,6 +64,16 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
+-- local function round(num) -- to zero
+--   if num >= 0 then return math.floor(num+.5) 
+--   else return math.ceil(num-.5) end
+-- end
+
+function round(num, numDecimalPlaces)
+  local mult = 10^(numDecimalPlaces or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
+
 function MM:CalculateStats(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
   local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
@@ -84,12 +94,14 @@ function MM:CalculateStats(nameRE,sTime)
     end
   end
   if count then
-    local midKey = floor(count/2)
-    if midKey < 1 then
+    local midKey
+    if count > 1 then
+      midKey = round(count/2)
+    else
       midKey = 1
     end
     local medVal = listing[midKey]
-    local avgVal = floor(tally/count)
+    local avgVal = round(tally/count, -2)
 
     a.medVal ,b.medVal = medVal ,medVal
     a.avgVal ,b.avgVal = avgVal ,avgVal

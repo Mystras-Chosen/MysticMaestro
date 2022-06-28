@@ -6,9 +6,9 @@ function MM:TooltipHandler(tooltip, ...)
     local enchantStats = self.db.realm.RE_AH_STATISTICS[enchantName]["current"]
     tooltip:AddDoubleLine("Mystic Maestro", enchantName)
     if enchantStats ~= nil then
-      local ttMin = tonumber(enchantStats.minVal or 0.0) / 10000
-      local ttMed = tonumber(enchantStats.medVal or 0.0) / 10000
-      local ttAvg = tonumber(enchantStats.avgVal or 0.0) / 10000
+      local ttMin = (enchantStats.minVal or 0.0) / 10000
+      local ttMed = (enchantStats.medVal or 0.0) / 10000
+      local ttAvg = (enchantStats.avgVal or 0.0) / 10000
       tooltip:AddDoubleLine("Number Listed", enchantStats.listed or 0.0)
       tooltip:AddDoubleLine("Min/Med/Avg", "("..ttMin.."/"..ttMed.."/"..ttAvg..")")
     else
