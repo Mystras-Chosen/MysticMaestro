@@ -152,7 +152,7 @@ function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
 				updateScanDetails()
 				scanPending = true
 			else
-				self:Print("Slow scan finished")
+				self:Print("Scan finished")
 				scanInProgress = false
 			end
 		elseif not retryTime then
