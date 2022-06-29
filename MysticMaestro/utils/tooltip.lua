@@ -7,6 +7,10 @@ local function cTxt(text, color)
     ["blue"] = "|cff0000ff",
     ["gold"] = "|cffffd700",
     ["white"] = "|cffffffff",
+    ["2"] = "|cff1eff00",
+    ["3"] = "|cff0070dd",
+    ["4"] = "|cffa335ee",
+    ["5"] = "|cffff8000"
   }
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
@@ -29,11 +33,12 @@ local function addLinesTooltip(tt, input)
   local name, reID = getNameAndID(input)
   local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
   local dataRE = MYSTIC_ENCHANTS[reID]
-  local mmText = "MM: "
   if dataRE then
-    mmText = cTxt("MM: ", dataRE.known and "green" or "red")
+    mmText = cTxt(dataRE.known and "Known" or "Unknown" , dataRE.known and "green" or "red")
+    name = cTxt(name, tostring(dataRE.quality))
   end
-  tt:AddDoubleLine(mmText..name, (stats and stats.listed or "None" ) .. " Listed")
+  tt:AddLine("")
+  tt:AddDoubleLine((mmText and mmText or "") .. ": " ..name, (stats and stats.listed or "None" ) .. " Listed")
   if stats ~= nil then
     local ttMin = MM:round((stats.minVal or 0.0) / 10000)
     local ttMed = MM:round((stats.medVal or 0.0) / 10000)
