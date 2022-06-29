@@ -7,6 +7,10 @@ local function cTxt(text, color)
     ["blue"] = "|cff0000ff",
     ["gold"] = "|cffffd700",
     ["white"] = "|cffffffff",
+    ["min"] = "|cff03fffb",
+    ["med"] = "|cff00c25e",
+    ["avg"] = "|cffc29e00",
+    ["top"] = "|cffff0000",
     ["2"] = "|cff1eff00",
     ["3"] = "|cff0070dd",
     ["4"] = "|cffa335ee",
@@ -44,7 +48,7 @@ local function addLinesTooltip(tt, input)
     local ttMed = MM:round((stats.medVal or 0.0) / 10000)
     local ttAvg = MM:round((stats.avgVal or 0.0) / 10000)
     local ttTop = MM:round((stats.topVal or 0.0) / 10000)
-    tt:AddDoubleLine("Min (Med/Avg/Top)", cTxt(ttMin)..tGold.." ("..cTxt(ttMed)..tGold.."/"..cTxt(ttAvg)..tGold.."/"..cTxt(ttTop)..tGold..")")
+    tt:AddDoubleLine(cTxt("Min","min").."("..cTxt("Med","med").."/"..cTxt("Avg","avg").."/"..cTxt("Top","top")..")", cTxt(ttMin,"min")..tGold.." ("..cTxt(ttMed,"med")..tGold.."/"..cTxt(ttAvg,"avg")..tGold.."/"..cTxt(ttTop,"top")..tGold..")")
   end
 end
 
