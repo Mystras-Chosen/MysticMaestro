@@ -1,7 +1,7 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local function cTxt(text, color)
-  colors = {
+  local colors = {
     ["red"] = "|cffff0000",
     ["green"] = "|cff00ff00",
     ["blue"] = "|cff0000ff",
