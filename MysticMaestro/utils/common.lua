@@ -21,7 +21,7 @@ end
 
 local function getAuctionInfo(i)
   local itemName, _, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
-  return itemName, level, buyoutPrice, seller, quality
+  return itemName, level, buyoutPrice, quality, seller
 end
 
 local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
@@ -37,7 +37,7 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantName)
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice = getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       local enchantTrinketFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
       if enchantTrinketFound and enchantName == expectedEnchantName then
         enchantFound = true
@@ -54,7 +54,7 @@ function MM:CollectAllREData(scanTime)
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice = getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       local enchantTrinketFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice)
       if enchantTrinketFound then
         listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
