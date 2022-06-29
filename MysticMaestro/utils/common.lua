@@ -64,11 +64,6 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
--- local function round(num) -- to zero
---   if num >= 0 then return math.floor(num+.5) 
---   else return math.ceil(num-.5) end
--- end
-
 function MM:round(num, numDecimalPlaces)
   local mult = 10^(numDecimalPlaces or 0)
   return math.floor(num * mult + 0.5) / mult
