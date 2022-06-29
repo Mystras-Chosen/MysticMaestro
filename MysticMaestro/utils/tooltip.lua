@@ -21,6 +21,7 @@ end
 
 local tGold = cTxt("g","gold")
 
+
 local function getNameAndID(input)
   local nameRE, idRE
   if type(input) == "number" then
@@ -37,12 +38,19 @@ local function addLinesTooltip(tt, input)
   local name, reID = getNameAndID(input)
   local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
   local dataRE = MYSTIC_ENCHANTS[reID]
+  local indicator
   if dataRE then
     mmText = cTxt(dataRE.known and "Known " or "Unknown " , dataRE.known and "green" or "red")
     name = cTxt(name, tostring(dataRE.quality))
+    if dataRE.known then
+      indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_green", 64, 64, 16, 16, 0, 1, 0, 1)
+    else
+      indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_red", 64, 64, 16, 16, 0, 1, 0, 1)
+    end
+    tt:AppendText("   "..indicator)
   end
-  tt:AddLine("")
-  tt:AddDoubleLine((mmText and mmText or "") .. "RE: " ..name, (stats and stats.listed or "None" ) .. " Listed")
+  tt:AddDoubleLine("Mystic Maestro:",(mmText and mmText or ""),1,1,0)
+  tt:AddDoubleLine("RE: " ..name, (stats and stats.listed or "None" ) .. " Listed")
   if stats ~= nil then
     local ttMin = MM:round((stats.minVal or 0.0) / 10000)
     local ttMed = MM:round((stats.medVal or 0.0) / 10000)
@@ -50,43 +58,8 @@ local function addLinesTooltip(tt, input)
     local ttTop = MM:round((stats.topVal or 0.0) / 10000)
     tt:AddDoubleLine(cTxt("Min","min").."("..cTxt("Med","med").."/"..cTxt("Avg","avg").."/"..cTxt("Top","top")..")", cTxt(ttMin,"min")..tGold.." ("..cTxt(ttMed,"med")..tGold.."/"..cTxt(ttAvg,"avg")..tGold.."/"..cTxt(ttTop,"top")..tGold..")")
   end
+  tt:AddLine(" ")
 end
-
--- function MM:TooltipHandler(tooltip, event)
---   local enchant
---   -- Handle Item Tooltips
---   if event == "OnTooltipSetItem" then
---     enchant = MM:MatchTooltipRE(tooltip)
---   -- Handle Spell Tooltips
---   elseif event == "OnTooltipSetSpell" then
---     enchant = select(3 , tooltip:GetSpell())
---     if MYSTIC_ENCHANTS[enchant] == nil then
---       local swapID = MM.RE_ID[enchant]
---       if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
---         enchant = swapID
---       else
---         return
---       end
---     end
---   end
---   if enchant then
---     addLinesTooltip(tooltip, enchant)
---   end
--- end
-
--- GameTooltip:HookScript(
---   "OnTooltipSetItem",
---   function(self)
---     MM:TooltipHandler(self, "OnTooltipSetItem")
---   end
--- )
-
--- GameTooltip:HookScript(
---   "OnTooltipSetSpell",
---   function(self)
---     MM:TooltipHandler(self, "OnTooltipSetSpell")
---   end
--- )
 
 function MM:TooltipHandlerItem(tooltip)
   local enchant
