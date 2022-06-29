@@ -21,7 +21,7 @@ local function getNameAndID(input)
   local nameRE, idRE
   if type(input) == "number" then
     idRE = input
-    nameRE = GetSpellInfo(input)
+    nameRE = GetSpellInfo(MYSTIC_ENCHANTS[input].spellID)
   else
     idRE = MM.RE_LOOKUP[input]
     nameRE = input
@@ -34,11 +34,11 @@ local function addLinesTooltip(tt, input)
   local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
   local dataRE = MYSTIC_ENCHANTS[reID]
   if dataRE then
-    mmText = cTxt(dataRE.known and "Known" or "Unknown" , dataRE.known and "green" or "red")
+    mmText = cTxt(dataRE.known and "Known " or "Unknown " , dataRE.known and "green" or "red")
     name = cTxt(name, tostring(dataRE.quality))
   end
   tt:AddLine("")
-  tt:AddDoubleLine((mmText and mmText or "") .. ": " ..name, (stats and stats.listed or "None" ) .. " Listed")
+  tt:AddDoubleLine((mmText and mmText or "") .. "RE: " ..name, (stats and stats.listed or "None" ) .. " Listed")
   if stats ~= nil then
     local ttMin = MM:round((stats.minVal or 0.0) / 10000)
     local ttMed = MM:round((stats.medVal or 0.0) / 10000)
@@ -57,7 +57,13 @@ function MM:TooltipHandler(tooltip, event)
   elseif event == "OnTooltipSetSpell" then
     enchant = select(3 , tooltip:GetSpell())
     if MYSTIC_ENCHANTS[enchant] == nil then
-      return
+      local nameRE = GetSpellInfo(enchant)
+      local swapID = MM.RE_LOOKUP[nameRE]
+      if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
+        enchant = swapID
+      else
+        return
+      end
     end
   end
   if enchant then
