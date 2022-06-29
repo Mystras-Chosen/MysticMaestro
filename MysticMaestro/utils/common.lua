@@ -20,8 +20,8 @@ function MM:MatchTooltipRE(TT)
 end
 
 local function getAuctionInfo(i)
-  local itemName, _, _, _, _, level, _, _, buyoutPrice, _, seller = GetAuctionItemInfo("list", i)
-  return itemName, level, buyoutPrice, seller
+  local itemName, _, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
+  return itemName, level, buyoutPrice, seller, quality
 end
 
 local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
