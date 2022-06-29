@@ -52,38 +52,62 @@ local function addLinesTooltip(tt, input)
   end
 end
 
-function MM:TooltipHandler(tooltip, event)
+-- function MM:TooltipHandler(tooltip, event)
+--   local enchant
+--   -- Handle Item Tooltips
+--   if event == "OnTooltipSetItem" then
+--     enchant = MM:MatchTooltipRE(tooltip)
+--   -- Handle Spell Tooltips
+--   elseif event == "OnTooltipSetSpell" then
+--     enchant = select(3 , tooltip:GetSpell())
+--     if MYSTIC_ENCHANTS[enchant] == nil then
+--       local swapID = MM.RE_ID[enchant]
+--       if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
+--         enchant = swapID
+--       else
+--         return
+--       end
+--     end
+--   end
+--   if enchant then
+--     addLinesTooltip(tooltip, enchant)
+--   end
+-- end
+
+-- GameTooltip:HookScript(
+--   "OnTooltipSetItem",
+--   function(self)
+--     MM:TooltipHandler(self, "OnTooltipSetItem")
+--   end
+-- )
+
+-- GameTooltip:HookScript(
+--   "OnTooltipSetSpell",
+--   function(self)
+--     MM:TooltipHandler(self, "OnTooltipSetSpell")
+--   end
+-- )
+
+function MM:TooltipHandlerItem(tooltip)
   local enchant
-  -- Handle Item Tooltips
-  if event == "OnTooltipSetItem" then
-    enchant = MM:MatchTooltipRE(tooltip)
-  -- Handle Spell Tooltips
-  elseif event == "OnTooltipSetSpell" then
-    enchant = select(3 , tooltip:GetSpell())
-    if MYSTIC_ENCHANTS[enchant] == nil then
-      local swapID = MM.RE_ID[enchant]
-      if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
-        enchant = swapID
-      else
-        return
-      end
+  enchant = MM:MatchTooltipRE(tooltip)
+  if enchant then
+    addLinesTooltip(tooltip, enchant)
+  end
+end
+
+function MM:TooltipHandlerSpell(tooltip)
+  local enchant
+  enchant = select(3 , tooltip:GetSpell())
+  if MYSTIC_ENCHANTS[enchant] == nil then
+    local swapID = MM.RE_ID[enchant]
+    if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
+      enchant = swapID
+    else
+      return
     end
   end
   if enchant then
     addLinesTooltip(tooltip, enchant)
   end
 end
-
-GameTooltip:HookScript(
-  "OnTooltipSetItem",
-  function(self)
-    MM:TooltipHandler(self, "OnTooltipSetItem")
-  end
-)
-
-GameTooltip:HookScript(
-  "OnTooltipSetSpell",
-  function(self)
-    MM:TooltipHandler(self, "OnTooltipSetSpell")
-  end
-)

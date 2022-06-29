@@ -1,7 +1,7 @@
 local addonName, addonTable = ...
 
 local AceAddon = LibStub("AceAddon-3.0")
-local MM = AceAddon:NewAddon("MysticMaestro", "AceConsole-3.0", "AceEvent-3.0")
+local MM = AceAddon:NewAddon("MysticMaestro", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 local Dialog = LibStub("AceConfigDialog-3.0")
 
@@ -57,6 +57,11 @@ function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
   self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
   self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
+end
+
+function MM:OnEnable()
+  MM:HookScript(GameTooltip,"OnTooltipSetItem","TooltipHandlerItem")
+  MM:HookScript(GameTooltip,"OnTooltipSetSpell","TooltipHandlerSpell")
 end
 
 function MM:ProcessSlashCommand(input)
