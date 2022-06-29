@@ -90,10 +90,14 @@ end
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")
 
 MM.RE_LOOKUP = {}
+MM.RE_ID = {}
 for k, v in pairs(MYSTIC_ENCHANTS) do
   if v.spellID ~= 0 then
     local enchantName = GetSpellInfo(v.spellID)
     MM.RE_LOOKUP[enchantName] = v.enchantID
+    if v.spellID ~= v.enchantID then
+      MM.RE_ID[v.spellID] = v.enchantID
+    end
   end
 end
 

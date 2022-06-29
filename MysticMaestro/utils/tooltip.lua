@@ -61,8 +61,7 @@ function MM:TooltipHandler(tooltip, event)
   elseif event == "OnTooltipSetSpell" then
     enchant = select(3 , tooltip:GetSpell())
     if MYSTIC_ENCHANTS[enchant] == nil then
-      local nameRE = GetSpellInfo(enchant)
-      local swapID = MM.RE_LOOKUP[nameRE]
+      local swapID = MM.RE_ID[enchant]
       if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
         enchant = swapID
       else
