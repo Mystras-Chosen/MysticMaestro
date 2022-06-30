@@ -70,6 +70,8 @@ function MM:ProcessSlashCommand(input)
     MM:HandleFullScan()
   elseif lowerInput:match("^scan") then
     MM:HandleScan(input:match("^%w+%s+(.+)"))
+  elseif lowerInput:match("^calc") then
+    MM:CalculateAllStats(input:match("^%w+%s+(.+)")=="all")
   elseif lowerInput:match("^graph") then
     MM:HandleGraph(input:match("^%w+%s+(.+)"))
   elseif input == "" then
