@@ -115,8 +115,9 @@ local function clearRetryFlag()
 end
 
 local function printScanProgress(scanSuccessful)
+	local nametxt = MM:cTxt(queue[currentIndex],tostring(MYSTIC_ENCHANTS[MM.RE_LOOKUP[queue[currentIndex]]].quality))
 	MM:Print(string.format("%s: %d/%d %s",
-	queue[currentIndex],
+	nametxt,
 	(currentIndex + #queue - startingIndex) % #queue + 1,
 	#queue,
 	scanSuccessful and "" or "None Listed"))
