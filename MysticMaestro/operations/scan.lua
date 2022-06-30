@@ -152,6 +152,8 @@ function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
 				updateScanDetails()
 				scanPending = true
 			else
+				self:Print("Calculations!")
+				self:CalculateAllStats()
 				self:Print("Scan finished")
 				scanInProgress = false
 			end
