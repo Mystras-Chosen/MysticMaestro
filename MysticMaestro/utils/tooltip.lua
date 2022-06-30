@@ -1,6 +1,6 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local function cTxt(text, color)
+function MM:cTxt(text, color)
   local colors = {
     ["red"] = "|cffff0000",
     ["green"] = "|cff00ff00",
@@ -19,8 +19,7 @@ local function cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
 
-local tGold = cTxt("g","gold")
-
+local tGold = MM:cTxt("g","gold")
 
 local function getNameAndID(input)
   local nameRE, idRE
@@ -40,8 +39,8 @@ local function addLinesTooltip(tt, input)
   local dataRE = MYSTIC_ENCHANTS[reID]
   local indicator
   if dataRE then
-    mmText = cTxt(dataRE.known and "Known " or "Unknown " , dataRE.known and "green" or "red")
-    name = cTxt(name, tostring(dataRE.quality))
+    mmText = MM:cTxt(dataRE.known and "Known " or "Unknown " , dataRE.known and "green" or "red")
+    name = MM:cTxt(name, tostring(dataRE.quality))
     if dataRE.known then
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_green", 64, 64, 16, 16, 0, 1, 0, 1)
     else
@@ -56,7 +55,7 @@ local function addLinesTooltip(tt, input)
     local ttMed = MM:round((stats.medVal or 0.0) / 10000)
     local ttAvg = MM:round((stats.avgVal or 0.0) / 10000)
     local ttTop = MM:round((stats.topVal or 0.0) / 10000)
-    tt:AddDoubleLine(cTxt("Min","min").."("..cTxt("Med","med").."/"..cTxt("Avg","avg").."/"..cTxt("Top","top")..")", cTxt(ttMin,"min")..tGold.." ("..cTxt(ttMed,"med")..tGold.."/"..cTxt(ttAvg,"avg")..tGold.."/"..cTxt(ttTop,"top")..tGold..")")
+    tt:AddDoubleLine(MM:cTxt("Min","min").."("..MM:cTxt("Med","med").."/"..MM:cTxt("Avg","avg").."/"..MM:cTxt("Top","top")..")", MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttAvg,"avg")..tGold.."/"..MM:cTxt(ttTop,"top")..tGold..")")
   end
   tt:AddLine(" ")
 end
