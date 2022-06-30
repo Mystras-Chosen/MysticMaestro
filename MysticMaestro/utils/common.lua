@@ -45,7 +45,6 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantName)
       end
     end
   end
-  if enchantFound then MM:CalculateStatsFromTime(expectedEnchantName,scanTime) end
   return enchantFound
 end
 
@@ -99,18 +98,20 @@ end
 function MM:CalculateStatsFromList(list)
   local minVal, topVal, count, tally = 0, 0, 0, 0
   for _, v in pairs(list) do
-    if v > 0 and (v < minVal or minVal == 0) then
-      minVal = v
-    end
-    if v > topVal then
-      topVal = v
-    end
-    if v ~= nil then
-      tally = tally + v
-      count = count + 1
+    if type(v) == "number" then
+      if v > 0 and (v < minVal or minVal == 0) then
+        minVal = v
+      end
+      if v > topVal then
+        topVal = v
+      end
+      if v ~= nil then
+        tally = tally + v
+        count = count + 1
+      end
     end
   end
-  if count then
+  if count > 0 then
     local midKey = count > 1 and MM:round(count/2) or 1
     local medVal = list[midKey]
     local avgVal = MM:round(tally/count)
