@@ -84,6 +84,18 @@ function MM:CalculateStatsFromTime(nameRE,sTime)
   end
 end
 
+function MM:CalculateAllStats(forceCalc)
+  local listDB = self.db.realm.RE_AH_LISTINGS
+  local namekey, listing, timekey, values
+  for namekey, listing in pairs(listDB) do
+    for timekey, values in pairs(listing) do
+      if forceCalc or self.db.realm.RE_AH_STATISTICS[namekey][timekey] == nil then
+        MM:CalculateStatsFromTime(namekey,timekey)
+      end
+    end
+  end
+end
+
 function MM:CalculateStatsFromList(list)
   local minVal, topVal, count, tally = 0, 0, 0, 0
   for _, v in pairs(list) do
