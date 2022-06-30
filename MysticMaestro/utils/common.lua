@@ -45,7 +45,7 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantName)
       end
     end
   end
-  if enchantFound then MM:CalculateStats(expectedEnchantName,scanTime) end
+  if enchantFound then MM:CalculateStatsFromTime(expectedEnchantName,scanTime) end
   return enchantFound
 end
 
@@ -69,14 +69,24 @@ function MM:round(num, numDecimalPlaces)
   return math.floor(num * mult + 0.5) / mult
 end
 
-function MM:CalculateStats(nameRE,sTime)
+function MM:CalculateStatsFromTime(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
-  local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
-  stats[sTime] = stats[sTime] or {}
-  stats["current"] = stats["current"] or {}
-  local a, b = stats[sTime], stats["current"]
+  local minVal, medVal, avgVal, topVal, count = MM:CalculateStatsFromList(listing)
+  if count then
+    local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
+    stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
+    local t = stats[sTime]
+    local c = stats["current"]
+    t.minVal,t.medVal,t.avgVal,t.topVal,t.listed = minVal,medVal,avgVal,topVal,count
+    if c.latest == nil or c.latest < sTime then
+      c.minVal,c.medVal,c.avgVal,c.topVal,c.listed,c.latest = minVal,medVal,avgVal,topVal,count,sTime
+    end
+  end
+end
+
+function MM:CalculateStatsFromList(list)
   local minVal, topVal, count, tally = 0, 0, 0, 0
-  for k, v in pairs(listing) do
+  for _, v in pairs(list) do
     if v > 0 and (v < minVal or minVal == 0) then
       minVal = v
     end
@@ -89,20 +99,10 @@ function MM:CalculateStats(nameRE,sTime)
     end
   end
   if count then
-    local midKey
-    if count > 1 then
-      midKey = MM:round(count/2)
-    else
-      midKey = 1
-    end
-    local medVal = listing[midKey]
-    local avgVal = MM:round(tally/count, -2)
-
-    a.medVal ,b.medVal = medVal ,medVal
-    a.avgVal ,b.avgVal = avgVal ,avgVal
-    a.minVal ,b.minVal = minVal ,minVal
-    a.topVal ,b.topVal = topVal ,topVal
-    a.listed ,b.listed = count ,count
+    local midKey = count > 1 and MM:round(count/2) or 1
+    local medVal = list[midKey]
+    local avgVal = MM:round(tally/count)
+    return minVal, medVal, avgVal, topVal, count
   end
 end
 
