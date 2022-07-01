@@ -77,6 +77,11 @@ function MM:CompareTime(a,b)
   local sDif = floor(mod(time, 60))
   return {year = yDif, day = dDif, hour = hDif, min = mDif, sec = sDif}
 end
+
+function MM:Dump(data,index)
+  return DevTools_Dump(data,index ~= nil and index or 0)
+end
+
 function MM:CalculateStatsFromTime(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
   local minVal, medVal, avgVal, topVal, count = MM:CalculateStatsFromList(listing)
