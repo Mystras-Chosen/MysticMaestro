@@ -16,7 +16,7 @@ local EdgelessFrameBackdrop = {
 local f
 do
   f = CreateFrame("Frame", "MysticMaestroFrameContainer", UIParent)
-  --f:Hide()
+  f:Hide()
   f:EnableMouse(true)
   f:SetMovable(true)
   f:SetResizable(false)
@@ -68,14 +68,26 @@ do
   
   local closebutton = CreateFrame("BUTTON", nil, close, "UIPanelCloseButton")
   closebutton:SetPoint("CENTER", close, "CENTER", 1, -1)
-  --closebutton:SetScript("OnClick", WeakAuras.HideOptions)
+  closebutton:SetScript("OnClick", function() MM:CloseStandaloneMenu() end)
 end
 
 local mmf = CreateFrame("Frame", "MysticMaestroFrame", UIParent)
+mmf:Hide()
 mmf:SetSize(609, 420)
+MM.MysticMaestroFrame = mmf
 
--- will be either set on MysticMaestroFrameContainer or in AH tab
-mmf:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 13, 9)
+function MM:OpenStandaloneMenu()
+  mmf:ClearAllPoints()
+  mmf:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 13, 9)
+  f:Show()
+  mmf:Show()
+end
+
+function MM:CloseStandaloneMenu()
+  f:Hide()
+  mmf:Hide()
+end
+
 
 local function createContainer(parent, anchorPoint, width, height, xOffset, yOffset)
   local container = CreateFrame("Frame", nil, parent)

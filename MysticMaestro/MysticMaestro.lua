@@ -75,7 +75,7 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^graph") then
     MM:HandleGraph(input:match("^%w+%s+(.+)"))
   elseif input == "" then
-    if UnitAffectingCombat("player") then
+    --[[if UnitAffectingCombat("player") then
       if Dialog.OpenFrames["Mystic Maestro"] then
         Dialog:Close("Mystic Maestro")
       end
@@ -86,6 +86,11 @@ function MM:ProcessSlashCommand(input)
       Dialog:Close("Mystic Maestro")
     else
       Dialog:Open("Mystic Maestro")
+    end]]
+    if MM.MysticMaestroFrame:IsShown() then
+      MM:CloseStandaloneMenu()
+    else
+      MM:OpenStandaloneMenu()
     end
   else
     MM:Print("Command not recognized")
