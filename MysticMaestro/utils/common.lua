@@ -68,6 +68,15 @@ function MM:round(num, numDecimalPlaces)
   return math.floor(num * mult + 0.5) / mult
 end
 
+function MM:CompareTime(a,b)
+  local time = difftime(a,b)
+  local yDif = floor(time / 31536000)
+  local dDif = floor(mod(time, 31536000) / 86400)
+  local hDif = floor(mod(time, 86400) / 3600)
+  local mDif = floor(mod(time, 3600) / 60)
+  local sDif = floor(mod(time, 60))
+  return {year = yDif, day = dDif, hour = hDif, min = mDif, sec = sDif}
+end
 function MM:CalculateStatsFromTime(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
   local minVal, medVal, avgVal, topVal, count = MM:CalculateStatsFromList(listing)
