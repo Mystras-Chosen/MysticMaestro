@@ -2,8 +2,8 @@ local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local AceGUI = LibStub("AceGUI-3.0")
 
+local queryResults = {}
 do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
-  local queryResults = {}
   LibStub("AceGUI-3.0-Search-EditBox"):Register("MysticMaestroREPredictor", {
 
     GetValues = function(self, text, _, max)
@@ -129,33 +129,53 @@ mmf:Hide()
 mmf:SetSize(609, 423)
 MM.MysticMaestroFrame = mmf
 
+local defaultSearchText = "|cFF777777Search|r"
+
+local sortDropdown, filterDropdown, searchBar
 local function setUpWidgets()
-  local sortDropdown = AceGUI:Create("Dropdown")
+  sortDropdown = AceGUI:Create("Dropdown")
   sortDropdown:SetPoint("TOPLEFT", mmf, "TOPLEFT", 8, 0)
   sortDropdown:SetWidth(160)
   sortDropdown:SetHeight(27)
+  sortDropdown.frame:Show()
 
-  local filterDropdown = AceGUI:Create("Dropdown")
+  filterDropdown = AceGUI:Create("Dropdown")
   filterDropdown:SetPoint("TOPRIGHT", mmf, "TOPRIGHT", -6, 0)
   filterDropdown:SetWidth(160)
   filterDropdown:SetHeight(27)
+  filterDropdown.frame:Show()
 
-  local searchBar = AceGUI:Create("EditBoxMysticMaestroREPredictor")
+  searchBar = AceGUI:Create("EditBoxMysticMaestroREPredictor")
   searchBar:SetPoint("TOP", mmf, "TOP")
   searchBar:SetWidth(200)
+  searchBar:SetText(defaultSearchText)
   searchBar.editBox:ClearFocus()
   searchBar:SetCallback("OnEnterPressed", function(self, event, enchantID) print("In callback") self.editBox:ClearFocus() end)
+  searchBar.editBox:HookScript("OnEditFocusGained", function(self) if searchBar.lastText == defaultSearchText then searchBar:SetText("") print("focus gained") end end)
+  searchBar.editBox:HookScript("OnEditFocusLost", function(self) if searchBar.lastText == "" then searchBar:SetText(defaultSearchText) print("focus lost") end end)
+  searchBar.frame:Show()
+
+  print(sortDropdown, filterDropdown, searchBar)
 end
 
 function MM:OpenStandaloneMenu()
-  setUpWidgets()
   mmf:ClearAllPoints()
   mmf:SetPoint("BOTTOMLEFT", standaloneMenu, "BOTTOMLEFT", 13, 9)
+  setUpWidgets()
   standaloneMenu:Show()
   mmf:Show()
 end
 
+local function tearDownWidgets()
+  sortDropdown:Release()
+  filterDropdown:Release()
+  searchBar:Release()
+end
+
+
 function MM:CloseStandaloneMenu()
+  tearDownWidgets()
+  wipe(queryResults)
   standaloneMenu:Hide()
   mmf:Hide()
 end
