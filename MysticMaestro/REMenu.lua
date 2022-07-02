@@ -1,5 +1,57 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+local AceGUI = LibStub("AceGUI-3.0")
+
+do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
+  local queryResults = {}
+  LibStub("AceGUI-3.0-Search-EditBox"):Register("MysticMaestroREPredictor", {
+
+    GetValues = function(self, text, _, max)
+      wipe(queryResults)
+      text = text:lower()
+      for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
+        if enchantID ~= 0 then
+          local enchantName = GetSpellInfo(enchantData.spellID)
+          if enchantName and enchantName:lower():find(text) then
+            queryResults[enchantData.spellID] = enchantName
+            max = max - 1
+            if max == 0 then return queryResults end
+          end
+        end
+      end
+      return queryResults
+    end,
+
+    GetValue = function(self, text, key)
+      if key then
+        return key, queryResults[key]
+      else
+        return next(queryResults)
+      end
+    end,
+
+    GetHyperlink = function(self, key)
+      return "spell:" .. key
+    end
+  })
+
+  -- IDK what this does, but it is required
+  local myOptions = {
+    type = "group",
+    args = {
+      editbox1 = {
+        type = "input", 
+        dialogControl = "EditBoxMysticMaestroREPredictor",
+        name = "Type a spell name", 
+        get = function ()   end,
+        set = function (_, v)  print(v) end
+      }
+    }
+  }
+
+  LibStub("AceConfig-3.0"):RegisterOptionsTable("MysticMaestro", myOptions)
+end
+
 local FrameBackdrop = {
 	bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
 	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -13,21 +65,22 @@ local EdgelessFrameBackdrop = {
 	insets = { left = 8, right = 8, top = 8, bottom = 8 }
 }
 
-local f
-do
-  f = CreateFrame("Frame", "MysticMaestroFrameContainer", UIParent)
-  f:Hide()
-  f:EnableMouse(true)
-  f:SetMovable(true)
-  f:SetResizable(false)
-  f:SetFrameStrata("FULLSCREEN_DIALOG")
-  f:SetBackdrop(FrameBackdrop)
-  f:SetBackdropColor(0, 0, 0, 1)
-  f:SetToplevel(true)
-  f:SetPoint("CENTER")
-  f:SetSize(635, 455)
-  f:SetClampedToScreen(true)
+local standaloneMenu
+do -- Create standalone menu to hold MysticMaestroFrame
+  standaloneMenu = CreateFrame("Frame", "MysticMaestroFrameContainer", UIParent)
+  standaloneMenu:Hide()
+  standaloneMenu:EnableMouse(true)
+  standaloneMenu:SetMovable(true)
+  standaloneMenu:SetResizable(false)
+  standaloneMenu:SetFrameStrata("BACKGROUND")
+  standaloneMenu:SetBackdrop(FrameBackdrop)
+  standaloneMenu:SetBackdropColor(0, 0, 0, 1)
+  standaloneMenu:SetToplevel(true)
+  standaloneMenu:SetPoint("CENTER")
+  standaloneMenu:SetSize(635, 455)
+  standaloneMenu:SetClampedToScreen(true)
 
+  -- function from WeakAuras Options for pretty border
   local function CreateDecoration(frame, width)
     local deco = CreateFrame("Frame", nil, frame)
     deco:SetSize(width, 40)
@@ -52,7 +105,7 @@ do
     return deco
   end
   
-  local title = CreateDecoration(f, 130)
+  local title = CreateDecoration(standaloneMenu, 130)
   title:SetPoint("TOP", 0, 24)
   title:EnableMouse(true)
   title:SetScript("OnMouseDown", function(f) f:GetParent():StartMoving() end)
@@ -63,7 +116,7 @@ do
   titletext:SetText("Mystic Maestro")
   
   
-  local close = CreateDecoration(f, 17)
+  local close = CreateDecoration(standaloneMenu, 17)
   close:SetPoint("TOPRIGHT", -30, 12)
   
   local closebutton = CreateFrame("BUTTON", nil, close, "UIPanelCloseButton")
@@ -73,26 +126,44 @@ end
 
 local mmf = CreateFrame("Frame", "MysticMaestroFrame", UIParent)
 mmf:Hide()
-mmf:SetSize(609, 420)
+mmf:SetSize(609, 423)
 MM.MysticMaestroFrame = mmf
 
+local function setUpWidgets()
+  local sortDropdown = AceGUI:Create("Dropdown")
+  sortDropdown:SetPoint("TOPLEFT", mmf, "TOPLEFT", 8, 0)
+  sortDropdown:SetWidth(160)
+  sortDropdown:SetHeight(27)
+
+  local filterDropdown = AceGUI:Create("Dropdown")
+  filterDropdown:SetPoint("TOPRIGHT", mmf, "TOPRIGHT", -6, 0)
+  filterDropdown:SetWidth(160)
+  filterDropdown:SetHeight(27)
+
+  local searchBar = AceGUI:Create("EditBoxMysticMaestroREPredictor")
+  searchBar:SetPoint("TOP", mmf, "TOP")
+  searchBar:SetWidth(200)
+  searchBar.editBox:ClearFocus()
+  searchBar:SetCallback("OnEnterPressed", function(self, event, enchantID) print("In callback") self.editBox:ClearFocus() end)
+end
+
 function MM:OpenStandaloneMenu()
+  setUpWidgets()
   mmf:ClearAllPoints()
-  mmf:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 13, 9)
-  f:Show()
+  mmf:SetPoint("BOTTOMLEFT", standaloneMenu, "BOTTOMLEFT", 13, 9)
+  standaloneMenu:Show()
   mmf:Show()
 end
 
 function MM:CloseStandaloneMenu()
-  f:Hide()
+  standaloneMenu:Hide()
   mmf:Hide()
 end
-
 
 local function createContainer(parent, anchorPoint, width, height, xOffset, yOffset)
   local container = CreateFrame("Frame", nil, parent)
   container:SetResizable(false)
-  container:SetFrameStrata("FULLSCREEN_DIALOG")
+  container:SetFrameStrata("BACKGROUND")
   container:SetBackdrop(EdgelessFrameBackdrop)
   container:SetBackdropColor(0, 0, 0, 1)
   container:SetToplevel(true)
@@ -105,5 +176,4 @@ local enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 396)
 local statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 192)
 local graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
 
--- created just to show the height of the invisible frame that holds everything
-local dummyContainer = createContainer(mmf, "TOPRIGHT", 100, 32, 0, 0)
+
