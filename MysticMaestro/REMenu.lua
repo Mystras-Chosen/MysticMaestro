@@ -24,9 +24,14 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
 
     GetValue = function(self, text, key)
       if key then
+        MM:ShowGraph(queryResults[key])
         return key, queryResults[key]
       else
-        return next(queryResults)
+        local key, enchantName = next(queryResults)
+        if key then
+          MM:ShowGraph(enchantName)
+          return key, enchantName
+        end
       end
     end,
 
@@ -194,4 +199,10 @@ local enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 396)
 local statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 192)
 local graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
 
-
+function MM:ShowGraph(enchantName)
+  local graph = self:HandleGraph(enchantName)
+  if graph then
+    graph:ClearAllPoints()
+    graph:SetPoint("BOTTOMLEFT", graphContainer, "BOTTOMLEFT", 9, 9)
+  end
+end

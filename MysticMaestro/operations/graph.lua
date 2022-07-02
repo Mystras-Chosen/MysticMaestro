@@ -22,7 +22,7 @@ local function validateEnchant(enchantName)
   return true
 end
 
-local g = Graph:CreateGraphLine("MysticEnchantStatsGraph", UIParent, "CENTER", "CENTER", 90, 90, 500, 150)
+local g = Graph:CreateGraphLine("MysticEnchantStatsGraph", UIParent, "CENTER", "CENTER", 90, 90, 396, 181)
 g:SetYLabels(true)
 g:SetGridColor({0.5, 0.5, 0.5, 0.5})
 g:SetAxisDrawing(true, true)
@@ -129,5 +129,6 @@ function MM:HandleGraph(enchantName)
   end
   if validateEnchant(enchantName) then
     drawGraph(MM.db.realm.RE_AH_LISTINGS[enchantName])
+    return g
   end
 end
