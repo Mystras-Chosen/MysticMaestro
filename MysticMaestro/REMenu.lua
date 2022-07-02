@@ -150,12 +150,10 @@ local function setUpWidgets()
   searchBar:SetWidth(200)
   searchBar:SetText(defaultSearchText)
   searchBar.editBox:ClearFocus()
-  searchBar:SetCallback("OnEnterPressed", function(self, event, enchantID) print("In callback") self.editBox:ClearFocus() end)
-  searchBar.editBox:HookScript("OnEditFocusGained", function(self) if searchBar.lastText == defaultSearchText then searchBar:SetText("") print("focus gained") end end)
-  searchBar.editBox:HookScript("OnEditFocusLost", function(self) if searchBar.lastText == "" then searchBar:SetText(defaultSearchText) print("focus lost") end end)
+  searchBar:SetCallback("OnEnterPressed", function(self, event, enchantID) self.editBox:ClearFocus() end)
+  searchBar.editBox:HookScript("OnEditFocusGained", function(self) if searchBar.lastText == defaultSearchText then searchBar:SetText("") end end)
+  searchBar.editBox:HookScript("OnEditFocusLost", function(self) if searchBar.lastText == "" then searchBar:SetText(defaultSearchText) end end)
   searchBar.frame:Show()
-
-  print(sortDropdown, filterDropdown, searchBar)
 end
 
 function MM:OpenStandaloneMenu()
