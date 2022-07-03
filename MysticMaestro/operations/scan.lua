@@ -1,6 +1,10 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local validScanOptions = {
+  [1] = "legendary",
+  [2] = "epic",
+  [3] = "rare",
+  [4] = "uncommon",
 	uncommon = true,
 	rare = true,
 	epic = true,
@@ -10,17 +14,20 @@ local validScanOptions = {
 
 local function scanOptionsToString()
 	local result = ""
-	for option in pairs(validScanOptions) do
-		result = result .. " "
+	for k, option in ipairs(validScanOptions) do
+		result = result .. " " .. option
 	end
 	return result
 end
 
 local function getAllOperations()
 	local all = {}
-	for qualityName, active in pairs(validScanOptions) do
-		if active and qualityName ~= "all" then
-			table.insert(all, qualityName)
+	local i = 0
+	for k, qualityName in ipairs(validScanOptions) do
+		if validScanOptions[qualityName] then
+			i = i + 1
+			-- table.insert(all, qualityName)
+			all[i] = qualityName
 		end
 	end
 	return all
@@ -55,6 +62,7 @@ local queue
 local function createQueue(scanQualityNames)
 	queue = {}
 	for _, qualityName in ipairs(scanQualityNames) do
+		print(qualityName)
 		local enchants = MM:GetAlphabetizedEnchantList(qualityName)
 		for _, enchant in ipairs(enchants) do
 			table.insert(queue, enchant)
