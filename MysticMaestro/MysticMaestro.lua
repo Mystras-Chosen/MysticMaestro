@@ -22,7 +22,7 @@ local myOptionsTable = {
       get = function(info)
         return MM.enabled
       end
-    } 
+    }
   }
 }
 
@@ -60,8 +60,8 @@ function MM:OnInitialize()
 end
 
 function MM:OnEnable()
-  MM:HookScript(GameTooltip,"OnTooltipSetItem","TooltipHandlerItem")
-  MM:HookScript(GameTooltip,"OnTooltipSetSpell","TooltipHandlerSpell")
+  MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
+  MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
 end
 
 function MM:ProcessSlashCommand(input)
@@ -71,9 +71,7 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^scan") then
     MM:HandleScan(input:match("^%w+%s+(.+)"))
   elseif lowerInput:match("^calc") then
-    MM:CalculateAllStats(input:match("^%w+%s+(.+)")=="all")
-  elseif lowerInput:match("^graph") then
-    MM:HandleGraph(input:match("^%w+%s+(.+)"))
+    MM:CalculateAllStats(input:match("^%w+%s+(.+)") == "all")
   elseif input == "" then
     --[[if UnitAffectingCombat("player") then
       if Dialog.OpenFrames["Mystic Maestro"] then
@@ -112,4 +110,3 @@ for k, v in pairs(MYSTIC_ENCHANTS) do
     end
   end
 end
-

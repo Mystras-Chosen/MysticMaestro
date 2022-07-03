@@ -4,30 +4,12 @@ local Graph = LibStub("LibGraph-2.0")
 local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
 
 local function validateEnchant(enchantName)
-  local enchantFound = false
-  for _, enchantData in pairs(MYSTIC_ENCHANTS) do
-    if enchantData.spellName == enchantName then
-      enchantFound = true
-      break
-    end
-  end
-  if not enchantFound then
-    MM:Print('"' .. enchantName .. '" is not a valid mystic enchant')
-    return false
-  end
   if not next(MM.db.realm.RE_AH_LISTINGS[enchantName]) then
     MM:Print('No listings found for mystic enchant "' .. enchantName .. '"')
     return false
   end
   return true
 end
-
-local g = Graph:CreateGraphLine("MysticEnchantStatsGraph", UIParent, "CENTER", "CENTER", 90, 90, 396, 181)
-g:SetYLabels(true)
-g:SetGridColor({0.5, 0.5, 0.5, 0.5})
-g:SetAxisDrawing(true, true)
-g:SetAxisColor({1, 1, 1, 1})
-g:Hide()
 
 local function averageBuyout(buyouts)
   local sum = 0
@@ -45,18 +27,25 @@ local function minimumBuyout(buyouts)
   return minimum
 end
 
-local function createMysticEnchantData(enchantListingData)
+local function createMysticEnchantData(enchantListingData, correction)
   local averageData, minimumData = {}, {}
   for timeStamp, buyouts in pairs(enchantListingData) do
+    timeStamp = timeStamp - correction
     if #buyouts ~= 0 then
-      table.insert(averageData, {
-        timeStamp,
-        averageBuyout(buyouts) / 10000 -- convert copper to gold
-      })
-      table.insert(minimumData, {
-        timeStamp,
-        minimumBuyout(buyouts) / 10000 -- convert copper to gold
-      })
+      table.insert(
+        averageData,
+        {
+          timeStamp,
+          averageBuyout(buyouts) / 10000 -- convert copper to gold
+        }
+      )
+      table.insert(
+        minimumData,
+        {
+          timeStamp,
+          minimumBuyout(buyouts) / 10000 -- convert copper to gold
+        }
+      )
     end
   end
   return averageData, minimumData
@@ -80,25 +69,23 @@ end
 
 local daysDisplayedInGraph = 10
 
-local function shiftGraphForGridLineAlignment(averageData, minimumData, leftBound, rightBound)
-    local correction = rightBound % 86400
-    rightBound = rightBound - correction
-    leftBound = leftBound - correction
-    g:SetXAxis(leftBound, rightBound)
-    for i=1, #averageData do
-      averageData[i][1] = averageData[i][1] - correction
-      minimumData[i][1] = minimumData[i][1] - correction
-    end
-    return leftBound, rightBound
-end
+local secondsPerDay, secondsPerHour, secondsPerMinute = 86400, 3600, 60
 
-local function updateXAxisRange(averageData, minimumData)
+local function getDayStartTime()
   local currentTime = time()
   local currentDateTime = date("%H %M %S", currentTime)
   local hours, minutes, seconds = currentDateTime:match("(%d+) (%d+) (%d+)")
-  local rightBound = currentTime - hours * 3600 - minutes * 60 - seconds + 86400
-  local leftBound = rightBound - daysDisplayedInGraph * 86400
-  return shiftGraphForGridLineAlignment(averageData, minimumData, leftBound, rightBound)
+  return currentTime - hours * secondsPerHour - minutes * secondsPerMinute - seconds
+end
+
+local function calcGridLineCorrection()
+  return getDayStartTime() % secondsPerDay
+end
+
+local function updateXAxisRange(correction)
+  local rightBound = getDayStartTime() + secondsPerDay - correction
+  local leftBound = rightBound - daysDisplayedInGraph * secondsPerDay
+  g:SetXAxis(leftBound, rightBound)
 end
 
 local function updateYAxisRange(averageData)
@@ -109,26 +96,51 @@ local function updateYAxisRange(averageData)
   g:SetYAxis(0, maxBuyout > 100 and maxBuyout or 100)
 end
 
-local function drawGraph(enchantListingData)
-  g:Show()
+local maxYAxisGridLines = 8
+
+local function getYSpacing(averageData)
+  local largest = -1
+  for _, buyoutPrice in ipairs(averageData) do
+    largest = largest < buyoutPrice and buyoutPrice or largest
+  end
+  local unprocessedYSpacing = largest / maxYAxisGridLines
+  return unprocessedYSpacing % 10 ~= 0 and unprocessedYSpacing + 10 - unprocessedYSpacing % 10 or unprocessedYSpacing
+end
+
+local g
+function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY, width, height)
+  if g then
+    return
+  end
+  g = Graph:CreateGraphLine(name, parent, relative, relativeTo, offsetX, offsetY, width, height)
+  g:SetYLabels(true)
+  g:SetGridColor({0.5, 0.5, 0.5, 0.5})
+  g:SetAxisDrawing(true, true)
+  g:SetAxisColor({1, 1, 1, 1})
+  g:SetGridSpacing(secondsPerDay, 20)
+  updateXAxisRange(calcGridLineCorrection())
+  g:SetYAxis(0, 100)
+end
+
+function MM:PopulateGraph(enchantName)
+  local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantName]
+  if not validateEnchantName(enchantName) then
+    return
+  end
   g:ResetData()
-  local averageData, minimumData = createMysticEnchantData(enchantListingData)
+  local correction = calcGridLineCorrection()
+  local averageData, minimumData = createMysticEnchantData(enchantListingData, correction)
   sortData(averageData)
   sortData(minimumData)
-  updateXAxisRange(averageData, minimumData)
+  updateXAxisRange(correction)
   updateYAxisRange(averageData)
   g:AddDataSeries(averageData, {1.0, 0.0, 0.0, 0.8})
   g:AddDataSeries(minimumData, {0.0, 1.0, 0.0, 0.8})
-  g:SetGridSpacing(86400, 20)
+  g:SetGridSpacing(secondsPerDay, getYSpacing(averageData))
 end
 
-function MM:HandleGraph(enchantName)
-  if enchantName:lower() == "hide" then
-    g:Hide()
-    return
-  end
-  if validateEnchant(enchantName) then
-    drawGraph(MM.db.realm.RE_AH_LISTINGS[enchantName])
-    return g
-  end
+function MM:ClearGraph()
+  g:ResetData()
+  g:SetGridSpacing(secondsPerDay, 20)
+  updateYAxisRange(averageData)
 end
