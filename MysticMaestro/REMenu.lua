@@ -14,7 +14,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           if enchantID ~= 0 then
             local enchantName = GetSpellInfo(enchantData.spellID)
             if enchantName and enchantName:lower():find(text) then
-              queryResults[enchantData.spellID] = enchantName
+              queryResults[enchantData.spellID] = MM:cTxt(enchantName, tostring(enchantData.quality))
               max = max - 1
               if max == 0 then
                 return queryResults
@@ -27,10 +27,11 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
       GetValue = function(self, text, key)
         if key then
           MM:PopulateGraph(queryResults[key])
-          return key, queryResults[key]
+          return key, queryResults[key]:match("|c........(.-)|r")
         else
           local key, enchantName = next(queryResults)
           if key then
+            enchantName = enchantName:match("|c........(.-)|r")
             MM:PopulateGraph(enchantName)
             return key, enchantName
           end
