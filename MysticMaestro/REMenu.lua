@@ -185,7 +185,7 @@ local function initializeMenu()
   enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 396)
   statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 192)
   graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
-  MM:InitializeGraph("MysticEnchantStatsGraph", UIParent, "CENTER", "CENTER", 90, 90, 396, 181)
+  MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 181)
   menuInitialized = true
 end
 
@@ -246,7 +246,7 @@ function MM:OpenStandaloneMenu()
   mmf:ClearAllPoints()
   mmf:SetPoint("BOTTOMLEFT", standaloneMenuContainer, "BOTTOMLEFT", 13, 9)
   setUpWidgets()
-
+  self:ClearGraph()
   standaloneMenuContainer:Show()
   mmf:Show()
 end

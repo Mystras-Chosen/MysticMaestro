@@ -85,7 +85,7 @@ function MM:ProcessSlashCommand(input)
     else
       Dialog:Open("Mystic Maestro")
     end]]
-    if MM.MysticMaestroFrame:IsShown() then
+    if MM.MysticMaestroFrame and MM.MysticMaestroFrame:IsShown() then
       MM:CloseStandaloneMenu()
     else
       MM:OpenStandaloneMenu()

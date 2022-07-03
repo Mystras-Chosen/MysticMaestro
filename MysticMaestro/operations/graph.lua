@@ -3,14 +3,6 @@ local Graph = LibStub("LibGraph-2.0")
 
 local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
 
-local function validateEnchant(enchantName)
-  if not next(MM.db.realm.RE_AH_LISTINGS[enchantName]) then
-    MM:Print('No listings found for mystic enchant "' .. enchantName .. '"')
-    return false
-  end
-  return true
-end
-
 local function averageBuyout(buyouts)
   local sum = 0
   for _, buyout in ipairs(buyouts) do
@@ -82,37 +74,46 @@ local function calcGridLineCorrection()
   return getDayStartTime() % secondsPerDay
 end
 
+local g
+
 local function updateXAxisRange(correction)
   local rightBound = getDayStartTime() + secondsPerDay - correction
   local leftBound = rightBound - daysDisplayedInGraph * secondsPerDay
   g:SetXAxis(leftBound, rightBound)
 end
 
-local function updateYAxisRange(averageData)
+local function getMaxBuyout(averageData)
   local maxBuyout = -1
   for _, point in ipairs(averageData) do
     maxBuyout = point[2] > maxBuyout and point[2] or maxBuyout
   end
-  g:SetYAxis(0, maxBuyout > 100 and maxBuyout or 100)
+  return maxBuyout
+end
+
+local function updateYAxisRange(averageData)
+  if not averageData then
+    g:SetYAxis(0, 100)
+  else
+    local maxBuyout = getMaxBuyout(averageData)
+    g:SetYAxis(0, maxBuyout > 100 and maxBuyout or 100)
+  end
 end
 
 local maxYAxisGridLines = 8
 
 local function getYSpacing(averageData)
-  local largest = -1
-  for _, buyoutPrice in ipairs(averageData) do
-    largest = largest < buyoutPrice and buyoutPrice or largest
-  end
-  local unprocessedYSpacing = largest / maxYAxisGridLines
+  local maxBuyout = getMaxBuyout(averageData)
+  if maxBuyout < 100 then return 20 end
+  local unprocessedYSpacing = maxBuyout / maxYAxisGridLines
   return unprocessedYSpacing % 10 ~= 0 and unprocessedYSpacing + 10 - unprocessedYSpacing % 10 or unprocessedYSpacing
 end
 
-local g
 function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY, width, height)
   if g then
     return
   end
   g = Graph:CreateGraphLine(name, parent, relative, relativeTo, offsetX, offsetY, width, height)
+  g:SetFrameStrata("LOW")
   g:SetYLabels(true)
   g:SetGridColor({0.5, 0.5, 0.5, 0.5})
   g:SetAxisDrawing(true, true)
@@ -124,7 +125,8 @@ end
 
 function MM:PopulateGraph(enchantName)
   local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantName]
-  if not validateEnchantName(enchantName) then
+  if not next(enchantListingData) then
+    self:Print('No listings found for mystic enchant "' .. enchantName .. '"')
     return
   end
   g:ResetData()
@@ -142,5 +144,5 @@ end
 function MM:ClearGraph()
   g:ResetData()
   g:SetGridSpacing(secondsPerDay, 20)
-  updateYAxisRange(averageData)
+  updateYAxisRange()
 end
