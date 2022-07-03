@@ -25,11 +25,13 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         return queryResults
       end,
       GetValue = function(self, text, key)
+        local key, enchantName
         if key then
-          MM:PopulateGraph(queryResults[key])
-          return key, queryResults[key]:match("|c........(.-)|r")
+          enchantName = queryResults[key]
+          MM:PopulateGraph(enchantName)
+          return key, enchantName
         else
-          local key, enchantName = next(queryResults)
+          key, enchantName = next(queryResults)
           if key then
             enchantName = enchantName:match("|c........(.-)|r")
             MM:PopulateGraph(enchantName)
