@@ -127,6 +127,7 @@ function MM:CalculateStatsFromList(list)
   end
   if count > 0 then
     local midKey = count > 1 and MM:round(count/2) or 1
+    sort(list)
     local medVal = list[midKey]
     local avgVal = MM:round(tally/count)
     return minVal, medVal, avgVal, topVal, count
