@@ -181,6 +181,40 @@ local function createContainer(parent, anchorPoint, width, height, xOffset, yOff
   return container
 end
 
+local function getOrbCurrency()
+  return GetItemCount(98570)
+end
+
+local function getExtractCurrency()
+  return GetItemCount(98463)
+end
+
+local currencyContainer
+local enchantContainerHeight = 12
+local function updateCurrencyDisplay()
+  currencyContainer.FontString:SetFormattedText("%s: |cFFFFFFFF%d|r %s %s: |cFFFFFFFF%d|r %s",
+  "Orbs", getOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1),
+  "Extracts", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\Inv_Custom_MysticExtract", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1))
+  MM:Print("In currency update function")
+end
+
+local function createCurrencyContainer(parent)
+  local width = parent:GetWidth()
+  currencyContainer = CreateFrame("Frame", nil, parent)
+  currencyContainer:SetSize(width, enchantContainerHeight)
+  currencyContainer:SetFrameStrata("LOW")
+  currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 8)
+  currencyContainer.FontString = currencyContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+  currencyContainer.FontString:SetPoint("CENTER", currencyContainer, "CENTER")
+  currencyContainer.FontString:SetSize(currencyContainer:GetWidth(), currencyContainer:GetHeight())
+  updateCurrencyDisplay()
+end
+
+local function setUpCurrencyDisplay(enchantContainer)
+  createCurrencyContainer(enchantContainer)
+  MM:RegisterBucketEvent({"BAG_UPDATE"}, .2, updateCurrencyDisplay)
+end
+
 local menuInitialized
 local enchantContainer, statsContainer, graphContainer
 local function initializeMenu()
@@ -189,6 +223,7 @@ local function initializeMenu()
   statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 192)
   graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
   MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 181)
+  setUpCurrencyDisplay(enchantContainer)
   menuInitialized = true
 end
 
