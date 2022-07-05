@@ -195,7 +195,6 @@ local function updateCurrencyDisplay()
   currencyContainer.FontString:SetFormattedText("%s: |cFFFFFFFF%d|r %s %s: |cFFFFFFFF%d|r %s",
   "Orbs", getOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1),
   "Extracts", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\Inv_Custom_MysticExtract", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1))
-  MM:Print("In currency update function")
 end
 
 local function createCurrencyContainer(parent)
