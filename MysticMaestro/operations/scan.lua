@@ -97,7 +97,9 @@ local function initializeScan(scanQualityNames)
 end
 
 local function performScan(currentIndex)
-	QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
+	-- "name", minLevel, maxLevel, invTypeIndex, classIndex, subClassIndex, page, isUsable, minQuality, getAll
+	-- QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
+	QueryAuctionItems(queue[currentIndex])
 end
 
 function MM:HandleScan(scanParams)
