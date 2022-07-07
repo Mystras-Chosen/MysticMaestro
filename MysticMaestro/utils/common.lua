@@ -26,22 +26,41 @@ end
 
 local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
   local trinketFound = itemName and itemName:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0
-  local enchantName = MM:GetAHItemEnchantName(i)
+  local enchantName
+  if trinketFound then
+    enchantName = MM:GetAHItemEnchantName(i)
+  end
   return trinketFound and enchantName, enchantName
+end
+
+local function isEnchantItemFound(quality, buyoutPrice, i)
+  local properItem = buyoutPrice and buyoutPrice > 0 and quality and quality >= 3
+  local enchantName
+  if properItem then
+    enchantName = MM:GetAHItemEnchantName(i)
+  end
+  return properItem and enchantName, enchantName
 end
 
 function MM:CollectSpecificREData(scanTime, expectedEnchantName)
   local listings = self.db.realm.RE_AH_LISTINGS
   listings[expectedEnchantName][scanTime] = listings[expectedEnchantName][scanTime] or {}
+  listings[expectedEnchantName][scanTime]["other"] = listings[expectedEnchantName][scanTime]["other"] or {}
   local enchantFound = false
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local enchantTrinketFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
-      if enchantTrinketFound and enchantName == expectedEnchantName then
+      local itemFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
+      if itemFound and enchantName == expectedEnchantName then
         enchantFound = true
         table.insert(listings[enchantName][scanTime], buyoutPrice)
+      else
+        itemFound, enchantName = isEnchantItemFound(quality,buyoutPrice,i)
+        if itemFound and enchantName == expectedEnchantName then
+          enchantFound = true
+          table.insert(listings[enchantName][scanTime]["other"], buyoutPrice)
+        end  
       end
     end
   end
