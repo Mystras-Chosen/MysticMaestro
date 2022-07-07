@@ -14,7 +14,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           if enchantID ~= 0 then
             local enchantName = GetSpellInfo(enchantData.spellID)
             if enchantName and enchantName:lower():find(text) then
-              queryResults[enchantData.spellID] = MM:cTxt(enchantName, tostring(enchantData.quality))
+              queryResults[enchantID] = MM:cTxt(enchantName, tostring(enchantData.quality))
               max = max - 1
               if max == 0 then
                 return queryResults
@@ -25,22 +25,24 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         return queryResults
       end,
       GetValue = function(self, text, key)
-        local key, enchantName
+        local enchantName
         if key then
-          enchantName = queryResults[key]
-          MM:PopulateGraph(enchantName)
+          enchantName = queryResults[key]:match("|c........(.-)|r")
+          MM:PopulateGraph(GetSpellInfo(MYSTIC_ENCHANTS[key].spellID))
+          MM:ShowEnchantButtons({key}, 1)
           return key, enchantName
         else
           key, enchantName = next(queryResults)
           if key then
             enchantName = enchantName:match("|c........(.-)|r")
-            MM:PopulateGraph(enchantName)
+            MM:PopulateGraph(GetSpellInfo(MYSTIC_ENCHANTS[key].spellID))
+            MM:ShowEnchantButtons({key}, 1)
             return key, enchantName
           end
         end
       end,
       GetHyperlink = function(self, key)
-        return "spell:" .. key
+        return "spell:" .. MYSTIC_ENCHANTS[key].spellID
       end
     }
   )
@@ -223,6 +225,7 @@ local function createEnchantButton(enchantContainer, i)
   enchantButton:SetFrameStrata("LOW")
   enchantButton:SetScript("OnEnter", function(self) self.H:Show() end)
   enchantButton:SetScript("OnLeave", function(self) self.H:Hide() end)
+  enchantButton:Hide()
 
   enchantButton.BG = enchantButton:CreateTexture(nil, "LOW")
   enchantButton.BG:SetTexture(AwAddonsTexturePath .. "CAOverhaul\\SpellSlot")
@@ -350,9 +353,7 @@ local function tearDownWidgets()
   sortDropdown:Release()
   filterDropdown:Release()
   searchBar:Release()
-  for _, button in ipairs(enchantButtons) do
-    button:Hide()
-  end
+  MM:HideEnchantButtons()
 end
 
 function MM:CloseStandaloneMenu()
@@ -360,4 +361,42 @@ function MM:CloseStandaloneMenu()
   wipe(queryResults)
   standaloneMenuContainer:Hide()
   mmf:Hide()
+end
+
+function MM:HideEnchantButtons()
+  for _, button in ipairs(enchantButtons) do
+    button:Hide()
+  end
+end
+
+local enchantQualityBorders = {
+  [2] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_green",
+  [3] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Blue",
+  [4] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Purple",
+  [5] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Leg"
+}
+
+local function updateEnchantButton(enchantID, buttonNumber)
+  local button = enchantButtons[buttonNumber]
+  local enchantData = MYSTIC_ENCHANTS[enchantID]
+  button.IconBorder:SetTexture(enchantQualityBorders[enchantData.quality])
+  local enchantName, _, enchantIcon = GetSpellInfo(enchantData.spellID)
+  button.Icon:SetTexture(enchantIcon)
+  button.REText:SetText(MM:cTxt(enchantName, tostring(enchantData.quality)))
+  button:Show()
+end
+
+-- resultSet is a list of mystic enchant enchant IDs
+-- page 1 is the first page
+function MM:ShowEnchantButtons(resultSet, page)
+  if #resultSet - 8 * (page - 1) <= 0 then
+    self:Print("No mystic enchants on page")
+    return
+  end
+  local index = 8 * (page - 1) + 1
+  local startIndex = index
+  while index - startIndex < 8 and index <= #resultSet do
+    updateEnchantButton(resultSet[index], index - startIndex + 1)
+    index = index + 1
+  end
 end
