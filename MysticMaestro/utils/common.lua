@@ -73,10 +73,17 @@ function MM:CollectAllREData(scanTime)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local enchantTrinketFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice)
-      if enchantTrinketFound then
+      local itemFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice)
+      if itemFound then
         listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
         table.insert(listings[enchantName][scanTime], buyoutPrice)
+      else
+        itemFound, enchantName = isEnchantItemFound(quality,buyoutPrice,i)
+        if itemFound then
+          listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
+          listings[enchantName][scanTime]["other"] = listings[enchantName][scanTime]["other"] or {}
+          table.insert(listings[enchantName][scanTime]["other"], buyoutPrice)
+        end
       end
     end
   end
