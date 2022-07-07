@@ -262,7 +262,7 @@ local function createEnchantButton(enchantContainer, i)
   return enchantButton
 end
 
-local enchantButtons = {} -- line 4083 of CharacterAdvancement.lua
+local enchantButtons = {}
 local function createEnchantButtons(enchantContainer)
   for i=1, 8 do
     table.insert(enchantButtons, createEnchantButton(enchantContainer, i))
@@ -378,21 +378,41 @@ local enchantQualityBorders = {
   [5] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Leg"
 }
 
+local enchantQualityColors = {
+  [2] = { 0.117647,        1,        0 },
+  [3] = {        0, 0.439216, 0.866667 },
+  [4] = { 0.639216, 0.207843, 0.933333 },
+  [5] = {        1, 0.501961,        0 },
+}
+
 local function updateEnchantButton(enchantID, buttonNumber)
   local button = enchantButtons[buttonNumber]
   local enchantData = MYSTIC_ENCHANTS[enchantID]
   button.IconBorder:SetTexture(enchantQualityBorders[enchantData.quality])
   local enchantName, _, enchantIcon = GetSpellInfo(enchantData.spellID)
   button.Icon:SetTexture(enchantIcon)
-  button.REText:SetText(MM:cTxt(enchantName, tostring(enchantData.quality)))
+  button.REText:SetText(enchantName)
   
   button:SetScript("OnEnter", function(self)
     self.H:Show()
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
     GameTooltip:SetHyperlink("|Hspell:"..enchantData.spellID.."|h[test]|h")
-    --CAO_TooltipAddData(self)
     GameTooltip:Show()
   end)
+  local r, g, b = unpack(enchantQualityColors[enchantData.quality])
+  local mult = .6
+  if IsReforgeEnchantmentKnown(enchantID) then
+    button.IconBorder:SetVertexColor(1, 1, 1)
+    button.Icon:SetVertexColor(1, 1, 1)
+    button.BG:SetVertexColor(1, 1, 1)
+    button.REText:SetTextColor(r, g, b)
+  else
+    AHTEST = button
+    button.IconBorder:SetVertexColor(mult, mult, mult)
+    button.Icon:SetVertexColor(mult, mult, mult)
+    button.BG:SetVertexColor(mult, mult, mult)
+    button.REText:SetTextColor(mult*r, mult*g, mult*b)
+  end
   button:Show()
 end
 
