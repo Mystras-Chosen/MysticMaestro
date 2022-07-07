@@ -104,6 +104,30 @@ function MM:CompareTime(a,b)
   return {year = yDif, day = dDif, hour = hDif, min = mDif, sec = sDif}
 end
 
+function MM:DaysAgoString(stamp,incSeconds)
+  local string = ""
+  local dif = MM:CompareTime(time(),stamp)
+  if dif.year > 0 then
+    string = string .. dif.year .. "y"
+  end
+  if dif.day > 0 then
+    string = string .. dif.day .. "d"
+  end
+  if dif.hour > 0 then
+    string = string .. dif.hour .. "h"
+  end
+  if dif.min > 0 then
+    string = string .. dif.min .. "m"
+  end
+  if incSeconds and dif.sec > 0 then
+    string = string .. dif.sec .. "s"
+  end
+  if string ~= "" then
+    string = string .. " ago."
+  end
+  return string
+end
+
 function MM:Dump(data,index)
   return DevTools_Dump(data,index ~= nil and index or 0)
 end
