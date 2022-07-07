@@ -110,15 +110,24 @@ end
 
 function MM:CalculateStatsFromTime(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
+  local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
   local minVal, medVal, avgVal, topVal, count = MM:CalculateStatsFromList(listing)
-  if count then
-    local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
+  local minOther, medOther, avgOther, topOther, countOther = MM:CalculateStatsFromList(listing.other)
+  if count or countOther then
     stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
     local t = stats[sTime]
     local c = stats["current"]
+  end
+  if count then
     t.minVal,t.medVal,t.avgVal,t.topVal,t.listed = minVal,medVal,avgVal,topVal,count
-    if c.latest == nil or c.latest < sTime then
+    if c.latest == nil or c.latest <= sTime then
       c.minVal,c.medVal,c.avgVal,c.topVal,c.listed,c.latest = minVal,medVal,avgVal,topVal,count,sTime
+    end
+  end
+  if countOther then
+    t.minOther,t.medOther,t.avgOther,t.topOther,t.listedOther = minOther,medOther,avgOther,topOther,countOther
+    if c.latestOther == nil or c.latestOther <= sTime then
+      c.minOther,c.medOther,c.avgOther,c.topOther,c.listedOther,c.latestOther = minOther,medOther,avgOther,topOther,countOther,sTime
     end
   end
 end
