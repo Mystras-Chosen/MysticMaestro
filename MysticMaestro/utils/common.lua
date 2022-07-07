@@ -111,25 +111,25 @@ end
 function MM:CalculateStatsFromTime(nameRE,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
   local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
-  local minVal, medVal, avgVal, topVal, count = MM:CalculateStatsFromList(listing)
+  local minVal, medVal, avgVal, topVal, count, stdDev = MM:CalculateStatsFromList(listing)
   local minOther, medOther, avgOther, topOther, countOther
   if listing.other ~= nil then
-    minOther, medOther, avgOther, topOther, countOther = MM:CalculateStatsFromList(listing.other)
+    minOther, medOther, avgOther, topOther, countOther, stdDevOther = MM:CalculateStatsFromList(listing.other)
   end
   if count and count > 0 or countOther and countOther > 0 then
     stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
     local t = stats[sTime]
     local c = stats["current"]
     if count and count > 0 then
-      t.minVal,t.medVal,t.avgVal,t.topVal,t.listed = minVal,medVal,avgVal,topVal,count
+      t.minVal,t.medVal,t.avgVal,t.topVal,t.listed,t.stdDev = minVal,medVal,avgVal,topVal,count,stdDev
       if c.latest == nil or c.latest <= sTime then
-        c.minVal,c.medVal,c.avgVal,c.topVal,c.listed,c.latest = minVal,medVal,avgVal,topVal,count,sTime
+        c.minVal,c.medVal,c.avgVal,c.topVal,c.listed,c.latest,c.stdDev = minVal,medVal,avgVal,topVal,count,sTime,stdDev
       end
     end
     if countOther and countOther > 0 then
-      t.minOther,t.medOther,t.avgOther,t.topOther,t.listedOther = minOther,medOther,avgOther,topOther,countOther
+      t.minOther,t.medOther,t.avgOther,t.topOther,t.listedOther,t.stdDevOther = minOther,medOther,avgOther,topOther,countOther,stdDevOther
       if c.latestOther == nil or c.latestOther <= sTime then
-        c.minOther,c.medOther,c.avgOther,c.topOther,c.listedOther,c.latestOther = minOther,medOther,avgOther,topOther,countOther,sTime
+        c.minOther,c.medOther,c.avgOther,c.topOther,c.listedOther,c.latestOther,c.stdDevOther = minOther,medOther,avgOther,topOther,countOther,sTime,stdDevOther
       end
     end
   end
@@ -168,8 +168,27 @@ function MM:CalculateStatsFromList(list)
     sort(list)
     local medVal = list[midKey]
     local avgVal = MM:round(tally/count)
-    return minVal, medVal, avgVal, topVal, count
+    local stdDev = MM:StdDev(list,avgVal)
+    return minVal, medVal, avgVal, topVal, count, MM:round(stdDev,2)
   end
+end
+
+function MM:variance(tbl,avg)
+  local dif
+  local sum, count = 0, 0
+  for k, v in pairs(tbl) do
+    if type(v) == "number" then
+      dif = v - avg
+      sum = sum + (dif * dif)
+      count = count + 1
+    end
+  end
+  return ( sum / count )
+end
+
+function MM:StdDev(tbl,avg)
+  local variance = MM:variance(tbl,avg)
+  return math.sqrt(variance)
 end
 
 local qualityValue = {
