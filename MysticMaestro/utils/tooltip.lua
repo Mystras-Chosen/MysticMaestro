@@ -200,7 +200,7 @@ local function addLinesTooltip(tt, input)
       local ttMed = MM:round((stats.medVal or 0.0) / 10000)
       local ttAvg = MM:round((stats.avgVal or 0.0) / 10000)
       local ttTop = MM:round((stats.topVal or 0.0) / 10000)
-      tt:AddDoubleLine("("..stats.listed..") Trinket"
+      tt:AddDoubleLine("("..stats.listed..") Trinket ("..MM:DaysAgoString(stats.latest)..")"
       , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttAvg,"avg")..tGold.."/"..MM:cTxt(ttTop,"top")..tGold..")"
       , 1, 1, 0)
     end
@@ -210,7 +210,7 @@ local function addLinesTooltip(tt, input)
       local ttoAvg = MM:round((stats.avgOther or 0.0) / 10000)
       local ttoTop = MM:round((stats.topOther or 0.0) / 10000)
       local ttoListed = stats.listedOther or 0.0
-      tt:AddDoubleLine("("..ttoListed..") Non-Trinket"
+      tt:AddDoubleLine("("..ttoListed..") Non-Trinket ("..MM:DaysAgoString(stats.latestOther)..")"
       , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoAvg,"avg")..tGold.."/"..MM:cTxt(ttoTop,"top")..tGold..")"
       , 1, 1, 0)
     end
