@@ -162,6 +162,7 @@ local function initializeMenuContainer()
 end
 
 local mmf
+
 local function createMenu()
   mmf = CreateFrame("Frame", "MysticMaestroFrame", UIParent)
   mmf:Hide()
@@ -214,6 +215,55 @@ local function setUpCurrencyDisplay(enchantContainer)
   MM:RegisterBucketEvent({"BAG_UPDATE"}, .2, updateCurrencyDisplay)
 end
 
+local AwAddonsTexturePath = "Interface\\AddOns\\AwAddons\\Textures\\"
+local function createEnchantButton(enchantContainer, i)
+  local enchantButton = CreateFrame("Button", nil, enchantContainer)
+  enchantButton:SetSize(enchantContainer:GetWidth() - 16, 36)
+  enchantButton:SetPoint("TOP", enchantContainer, "TOP", 0, -(i-1)*36-8)
+  enchantButton:SetFrameStrata("LOW")
+  enchantButton:SetScript("OnEnter", function(self) self.H:Show() end)
+  enchantButton:SetScript("OnLeave", function(self) self.H:Hide() end)
+
+  enchantButton.BG = enchantButton:CreateTexture(nil, "LOW")
+  enchantButton.BG:SetTexture(AwAddonsTexturePath .. "CAOverhaul\\SpellSlot")
+  enchantButton.BG:SetSize(248, 66)
+  enchantButton.BG:SetPoint("CENTER", 19, 0)
+
+  enchantButton.H = enchantButton:CreateTexture(nil, "OVERLAY")
+  enchantButton.H:SetTexture(AwAddonsTexturePath .. "CAOverhaul\\SpellSlot_Highlight")
+  enchantButton.H:SetSize(248, 59)
+  enchantButton.H:SetPoint("CENTER", 19, 0)
+  enchantButton.H:SetBlendMode("ADD")
+  enchantButton.H:Hide()
+
+  enchantButton.Icon = enchantButton:CreateTexture(nil, "LOW")
+  enchantButton.Icon:SetTexture("Interface\\Icons\\5_dragonfirebreath")
+  enchantButton.Icon:SetSize(32, 32)
+  enchantButton.Icon:SetPoint("CENTER", -74, 0)
+
+  enchantButton.IconBorder = enchantButton:CreateTexture(nil, "OVERLAY")
+  enchantButton.IconBorder:SetTexture(AwAddonsTexturePath .. "LootTex\\Loot_Icon_Purple")
+  enchantButton.IconBorder:SetSize(38, 38)
+  enchantButton.IconBorder:SetPoint("CENTER", -74, 0)
+
+  enchantButton.REText = enchantButton:CreateFontString()
+  enchantButton.REText:SetFontObject(GameFontNormal)
+  enchantButton.REText:SetFont("Fonts\\FRIZQT__.TTF", 11)
+  enchantButton.REText:SetPoint("CENTER", 19, 0)
+  enchantButton.REText:SetText("|cff00ff00Blade Vortex|r")
+  enchantButton.REText:SetJustifyH("CENTER")
+  enchantButton.REText:SetSize(148, 36)
+
+  return enchantButton
+end
+
+local enchantButtons = {} -- line 4083 of CharacterAdvancement.lua
+local function createEnchantButtons(enchantContainer)
+  for i=1, 8 do
+    table.insert(enchantButtons, createEnchantButton(enchantContainer, i))
+  end
+end
+
 local menuInitialized
 local enchantContainer, statsContainer, graphContainer
 local function initializeMenu()
@@ -223,13 +273,17 @@ local function initializeMenu()
   graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
   MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 181)
   setUpCurrencyDisplay(enchantContainer)
+  createEnchantButtons(enchantContainer)
   menuInitialized = true
 end
 
-local defaultSearchText = "|cFF777777Search|r"
+local function anchorMenuToMenuContainer()
+  mmf:ClearAllPoints()
+  mmf:SetPoint("BOTTOMLEFT", standaloneMenuContainer, "BOTTOMLEFT", 13, 9)
+end
 
-local sortDropdown, filterDropdown, searchBar
-local function setUpWidgets()
+local sortDropdown, filterDropdown
+local function setUpDropdownWidgets()
   sortDropdown = AceGUI:Create("Dropdown")
   sortDropdown:SetPoint("TOPLEFT", mmf, "TOPLEFT", 8, 0)
   sortDropdown:SetWidth(160)
@@ -241,7 +295,12 @@ local function setUpWidgets()
   filterDropdown:SetWidth(160)
   filterDropdown:SetHeight(27)
   filterDropdown.frame:Show()
+end
 
+local defaultSearchText = "|cFF777777Search|r"
+
+local searchBar
+local function setUpSearchWidget()
   searchBar = AceGUI:Create("EditBoxMysticMaestroREPredictor")
   searchBar:SetPoint("TOP", mmf, "TOP")
   searchBar:SetWidth(200)
@@ -279,10 +338,9 @@ function MM:OpenStandaloneMenu()
   if not menuInitialized then
     initializeMenu()
   end
-
-  mmf:ClearAllPoints()
-  mmf:SetPoint("BOTTOMLEFT", standaloneMenuContainer, "BOTTOMLEFT", 13, 9)
-  setUpWidgets()
+  anchorMenuToMenuContainer()
+  setUpDropdownWidgets()
+  setUpSearchWidget()
   self:ClearGraph()
   standaloneMenuContainer:Show()
   mmf:Show()
@@ -292,6 +350,9 @@ local function tearDownWidgets()
   sortDropdown:Release()
   filterDropdown:Release()
   searchBar:Release()
+  for _, button in ipairs(enchantButtons) do
+    button:Hide()
+  end
 end
 
 function MM:CloseStandaloneMenu()
