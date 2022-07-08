@@ -196,19 +196,19 @@ local function addLinesTooltip(tt, input)
   tt:AddDoubleLine("RE: " ..name, (stats and demoString or "None Listed" ))
   if stats ~= nil then
     if stats.latest ~= nil then
-      local ttMin = MM:round((stats.minVal or 0.0) / 10000)
-      local ttMed = MM:round((stats.medVal or 0.0) / 10000)
-      local ttAvg = MM:round((stats.avgVal or 0.0) / 10000)
-      local ttTop = MM:round((stats.topVal or 0.0) / 10000)
+      local ttMin = MM:round(stats.minVal or 0.0)
+      local ttMed = MM:round(stats.medVal or 0.0)
+      local ttAvg = MM:round(stats.avgVal or 0.0)
+      local ttTop = MM:round(stats.topVal or 0.0)
       tt:AddDoubleLine("("..stats.listed..") Trinket ("..MM:DaysAgoString(stats.latest)..")"
       , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttAvg,"avg")..tGold.."/"..MM:cTxt(ttTop,"top")..tGold..")"
       , 1, 1, 0)
     end
     if stats.latestOther ~= nil then
-      local ttoMin = MM:round((stats.minOther or 0.0) / 10000)
-      local ttoMed = MM:round((stats.medOther or 0.0) / 10000)
-      local ttoAvg = MM:round((stats.avgOther or 0.0) / 10000)
-      local ttoTop = MM:round((stats.topOther or 0.0) / 10000)
+      local ttoMin = MM:round(stats.minOther or 0.0)
+      local ttoMed = MM:round(stats.medOther or 0.0)
+      local ttoAvg = MM:round(stats.avgOther or 0.0)
+      local ttoTop = MM:round(stats.topOther or 0.0)
       local ttoListed = stats.listedOther or 0.0
       tt:AddDoubleLine("("..ttoListed..") Non-Trinket ("..MM:DaysAgoString(stats.latestOther)..")"
       , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoAvg,"avg")..tGold.."/"..MM:cTxt(ttoTop,"top")..tGold..")"

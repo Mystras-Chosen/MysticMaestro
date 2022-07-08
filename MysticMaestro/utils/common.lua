@@ -59,6 +59,7 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
+      buyoutPrice = buyoutPrice / 10000
       local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
       if itemFound and enchantID == expectedEnchantID then
         enchantFound = true
@@ -81,6 +82,7 @@ function MM:CollectAllREData(scanTime)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
+      buyoutPrice = buyoutPrice / 10000
       local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice)
       if itemFound then
         listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
@@ -112,23 +114,19 @@ function MM:CompareTime(a,b)
   return {year = yDif, day = dDif, hour = hDif, min = mDif, sec = sDif}
 end
 
-function MM:DaysAgoString(stamp,incSeconds)
+function MM:DaysAgoString(stamp)
   local string = ""
   local dif = MM:CompareTime(time(),stamp)
   if dif.year > 0 then
-    string = string .. dif.year .. "y"
-  end
-  if dif.day > 0 then
-    string = string .. dif.day .. "d"
-  end
-  if dif.hour > 0 then
-    string = string .. dif.hour .. "h"
-  end
-  if dif.min > 0 then
-    string = string .. dif.min .. "m"
-  end
-  if incSeconds and dif.sec > 0 then
-    string = string .. dif.sec .. "s"
+    string = string .. dif.year .. " year" .. (dif.year > 1 and "s" or "")
+  elseif dif.day > 0 then
+    string = string .. dif.day .. " day" .. (dif.day > 1 and "s" or "")
+  elseif dif.hour > 0 then
+    string = string .. dif.hour .. " hour" .. (dif.hour > 1 and "s" or "")
+  elseif dif.min > 0 then
+    string = string .. dif.min .. " minute" .. (dif.min > 1 and "s" or "")
+  elseif dif.sec > 0 then
+    string = string .. dif.sec .. " second" .. (dif.sec > 1 and "s" or "")
   end
   if string ~= "" then
     string = string .. " ago."

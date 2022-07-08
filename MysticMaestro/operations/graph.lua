@@ -28,14 +28,14 @@ local function createMysticEnchantData(enchantListingData, correction)
         averageData,
         {
           timeStamp,
-          averageBuyout(buyouts) / 10000 -- convert copper to gold
+          averageBuyout(buyouts) -- convert copper to gold
         }
       )
       table.insert(
         minimumData,
         {
           timeStamp,
-          minimumBuyout(buyouts) / 10000 -- convert copper to gold
+          minimumBuyout(buyouts) -- convert copper to gold
         }
       )
     end
