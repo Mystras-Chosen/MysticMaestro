@@ -347,6 +347,8 @@ function MM:OpenStandaloneMenu()
   setUpDropdownWidgets()
   setUpSearchWidget()
   self:ClearGraph()
+  local resultSet = self:GetFilteredMysticEnchants({all = true})
+  self:ShowEnchantButtons(resultSet, 1)
   standaloneMenuContainer:Show()
   mmf:Show()
 end
@@ -429,4 +431,22 @@ function MM:ShowEnchantButtons(resultSet, page)
     updateEnchantButton(resultSet[index], index - startIndex + 1)
     index = index + 1
   end
+end
+
+local resultSet
+function MM:GetFilteredMysticEnchants(filters)
+  local filterByAll = filters.all
+  local filterByQuality = filters.quality
+  local filterByKnown = filters.known
+  local filterByUnknown = filters.unknown
+
+  resultSet = {}
+  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
+    if filterByAll or filterByQuality == enchantData.quality
+    or filterByKnown and IsReforgeEnchantmentKnown(enchantID)
+    or filterByKnown and not IsReforgeEnchantmentKnown(enchantID) then
+      table.insert(resultSet, enchantID)
+    end
+  end
+  return resultSet
 end
