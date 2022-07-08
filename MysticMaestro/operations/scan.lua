@@ -22,12 +22,9 @@ end
 
 local function getAllOperations()
 	local all = {}
-	local i = 0
-	for k, qualityName in ipairs(validScanOptions) do
+	for _, qualityName in ipairs(validScanOptions) do
 		if validScanOptions[qualityName] then
-			i = i + 1
-			-- table.insert(all, qualityName)
-			all[i] = qualityName
+			table.insert(all, qualityName)
 		end
 	end
 	return all
@@ -43,7 +40,7 @@ local function parseScanQualities(scanParams)
 		if t:lower() == "all" then
 			return getAllOperations()
 		else
-			table.insert(scanQualityNames, t)
+			table.insert(scanQualityNames, t:lower())
 		end
 	end
 	return scanQualityNames
@@ -69,19 +66,6 @@ local function createQueue(scanQualityNames)
 	end
 end
 
-local function getStartingIndex(queue, qualityName)
-	local lastEnchantScanned = MM.db.realm["LAST_" .. qualityName:upper() .. "_ENCHANT_SCANNED"]
-	if lastEnchantScanned then
-		for i = 1, #queue do
-			if queue[i] == lastEnchantScanned then
-				return i % #queue + 1
-			end
-		end
-	else
-		return 1
-	end
-end
-
 local scanQualityNames, currentScanQualityIndex, currentScanQuality
 local startingIndex, currentIndex
 local scanInProgress
@@ -90,7 +74,7 @@ local function initializeScan(scanQualityNames)
 	createQueue(scanQualityNames)
 	currentScanQualityIndex = 1
 	currentScanQuality = scanQualityNames[currentScanQualityIndex]
-	startingIndex = getStartingIndex(queue, currentScanQuality)
+	startingIndex = 1
 	currentIndex = startingIndex
 	scanInProgress = true
 end
@@ -131,10 +115,6 @@ local function printScanProgress(scanSuccessful)
 	scanSuccessful and "" or "None Listed"))
 end
 
-local function recordLastQualityEnchantScanned()
-	MM.db.realm["LAST_" .. currentScanQuality:upper() .. "_ENCHANT_SCANNED"] = queue[currentIndex]
-end
-
 local function updateScanDetails()
 	if not MM[currentScanQuality:upper() .. "_ENCHANTS"][queue[currentIndex]] then
 		currentScanQualityIndex = currentScanQualityIndex % #scanQualityNames + 1
@@ -154,7 +134,6 @@ function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
 		if scanSuccessful or retrying then
 			clearRetryFlag()
 			printScanProgress(scanSuccessful)
-			recordLastQualityEnchantScanned()
 			currentIndex = currentIndex % #queue + 1
 
 			if currentIndex ~= startingIndex then
