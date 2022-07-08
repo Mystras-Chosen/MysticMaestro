@@ -152,9 +152,9 @@ function MM:Dump(data,index)
   return DevTools_Dump(data,index ~= nil and index or 0)
 end
 
-function MM:CalculateStatsFromTime(nameRE,sTime)
-  local listing = self.db.realm.RE_AH_LISTINGS[nameRE][sTime]
-  local stats = self.db.realm.RE_AH_STATISTICS[nameRE]
+function MM:CalculateStatsFromTime(reID,sTime)
+  local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
   local minVal, medVal, avgVal, topVal, count, stdDev = MM:CalculateStatsFromList(listing)
   local minOther, medOther, avgOther, topOther, countOther
   if listing.other ~= nil then
@@ -181,11 +181,11 @@ end
 
 function MM:CalculateAllStats(forceCalc)
   local listDB = self.db.realm.RE_AH_LISTINGS
-  local namekey, listing, timekey, values
-  for namekey, listing in pairs(listDB) do
+  local reID, listing, timekey, values
+  for reID, listing in pairs(listDB) do
     for timekey, values in pairs(listing) do
-      if forceCalc or self.db.realm.RE_AH_STATISTICS[namekey][timekey] == nil then
-        MM:CalculateStatsFromTime(namekey,timekey)
+      if forceCalc or self.db.realm.RE_AH_STATISTICS[reID][timekey] == nil then
+        MM:CalculateStatsFromTime(reID,timekey)
       end
     end
   end
