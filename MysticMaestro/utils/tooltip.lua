@@ -178,7 +178,7 @@ end
 
 local function addLinesTooltip(tt, input)
   local name, reID = getNameAndID(input)
-  local stats = MM.db.realm.RE_AH_STATISTICS[name]["current"]
+  local stats = MM.db.realm.RE_AH_STATISTICS[reID]["current"]
   local dataRE = MYSTIC_ENCHANTS[reID]
   local indicator
   if dataRE then
