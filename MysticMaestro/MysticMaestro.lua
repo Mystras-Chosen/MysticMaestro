@@ -49,31 +49,10 @@ local enchantMT = {
   end
 }
 
-function upgradeCurrentDatabase(data)
-  local newTable
-  if type(next(data)) == "string" then
-    newTable = {}
-    for key, value in pairs(data) do
-      if type(key) == "string" then
-        newTable[MM.RE_LOOKUP[key]] = value
-      end
-    end
-  end
-  return not newTable and data or setmetatable(newTable, getmetatable(data))
-end
-
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
   self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
   self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
-
-  self.db.realm.RE_AH_LISTINGS = upgradeCurrentDatabase(self.db.realm.RE_AH_LISTINGS)
-  self.db.realm.RE_AH_STATISTICS = upgradeCurrentDatabase(self.db.realm.RE_AH_STATISTICS)
-  self.db.realm.LAST_LEGENDARY_ENCHANT_SCANNED = type(self.db.realm.LAST_LEGENDARY_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_LEGENDARY_ENCHANT_SCANNED or nil
-  self.db.realm.LAST_EPIC_ENCHANT_SCANNED = type(self.db.realm.LAST_EPIC_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_EPIC_ENCHANT_SCANNED or nil
-  self.db.realm.LAST_RARE_ENCHANT_SCANNED = type(self.db.realm.LAST_RARE_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_RARE_ENCHANT_SCANNED or nil
-  self.db.realm.LAST_UNCOMMON_ENCHANT_SCANNED = type(self.db.realm.LAST_UNCOMMON_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_UNCOMMON_ENCHANT_SCANNED or nil
-
 end
 
 function MM:OnEnable()
