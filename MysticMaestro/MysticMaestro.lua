@@ -90,18 +90,6 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^calc") then
     MM:CalculateAllStats(input:match("^%w+%s+(.+)") == "all")
   elseif input == "" then
-    --[[if UnitAffectingCombat("player") then
-      if Dialog.OpenFrames["Mystic Maestro"] then
-        Dialog:Close("Mystic Maestro")
-      end
-      return
-    end
-  
-    if Dialog.OpenFrames["Mystic Maestro"] then
-      Dialog:Close("Mystic Maestro")
-    else
-      Dialog:Open("Mystic Maestro")
-    end]]
     if MM.MysticMaestroFrame and MM.MysticMaestroFrame:IsShown() then
       MM:CloseStandaloneMenu()
     else
@@ -109,7 +97,7 @@ function MM:ProcessSlashCommand(input)
     end
   else
     MM:Print("Command not recognized")
-    MM:Print("Valid input is scan, fullscan, graph")
+    MM:Print("Valid input is scan, fullscan, calc")
     MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
   end
 end
