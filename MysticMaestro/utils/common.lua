@@ -13,21 +13,9 @@ function MM:MatchTooltipRE(TT)
   for i=1, TT:NumLines() do
     local line = _G[TT:GetName() .. "TextLeft" .. i]:GetText()
     if line and line ~= "" then
-      name = line:match("Equip: (.- %- %w+) %- .+")
-      if name then
-        return self.RE_LOOKUP[name]
-      end
       name, description = line:match("Equip: (.-) %- (.+)")
       if name then
-        if name == "Druidic Rites" then
-          if description:lower():find("damage") then
-            return self.RE_LOOKUP[name .. " - Epic"]
-          else
-            return self.RE_LOOKUP[name .. " - Rare"]
-          end
-        else
-          return self.RE_LOOKUP[name]
-        end
+        return self.RE_LOOKUP[name]
       end
     end
   end

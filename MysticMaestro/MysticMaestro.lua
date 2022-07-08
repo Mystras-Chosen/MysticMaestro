@@ -55,7 +55,7 @@ function upgradeCurrentDatabase(data)
     newTable = {}
     for key, value in pairs(data) do
       if type(key) == "string" then
-        newTable[MM.RE_LOOKUP[key] or MM.RE_LOOKUP["Druidic Rites - Rare"]] = value
+        newTable[MM.RE_LOOKUP[key]] = value
       end
     end
   end
@@ -127,7 +127,3 @@ for k, v in pairs(MYSTIC_ENCHANTS) do
     end
   end
 end
-
-MM.RE_LOOKUP["Druidic Rites"] = nil
-MM.RE_LOOKUP["Druidic Rites - Rare"] = 970065
-MM.RE_LOOKUP["Druidic Rites - Epic"] = 84617
