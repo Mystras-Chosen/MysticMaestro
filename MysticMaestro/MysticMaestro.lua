@@ -43,20 +43,32 @@ local GetSpellInfo = GetSpellInfo
 
 local enchantMT = {
   __index = function(t, k)
-    if type(k) == "number" then
-      return t[GetSpellInfo(k)]
-    elseif type(k) == "string" then
-      local newListing = {}
-      t[k] = newListing
-      return newListing
-    end
+    local newListing = {}
+    t[k] = newListing
+    return newListing
   end
 }
+
+function upgradeCurrentDatabase(data)
+  local newTable
+  if type(next(data)) == "string" then
+    newTable = {}
+    for key, value in pairs(data) do
+      if type(key) == "string" then
+        newTable[MM.RE_LOOKUP[key] or MM.RE_LOOKUP["Druidic Rites - Rare"]] = value
+      end
+    end
+  end
+  return not newTable and data or setmetatable(newTable, getmetatable(data))
+end
 
 function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
   self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
   self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
+
+  self.db.realm.RE_AH_LISTINGS = upgradeCurrentDatabase(self.db.realm.RE_AH_LISTINGS)
+  self.db.realm.RE_AH_STATISTICS = upgradeCurrentDatabase(self.db.realm.RE_AH_STATISTICS)
 end
 
 function MM:OnEnable()
@@ -110,3 +122,7 @@ for k, v in pairs(MYSTIC_ENCHANTS) do
     end
   end
 end
+
+MM.RE_LOOKUP["Druidic Rites"] = nil
+MM.RE_LOOKUP["Druidic Rites - Rare"] = 970065
+MM.RE_LOOKUP["Druidic Rites - Epic"] = 84617

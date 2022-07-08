@@ -123,10 +123,10 @@ function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY
   g:SetYAxis(0, 100)
 end
 
-function MM:PopulateGraph(enchantName)
-  local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantName]
+function MM:PopulateGraph(enchantID)
+  local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantID]
   if not next(enchantListingData) then
-    self:Print('No listings found for mystic enchant "' .. enchantName .. '"')
+    self:Print('No listings found for mystic enchant "' .. GetSpellInfo(MYSTIC_ENCHANTS[enchantID].spellID) .. '"')
     return
   end
   g:ResetData()

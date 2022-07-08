@@ -62,7 +62,6 @@ local queue
 local function createQueue(scanQualityNames)
 	queue = {}
 	for _, qualityName in ipairs(scanQualityNames) do
-		print(qualityName)
 		local enchants = MM:GetAlphabetizedEnchantList(qualityName)
 		for _, enchant in ipairs(enchants) do
 			table.insert(queue, enchant)
@@ -99,13 +98,11 @@ end
 local function performScan(currentIndex)
 	-- "name", minLevel, maxLevel, invTypeIndex, classIndex, subClassIndex, page, isUsable, minQuality, getAll
 	-- QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
-	QueryAuctionItems(queue[currentIndex])
+	QueryAuctionItems(GetSpellInfo(queue[currentIndex]))
 end
 
 function MM:HandleScan(scanParams)
-	if not self:ValidateAHIsOpen() then
-		return
-	end
+	if not self:ValidateAHIsOpen() then return end
 	scanQualityNames = validateScanParams(scanParams)
 	if scanQualityNames and not CanSendAuctionQuery() then
 		MM:Print("Scan not ready. Wait a moment and try again.")

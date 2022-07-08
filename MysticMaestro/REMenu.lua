@@ -28,14 +28,14 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         local enchantName
         if key then
           enchantName = queryResults[key]:match("|c........(.-)|r")
-          MM:PopulateGraph(GetSpellInfo(MYSTIC_ENCHANTS[key].spellID))
+          MM:PopulateGraph(key)
           MM:ShowEnchantButtons({key}, 1)
           return key, enchantName
         else
           key, enchantName = next(queryResults)
           if key then
             enchantName = enchantName:match("|c........(.-)|r")
-            MM:PopulateGraph(GetSpellInfo(MYSTIC_ENCHANTS[key].spellID))
+            MM:PopulateGraph(key)
             MM:ShowEnchantButtons({key}, 1)
             return key, enchantName
           end

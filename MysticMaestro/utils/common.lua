@@ -9,14 +9,36 @@ function MM:ValidateAHIsOpen()
   return true
 end
 
-function MM:GetAHItemEnchantName(index)
-  GameTooltip:SetOwner(_G["BrowseButton1Item"], "ANCHOR_NONE") -- not sure why this makes it work.  should look into it.
-  GameTooltip:SetAuctionItem("list", index)
-  return MM:MatchTooltipRE(GameTooltip)
-end
+
 
 function MM:MatchTooltipRE(TT)
-  return TT:Match("Equip: (.- %- %w+) %- .+") or TT:Match("Equip: (.-) %- .+")
+  for i=1, TT:NumLines() do
+    local line = _G[TT:GetName() .. "TextLeft" .. i]:GetText()
+    if line and line ~= "" then
+      name = line:match("Equip: (.- %- %w+) %- .+")
+      if name then
+        return self.RE_LOOKUP[name]
+      end
+      name, description = line:match("Equip: (.-) %- (.+)")
+      if name then
+        if name == "Druidic Rites" then
+          if description:lower():find("damage") then
+            return self.RE_LOOKUP[name .. " - Epic"]
+          else
+            return self.RE_LOOKUP[name .. " - Rare"]
+          end
+        else
+          return self.RE_LOOKUP[name]
+        end
+      end
+    end
+  end
+end
+
+function MM:GetAHItemEnchantID(index)
+  GameTooltip:SetOwner(_G["BrowseButton1Item"], "ANCHOR_NONE") -- not sure why this makes it work.  should look into it.
+  GameTooltip:SetAuctionItem("list", index)
+  return self:MatchTooltipRE(GameTooltip)
 end
 
 local function getAuctionInfo(i)
@@ -26,40 +48,40 @@ end
 
 local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
   local trinketFound = itemName and itemName:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0
-  local enchantName
+  local enchantID
   if trinketFound then
-    enchantName = MM:GetAHItemEnchantName(i)
+    enchantID = MM:GetAHItemEnchantID(i)
   end
-  return trinketFound and enchantName, enchantName
+  return trinketFound and enchantID, enchantID
 end
 
 local function isEnchantItemFound(quality, buyoutPrice, i)
   local properItem = buyoutPrice and buyoutPrice > 0 and quality and quality >= 3
-  local enchantName
+  local enchantID
   if properItem then
-    enchantName = MM:GetAHItemEnchantName(i)
+    enchantID = MM:GetAHItemEnchantID(i)
   end
-  return properItem and enchantName, enchantName
+  return properItem and enchantID, enchantID
 end
 
-function MM:CollectSpecificREData(scanTime, expectedEnchantName)
+function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   local listings = self.db.realm.RE_AH_LISTINGS
-  listings[expectedEnchantName][scanTime] = listings[expectedEnchantName][scanTime] or {}
-  listings[expectedEnchantName][scanTime]["other"] = listings[expectedEnchantName][scanTime]["other"] or {}
+  listings[expectedEnchantID][scanTime] = listings[expectedEnchantID][scanTime] or {}
+  listings[expectedEnchantID][scanTime]["other"] = listings[expectedEnchantID][scanTime]["other"] or {}
   local enchantFound = false
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local itemFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
-      if itemFound and enchantName == expectedEnchantName then
+      local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
+      if itemFound and enchantID == expectedEnchantID then
         enchantFound = true
-        table.insert(listings[enchantName][scanTime], buyoutPrice)
+        table.insert(listings[enchantID][scanTime], buyoutPrice)
       else
-        itemFound, enchantName = isEnchantItemFound(quality,buyoutPrice,i)
-        if itemFound and enchantName == expectedEnchantName then
+        itemFound, enchantID = isEnchantItemFound(quality,buyoutPrice,i)
+        if itemFound and enchantID == expectedEnchantID then
           enchantFound = true
-          table.insert(listings[enchantName][scanTime]["other"], buyoutPrice)
+          table.insert(listings[enchantID][scanTime]["other"], buyoutPrice)
         end  
       end
     end
@@ -73,16 +95,16 @@ function MM:CollectAllREData(scanTime)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local itemFound, enchantName = isEnchantTrinketFound(itemName, level, buyoutPrice)
+      local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice)
       if itemFound then
-        listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
-        table.insert(listings[enchantName][scanTime], buyoutPrice)
+        listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
+        table.insert(listings[enchantID][scanTime], buyoutPrice)
       else
-        itemFound, enchantName = isEnchantItemFound(quality,buyoutPrice,i)
+        itemFound, enchantID = isEnchantItemFound(quality,buyoutPrice,i)
         if itemFound then
-          listings[enchantName][scanTime] = listings[enchantName][scanTime] or {}
-          listings[enchantName][scanTime]["other"] = listings[enchantName][scanTime]["other"] or {}
-          table.insert(listings[enchantName][scanTime]["other"], buyoutPrice)
+          listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
+          listings[enchantID][scanTime]["other"] = listings[enchantID][scanTime]["other"] or {}
+          table.insert(listings[enchantID][scanTime]["other"], buyoutPrice)
         end
       end
     end
@@ -222,18 +244,22 @@ local qualityValue = {
   legendary = 5
 }
 
+-- list of mystic enchant IDs ordered alphabetically by their spell name
 function MM:GetAlphabetizedEnchantList(qualityName)
 	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
 	if not enchants then
 		enchants = {}
-		for _, enchantData in pairs(MYSTIC_ENCHANTS) do
+		for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
 			if enchantData.quality == qualityValue[qualityName] then
-				local enchantName = GetSpellInfo(enchantData.spellID)
-				table.insert(enchants, enchantName)
-				enchants[enchantName] = true
+				table.insert(enchants, enchantID)
+				enchants[enchantID] = true
 			end
 		end
-		table.sort(enchants)
+		table.sort(enchants,
+      function(k1, k2)
+        return GetSpellInfo(MYSTIC_ENCHANTS[k1]) < GetSpellInfo(MYSTIC_ENCHANTS[k2])
+      end
+    )
 		MM[qualityName:upper() .. "_ENCHANTS"] = enchants
 	end
 	return enchants
