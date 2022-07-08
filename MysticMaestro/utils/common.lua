@@ -9,8 +9,6 @@ function MM:ValidateAHIsOpen()
   return true
 end
 
-
-
 function MM:MatchTooltipRE(TT)
   for i=1, TT:NumLines() do
     local line = _G[TT:GetName() .. "TextLeft" .. i]:GetText()
@@ -257,7 +255,7 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 		end
 		table.sort(enchants,
       function(k1, k2)
-        return GetSpellInfo(MYSTIC_ENCHANTS[k1]) < GetSpellInfo(MYSTIC_ENCHANTS[k2])
+        return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID)
       end
     )
 		MM[qualityName:upper() .. "_ENCHANTS"] = enchants

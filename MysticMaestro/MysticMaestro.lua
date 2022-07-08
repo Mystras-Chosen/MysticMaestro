@@ -69,6 +69,11 @@ function MM:OnInitialize()
 
   self.db.realm.RE_AH_LISTINGS = upgradeCurrentDatabase(self.db.realm.RE_AH_LISTINGS)
   self.db.realm.RE_AH_STATISTICS = upgradeCurrentDatabase(self.db.realm.RE_AH_STATISTICS)
+  self.db.realm.LAST_LEGENDARY_ENCHANT_SCANNED = type(self.db.realm.LAST_LEGENDARY_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_LEGENDARY_ENCHANT_SCANNED or nil
+  self.db.realm.LAST_EPIC_ENCHANT_SCANNED = type(self.db.realm.LAST_EPIC_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_EPIC_ENCHANT_SCANNED or nil
+  self.db.realm.LAST_RARE_ENCHANT_SCANNED = type(self.db.realm.LAST_RARE_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_RARE_ENCHANT_SCANNED or nil
+  self.db.realm.LAST_UNCOMMON_ENCHANT_SCANNED = type(self.db.realm.LAST_UNCOMMON_ENCHANT_SCANNED) ~= "string" and self.db.realm.LAST_UNCOMMON_ENCHANT_SCANNED or nil
+
 end
 
 function MM:OnEnable()

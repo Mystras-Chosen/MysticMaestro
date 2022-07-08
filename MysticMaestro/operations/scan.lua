@@ -98,7 +98,7 @@ end
 local function performScan(currentIndex)
 	-- "name", minLevel, maxLevel, invTypeIndex, classIndex, subClassIndex, page, isUsable, minQuality, getAll
 	-- QueryAuctionItems(queue[currentIndex], 15, 15, 0, 0, 3, false, true, nil)
-	QueryAuctionItems(GetSpellInfo(queue[currentIndex]))
+	QueryAuctionItems((GetSpellInfo(MYSTIC_ENCHANTS[queue[currentIndex]].spellID)))
 end
 
 function MM:HandleScan(scanParams)
@@ -122,7 +122,8 @@ local function clearRetryFlag()
 end
 
 local function printScanProgress(scanSuccessful)
-	local nametxt = MM:cTxt(queue[currentIndex],tostring(MYSTIC_ENCHANTS[MM.RE_LOOKUP[queue[currentIndex]]].quality))
+
+	local nametxt = MM:cTxt(GetSpellInfo(MYSTIC_ENCHANTS[queue[currentIndex]].spellID), tostring(MYSTIC_ENCHANTS[queue[currentIndex]].quality))
 	MM:Print(string.format("%s: %d/%d %s",
 	nametxt,
 	(currentIndex + #queue - startingIndex) % #queue + 1,
