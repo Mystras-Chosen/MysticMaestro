@@ -272,8 +272,8 @@ local function createEnchantButtons(enchantContainer)
   end
 end
 
-local prevPageButton, nextPageButton
-
+local prevPageButton, nextPageButton, pageTextFrame
+local paginationVerticalPosition = 70
 local function createPageButton(enchantContainer, prevOrNext, xOffset, yOffset)
   local pageButton = CreateFrame("BUTTON", nil, enchantContainer)
   pageButton:SetSize(32, 32)
@@ -289,9 +289,21 @@ local function createPageButton(enchantContainer, prevOrNext, xOffset, yOffset)
   return pageButton
 end
 
+local function createPageTextFrame(enchantContainer, xOffset, yOffset)
+  pageTextFrame = CreateFrame("FRAME", nil, enchantContainer)
+  pageTextFrame:SetSize(52, 32)
+  pageTextFrame:SetPoint("BOTTOM", enchantContainer, "BOTTOM", xOffset, yOffset)
+  pageTextFrame.Text = pageTextFrame:CreateFontString()
+  pageTextFrame.Text:SetFontObject(GameFontNormal)
+  pageTextFrame.Text:SetFont("Fonts\\FRIZQT__.TTF", 11)
+  pageTextFrame.Text:SetAllPoints()
+  pageTextFrame.Text:SetJustifyH("CENTER")
+end
+
 local function createPagination(enchantContainer)
-  prevPageButton = createPageButton(enchantContainer, "Prev", -32, 70)
-  nextPageButton = createPageButton(enchantContainer, "Next", 32, 70)
+  prevPageButton = createPageButton(enchantContainer, "Prev", -42, paginationVerticalPosition)
+  nextPageButton = createPageButton(enchantContainer, "Next", 42, paginationVerticalPosition)
+  createPageTextFrame(enchantContainer, 0, paginationVerticalPosition)
 end
 
 local menuInitialized
@@ -449,6 +461,7 @@ local function updatePageButtons()
   if currentPage == MM:GetNumPages() then
     nextPageButton:Disable()
   end
+  pageTextFrame.Text:SetText(currentPage.."/"..MM:GetNumPages())
 end
 
 function MM:GetNumPages()
