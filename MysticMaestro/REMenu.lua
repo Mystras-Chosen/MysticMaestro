@@ -441,7 +441,6 @@ end
 
 local currentPage = 1
 local function updatePageButtons()
-  print(currentPage, MM:GetNumPages())
   prevPageButton:Enable()
   nextPageButton:Enable()
   if currentPage == 1 then
@@ -509,7 +508,6 @@ local function updateEnchantButton(enchantID, buttonNumber)
     button.BG:SetVertexColor(1, 1, 1)
     button.REText:SetTextColor(r, g, b)
   else
-    AHTEST = button
     button.IconBorder:SetVertexColor(mult, mult, mult)
     button.Icon:SetVertexColor(mult, mult, mult)
     button.BG:SetVertexColor(mult, mult, mult)
@@ -539,7 +537,6 @@ local function updateEnchantButton(enchantID, buttonNumber)
     GameTooltip:SetHyperlink("|Hspell:"..enchantData.spellID.."|h[test]|h")
     GameTooltip:Show()
   end)
-  print(enchantID)
   local r, g, b = unpack(enchantQualityColors[enchantData.quality])
   local mult = .6
   if IsReforgeEnchantmentKnown(enchantID) then
