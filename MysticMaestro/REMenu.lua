@@ -265,8 +265,9 @@ local function createEnchantButton(enchantContainer, i)
 end
 
 local enchantButtons = {}
+local numEnchantButtons = 8
 local function createEnchantButtons(enchantContainer)
-  for i=1, 8 do
+  for i=1, numEnchantButtons do
     table.insert(enchantButtons, createEnchantButton(enchantContainer, i))
   end
 end
@@ -298,11 +299,21 @@ local enchantContainer, statsContainer, graphContainer
 local function initializeMenu()
   createMenu()
   enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 396)
+  enchantContainer:EnableMouseWheel()
+  enchantContainer:SetScript("OnMouseWheel",
+  function(self, delta)
+    if delta == 1 then
+      MM:PrevPage()
+    else
+      MM:NextPage()
+    end
+  end)
   statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 192)
   graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
   MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 181)
   setUpCurrencyDisplay(enchantContainer)
   createEnchantButtons(enchantContainer)
+  createPagination(enchantContainer)
   menuInitialized = true
 end
 
@@ -371,7 +382,7 @@ function MM:OpenStandaloneMenu()
   setUpDropdownWidgets()
   setUpSearchWidget()
   self:ClearGraph()
-  self:FilteredMysticEnchants({all = true})
+  self:FilterMysticEnchants({all = true})
   self:GoToPage(1)
   standaloneMenuContainer:Show()
   mmf:Show()
@@ -410,7 +421,7 @@ function MM:SetResultSet(set)
   resultSet = set
 end
 
-function MM:FilteredMysticEnchants(filters)
+function MM:FilterMysticEnchants(filters)
   local filterByAll = filters.all
   local filterByQuality = filters.quality
   local filterByKnown = filters.known
@@ -507,35 +518,56 @@ local function updateEnchantButton(enchantID, buttonNumber)
   button:Show()
 end
 
+local enchantQualityColors = {
+  [2] = { 0.117647,        1,        0 },
+  [3] = {        0, 0.439216, 0.866667 },
+  [4] = { 0.639216, 0.207843, 0.933333 },
+  [5] = {        1, 0.501961,        0 },
+}
+
+local function updateEnchantButton(enchantID, buttonNumber)
+  local button = enchantButtons[buttonNumber]
+  local enchantData = MYSTIC_ENCHANTS[enchantID]
+  button.IconBorder:SetTexture(enchantQualityBorders[enchantData.quality])
+  local enchantName, _, enchantIcon = GetSpellInfo(enchantData.spellID)
+  button.Icon:SetTexture(enchantIcon)
+  button.REText:SetText(enchantName)
+  
+  button:SetScript("OnEnter", function(self)
+    self.H:Show()
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+    GameTooltip:SetHyperlink("|Hspell:"..enchantData.spellID.."|h[test]|h")
+    GameTooltip:Show()
+  end)
+  print(enchantID)
+  local r, g, b = unpack(enchantQualityColors[enchantData.quality])
+  local mult = .6
+  if IsReforgeEnchantmentKnown(enchantID) then
+    button.IconBorder:SetVertexColor(1, 1, 1)
+    button.Icon:SetVertexColor(1, 1, 1)
+    button.BG:SetVertexColor(1, 1, 1)
+    button.REText:SetTextColor(r, g, b)
+  else
+    AHTEST = button
+    button.IconBorder:SetVertexColor(mult, mult, mult)
+    button.Icon:SetVertexColor(mult, mult, mult)
+    button.BG:SetVertexColor(mult, mult, mult)
+    button.REText:SetTextColor(mult*r, mult*g, mult*b)
+  end
+  button:Show()
+end
+
 -- resultSet is a list of mystic enchant enchant IDs
 -- page 1 is the first page
-function MM:ShowEnchantButtons(resultSet, page)
-  if #resultSet - 8 * (page - 1) <= 0 then
+function MM:ShowEnchantButtons()
+  if #resultSet - 8 * (currentPage - 1) <= 0 then
     self:Print("No mystic enchants on page")
     return
   end
-  local index = 8 * (page - 1) + 1
+  local index = 8 * (currentPage - 1) + 1
   local startIndex = index
   while index - startIndex < 8 and index <= #resultSet do
     updateEnchantButton(resultSet[index], index - startIndex + 1)
     index = index + 1
   end
-end
-
-local resultSet
-function MM:GetFilteredMysticEnchants(filters)
-  local filterByAll = filters.all
-  local filterByQuality = filters.quality
-  local filterByKnown = filters.known
-  local filterByUnknown = filters.unknown
-
-  resultSet = {}
-  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    if filterByAll or filterByQuality == enchantData.quality
-    or filterByKnown and IsReforgeEnchantmentKnown(enchantID)
-    or filterByKnown and not IsReforgeEnchantmentKnown(enchantID) then
-      table.insert(resultSet, enchantID)
-    end
-  end
-  return resultSet
 end
