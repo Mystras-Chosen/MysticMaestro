@@ -388,6 +388,7 @@ local searchBar
 
 function MM:SetSearchBarDefaultText()
   searchBar:SetText(defaultSearchText)
+  searchBar.editBox:ClearFocus()
 end
 
 local function setUpSearchWidget()
@@ -595,7 +596,6 @@ function MM:GetSelectedEnchantButton()
 end
 
 function MM:SetSelectedEnchantButton(button)
-  self:ClearGraph()
   self:PopulateGraph(button.enchantID)
   selectedEnchantButton = button
 end
