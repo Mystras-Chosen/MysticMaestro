@@ -225,9 +225,23 @@ local function createEnchantButton(enchantContainer, i)
   enchantButton:SetSize(enchantContainer:GetWidth() - 16, 36)
   enchantButton:SetPoint("TOP", enchantContainer, "TOP", 0, -(i-1)*36-8)
   enchantButton:SetFrameStrata("LOW")
-  enchantButton:SetScript("OnLeave", function(self)
+  enchantButton:SetScript("OnLeave",
+  function(self)
     GameTooltip:Hide()
-    self.H:Hide()
+    if self ~= MM:GetSelectedEnchantButton() then
+      self.H:Hide()
+    end
+  end)
+  enchantButton:SetScript("OnClick",
+  function(self)
+    self.H:Show()
+    self.H:SetDesaturated(false)
+    local lastSelectedButton = MM:GetSelectedEnchantButton()
+    if lastSelectedButton then
+      lastSelectedButton.H:SetDesaturated(true)
+      lastSelectedButton.H:Hide()
+    end
+    MM:SetSelectedEnchantButton(self)
   end)
   enchantButton:Hide()
 
@@ -241,6 +255,7 @@ local function createEnchantButton(enchantContainer, i)
   enchantButton.H:SetSize(248, 59)
   enchantButton.H:SetPoint("CENTER", 19, 0)
   enchantButton.H:SetBlendMode("ADD")
+  enchantButton.H:SetDesaturated()
   enchantButton.H:Hide()
 
   enchantButton.Icon = enchantButton:CreateTexture(nil, "LOW")
@@ -496,6 +511,7 @@ function MM:PrevPage()
   updatePageButtons()
   self:HideEnchantButtons()
   self:ShowEnchantButtons()
+  self:DeselectSelectedEnchantButton()
 end
 
 function MM:NextPage()
@@ -504,6 +520,7 @@ function MM:NextPage()
   updatePageButtons()
   self:HideEnchantButtons()
   self:ShowEnchantButtons()
+  self:DeselectSelectedEnchantButton()
 end
 
 function MM:GoToPage(page)
@@ -512,6 +529,7 @@ function MM:GoToPage(page)
   updatePageButtons()
   self:HideEnchantButtons()
   self:ShowEnchantButtons()
+  self:DeselectSelectedEnchantButton()
 end
 
 local enchantQualityColors = {
@@ -530,7 +548,9 @@ local function updateEnchantButton(enchantID, buttonNumber)
   button.REText:SetText(enchantName)
   
   button:SetScript("OnEnter", function(self)
-    self.H:Show()
+    if self ~= MM:GetSelectedEnchantButton() then
+      self.H:Show()
+    end
     GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
     GameTooltip:SetHyperlink("|Hspell:"..enchantData.spellID.."|h[test]|h")
     GameTooltip:Show()
@@ -543,44 +563,6 @@ local function updateEnchantButton(enchantID, buttonNumber)
     button.BG:SetVertexColor(1, 1, 1)
     button.REText:SetTextColor(r, g, b)
   else
-    button.IconBorder:SetVertexColor(mult, mult, mult)
-    button.Icon:SetVertexColor(mult, mult, mult)
-    button.BG:SetVertexColor(mult, mult, mult)
-    button.REText:SetTextColor(mult*r, mult*g, mult*b)
-  end
-  button:Show()
-end
-
-local enchantQualityColors = {
-  [2] = { 0.117647,        1,        0 },
-  [3] = {        0, 0.439216, 0.866667 },
-  [4] = { 0.639216, 0.207843, 0.933333 },
-  [5] = {        1, 0.501961,        0 },
-}
-
-local function updateEnchantButton(enchantID, buttonNumber)
-  local button = enchantButtons[buttonNumber]
-  local enchantData = MYSTIC_ENCHANTS[enchantID]
-  button.IconBorder:SetTexture(enchantQualityBorders[enchantData.quality])
-  local enchantName, _, enchantIcon = GetSpellInfo(enchantData.spellID)
-  button.Icon:SetTexture(enchantIcon)
-  button.REText:SetText(enchantName)
-  
-  button:SetScript("OnEnter", function(self)
-    self.H:Show()
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
-    GameTooltip:SetHyperlink("|Hspell:"..enchantData.spellID.."|h[test]|h")
-    GameTooltip:Show()
-  end)
-  local r, g, b = unpack(enchantQualityColors[enchantData.quality])
-  local mult = .6
-  if IsReforgeEnchantmentKnown(enchantID) then
-    button.IconBorder:SetVertexColor(1, 1, 1)
-    button.Icon:SetVertexColor(1, 1, 1)
-    button.BG:SetVertexColor(1, 1, 1)
-    button.REText:SetTextColor(r, g, b)
-  else
-    AHTEST = button
     button.IconBorder:SetVertexColor(mult, mult, mult)
     button.Icon:SetVertexColor(mult, mult, mult)
     button.BG:SetVertexColor(mult, mult, mult)
@@ -603,3 +585,22 @@ function MM:ShowEnchantButtons()
     index = index + 1
   end
 end
+
+local selectedEnchantButton
+
+function MM:GetSelectedEnchantButton()
+  return selectedEnchantButton
+end
+
+function MM:SetSelectedEnchantButton(button)
+  selectedEnchantButton = button
+end
+
+function MM:DeselectSelectedEnchantButton()
+  if selectedEnchantButton then
+    selectedEnchantButton.H:SetDesaturated(true)
+    selectedEnchantButton.H:Hide()
+  end
+  selectedEnchantButton = nil
+end
+
