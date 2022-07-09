@@ -293,6 +293,7 @@ local function createPageTextFrame(enchantContainer, xOffset, yOffset)
   pageTextFrame = CreateFrame("FRAME", nil, enchantContainer)
   pageTextFrame:SetSize(52, 32)
   pageTextFrame:SetPoint("BOTTOM", enchantContainer, "BOTTOM", xOffset, yOffset)
+  pageTextFrame:SetFrameStrata("LOW")
   pageTextFrame.Text = pageTextFrame:CreateFontString()
   pageTextFrame.Text:SetFontObject(GameFontNormal)
   pageTextFrame.Text:SetFont("Fonts\\FRIZQT__.TTF", 11)
@@ -304,6 +305,21 @@ local function createPagination(enchantContainer)
   prevPageButton = createPageButton(enchantContainer, "Prev", -42, paginationVerticalPosition)
   nextPageButton = createPageButton(enchantContainer, "Next", 42, paginationVerticalPosition)
   createPageTextFrame(enchantContainer, 0, paginationVerticalPosition)
+end
+
+local refreshButton
+local function createRefreshButton(mmf)
+  refreshButton = CreateFrame("BUTTON", nil, mmf)
+  refreshButton:SetSize(18, 18)
+  refreshButton:SetPoint("CENTER", mmf, "TOPLEFT", 186, -14)
+  refreshButton:SetFrameStrata("LOW")
+  refreshButton:SetNormalTexture("Interface\\BUTTONS\\UI-RefreshButton")
+  refreshButton:SetScript("OnClick",
+  function(self)
+    MM:SetSearchBarDefaultText()
+    MM:FilterMysticEnchants({all = true})
+    MM:GoToPage(1)
+  end)
 end
 
 local menuInitialized
@@ -326,6 +342,7 @@ local function initializeMenu()
   setUpCurrencyDisplay(enchantContainer)
   createEnchantButtons(enchantContainer)
   createPagination(enchantContainer)
+  createRefreshButton(mmf)
   menuInitialized = true
 end
 
@@ -352,6 +369,11 @@ end
 local defaultSearchText = "|cFF777777Search|r"
 
 local searchBar
+
+function MM:SetSearchBarDefaultText()
+  searchBar:SetText(defaultSearchText)
+end
+
 local function setUpSearchWidget()
   searchBar = AceGUI:Create("EditBoxMysticMaestroREPredictor")
   searchBar:SetPoint("TOP", mmf, "TOP")
