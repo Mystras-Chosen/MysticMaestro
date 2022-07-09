@@ -234,9 +234,10 @@ local function createEnchantButton(enchantContainer, i)
   end)
   enchantButton:SetScript("OnClick",
   function(self)
+    local lastSelectedButton = MM:GetSelectedEnchantButton()
+    if lastSelectedButton == self then return end
     self.H:Show()
     self.H:SetDesaturated(false)
-    local lastSelectedButton = MM:GetSelectedEnchantButton()
     if lastSelectedButton then
       lastSelectedButton.H:SetDesaturated(true)
       lastSelectedButton.H:Hide()
@@ -541,6 +542,7 @@ local enchantQualityColors = {
 
 local function updateEnchantButton(enchantID, buttonNumber)
   local button = enchantButtons[buttonNumber]
+  button.enchantID = enchantID
   local enchantData = MYSTIC_ENCHANTS[enchantID]
   button.IconBorder:SetTexture(enchantQualityBorders[enchantData.quality])
   local enchantName, _, enchantIcon = GetSpellInfo(enchantData.spellID)
@@ -593,6 +595,8 @@ function MM:GetSelectedEnchantButton()
 end
 
 function MM:SetSelectedEnchantButton(button)
+  self:ClearGraph()
+  self:PopulateGraph(button.enchantID)
   selectedEnchantButton = button
 end
 
@@ -601,6 +605,7 @@ function MM:DeselectSelectedEnchantButton()
     selectedEnchantButton.H:SetDesaturated(true)
     selectedEnchantButton.H:Hide()
   end
+  self:ClearGraph()
   selectedEnchantButton = nil
 end
 
