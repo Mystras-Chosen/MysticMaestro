@@ -29,14 +29,16 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         if key then
           enchantName = queryResults[key]:match("|c........(.-)|r")
           MM:PopulateGraph(key)
-          MM:ShowEnchantButtons({key}, 1)
+          MM:SetResultSet({key})
+          MM:GoToPage(1)
           return key, enchantName
         else
           key, enchantName = next(queryResults)
           if key then
             enchantName = enchantName:match("|c........(.-)|r")
             MM:PopulateGraph(key)
-            MM:ShowEnchantButtons({key}, 1)
+            MM:SetResultSet({key})
+            MM:GoToPage(1)
             return key, enchantName
           end
         end
@@ -269,6 +271,28 @@ local function createEnchantButtons(enchantContainer)
   end
 end
 
+local prevPageButton, nextPageButton
+
+local function createPageButton(enchantContainer, prevOrNext, xOffset, yOffset)
+  local pageButton = CreateFrame("BUTTON", nil, enchantContainer)
+  pageButton:SetSize(32, 32)
+  pageButton:SetPoint("BOTTOM", enchantContainer, "BOTTOM", xOffset, yOffset)
+  pageButton:SetFrameStrata("LOW")
+  pageButton:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. prevOrNext .."Page-Up")
+  pageButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. prevOrNext .."Page-Down")
+  pageButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. prevOrNext .."Page-Disabled")
+  pageButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
+  pageButton:SetScript("OnClick", function(self)
+    MM[prevOrNext.."Page"](MM)
+  end)
+  return pageButton
+end
+
+local function createPagination(enchantContainer)
+  prevPageButton = createPageButton(enchantContainer, "Prev", -32, 70)
+  nextPageButton = createPageButton(enchantContainer, "Next", 32, 70)
+end
+
 local menuInitialized
 local enchantContainer, statsContainer, graphContainer
 local function initializeMenu()
@@ -347,8 +371,8 @@ function MM:OpenStandaloneMenu()
   setUpDropdownWidgets()
   setUpSearchWidget()
   self:ClearGraph()
-  local resultSet = self:GetFilteredMysticEnchants({all = true})
-  self:ShowEnchantButtons(resultSet, 1)
+  self:FilteredMysticEnchants({all = true})
+  self:GoToPage(1)
   standaloneMenuContainer:Show()
   mmf:Show()
 end
@@ -379,6 +403,71 @@ local enchantQualityBorders = {
   [4] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Purple",
   [5] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Leg"
 }
+
+local resultSet
+
+function MM:SetResultSet(set)
+  resultSet = set
+end
+
+function MM:FilteredMysticEnchants(filters)
+  local filterByAll = filters.all
+  local filterByQuality = filters.quality
+  local filterByKnown = filters.known
+  local filterByUnknown = filters.unknown
+
+  resultSet = {}
+  for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
+    if enchantID ~= 0 then
+      if filterByAll or filterByQuality == enchantData.quality
+      or filterByKnown and IsReforgeEnchantmentKnown(enchantID)
+      or filterByKnown and not IsReforgeEnchantmentKnown(enchantID) then
+        table.insert(resultSet, enchantID)
+      end
+    end
+  end
+end
+
+local currentPage = 1
+local function updatePageButtons()
+  print(currentPage, MM:GetNumPages())
+  prevPageButton:Enable()
+  nextPageButton:Enable()
+  if currentPage == 1 then
+    prevPageButton:Disable()
+  end
+  if currentPage == MM:GetNumPages() then
+    nextPageButton:Disable()
+  end
+end
+
+function MM:GetNumPages()
+  return math.ceil(#resultSet / numEnchantButtons)
+end
+
+function MM:PrevPage()
+  if currentPage == 1 then return end
+  currentPage = currentPage - 1
+  updatePageButtons()
+  self:HideEnchantButtons()
+  self:ShowEnchantButtons()
+end
+
+function MM:NextPage()
+  if currentPage == self:GetNumPages() then return end
+  currentPage = currentPage + 1
+  updatePageButtons()
+  self:HideEnchantButtons()
+  self:ShowEnchantButtons()
+end
+
+function MM:GoToPage(page)
+  if page < 1 or page > self:GetNumPages() then return end
+  currentPage = page
+  updatePageButtons()
+  self:HideEnchantButtons()
+  self:ShowEnchantButtons()
+end
 
 local enchantQualityColors = {
   [2] = { 0.117647,        1,        0 },
