@@ -232,7 +232,13 @@ local function createEnchantButton(enchantContainer, i)
       self.H:Hide()
     end
   end)
-  enchantButton:SetScript("OnClick", function(self) MM:SetSelectedEnchantButton(self) end)
+  enchantButton:SetScript("OnClick", function(self)
+    local filterDropdown = MM:GetFilterDropdown()
+    if filterDropdown.open then
+			filterDropdown.pullout:Close()
+		end
+    MM:SetSelectedEnchantButton(self) 
+  end)
   enchantButton:Hide()
 
   enchantButton.BG = enchantButton:CreateTexture(nil, "LOW")
@@ -438,6 +444,11 @@ local function filterDropdown_OnValueChanged(self, event, key, checked)
 end
 
 local sortDropdown, filterDropdown
+
+function MM:GetFilterDropdown()
+  return filterDropdown
+end
+
 local function setUpDropdownWidgets()
   sortDropdown = AceGUI:Create("Dropdown")
   sortDropdown:SetPoint("TOPLEFT", mmf, "TOPLEFT", 8, 0)
