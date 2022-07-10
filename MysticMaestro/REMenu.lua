@@ -333,7 +333,7 @@ local function createRefreshButton(mmf)
   refreshButton:SetScript("OnClick",
   function(self)
     MM:SetSearchBarDefaultText()
-    MM:FilterMysticEnchants({all = true})
+    MM:FilterMysticEnchants()
     MM:GoToPage(1)
   end)
 end
@@ -368,19 +368,48 @@ local function anchorMenuToMenuContainer()
 end
 
 local filterOptions = {
-  "All",
+  "All Qualities",
   "Uncommon", 
   "Rare",
   "Epic",
   "Legendary",
   "-------------",
-  "All",
+  "Known & Unknown",
   "Known",
   "Unknown",
   "-------------",
   "Favorites",
   "-------------"
 }
+
+local latestFilter
+
+local function itemsToFilter(items)
+  latestFilter = {
+    allQualities = items[1]:GetValue(),
+    uncommon = items[2]:GetValue(),
+    rare = items[3]:GetValue(),
+    epic = items[4]:GetValue(),
+    legendary = items[5]:GetValue(),
+    allKnown = items[7]:GetValue(),
+    known = items[8]:GetValue(),
+    unknown = items[9]:GetValue(),
+    favorites = items[11]:GetValue()
+  }
+  return latestFilter
+end
+
+local function filterToItems(filterDropdown, filter)
+  filterDropdown:SetItemValue(1, filter.allQualities)
+  filterDropdown:SetItemValue(2, filter.uncommon)
+  filterDropdown:SetItemValue(3, filter.rare)
+  filterDropdown:SetItemValue(4, filter.epic)
+  filterDropdown:SetItemValue(5, filter.legendary)
+  filterDropdown:SetItemValue(7, filter.allKnown)
+  filterDropdown:SetItemValue(8, filter.known)
+  filterDropdown:SetItemValue(9, filter.unknown)
+  filterDropdown:SetItemValue(11, filter.favorites)
+end
 
 local function filterDropdown_OnValueChanged(self, event, key, checked)
   local items = self.pullout.items
@@ -393,8 +422,7 @@ local function filterDropdown_OnValueChanged(self, event, key, checked)
     else
       items[1]:SetValue(true)
     end
-  end
-  if key == 2 or key == 3 or key == 4 or key == 5 then
+  elseif key == 2 or key == 3 or key == 4 or key == 5 then
     if checked then
       if items[2]:GetValue() and items[3]:GetValue() and items[4]:GetValue() and items[5]:GetValue() then
         items[2]:SetValue(nil)
@@ -410,30 +438,14 @@ local function filterDropdown_OnValueChanged(self, event, key, checked)
         items[1]:SetValue(true)
       end
     end
+  elseif key == 7 or key == 8 or key == 9 then
+    items[7]:SetValue(key == 7 or nil)
+    items[8]:SetValue(key == 8 or nil)
+    items[9]:SetValue(key == 9 or nil)
   end
-  if key == 7 then
-    if checked then
-      items[8]:SetValue(nil)
-      items[9]:SetValue(nil)
-    else
-      items[7]:SetValue(true)
-    end
-  end
-  if key == 8 or key == 9 then
-    if checked then
-      if items[8]:GetValue() and items[9]:GetValue() then
-        items[8]:SetValue(nil)
-        items[9]:SetValue(nil)
-        items[7]:SetValue(true)
-      else
-        items[7]:SetValue(nil)
-      end
-    else
-      if not (items[8]:GetValue() or items[9]:GetValue()) then
-        items[7]:SetValue(true)
-      end
-    end
-  end
+  MM:SetSearchBarDefaultText()
+  MM:FilterMysticEnchants(itemsToFilter(items))
+  MM:GoToPage(1)
 end
 
 local sortDropdown, filterDropdown
@@ -448,11 +460,17 @@ local function setUpDropdownWidgets()
   filterDropdown:SetPoint("TOPRIGHT", mmf, "TOPRIGHT", -6, 0)
   filterDropdown:SetWidth(160)
   filterDropdown:SetHeight(27)
+  filterDropdown:SetMultiselect(true)
   filterDropdown:SetList(filterOptions)
   filterDropdown:SetItemDisabled(6, true)
   filterDropdown:SetItemDisabled(10, true)
   filterDropdown:SetItemDisabled(12, true)
-  filterDropdown:SetMultiselect(true)
+  if not latestFilter then
+    filterDropdown:SetItemValue(1, true)
+    filterDropdown:SetItemValue(7, true)
+  else
+    filterToItems(filterDropdown, latestFilter)
+  end
   filterDropdown:SetCallback("OnValueChanged", filterDropdown_OnValueChanged)
   filterDropdown.frame:Show()
 end
@@ -508,7 +526,7 @@ function MM:OpenStandaloneMenu()
   setUpDropdownWidgets()
   setUpSearchWidget()
   self:ClearGraph()
-  self:FilterMysticEnchants({all = true})
+  self:FilterMysticEnchants(latestFilter or {allQualities = true, allKnown = true})
   self:GoToPage(1)
   standaloneMenuContainer:Show()
   mmf:Show()
@@ -547,26 +565,47 @@ function MM:SetResultSet(set)
   resultSet = set
 end
 
-function MM:FilterMysticEnchants(filters)
-  local filterByAll = filters.all
-  local filterByQuality = filters.quality
-  local filterByKnown = filters.known
-  local filterByUnknown = filters.unknown
+local function qualityCheckMet(enchantID, filter)
+  local quality = MYSTIC_ENCHANTS[enchantID].quality
+  return filter.allQualities
+  or filter.uncommon and quality == 2
+  or filter.rare and quality == 3
+  or filter.epic and quality == 4
+  or filter.legendary and quality == 5
+end
 
+local function knownCheckMet(enchantID, filter)
+  local known = IsReforgeEnchantmentKnown(enchantID)
+  return filter.allKnown
+  or filter.known and known
+  or filter.unknown and not known
+end
+
+local function favoriteCheckMet(enchantID, filter)
+  return not filter.favorites or MM.db.realm.FAVORITE_ENCHANTS[enchantID]
+end
+
+function MM:FilterMysticEnchants(filter)
+  filter = filter or latestFilter
+  latestFilter = filter
   resultSet = {}
   for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-    if enchantID ~= 0 then
-      if filterByAll or filterByQuality == enchantData.quality
-      or filterByKnown and IsReforgeEnchantmentKnown(enchantID)
-      or filterByKnown and not IsReforgeEnchantmentKnown(enchantID) then
-        table.insert(resultSet, enchantID)
-      end
+    if enchantID ~= 0 and qualityCheckMet(enchantID, filter)
+    and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter) then
+      table.insert(resultSet, enchantID)
     end
   end
 end
 
 local currentPage = 1
 local function updatePageButtons()
+  local numPages = MM:GetNumPages()
+  if numPages == 0 then
+    prevPageButton:Disable()
+    nextPageButton:Disable()
+    pageTextFrame.Text:SetText("0/0")
+    return
+  end
   prevPageButton:Enable()
   nextPageButton:Enable()
   if currentPage == 1 then
@@ -601,7 +640,8 @@ function MM:NextPage()
 end
 
 function MM:GoToPage(page)
-  if page < 1 or page > self:GetNumPages() then return end
+  local numPages = self:GetNumPages()
+  if page < 1 or numPages ~= 0 and page > numPages then return end
   currentPage = page
   updatePageButtons()
   self:HideEnchantButtons()
@@ -651,7 +691,6 @@ end
 
 function MM:ShowEnchantButtons()
   if #resultSet - 8 * (currentPage - 1) <= 0 then
-    self:Print("No mystic enchants on page")
     return
   end
   local index = 8 * (currentPage - 1) + 1

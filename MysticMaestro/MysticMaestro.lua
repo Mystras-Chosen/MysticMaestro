@@ -53,6 +53,7 @@ function MM:OnInitialize()
   self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
   self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
   self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
+  self.db.realm.FAVORITE_ENCHANTS = self.db.realm.FAVORITE_ENCHANTS or {}
 end
 
 function MM:OnEnable()
