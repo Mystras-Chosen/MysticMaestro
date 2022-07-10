@@ -124,12 +124,12 @@ function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY
 end
 
 function MM:PopulateGraph(enchantID)
+  g:ResetData()
   local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantID]
   if not next(enchantListingData) then
     self:Print('No listings found for mystic enchant "' .. GetSpellInfo(MYSTIC_ENCHANTS[enchantID].spellID) .. '"')
     return
   end
-  g:ResetData()
   local correction = calcGridLineCorrection()
   local averageData, minimumData = createMysticEnchantData(enchantListingData, correction)
   sortData(averageData)
