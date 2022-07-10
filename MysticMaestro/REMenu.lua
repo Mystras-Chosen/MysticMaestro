@@ -28,17 +28,17 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         local enchantName
         if key then
           enchantName = queryResults[key]:match("|c........(.-)|r")
-          MM:PopulateGraph(key)
           MM:SetResultSet({key})
           MM:GoToPage(1)
+          MM:SetSelectedEnchantButton(1)
           return key, enchantName
         else
           key, enchantName = next(queryResults)
           if key then
             enchantName = enchantName:match("|c........(.-)|r")
-            MM:PopulateGraph(key)
             MM:SetResultSet({key})
             MM:GoToPage(1)
+            MM:SetSelectedEnchantButton(1)
             return key, enchantName
           end
         end
@@ -232,18 +232,7 @@ local function createEnchantButton(enchantContainer, i)
       self.H:Hide()
     end
   end)
-  enchantButton:SetScript("OnClick",
-  function(self)
-    local lastSelectedButton = MM:GetSelectedEnchantButton()
-    if lastSelectedButton == self then return end
-    self.H:Show()
-    self.H:SetDesaturated(false)
-    if lastSelectedButton then
-      lastSelectedButton.H:SetDesaturated(true)
-      lastSelectedButton.H:Hide()
-    end
-    MM:SetSelectedEnchantButton(self)
-  end)
+  enchantButton:SetScript("OnClick", function(self) MM:SetSelectedEnchantButton(self) end)
   enchantButton:Hide()
 
   enchantButton.BG = enchantButton:CreateTexture(nil, "LOW")
@@ -546,12 +535,6 @@ function MM:CloseStandaloneMenu()
   mmf:Hide()
 end
 
-function MM:HideEnchantButtons()
-  for _, button in ipairs(enchantButtons) do
-    button:Hide()
-  end
-end
-
 local enchantQualityBorders = {
   [2] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_green",
   [3] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Blue",
@@ -625,18 +608,14 @@ function MM:PrevPage()
   if currentPage == 1 then return end
   currentPage = currentPage - 1
   updatePageButtons()
-  self:HideEnchantButtons()
-  self:ShowEnchantButtons()
-  self:DeselectSelectedEnchantButton()
+  self:RefreshEnchantButtons()
 end
 
 function MM:NextPage()
   if currentPage == self:GetNumPages() then return end
   currentPage = currentPage + 1
   updatePageButtons()
-  self:HideEnchantButtons()
-  self:ShowEnchantButtons()
-  self:DeselectSelectedEnchantButton()
+  self:RefreshEnchantButtons()
 end
 
 function MM:GoToPage(page)
@@ -644,9 +623,7 @@ function MM:GoToPage(page)
   if page < 1 or numPages ~= 0 and page > numPages then return end
   currentPage = page
   updatePageButtons()
-  self:HideEnchantButtons()
-  self:ShowEnchantButtons()
-  self:DeselectSelectedEnchantButton()
+  self:RefreshEnchantButtons()
 end
 
 local enchantQualityColors = {
@@ -701,6 +678,20 @@ function MM:ShowEnchantButtons()
   end
 end
 
+function MM:HideEnchantButtons()
+  for _, button in ipairs(enchantButtons) do
+    button:Hide()
+    button.H:SetDesaturated(true)
+    button.H:Hide()
+  end
+  self:DeselectSelectedEnchantButton()
+end
+
+function MM:RefreshEnchantButtons()
+  self:HideEnchantButtons()
+  self:ShowEnchantButtons()
+end
+
 local selectedEnchantButton
 
 function MM:GetSelectedEnchantButton()
@@ -708,6 +699,15 @@ function MM:GetSelectedEnchantButton()
 end
 
 function MM:SetSelectedEnchantButton(button)
+  button = type(button) == "table" and button or enchantButtons[button]
+  local lastSelectedButton = self:GetSelectedEnchantButton()
+  if lastSelectedButton == button then return end
+  button.H:Show()
+  button.H:SetDesaturated(false)
+  if lastSelectedButton then
+    lastSelectedButton.H:SetDesaturated(true)
+    lastSelectedButton.H:Hide()
+  end
   self:PopulateGraph(button.enchantID)
   selectedEnchantButton = button
 end
