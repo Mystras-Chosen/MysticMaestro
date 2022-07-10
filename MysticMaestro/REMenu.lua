@@ -367,6 +367,75 @@ local function anchorMenuToMenuContainer()
   mmf:SetPoint("BOTTOMLEFT", standaloneMenuContainer, "BOTTOMLEFT", 13, 9)
 end
 
+local filterOptions = {
+  "All",
+  "Uncommon", 
+  "Rare",
+  "Epic",
+  "Legendary",
+  "-------------",
+  "All",
+  "Known",
+  "Unknown",
+  "-------------",
+  "Favorites",
+  "-------------"
+}
+
+local function filterDropdown_OnValueChanged(self, event, key, checked)
+  local items = self.pullout.items
+  if key == 1 then
+    if checked then
+      items[2]:SetValue(nil)
+      items[3]:SetValue(nil)
+      items[4]:SetValue(nil)
+      items[5]:SetValue(nil)
+    else
+      items[1]:SetValue(true)
+    end
+  end
+  if key == 2 or key == 3 or key == 4 or key == 5 then
+    if checked then
+      if items[2]:GetValue() and items[3]:GetValue() and items[4]:GetValue() and items[5]:GetValue() then
+        items[2]:SetValue(nil)
+        items[3]:SetValue(nil)
+        items[4]:SetValue(nil)
+        items[5]:SetValue(nil)
+        items[1]:SetValue(true)
+      else
+        items[1]:SetValue(nil)
+      end
+    else
+      if not (items[2]:GetValue() or items[3]:GetValue() or items[4]:GetValue() or items[5]:GetValue()) then
+        items[1]:SetValue(true)
+      end
+    end
+  end
+  if key == 7 then
+    if checked then
+      items[8]:SetValue(nil)
+      items[9]:SetValue(nil)
+    else
+      items[7]:SetValue(true)
+    end
+  end
+  if key == 8 or key == 9 then
+    if checked then
+      if items[8]:GetValue() and items[9]:GetValue() then
+        items[8]:SetValue(nil)
+        items[9]:SetValue(nil)
+        items[7]:SetValue(true)
+      else
+        items[7]:SetValue(nil)
+      end
+    else
+      if not (items[8]:GetValue() or items[9]:GetValue()) then
+        items[7]:SetValue(true)
+      end
+    end
+  end
+end
+
 local sortDropdown, filterDropdown
 local function setUpDropdownWidgets()
   sortDropdown = AceGUI:Create("Dropdown")
@@ -379,6 +448,12 @@ local function setUpDropdownWidgets()
   filterDropdown:SetPoint("TOPRIGHT", mmf, "TOPRIGHT", -6, 0)
   filterDropdown:SetWidth(160)
   filterDropdown:SetHeight(27)
+  filterDropdown:SetList(filterOptions)
+  filterDropdown:SetItemDisabled(6, true)
+  filterDropdown:SetItemDisabled(10, true)
+  filterDropdown:SetItemDisabled(12, true)
+  filterDropdown:SetMultiselect(true)
+  filterDropdown:SetCallback("OnValueChanged", filterDropdown_OnValueChanged)
   filterDropdown.frame:Show()
 end
 
@@ -574,8 +649,6 @@ local function updateEnchantButton(enchantID, buttonNumber)
   button:Show()
 end
 
--- resultSet is a list of mystic enchant enchant IDs
--- page 1 is the first page
 function MM:ShowEnchantButtons()
   if #resultSet - 8 * (currentPage - 1) <= 0 then
     self:Print("No mystic enchants on page")
