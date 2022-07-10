@@ -2,6 +2,8 @@ local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local AceGUI = LibStub("AceGUI-3.0")
 
+local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
+
 local queryResults = {}
 do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
   LibStub("AceGUI-3.0-Search-EditBox"):Register(
@@ -443,6 +445,29 @@ local function filterDropdown_OnValueChanged(self, event, key, checked)
   MM:GoToPage(1)
 end
 
+local latestSort
+
+local sortOptions = {
+  "Alphabetical (Ascending)",
+  "Alphabetical (Descending)"
+}
+
+
+
+local itemKeyToSortFunctionKey = {
+  "alphabetical_asc",
+  "alphabetical_des"
+}
+
+local function sortDropdown_OnValueChanged(self, event, key, checked)
+  local items = self.pullout.items
+  items[1]:SetValue(key == 1 or nil)
+  items[2]:SetValue(key == 2 or nil)
+  MM:SetSearchBarDefaultText()
+  MM:SortMysticEnchants(itemKeyToSortFunctionKey[key])
+  MM:GoToPage(1)
+end
+
 local sortDropdown, filterDropdown
 
 function MM:GetFilterDropdown()
@@ -454,6 +479,9 @@ local function setUpDropdownWidgets()
   sortDropdown:SetPoint("TOPLEFT", mmf, "TOPLEFT", 8, 0)
   sortDropdown:SetWidth(160)
   sortDropdown:SetHeight(27)
+  sortDropdown:SetList(sortOptions)
+  sortDropdown:SetItemValue(latestSort and latestSort or 1, true)
+  sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
   sortDropdown.frame:Show()
 
   filterDropdown = AceGUI:Create("Dropdown")
@@ -732,3 +760,12 @@ function MM:DeselectSelectedEnchantButton()
   selectedEnchantButton = nil
 end
 
+local sortFunctions = {
+  alphabetical_asc = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
+  alphabetical_des = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) > GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
+
+}
+
+function MM:SortMysticEnchants(sortFunctionKey)
+  table.sort(resultSet, sortFunctions[sortFunctionKey])
+end
