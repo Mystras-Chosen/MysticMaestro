@@ -440,9 +440,11 @@ local function filterDropdown_OnValueChanged(self, event, key, checked)
     items[8]:SetValue(key == 8 or nil)
     items[9]:SetValue(key == 9 or nil)
   end
-  MM:SetSearchBarDefaultText()
-  MM:FilterMysticEnchants(itemsToFilter(items))
-  MM:GoToPage(1)
+  if items[key]:GetValue() == checked or key > 1 and key < 6 and items[1]:GetValue() then
+    MM:SetSearchBarDefaultText()
+    MM:FilterMysticEnchants(itemsToFilter(items))
+    MM:GoToPage(1)
+  end
 end
 
 local sortOptions = {
