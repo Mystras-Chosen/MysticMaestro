@@ -275,3 +275,24 @@ function MM:OrbValue(reID)
   return minVal and MM:round(minVal / cost,2,true) or nil
 end
 
+function MM:Compare(a,b,comparitor)
+  if a == nil then
+    return b
+  elseif b == nil then
+    return a
+  end
+
+  if comparitor == ">" then
+    return a > b
+  elseif comparitor == ">=" then
+    return a >= b
+  elseif comparitor == "<" then
+    return a < b
+  elseif comparitor == "<=" then
+    return a <= b
+  elseif comparitor == "==" then
+    return a == b
+  elseif comparitor == "~=" then
+    return a ~= b
+  end
+end
