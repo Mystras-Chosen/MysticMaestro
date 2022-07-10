@@ -59,7 +59,7 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      buyoutPrice = buyoutPrice / 10000
+      buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
       local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
       if itemFound and enchantID == expectedEnchantID then
         enchantFound = true
@@ -82,7 +82,7 @@ function MM:CollectAllREData(scanTime)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      buyoutPrice = buyoutPrice / 10000
+      buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
       local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice)
       if itemFound then
         listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
@@ -99,9 +99,9 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
-function MM:round(num, numDecimalPlaces)
+function MM:round(num, numDecimalPlaces, alwaysDown)
   local mult = 10^(numDecimalPlaces or 0)
-  return math.floor(num * mult + 0.5) / mult
+  return math.floor(num * mult + (alwaysDown and 0 or 0.5)) / mult
 end
 
 function MM:CompareTime(a,b)
