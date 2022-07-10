@@ -248,3 +248,30 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	end
 	return enchants
 end
+
+local qualityCost = {
+  [2] = 2,
+  [3] = 6,
+  [4] = 10,
+  [5] = 25
+}
+
+function MM:LowestMin(reID)
+  local current = self.db.realm.RE_AH_STATISTICS[reID].current
+  local lowestMin
+  if current.latestOther and current.latest then
+    lowestMin = current.minVal < current.minOther and current.minVal or current.minOther
+  elseif current.latest then
+    lowestMin = current.minVal
+  elseif current.latestOther then
+    lowestMin = current.minOther
+  end
+  return lowestMin
+end
+
+function MM:OrbValue(reID)
+  local cost = qualityCost[MYSTIC_ENCHANTS[reID].quality]
+  local minVal = MM:LowestMin(reID)
+  return minVal and MM:round(minVal / cost,2,true) or nil
+end
+

@@ -214,6 +214,9 @@ local function addLinesTooltip(tt, input)
       , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoAvg,"avg")..tGold.."/"..MM:cTxt(ttoTop,"top")..tGold..")"
       , 1, 1, 0)
     end
+    tt:AddDoubleLine("Gold per Mystic Orb"
+    , MM:OrbValue(reID)
+    , 1, 1, 0)
   end
   tt:AddLine(" ")
 end
