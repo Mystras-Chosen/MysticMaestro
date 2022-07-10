@@ -445,26 +445,48 @@ local function filterDropdown_OnValueChanged(self, event, key, checked)
   MM:GoToPage(1)
 end
 
-local latestSort
-
 local sortOptions = {
   "Alphabetical (Ascending)",
-  "Alphabetical (Descending)"
+  "Alphabetical (Descending)",
+  "Gold/Orb (Ascending)",
+  "Gold/Orb (Descending)",
 }
-
-
 
 local itemKeyToSortFunctionKey = {
   "alphabetical_asc",
-  "alphabetical_des"
+  "alphabetical_des",
+  "goldperorb_asc",
+  "goldperorb_des"
 }
+
+local sortFunctions = {
+  alphabetical_asc = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
+  alphabetical_des = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) > GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
+  goldperorb_asc = function(k1, k2)
+    local v1 = MM:OrbValue(k1)
+    local v2 = MM:OrbValue(k2)
+    return MM:Compare(v1, v2, "<")
+  end,
+  goldperorb_des = function(k1, k2)
+    local v1 = MM:OrbValue(k1)
+    local v2 = MM:OrbValue(k2)
+    return MM:Compare(v1, v2, ">")
+  end,
+}
+
+function MM:SortMysticEnchants(itemKey)
+  table.sort(self:GetResultSet(), sortFunctions[itemKeyToSortFunctionKey[itemKey]])
+end
+
+local currentSort
 
 local function sortDropdown_OnValueChanged(self, event, key, checked)
   local items = self.pullout.items
   items[1]:SetValue(key == 1 or nil)
   items[2]:SetValue(key == 2 or nil)
   MM:SetSearchBarDefaultText()
-  MM:SortMysticEnchants(itemKeyToSortFunctionKey[key])
+  currentSort = key
+  MM:SortMysticEnchants(key)
   MM:GoToPage(1)
 end
 
@@ -480,7 +502,7 @@ local function setUpDropdownWidgets()
   sortDropdown:SetWidth(160)
   sortDropdown:SetHeight(27)
   sortDropdown:SetList(sortOptions)
-  sortDropdown:SetItemValue(latestSort and latestSort or 1, true)
+  sortDropdown:SetValue(1)
   sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
   sortDropdown.frame:Show()
 
@@ -587,6 +609,10 @@ function MM:SetResultSet(set)
   resultSet = set
 end
 
+function MM:GetResultSet()
+  return resultSet
+end
+
 local function qualityCheckMet(enchantID, filter)
   local quality = MYSTIC_ENCHANTS[enchantID].quality
   return filter.allQualities
@@ -617,6 +643,7 @@ function MM:FilterMysticEnchants(filter)
       table.insert(resultSet, enchantID)
     end
   end
+  self:SortMysticEnchants(currentSort or 1)
 end
 
 local currentPage = 1
@@ -758,14 +785,4 @@ function MM:DeselectSelectedEnchantButton()
   end
   self:ClearGraph()
   selectedEnchantButton = nil
-end
-
-local sortFunctions = {
-  alphabetical_asc = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
-  alphabetical_des = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) > GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
-
-}
-
-function MM:SortMysticEnchants(sortFunctionKey)
-  table.sort(resultSet, sortFunctions[sortFunctionKey])
 end

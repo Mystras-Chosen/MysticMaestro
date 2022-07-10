@@ -258,6 +258,7 @@ local qualityCost = {
 
 function MM:LowestMin(reID)
   local current = self.db.realm.RE_AH_STATISTICS[reID].current
+  if not current then return nil end
   local lowestMin
   if current.latestOther and current.latest then
     lowestMin = current.minVal < current.minOther and current.minVal or current.minOther
@@ -276,12 +277,12 @@ function MM:OrbValue(reID)
 end
 
 function MM:Compare(a,b,comparitor)
-  if a == nil then
-    return b
-  elseif b == nil then
-    return a
+  a = a or math.huge
+  b = b or math.huge
+  if a == math.huge or b == math.huge then
+    return a < b
   end
-
+  
   if comparitor == ">" then
     return a > b
   elseif comparitor == ">=" then
