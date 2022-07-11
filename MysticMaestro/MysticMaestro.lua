@@ -71,7 +71,7 @@ function MM:ProcessSlashCommand(input)
     MM:CalculateAllStats(input:match("^%w+%s+(.+)") == "all")
   elseif input == "" then
     if MM.MysticMaestroFrame and MM.MysticMaestroFrame:IsShown() then
-      MM:CloseStandaloneMenu()
+      HideUIPanel(_G["MysticMaestroFrameContainer"])
     else
       MM:OpenStandaloneMenu()
     end
