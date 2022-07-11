@@ -91,6 +91,8 @@ local EdgelessFrameBackdrop = {
 local standaloneMenuContainer
 local function createStandaloneMenuContainer()
   standaloneMenuContainer = CreateFrame("Frame", "MysticMaestroFrameContainer", UIParent)
+  _G["MysticMaestroFrameContainer"] = standaloneMenuContainer
+  table.insert(UISpecialFrames, standaloneMenuContainer:GetName())
   standaloneMenuContainer:Hide()
   standaloneMenuContainer:EnableMouse(true)
   standaloneMenuContainer:SetMovable(true)
@@ -102,6 +104,7 @@ local function createStandaloneMenuContainer()
   standaloneMenuContainer:SetPoint("CENTER")
   standaloneMenuContainer:SetSize(635, 455)
   standaloneMenuContainer:SetClampedToScreen(true)
+  standaloneMenuContainer:SetScript("OnHide", function(self) MM:CloseStandaloneMenu() end)
 
   -- function from WeakAuras Options for pretty border
   local function CreateDecoration(frame, width)
@@ -156,7 +159,7 @@ local function createStandaloneMenuContainer()
   closebutton:SetScript(
     "OnClick",
     function()
-      MM:CloseStandaloneMenu()
+      HideUIPanel(_G["MysticMaestroFrameContainer"])
     end
   )
 end
