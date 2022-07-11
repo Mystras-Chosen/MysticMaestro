@@ -268,7 +268,6 @@ local function createEnchantButton(enchantContainer, i)
 
   enchantButton.REText = enchantButton:CreateFontString()
   enchantButton.REText:SetFontObject(GameFontNormal)
-  enchantButton.REText:SetFont("Fonts\\FRIZQT__.TTF", 11)
   enchantButton.REText:SetPoint("CENTER", 19, 0)
   enchantButton.REText:SetText("|cff00ff00Blade Vortex|r")
   enchantButton.REText:SetJustifyH("CENTER")
@@ -309,7 +308,6 @@ local function createPageTextFrame(enchantContainer, xOffset, yOffset)
   pageTextFrame:SetFrameStrata("LOW")
   pageTextFrame.Text = pageTextFrame:CreateFontString()
   pageTextFrame.Text:SetFontObject(GameFontNormal)
-  pageTextFrame.Text:SetFont("Fonts\\FRIZQT__.TTF", 11)
   pageTextFrame.Text:SetAllPoints()
   pageTextFrame.Text:SetJustifyH("CENTER")
 end
@@ -349,7 +347,7 @@ local function initializeMenu()
       MM:NextPage()
     end
   end)
-  statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 192)
+  statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 176)
   graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
   MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 181)
   setUpCurrencyDisplay(enchantContainer)
@@ -567,6 +565,19 @@ local function setUpSearchWidget()
   searchBar.frame:Show()
 end
 
+local statsContainerWidgets = {}
+local function setUpStatisticsWidgets()
+  for i=1, 12 do
+    local label = AceGUI:Create("Label")
+    label:SetWidth(182)
+    label:SetHeight(24)
+    label:SetPoint("TOPLEFT", statsContainer, "CENTER", i < 7 and -182 or 16, 90-24*((i - 1) % 6 + 1))
+    label:SetFontObject(GameFontNormalLarge)
+    label.frame:Show()
+    table.insert(statsContainerWidgets, label)
+  end
+end
+
 function MM:OpenStandaloneMenu()
   if not menuContainerInitialized then
     initializeMenuContainer()
@@ -577,6 +588,7 @@ function MM:OpenStandaloneMenu()
   anchorMenuToMenuContainer()
   setUpDropdownWidgets()
   setUpSearchWidget()
+  setUpStatisticsWidgets()
   self:ClearGraph()
   self:FilterMysticEnchants(latestFilter or {allQualities = true, allKnown = true})
   self:GoToPage(1)
@@ -588,11 +600,15 @@ local function tearDownWidgets()
   sortDropdown:Release()
   filterDropdown:Release()
   searchBar:Release()
-  MM:HideEnchantButtons()
+  for i=1, #statsContainerWidgets do
+    statsContainerWidgets[i]:Release()
+  end
+  wipe(statsContainerWidgets)
 end
 
 function MM:CloseStandaloneMenu()
   tearDownWidgets()
+  MM:HideEnchantButtons()
   wipe(queryResults)
   standaloneMenuContainer:Hide()
   mmf:Hide()
@@ -777,6 +793,7 @@ function MM:SetSelectedEnchantButton(button)
     lastSelectedButton.H:Hide()
   end
   self:PopulateGraph(button.enchantID)
+  self:ShowStatistics(button.enchantID)
   selectedEnchantButton = button
 end
 
@@ -786,5 +803,31 @@ function MM:DeselectSelectedEnchantButton()
     selectedEnchantButton.H:Hide()
   end
   self:ClearGraph()
+  self:HideStatistics()
   selectedEnchantButton = nil
+end
+
+function MM:ShowStatistics(enchantID)
+  statsContainerWidgets[1]:SetText("Current Average: ")
+  statsContainerWidgets[2]:SetText("10-Day Average: ")
+  statsContainerWidgets[3]:SetText("Standard Deviation: ")
+  statsContainerWidgets[4]:SetText("Median: ")
+  statsContainerWidgets[5]:SetText("Max: ")
+  statsContainerWidgets[6]:SetText("Total Listed: ")
+  statsContainerWidgets[7]:SetText("Minimum Buyout")
+  statsContainerWidgets[8]:SetText("Gold Per Orb: "..(MM:OrbValue(enchantID) or "No Data"))
+  statsContainerWidgets[9]:SetText("Last Scan: 1 hr")
+  statsContainerWidgets[10]:SetText("All Listed: 9")
+  statsContainerWidgets[11]:SetText("My Listed: 2")
+  statsContainerWidgets[12]:SetText("Status: |cFF00FF00Lowest Buyout|r")
+
+  for i=1, #statsContainerWidgets do
+    statsContainerWidgets[i].frame:Show()
+  end
+end
+
+function MM:HideStatistics()
+  for i=1, #statsContainerWidgets do
+    statsContainerWidgets[i].frame:Hide()
+  end
 end
