@@ -462,8 +462,8 @@ local itemKeyToSortFunctionKey = {
 }
 
 local sortFunctions = {
-  alphabetical_asc = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
-  alphabetical_des = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) > GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
+  alphabetical_asc = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],"<") end,
+  alphabetical_des = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],">") end,
   goldperorb_asc = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), "<") end,
   goldperorb_des = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), ">") end,
 }
