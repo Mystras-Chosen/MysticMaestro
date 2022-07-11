@@ -241,7 +241,7 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 		end
 		table.sort(enchants,
       function(k1, k2)
-        return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID)
+        return MM.RE_NAMES[k1] < MM.RE_NAMES[k2]
       end
     )
 		MM[qualityName:upper() .. "_ENCHANTS"] = enchants

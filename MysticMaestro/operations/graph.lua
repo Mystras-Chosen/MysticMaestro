@@ -127,7 +127,7 @@ function MM:PopulateGraph(enchantID)
   g:ResetData()
   local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantID]
   if not next(enchantListingData) then
-    self:Print('No listings found for mystic enchant "' .. GetSpellInfo(MYSTIC_ENCHANTS[enchantID].spellID) .. '"')
+    self:Print('No listings found for mystic enchant "' .. MM.RE_NAMES[enchantID] .. '"')
     return
   end
   local correction = calcGridLineCorrection()

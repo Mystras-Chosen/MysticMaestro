@@ -168,7 +168,7 @@ local function getNameAndID(input)
   local nameRE, idRE
   if type(input) == "number" then
     idRE = input
-    nameRE = GetSpellInfo(MYSTIC_ENCHANTS[input].spellID)
+    nameRE = MM.RE_NAMES[input]
   else
     idRE = MM.RE_LOOKUP[input]
     nameRE = input

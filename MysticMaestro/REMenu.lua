@@ -14,7 +14,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         text = text:lower()
         for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
           if enchantID ~= 0 then
-            local enchantName = GetSpellInfo(enchantData.spellID)
+            local enchantName = MM.RE_NAMES[enchantID]
             if enchantName and enchantName:lower():find(text) then
               queryResults[enchantID] = MM:cTxt(enchantName, tostring(enchantData.quality))
               max = max - 1
