@@ -464,16 +464,8 @@ local itemKeyToSortFunctionKey = {
 local sortFunctions = {
   alphabetical_asc = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) < GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
   alphabetical_des = function(k1, k2) return GetSpellInfo(MYSTIC_ENCHANTS[k1].spellID) > GetSpellInfo(MYSTIC_ENCHANTS[k2].spellID) end,
-  goldperorb_asc = function(k1, k2)
-    local v1 = MM:OrbValue(k1)
-    local v2 = MM:OrbValue(k2)
-    return MM:Compare(v1, v2, "<")
-  end,
-  goldperorb_des = function(k1, k2)
-    local v1 = MM:OrbValue(k1)
-    local v2 = MM:OrbValue(k2)
-    return MM:Compare(v1, v2, ">")
-  end,
+  goldperorb_asc = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), "<") end,
+  goldperorb_des = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), ">") end,
 }
 
 function MM:SortMysticEnchants(itemKey)
