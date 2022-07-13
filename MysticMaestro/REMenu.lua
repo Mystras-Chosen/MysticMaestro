@@ -104,7 +104,7 @@ local function createStandaloneMenuContainer()
   standaloneMenuContainer:SetPoint("CENTER")
   standaloneMenuContainer:SetSize(635, 455)
   standaloneMenuContainer:SetClampedToScreen(true)
-  standaloneMenuContainer:SetScript("OnHide", function(self) MM:CloseStandaloneMenu() end)
+  standaloneMenuContainer:SetScript("OnHide", function(self) MM:CloseMenu() end)
 
   -- function from WeakAuras Options for pretty border
   local function CreateDecoration(frame, width)
@@ -169,6 +169,8 @@ local function initializeMenuContainer()
   createStandaloneMenuContainer()
   menuContainerInitialized = true
 end
+
+
 
 local mmf
 
@@ -359,6 +361,58 @@ local function anchorMenuToMenuContainer()
   mmf:SetPoint("BOTTOMLEFT", standaloneMenuContainer, "BOTTOMLEFT", 13, 9)
   mmf:SetParent(standaloneMenuContainer)
 end
+
+local function anchorMenuToAH()
+  mmf:ClearAllPoints()
+  mmf:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 9)
+  mmf:SetParent(AuctionFrame)
+end
+
+local function initAHTab()
+  MM.AHTabIndex = AuctionFrame.numTabs+1
+	local framename = "AuctionFrameTab"..MM.AHTabIndex
+  local frame = CreateFrame("Button", framename, AuctionFrame, "AuctionTabTemplate")
+  frame:SetID(MM.AHTabIndex);
+	frame:SetText("Mystic Maestro");
+  frame:SetPoint("LEFT", _G["AuctionFrameTab"..MM.AHTabIndex-1], "RIGHT", -8, 0);
+
+	PanelTemplates_SetNumTabs (AuctionFrame, MM.AHTabIndex);
+	PanelTemplates_EnableTab  (AuctionFrame, MM.AHTabIndex);
+	return frame
+end
+
+local function MMTab_OnClick(self, index)
+  if not menuInitialized then
+    initializeMenu()
+  end
+  local index = self:GetID()
+  if index ~= MM.AHTabIndex then
+    if mmf:GetParent() == AuctionFrame and mmf:IsVisible() then
+      MM:CloseMenu()
+    end
+  else
+    AuctionFrameMoneyFrame:Hide()
+    anchorMenuToAH()
+    if standaloneMenuContainer and standaloneMenuContainer:IsVisible() then
+      standaloneMenuContainer:Hide()
+    end
+    MM:PrepareMMF()
+  end
+end
+
+
+local mm_orig_AuctionFrameTab_OnClick
+function MM:REMenu_ADDON_LOADED(event, addonName)
+  if addonName ~= "Blizzard_AuctionUI" then return end
+  local tab = initAHTab()
+  mm_orig_AuctionFrameTab_OnClick = AuctionFrameTab_OnClick
+  AuctionFrameTab_OnClick = function(self, index, down)
+    mm_orig_AuctionFrameTab_OnClick(self, index, down)
+    MMTab_OnClick(self, index, down)
+  end
+end
+
+MM:RegisterEvent("ADDON_LOADED", "REMenu_ADDON_LOADED")
 
 local filterOptions = {
   "All Qualities",
@@ -572,6 +626,16 @@ local function setUpStatisticsWidgets()
   end
 end
 
+function MM:PrepareMMF()
+  setUpDropdownWidgets()
+  setUpSearchWidget()
+  setUpStatisticsWidgets()
+  self:ClearGraph()
+  self:FilterMysticEnchants(latestFilter or {allQualities = true, allKnown = true})
+  self:GoToPage(1)
+  mmf:Show()
+end
+
 function MM:OpenStandaloneMenu()
   if not menuContainerInitialized then
     initializeMenuContainer()
@@ -580,14 +644,8 @@ function MM:OpenStandaloneMenu()
     initializeMenu()
   end
   anchorMenuToMenuContainer()
-  setUpDropdownWidgets()
-  setUpSearchWidget()
-  setUpStatisticsWidgets()
-  self:ClearGraph()
-  self:FilterMysticEnchants(latestFilter or {allQualities = true, allKnown = true})
-  self:GoToPage(1)
+  self:PrepareMMF()
   standaloneMenuContainer:Show()
-  mmf:Show()
 end
 
 local function tearDownWidgets()
@@ -600,11 +658,10 @@ local function tearDownWidgets()
   wipe(statsContainerWidgets)
 end
 
-function MM:CloseStandaloneMenu()
+function MM:CloseMenu()
   tearDownWidgets()
   MM:HideEnchantButtons()
   wipe(queryResults)
-  standaloneMenuContainer:Hide()
   mmf:Hide()
 end
 

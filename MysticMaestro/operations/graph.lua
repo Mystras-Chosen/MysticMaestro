@@ -113,7 +113,6 @@ function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY
     return
   end
   g = Graph:CreateGraphLine(name, parent, relative, relativeTo, offsetX, offsetY, width, height)
-  g:SetFrameStrata("LOW")
   g:SetYLabels(true)
   g:SetGridColor({0.5, 0.5, 0.5, 0.5})
   g:SetAxisDrawing(true, true)
