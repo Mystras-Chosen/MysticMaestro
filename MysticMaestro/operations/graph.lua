@@ -90,12 +90,15 @@ local function getMaxBuyout(averageData)
   return maxBuyout
 end
 
+local yBuffer = 1.1
+local defaultYRange = 100
+
 local function updateYAxisRange(averageData)
   if not averageData then
-    g:SetYAxis(0, 100)
+    g:SetYAxis(0, defaultYRange)
   else
     local maxBuyout = getMaxBuyout(averageData)
-    g:SetYAxis(0, maxBuyout > 100 and maxBuyout or 100)
+    g:SetYAxis(0, maxBuyout > defaultYRange / yBuffer and yBuffer * maxBuyout or defaultYRange)
   end
 end
 
