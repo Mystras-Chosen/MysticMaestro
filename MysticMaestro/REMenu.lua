@@ -109,7 +109,7 @@ do -- functions to initialize menu and menu container
     standaloneMenuContainer:SetBackdropColor(0, 0, 0, 1)
     standaloneMenuContainer:SetToplevel(true)
     standaloneMenuContainer:SetPoint("CENTER")
-    standaloneMenuContainer:SetSize(635, 455)
+    standaloneMenuContainer:SetSize(635, 412)
     standaloneMenuContainer:SetClampedToScreen(true)
     standaloneMenuContainer:SetScript("OnHide", function(self) MM:HideMysticMaestroMenu() end)
 
@@ -175,7 +175,7 @@ do -- functions to initialize menu and menu container
   local function createMenu()
     mmf = CreateFrame("Frame", "MysticMaestroMenu", UIParent)
     mmf:Hide()
-    mmf:SetSize(609, 423)
+    mmf:SetSize(609, 378)
   end
 
   local function createContainer(parent, anchorPoint, width, height, xOffset, yOffset)
@@ -200,15 +200,15 @@ do -- functions to initialize menu and menu container
   local enchantContainerHeight = 12
   local function updateCurrencyDisplay()
     currencyContainer.FontString:SetFormattedText("%s: |cFFFFFFFF%d|r %s %s: |cFFFFFFFF%d|r %s",
-    "Orbs", getOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1),
-    "Extracts", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\Inv_Custom_MysticExtract", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1))
+    "Orbs", getOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
+    "Extracts", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\Inv_Custom_MysticExtract", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1))
   end
 
   local function createCurrencyContainer(parent)
     local width = parent:GetWidth()
     currencyContainer = CreateFrame("Frame", nil, parent)
     currencyContainer:SetSize(width, enchantContainerHeight)
-    currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 8)
+    currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 11)
     currencyContainer.FontString = currencyContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     currencyContainer.FontString:SetPoint("CENTER", currencyContainer, "CENTER")
     currencyContainer.FontString:SetSize(currencyContainer:GetWidth(), currencyContainer:GetHeight())
@@ -279,7 +279,7 @@ do -- functions to initialize menu and menu container
     end
   end
 
-  local paginationVerticalPosition = 70
+  local paginationVerticalPosition = 22
   local function createPageButton(enchantContainer, prevOrNext, xOffset, yOffset)
     local pageButton = CreateFrame("BUTTON", nil, enchantContainer)
     pageButton:SetSize(32, 32)
@@ -296,7 +296,7 @@ do -- functions to initialize menu and menu container
 
   local function createPageTextFrame(enchantContainer, xOffset, yOffset)
     pageTextFrame = CreateFrame("FRAME", nil, enchantContainer)
-    pageTextFrame:SetSize(52, 32)
+    pageTextFrame:SetSize(60, 32)
     pageTextFrame:SetPoint("BOTTOM", enchantContainer, "BOTTOM", xOffset, yOffset)
     pageTextFrame.Text = pageTextFrame:CreateFontString()
     pageTextFrame.Text:SetFontObject(GameFontNormal)
@@ -326,7 +326,7 @@ do -- functions to initialize menu and menu container
 
   function initializeMenu()
     createMenu()
-    enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 396)
+    enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 350)
     enchantContainer:EnableMouseWheel()
     enchantContainer:SetScript("OnMouseWheel",
     function(self, delta)
@@ -336,9 +336,9 @@ do -- functions to initialize menu and menu container
         MM:NextPage()
       end
     end)
-    statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 176)
-    graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 198, 0, 198)
-    MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 181)
+    statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 150)
+    graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 186, 0, 163)
+    MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 170)
     setUpCurrencyDisplay(enchantContainer)
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
@@ -370,7 +370,6 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
         MM:HideMysticMaestroMenu()
       end
     else
-      --AuctionFrameMoneyFrame:Hide()
       AuctionFrameTopLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-TopLeft");
       AuctionFrameTop:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Top");
       AuctionFrameTopRight:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-TopRight");
@@ -378,7 +377,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
       AuctionFrameBot:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Bot");
       AuctionFrameBotRight:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-BotRight");
       MysticMaestroMenu:ClearAllPoints()
-      MysticMaestroMenu:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 9)
+      MysticMaestroMenu:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 31)
       MysticMaestroMenu:SetParent(AuctionFrame)
       if MysticMaestroMenuContainer and MysticMaestroMenuContainer:IsVisible() then
         MysticMaestroMenuContainer:Hide()
@@ -396,6 +395,12 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
       mm_orig_AuctionFrameTab_OnClick(self, index, down)
       MMTab_OnClick(self, index, down)
     end
+    self:HookScript(AuctionFrame, "OnHide",
+    function()
+      if MysticMaestroMenu and MysticMaestroMenu:IsShown() and MysticMaestroMenu:GetParent() == AuctionFrame then
+        self:HideMysticMaestroMenu()
+      end
+    end)
   end
 
   MM:RegisterEvent("ADDON_LOADED", "REMenu_ADDON_LOADED")
@@ -601,9 +606,9 @@ do -- show and hide MysticMaestroMenu
       local label = AceGUI:Create("Label")
       label.frame:SetParent(statsContainer)
       label:SetWidth(182)
-      label:SetHeight(24)
-      label:SetPoint("TOPLEFT", statsContainer, "CENTER", i < 7 and -182 or 16, 90-24*((i - 1) % 6 + 1))
-      label:SetFontObject(GameFontNormalLarge)
+      label:SetHeight(18)
+      label:SetPoint("TOPLEFT", statsContainer, "CENTER", i < 7 and -182 or 16, 72-18*((i - 1) % 6 + 1))
+      label:SetFontObject(GameFontNormal)
       label.frame:Show()
       table.insert(statsContainerWidgets, label)
     end
