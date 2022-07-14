@@ -366,11 +366,13 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
     end
     local index = self:GetID()
     if index ~= MM.AHTabIndex then
+      AuctionPortraitTexture:Show()
       if MysticMaestroMenu:GetParent() == AuctionFrame and MysticMaestroMenu:IsVisible() then
         MM:HideMysticMaestroMenu()
       end
     else
-      AuctionFrameTopLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-TopLeft");
+      AuctionPortraitTexture:Hide()
+      AuctionFrameTopLeft:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-TopLeft");
       AuctionFrameTop:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Top");
       AuctionFrameTopRight:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-TopRight");
       AuctionFrameBotLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-BotLeft");
