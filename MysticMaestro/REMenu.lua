@@ -98,7 +98,6 @@ do -- functions to initialize menu and menu container
 
   function initializeStandaloneMenuContainer()
     local standaloneMenuContainer = CreateFrame("Frame", "MysticMaestroMenuContainer", UIParent)
-    --_G["MysticMaestroMenuContainer"] = standaloneMenuContainer
     table.insert(UISpecialFrames, standaloneMenuContainer:GetName())
     standaloneMenuContainer:Hide()
     standaloneMenuContainer:EnableMouse(true)
@@ -802,7 +801,7 @@ do -- show/hide and select/deselect mystic enchant button functions
       GameTooltip:Show()
     end)
     local r, g, b = unpack(enchantQualityColors[enchantData.quality])
-    local mult = .6
+    local mult = .3
     if IsReforgeEnchantmentKnown(enchantID) then
       button.IconBorder:SetVertexColor(1, 1, 1)
       button.Icon:SetVertexColor(1, 1, 1)
