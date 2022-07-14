@@ -249,6 +249,45 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	return enchants
 end
 
+local kIndex = {
+  ["min"] = {"minVal","minOther"},
+  ["med"] = {"medVal","medOther"},
+  ["mean"] = {"avgVal","avgOther"},
+  ["max"] = {"topVal","topOther"},
+  ["dev"] = {"stdDev","stdDevOther"},
+  ["num"] = {"listed","listedOther"}
+}
+
+function MM:LowestListed(reID,keytype)
+  local current = self.db.realm.RE_AH_STATISTICS[reID].current
+  if not current then return nil end
+  local trink, other = current[kIndex[keytype or "min"][1]], current[kIndex[keytype or "min"][2]]
+  local lowest
+  if current.latestOther and current.latest then
+    lowest = trink < other and trink or other
+  elseif current.latest then
+    lowest = trink
+  elseif current.latestOther then
+    lowest = other
+  end
+  return lowest
+end
+
+function MM:TotalListed(reID)
+  local current = self.db.realm.RE_AH_STATISTICS[reID].current
+  if not current then return nil end
+  local trink, other = current[kIndex["num"][1]], current[kIndex["num"][2]]
+  local total
+  if current.latestOther and current.latest then
+    total = trink + other
+  elseif current.latest then
+    total = trink
+  elseif current.latestOther then
+    total = other
+  end
+  return total
+end
+
 local qualityCost = {
   [2] = 2,
   [3] = 6,
@@ -256,23 +295,9 @@ local qualityCost = {
   [5] = 25
 }
 
-function MM:LowestMin(reID)
-  local current = self.db.realm.RE_AH_STATISTICS[reID].current
-  if not current then return nil end
-  local lowestMin
-  if current.latestOther and current.latest then
-    lowestMin = current.minVal < current.minOther and current.minVal or current.minOther
-  elseif current.latest then
-    lowestMin = current.minVal
-  elseif current.latestOther then
-    lowestMin = current.minOther
-  end
-  return lowestMin
-end
-
 function MM:OrbValue(reID)
   local cost = qualityCost[MYSTIC_ENCHANTS[reID].quality]
-  local minVal = MM:LowestMin(reID)
+  local minVal = MM:LowestListed(reID,"min")
   return minVal and MM:round(minVal / cost,2,true) or nil
 end
 
