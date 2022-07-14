@@ -70,16 +70,7 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^calc") then
     MM:CalculateAllStats(input:match("^%w+%s+(.+)") == "all")
   elseif input == "" then
-    if MM.MysticMaestroFrame and MM.MysticMaestroFrame:IsVisible()
-    and MM.MysticMaestroFrame:GetParent() == MysticMaestroFrameContainer then
-      HideUIPanel(MysticMaestroFrameContainer)
-    else
-      if AuctionFrame and AuctionFrame:IsVisible() and AuctionFrame.selectedTab == MM.AHTabIndex then
-        MM:CloseMenu()
-        HideUIPanel(AuctionFrame)
-      end
-      MM:OpenStandaloneMenu()
-    end
+    MM:HandleMenuSlashCommand()
   else
     MM:Print("Command not recognized")
     MM:Print("Valid input is scan, fullscan, calc")
