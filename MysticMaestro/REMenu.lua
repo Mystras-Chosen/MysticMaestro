@@ -370,7 +370,13 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
         MM:HideMysticMaestroMenu()
       end
     else
-      AuctionFrameMoneyFrame:Hide()
+      --AuctionFrameMoneyFrame:Hide()
+      AuctionFrameTopLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-TopLeft");
+      AuctionFrameTop:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Top");
+      AuctionFrameTopRight:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-TopRight");
+      AuctionFrameBotLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-BotLeft");
+      AuctionFrameBot:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Bot");
+      AuctionFrameBotRight:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-BotRight");
       MysticMaestroMenu:ClearAllPoints()
       MysticMaestroMenu:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 9)
       MysticMaestroMenu:SetParent(AuctionFrame)
@@ -411,7 +417,7 @@ do  -- display MysticMaestroMenu in standalone container
   end
 end
 
-local currentSort, currentFilter
+local currentFilter, currentSort
 local statsContainerWidgets = {}
 do -- show and hide MysticMaestroMenu
   local filterOptions = {
@@ -608,9 +614,7 @@ do -- show and hide MysticMaestroMenu
     setUpSearchWidget()
     setUpStatisticsWidgets()
     self:ClearGraph()
-    if not currentFilter then
-      self:FilterMysticEnchants({allQualities = true, allKnown = true})
-    end
+    self:FilterMysticEnchants(currentFilter or {allQualities = true, allKnown = true})
     self:GoToPage(1)
     MysticMaestroMenu:Show()
   end
@@ -643,26 +647,6 @@ do -- show and hide MysticMaestroMenu
       end
       self:OpenStandaloneMenu()
     end
-  end
-end
-
-do -- sort functions
-  local itemKeyToSortFunctionKey = {
-    "alphabetical_asc",
-    "alphabetical_des",
-    "goldperorb_asc",
-    "goldperorb_des"
-  }
-
-  local sortFunctions = {
-    alphabetical_asc = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],"<") end,
-    alphabetical_des = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],">") end,
-    goldperorb_asc = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), "<") end,
-    goldperorb_des = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), ">") end,
-  }
-
-  function MM:SortMysticEnchants(itemKey)
-    table.sort(self:GetResultSet(), sortFunctions[itemKeyToSortFunctionKey[itemKey]])
   end
 end
 
@@ -707,6 +691,26 @@ do -- filter functions
       end
     end
     self:SortMysticEnchants(currentSort or 1)
+  end
+end
+
+do -- sort functions
+  local itemKeyToSortFunctionKey = {
+    "alphabetical_asc",
+    "alphabetical_des",
+    "goldperorb_asc",
+    "goldperorb_des"
+  }
+
+  local sortFunctions = {
+    alphabetical_asc = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],"<") end,
+    alphabetical_des = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],">") end,
+    goldperorb_asc = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), "<") end,
+    goldperorb_des = function(k1, k2) return MM:Compare(MM:OrbValue(k1), MM:OrbValue(k2), ">") end,
+  }
+
+  function MM:SortMysticEnchants(itemKey)
+    table.sort(resultSet, sortFunctions[itemKeyToSortFunctionKey[itemKey]])
   end
 end
 
