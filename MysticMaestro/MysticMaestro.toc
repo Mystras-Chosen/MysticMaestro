@@ -10,6 +10,7 @@
 Libs\embeds.xml
 MysticMaestro.lua
 utils\common.lua
+utils\auction.lua
 utils\tooltip.lua
 operations\operations.xml
 REMenu.lua
