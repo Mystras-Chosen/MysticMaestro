@@ -150,8 +150,8 @@ local colors = {
   ["yellowgreen"] = "|cff9acd32",
   ["min"] = "|cff03fffb",
   ["med"] = "|cff00c25e",
-  ["avg"] = "|cffc29e00",
-  ["top"] = "|cffff0000",
+  ["mean"] = "|cffc29e00",
+  ["max"] = "|cffff0000",
   ["2"] = "|cff1eff00",
   ["3"] = "|cff0070dd",
   ["4"] = "|cffa335ee",
@@ -192,26 +192,26 @@ local function addLinesTooltip(tt, input)
     tt:AppendText("   "..indicator)
   end
   tt:AddDoubleLine("Mystic Maestro:",(mmText and mmText or ""),1,1,0)
-  local demoString = MM:cTxt("Min","min").."("..MM:cTxt("Med","med").."/"..MM:cTxt("Mean","avg").."/"..MM:cTxt("Max","top")..")"
+  local demoString = MM:cTxt("Min","min").."("..MM:cTxt("Med","med").."/"..MM:cTxt("Mean","mean").."/"..MM:cTxt("Max","max")..")"
   tt:AddDoubleLine("RE: " ..name, (stats and demoString or "None Listed" ))
   if stats ~= nil then
-    if stats.latest ~= nil then
-      local ttMin = MM:round(stats.minVal or 0.0)
-      local ttMed = MM:round(stats.medVal or 0.0)
-      local ttAvg = MM:round(stats.avgVal or 0.0)
-      local ttTop = MM:round(stats.topVal or 0.0)
-      tt:AddDoubleLine("("..stats.listed..") Trinket ("..MM:DaysAgoString(stats.latest)..")"
-      , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttAvg,"avg")..tGold.."/"..MM:cTxt(ttTop,"top")..tGold..")"
+    if stats.tLast ~= nil then
+      local ttMin = MM:round(stats.tMin or 0.0)
+      local ttMed = MM:round(stats.tMed or 0.0)
+      local ttMean = MM:round(stats.tMean or 0.0)
+      local ttMax = MM:round(stats.tMax or 0.0)
+      tt:AddDoubleLine("("..stats.tCount..") Trinket ("..MM:DaysAgoString(stats.tLast)..")"
+      , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttMean,"mean")..tGold.."/"..MM:cTxt(ttMax,"max")..tGold..")"
       , 1, 1, 0)
     end
-    if stats.latestOther ~= nil then
-      local ttoMin = MM:round(stats.minOther or 0.0)
-      local ttoMed = MM:round(stats.medOther or 0.0)
-      local ttoAvg = MM:round(stats.avgOther or 0.0)
-      local ttoTop = MM:round(stats.topOther or 0.0)
-      local ttoListed = stats.listedOther or 0.0
-      tt:AddDoubleLine("("..ttoListed..") Non-Trinket ("..MM:DaysAgoString(stats.latestOther)..")"
-      , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoAvg,"avg")..tGold.."/"..MM:cTxt(ttoTop,"top")..tGold..")"
+    if stats.oLast ~= nil then
+      local ttoMin = MM:round(stats.oMin or 0.0)
+      local ttoMed = MM:round(stats.oMed or 0.0)
+      local ttoMean = MM:round(stats.oMean or 0.0)
+      local ttoMax = MM:round(stats.oMax or 0.0)
+      local ttoListed = stats.oCount or 0.0
+      tt:AddDoubleLine("("..ttoListed..") Non-Trinket ("..MM:DaysAgoString(stats.oLast)..")"
+      , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoMean,"mean")..tGold.."/"..MM:cTxt(ttoMax,"max")..tGold..")"
       , 1, 1, 0)
     end
     tt:AddDoubleLine("Gold per Mystic Orb"

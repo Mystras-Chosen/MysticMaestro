@@ -81,12 +81,12 @@ function MM:Dump(orig, depth)
   end
 end
 
-function MM:variance(tbl,avg)
+function MM:variance(tbl,mean)
   local dif
   local sum, count = 0, 0
   for k, v in pairs(tbl) do
     if type(v) == "number" then
-      dif = v - avg
+      dif = v - mean
       sum = sum + (dif * dif)
       count = count + 1
     end
@@ -94,8 +94,8 @@ function MM:variance(tbl,avg)
   return ( sum / count )
 end
 
-function MM:StdDev(tbl,avg)
-  local variance = MM:variance(tbl,avg)
+function MM:StdDev(tbl,mean)
+  local variance = MM:variance(tbl,mean)
   return math.sqrt(variance)
 end
 

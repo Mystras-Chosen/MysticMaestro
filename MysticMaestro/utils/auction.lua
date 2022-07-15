@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 function MM:ValidateAHIsOpen()
   local AuctionFrame = _G["AuctionFrame"]
@@ -120,25 +120,25 @@ end
 function MM:CalculateStatsFromTime(reID,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
   local stats = self.db.realm.RE_AH_STATISTICS[reID]
-  local minVal, medVal, avgVal, topVal, count, stdDev = MM:CalculateStatsFromList(listing)
-  local minOther, medOther, avgOther, topOther, countOther
+  local tMin, tMed, tMean, tMax, tCount, tDev = MM:CalculateStatsFromList(listing)
+  local oMin, oMed, oMean, oMax, oCount, oDev
   if listing.other ~= nil then
-    minOther, medOther, avgOther, topOther, countOther, stdDevOther = MM:CalculateStatsFromList(listing.other)
+    oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
   end
-  if count and count > 0 or countOther and countOther > 0 then
+  if tCount and tCount > 0 or oCount and oCount > 0 then
     stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
     local t = stats[sTime]
     local c = stats["current"]
-    if count and count > 0 then
-      t.minVal,t.medVal,t.avgVal,t.topVal,t.listed,t.stdDev = minVal,medVal,avgVal,topVal,count,stdDev
-      if c.latest == nil or c.latest <= sTime then
-        c.minVal,c.medVal,c.avgVal,c.topVal,c.listed,c.latest,c.stdDev = minVal,medVal,avgVal,topVal,count,sTime,stdDev
+    if tCount and tCount > 0 then
+      t.tMin,t.tMed,t.tMean,t.tMax,t.tCount,t.tDev = tMin,tMed,tMean,tMax,tCount,tDev
+      if c.tLast == nil or c.tLast <= sTime then
+        c.tMin,c.tMed,c.tMean,c.tMax,c.tCount,c.tLast,c.tDev = tMin,tMed,tMean,tMax,tCount,sTime,tDev
       end
     end
-    if countOther and countOther > 0 then
-      t.minOther,t.medOther,t.avgOther,t.topOther,t.listedOther,t.stdDevOther = minOther,medOther,avgOther,topOther,countOther,stdDevOther
-      if c.latestOther == nil or c.latestOther <= sTime then
-        c.minOther,c.medOther,c.avgOther,c.topOther,c.listedOther,c.latestOther,c.stdDevOther = minOther,medOther,avgOther,topOther,countOther,sTime,stdDevOther
+    if oCount and oCount > 0 then
+      t.oMin,t.oMed,t.oMean,t.oMax,t.oCount,t.oDev = oMin,oMed,oMean,oMax,oCount,oDev
+      if c.oLast == nil or c.oLast <= sTime then
+        c.oMin,c.oMed,c.oMean,c.oMax,c.oCount,c.oLast,c.oDev = oMin,oMed,oMean,oMax,oCount,sTime,oDev
       end
     end
   end
@@ -157,12 +157,12 @@ function MM:CalculateAllStats(forceCalc)
 end
 
 local kIndex = {
-  ["min"] = {"minVal","minOther"},
-  ["med"] = {"medVal","medOther"},
-  ["mean"] = {"avgVal","avgOther"},
-  ["max"] = {"topVal","topOther"},
-  ["dev"] = {"stdDev","stdDevOther"},
-  ["num"] = {"listed","listedOther"}
+  ["min"] = {"tMin","oMin"},
+  ["med"] = {"tMed","oMed"},
+  ["mean"] = {"tMean","oMean"},
+  ["max"] = {"tMax","oMax"},
+  ["dev"] = {"tDev","oDev"},
+  ["count"] = {"tCount","oCount"}
 }
 
 function MM:LowestListed(reID,keytype)
@@ -170,11 +170,11 @@ function MM:LowestListed(reID,keytype)
   if not current then return nil end
   local trink, other = current[kIndex[keytype or "min"][1]], current[kIndex[keytype or "min"][2]]
   local lowest
-  if current.latestOther and current.latest then
+  if current.oLast and current.tLast then
     lowest = trink < other and trink or other
-  elseif current.latest then
+  elseif current.tLast then
     lowest = trink
-  elseif current.latestOther then
+  elseif current.oLast then
     lowest = other
   end
   return lowest
@@ -183,13 +183,13 @@ end
 function MM:TotalListed(reID)
   local current = self.db.realm.RE_AH_STATISTICS[reID].current
   if not current then return nil end
-  local trink, other = current[kIndex["num"][1]], current[kIndex["num"][2]]
+  local trink, other = current[kIndex["count"][1]], current[kIndex["count"][2]]
   local total
-  if current.latestOther and current.latest then
+  if current.oLast and current.tLast then
     total = trink + other
-  elseif current.latest then
+  elseif current.tLast then
     total = trink
-  elseif current.latestOther then
+  elseif current.oLast then
     total = other
   end
   return total
