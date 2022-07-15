@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 function MM:ValidateAHIsOpen()
   local AuctionFrame = _G["AuctionFrame"]
@@ -92,14 +92,14 @@ end
 ---------------------------------
 
 function MM:CalculateStatsFromList(list)
-  local minVal, topVal, count, tally = 0, 0, 0, 0
+  local min, max, count, tally = 0, 0, 0, 0
   for _, v in pairs(list) do
     if type(v) == "number" then
-      if v > 0 and (v < minVal or minVal == 0) then
-        minVal = v
+      if v > 0 and (v < min or min == 0) then
+        min = v
       end
-      if v > topVal then
-        topVal = v
+      if v > max then
+        max = v
       end
       if v ~= nil then
         tally = tally + v
@@ -110,10 +110,10 @@ function MM:CalculateStatsFromList(list)
   if count > 0 then
     local midKey = count > 1 and MM:round(count/2) or 1
     sort(list)
-    local medVal = list[midKey]
-    local avgVal = MM:round(tally/count)
-    local stdDev = MM:StdDev(list,avgVal)
-    return minVal, medVal, avgVal, topVal, count, MM:round(stdDev,2)
+    local med = list[midKey]
+    local mean = MM:round(tally/count)
+    local dev = MM:StdDev(list,mean)
+    return min, med, mean, max, count, MM:round(dev,2)
   end
 end
 
