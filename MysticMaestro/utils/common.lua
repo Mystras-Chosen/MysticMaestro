@@ -129,3 +129,37 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	end
 	return enchants
 end
+
+function MM:Clone(orig)
+  -- Clone for simple table copy
+  local copy
+  if type(orig) == 'table' then
+    return {table.unpack(orig)}
+  else
+    copy = orig
+  end
+  return copy
+end
+
+function MM:DeepClone(orig, copies)
+  -- Deep clone for complex table copy
+  -- Only use orig param, 2nd param for internal use
+  copies = copies or {}
+  local orig_type = type(orig)
+  local copy
+  if orig_type == 'table' then
+      if copies[orig] then
+          copy = copies[orig]
+      else
+          copy = {}
+          copies[orig] = copy
+          for orig_key, orig_value in next, orig, nil do
+              copy[MM:DeepClone(orig_key, copies)] = MM:DeepClone(orig_value, copies)
+          end
+          setmetatable(copy, MM:DeepClone(getmetatable(orig), copies))
+      end
+  else -- number, string, boolean, etc
+      copy = orig
+  end
+  return copy
+end
