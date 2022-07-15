@@ -69,8 +69,16 @@ function MM:DaysAgoString(stamp)
   return string
 end
 
-function MM:Dump(data,index)
-  return DevTools_Dump(data,index ~= nil and index or 0)
+function MM:Dump(orig, depth)
+  if not depth then print("Line","Key","Value") end
+  depth = depth or 0
+  local depthStr = ""
+  for i=1, depth do depthStr = depthStr .. " |" end
+  for k, v in next, orig do
+     local splitStr =  (type(v) == 'table' and '\\' or ' ')
+     print("|"..depthStr..splitStr, k, v)
+     if type(v) == "table" then dump(v,depth+1) end
+  end
 end
 
 function MM:variance(tbl,avg)
