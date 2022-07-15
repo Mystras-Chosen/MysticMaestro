@@ -90,3 +90,42 @@ function MM:StdDev(tbl,avg)
   local variance = MM:variance(tbl,avg)
   return math.sqrt(variance)
 end
+
+local qualityCost = {
+  [2] = 2,
+  [3] = 6,
+  [4] = 10,
+  [5] = 25
+}
+
+function MM:OrbCost(reID)
+	return qualityCost[MYSTIC_ENCHANTS[reID].quality]
+end
+
+local qualityValue = {
+  uncommon = 2,
+  rare = 3,
+  epic = 4,
+  legendary = 5
+}
+
+function MM:GetAlphabetizedEnchantList(qualityName)
+	-- list of mystic enchant IDs ordered alphabetically by their spell name
+	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
+	if not enchants then
+		enchants = {}
+		for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
+			if enchantData.quality == qualityValue[qualityName] then
+				table.insert(enchants, enchantID)
+				enchants[enchantID] = true
+			end
+		end
+		table.sort(enchants,
+      function(k1, k2)
+        return MM.RE_NAMES[k1] < MM.RE_NAMES[k2]
+      end
+    )
+		MM[qualityName:upper() .. "_ENCHANTS"] = enchants
+	end
+	return enchants
+end

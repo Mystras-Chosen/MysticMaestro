@@ -38,38 +38,6 @@ local function isEnchantItemFound(quality, buyoutPrice, i)
   return properItem and enchantID, enchantID
 end
 
-local qualityValue = {
-  uncommon = 2,
-  rare = 3,
-  epic = 4,
-  legendary = 5
-}
-
-function MM:GetAlphabetizedEnchantList(qualityName)
-	-- list of mystic enchant IDs ordered alphabetically by their spell name
-	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
-	if not enchants then
-		enchants = {}
-		for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-			if enchantData.quality == qualityValue[qualityName] then
-				table.insert(enchants, enchantID)
-				enchants[enchantID] = true
-			end
-		end
-		table.sort(enchants,
-      function(k1, k2)
-        return MM.RE_NAMES[k1] < MM.RE_NAMES[k2]
-      end
-    )
-		MM[qualityName:upper() .. "_ENCHANTS"] = enchants
-	end
-	return enchants
-end
-
----------------------------------
---   Auction Stats functions   --
----------------------------------
-
 function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   local listings = self.db.realm.RE_AH_LISTINGS
   listings[expectedEnchantID][scanTime] = listings[expectedEnchantID][scanTime] or {}
@@ -119,6 +87,36 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
+---------------------------------
+--   Auction Stats functions   --
+---------------------------------
+
+function MM:CalculateStatsFromList(list)
+  local minVal, topVal, count, tally = 0, 0, 0, 0
+  for _, v in pairs(list) do
+    if type(v) == "number" then
+      if v > 0 and (v < minVal or minVal == 0) then
+        minVal = v
+      end
+      if v > topVal then
+        topVal = v
+      end
+      if v ~= nil then
+        tally = tally + v
+        count = count + 1
+      end
+    end
+  end
+  if count > 0 then
+    local midKey = count > 1 and MM:round(count/2) or 1
+    sort(list)
+    local medVal = list[midKey]
+    local avgVal = MM:round(tally/count)
+    local stdDev = MM:StdDev(list,avgVal)
+    return minVal, medVal, avgVal, topVal, count, MM:round(stdDev,2)
+  end
+end
+
 function MM:CalculateStatsFromTime(reID,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
   local stats = self.db.realm.RE_AH_STATISTICS[reID]
@@ -155,32 +153,6 @@ function MM:CalculateAllStats(forceCalc)
         MM:CalculateStatsFromTime(reID,timekey)
       end
     end
-  end
-end
-
-function MM:CalculateStatsFromList(list)
-  local minVal, topVal, count, tally = 0, 0, 0, 0
-  for _, v in pairs(list) do
-    if type(v) == "number" then
-      if v > 0 and (v < minVal or minVal == 0) then
-        minVal = v
-      end
-      if v > topVal then
-        topVal = v
-      end
-      if v ~= nil then
-        tally = tally + v
-        count = count + 1
-      end
-    end
-  end
-  if count > 0 then
-    local midKey = count > 1 and MM:round(count/2) or 1
-    sort(list)
-    local medVal = list[midKey]
-    local avgVal = MM:round(tally/count)
-    local stdDev = MM:StdDev(list,avgVal)
-    return minVal, medVal, avgVal, topVal, count, MM:round(stdDev,2)
   end
 end
 
@@ -221,17 +193,6 @@ function MM:TotalListed(reID)
     total = other
   end
   return total
-end
-
-local qualityCost = {
-  [2] = 2,
-  [3] = 6,
-  [4] = 10,
-  [5] = 25
-}
-
-function MM:OrbCost(reID)
-	return qualityCost[MYSTIC_ENCHANTS[reID].quality]
 end
 
 function MM:OrbValue(reID, keytype)
