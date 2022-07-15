@@ -122,9 +122,13 @@ function MM:CalculateStatsFromTime(reID,sTime)
   local stats = self.db.realm.RE_AH_STATISTICS[reID]
   local tMin, tMed, tMean, tMax, tCount, tDev = MM:CalculateStatsFromList(listing)
   local oMin, oMed, oMean, oMax, oCount, oDev
+  local aMin, aMed, aMean, aMax, aCount, aDev
   if listing.other ~= nil then
     oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
   end
+	local limitor = tMed and tMed * 2 or oMed and oMed * 2 or nil
+	local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
+  aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
   if tCount and tCount > 0 or oCount and oCount > 0 then
     stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
     local t = stats[sTime]
@@ -139,6 +143,12 @@ function MM:CalculateStatsFromTime(reID,sTime)
       t.oMin,t.oMed,t.oMean,t.oMax,t.oCount,t.oDev = oMin,oMed,oMean,oMax,oCount,oDev
       if c.oLast == nil or c.oLast <= sTime then
         c.oMin,c.oMed,c.oMean,c.oMax,c.oCount,c.oLast,c.oDev = oMin,oMed,oMean,oMax,oCount,sTime,oDev
+      end
+    end
+    if oCount and oCount > 0 or tCount and tCount > 0 then
+      t.aMin,t.aMed,t.aMean,t.aMax,t.aCount,t.aDev = aMin,aMed,aMean,aMax,aCount,aDev
+      if c.aLast == nil or c.aLast <= sTime then
+        c.aMin,c.aMed,c.aMean,c.aMax,c.aCount,c.aLast,c.aDev = aMin,aMed,aMean,aMax,aCount,sTime,aDev
       end
     end
   end
@@ -169,15 +179,7 @@ function MM:LowestListed(reID,keytype)
   local current = self.db.realm.RE_AH_STATISTICS[reID].current
   if not current then return nil end
   local trink, other = current[kIndex[keytype or "min"][1]], current[kIndex[keytype or "min"][2]]
-  local lowest
-  if current.oLast and current.tLast then
-    lowest = trink < other and trink or other
-  elseif current.tLast then
-    lowest = trink
-  elseif current.oLast then
-    lowest = other
-  end
-  return lowest
+  return MM:Lowest(trink,other)
 end
 
 function MM:TotalListed(reID)

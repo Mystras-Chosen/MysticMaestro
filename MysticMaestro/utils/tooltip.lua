@@ -214,6 +214,16 @@ local function addLinesTooltip(tt, input)
       , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoMean,"mean")..tGold.."/"..MM:cTxt(ttoMax,"max")..tGold..")"
       , 1, 1, 0)
     end
+    if stats.aLast ~= nil then
+      local ttaMin = MM:round(stats.aMin or 0.0)
+      local ttaMed = MM:round(stats.aMed or 0.0)
+      local ttaMean = MM:round(stats.aMean or 0.0)
+      local ttaMax = MM:round(stats.aMax or 0.0)
+      local ttaListed = stats.aCount or 0.0
+      tt:AddDoubleLine("("..ttaListed..") Adjusted Value ("..MM:DaysAgoString(stats.aLast)..")"
+      , MM:cTxt(ttaMin,"min")..tGold.." ("..MM:cTxt(ttaMed,"med")..tGold.."/"..MM:cTxt(ttaMean,"mean")..tGold.."/"..MM:cTxt(ttaMax,"max")..tGold..")"
+      , 1, 1, 0)
+    end
     tt:AddDoubleLine("Gold per Mystic Orb"
     , MM:OrbValue(reID)
     , 1, 1, 0)

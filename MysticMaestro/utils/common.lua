@@ -171,3 +171,31 @@ function MM:DeepClone(orig, copies)
   end
   return copy
 end
+
+function MM:CombineListsLimited(l1,l2,maximum)
+  -- combine two number lists, limit by a maximum value
+	local list = {}
+	for k, v in next, l1 do
+		if not maximum or maximum and type(v) == 'number' and v <= maximum then
+			table.insert(list, v)
+		end
+	end
+	for k, v in next, l2 do
+		if not maximum or maximum and v <= maximum then
+			table.insert(list, v)
+		end
+	end
+	return list
+end
+
+function MM:Lowest(a,b)
+	local lowest
+	if a and b then
+		lowest = a < b and a or b
+	elseif a then
+		lowest = a
+	elseif b then
+		lowest = b
+	end
+	return lowest
+end
