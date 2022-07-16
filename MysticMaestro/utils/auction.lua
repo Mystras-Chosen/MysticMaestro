@@ -117,7 +117,7 @@ function MM:CalculateStatsFromList(list)
   end
 end
 
-local function calculateLimitor(tMed,tMax,oMed)
+local function calculateLimitor(tMed,oMed,tMax)
   local val
   if tMed and oMed then
     val = tMed + oMed
@@ -126,7 +126,7 @@ local function calculateLimitor(tMed,tMax,oMed)
   elseif oMed then
     val = oMed * 2
   end
-  if tMax and val > tMax then
+  if val and tMax and val > tMax then
     val = tMax
   end
   return val
@@ -141,31 +141,17 @@ function MM:CalculateStatsFromTime(reID,sTime)
   if listing.other ~= nil then
     oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
   end
-	-- local limitor = tMed and oMed and tMed + oMed or tMed and tMed * 2 or oMed and oMed * 2 or nil
-	local limitor = calculateLimitor(tMed,tMax,oMed)
+	local limitor = calculateLimitor(tMed,oMed,tMax)
 	local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
   aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
   if tCount and tCount > 0 or oCount and oCount > 0 then
     stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
     local t = stats[sTime]
     local c = stats["current"]
-    if tCount and tCount > 0 then
-      t.tMin,t.tMed,t.tMean,t.tMax,t.tCount,t.tDev = tMin,tMed,tMean,tMax,tCount,tDev
-      if c.tLast == nil or c.tLast <= sTime then
-        c.tMin,c.tMed,c.tMean,c.tMax,c.tCount,c.tLast,c.tDev = tMin,tMed,tMean,tMax,tCount,sTime,tDev
-      end
-    end
-    if oCount and oCount > 0 then
-      t.oMin,t.oMed,t.oMean,t.oMax,t.oCount,t.oDev = oMin,oMed,oMean,oMax,oCount,oDev
-      if c.oLast == nil or c.oLast <= sTime then
-        c.oMin,c.oMed,c.oMean,c.oMax,c.oCount,c.oLast,c.oDev = oMin,oMed,oMean,oMax,oCount,sTime,oDev
-      end
-    end
-    if oCount and oCount > 0 or tCount and tCount > 0 then
-      t.aMin,t.aMed,t.aMean,t.aMax,t.aCount,t.aDev = aMin,aMed,aMean,aMax,aCount,aDev
-      if c.aLast == nil or c.aLast <= sTime then
-        c.aMin,c.aMed,c.aMean,c.aMax,c.aCount,c.aLast,c.aDev = aMin,aMed,aMean,aMax,aCount,sTime,aDev
-      end
+    local total = ( tCount or 0 ) + ( oCount or 0 )
+    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total = aMin,aMed,aMean,aMax,aCount,aDev,total
+    if c.Last == nil or c.Last <= sTime then
+      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total
     end
   end
 end
@@ -182,39 +168,15 @@ function MM:CalculateAllStats(forceCalc)
   end
 end
 
-local kIndex = {
-  ["min"] = {"tMin","oMin"},
-  ["med"] = {"tMed","oMed"},
-  ["mean"] = {"tMean","oMean"},
-  ["max"] = {"tMax","oMax"},
-  ["dev"] = {"tDev","oDev"},
-  ["count"] = {"tCount","oCount"}
-}
-
 function MM:LowestListed(reID,keytype)
   local current = self.db.realm.RE_AH_STATISTICS[reID].current
   if not current then return nil end
-  local trink, other = current[kIndex[keytype or "min"][1]], current[kIndex[keytype or "min"][2]]
-  return MM:Lowest(trink,other)
-end
-
-function MM:TotalListed(reID)
-  local current = self.db.realm.RE_AH_STATISTICS[reID].current
-  if not current then return nil end
-  local trink, other = current[kIndex["count"][1]], current[kIndex["count"][2]]
-  local total
-  if current.oLast and current.tLast then
-    total = trink + other
-  elseif current.tLast then
-    total = trink
-  elseif current.oLast then
-    total = other
-  end
-  return total
+  local price = current[keytype or "Min"]
+  return price
 end
 
 function MM:OrbValue(reID, keytype)
   local cost = MM:OrbCost(reID)
-  local value = MM:LowestListed(reID,keytype or "min")
+  local value = MM:LowestListed(reID,keytype)
   return value and MM:round(value / cost,2,true) or nil
 end

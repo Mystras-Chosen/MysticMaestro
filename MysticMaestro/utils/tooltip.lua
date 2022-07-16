@@ -195,33 +195,19 @@ local function addLinesTooltip(tt, input)
   local demoString = MM:cTxt("Min","min").."("..MM:cTxt("Med","med").."/"..MM:cTxt("Mean","mean").."/"..MM:cTxt("Max","max")..")"
   tt:AddDoubleLine("RE: " ..name, (stats and demoString or "None Listed" ))
   if stats ~= nil then
-    if stats.tLast ~= nil then
-      local ttMin = MM:round(stats.tMin or 0.0)
-      local ttMed = MM:round(stats.tMed or 0.0)
-      local ttMean = MM:round(stats.tMean or 0.0)
-      local ttMax = MM:round(stats.tMax or 0.0)
-      tt:AddDoubleLine("("..stats.tCount..") Trinket ("..MM:DaysAgoString(stats.tLast)..")"
+    if stats.Last ~= nil then
+      local ttMin = MM:round(stats.Min or 0.0)
+      local ttMed = MM:round(stats.Med or 0.0)
+      local ttMean = MM:round(stats.Mean or 0.0)
+      local ttMax = MM:round(stats.Max or 0.0)
+      local ttTotal = MM:round(stats.Total or 0.0)
+      local ttListed = stats.Count or 0.0
+      local ttStr = ""
+      if stats.Total ~= stats.Count then
+        ttStr = " of " .. stats.Total
+      end
+      tt:AddDoubleLine("("..ttListed..ttStr..") Market Value ("..MM:DaysAgoString(stats.Last)..")"
       , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttMean,"mean")..tGold.."/"..MM:cTxt(ttMax,"max")..tGold..")"
-      , 1, 1, 0)
-    end
-    if stats.oLast ~= nil then
-      local ttoMin = MM:round(stats.oMin or 0.0)
-      local ttoMed = MM:round(stats.oMed or 0.0)
-      local ttoMean = MM:round(stats.oMean or 0.0)
-      local ttoMax = MM:round(stats.oMax or 0.0)
-      local ttoListed = stats.oCount or 0.0
-      tt:AddDoubleLine("("..ttoListed..") Non-Trinket ("..MM:DaysAgoString(stats.oLast)..")"
-      , MM:cTxt(ttoMin,"min")..tGold.." ("..MM:cTxt(ttoMed,"med")..tGold.."/"..MM:cTxt(ttoMean,"mean")..tGold.."/"..MM:cTxt(ttoMax,"max")..tGold..")"
-      , 1, 1, 0)
-    end
-    if stats.aLast ~= nil then
-      local ttaMin = MM:round(stats.aMin or 0.0)
-      local ttaMed = MM:round(stats.aMed or 0.0)
-      local ttaMean = MM:round(stats.aMean or 0.0)
-      local ttaMax = MM:round(stats.aMax or 0.0)
-      local ttaListed = stats.aCount or 0.0
-      tt:AddDoubleLine("("..ttaListed..") Adjusted Value ("..MM:DaysAgoString(stats.aLast)..")"
-      , MM:cTxt(ttaMin,"min")..tGold.." ("..MM:cTxt(ttaMed,"med")..tGold.."/"..MM:cTxt(ttaMean,"mean")..tGold.."/"..MM:cTxt(ttaMax,"max")..tGold..")"
       , 1, 1, 0)
     end
     tt:AddDoubleLine("Gold per Mystic Orb"
