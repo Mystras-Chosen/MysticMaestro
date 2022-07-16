@@ -117,6 +117,21 @@ function MM:CalculateStatsFromList(list)
   end
 end
 
+local function calculateLimitor(tMed,tMax,oMed)
+  local val
+  if tMed and oMed then
+    val = tMed + oMed
+  elseif tMed then
+    val = tMed * 2
+  elseif oMed then
+    val = oMed * 2
+  end
+  if tMax and val > tMax then
+    val = tMax
+  end
+  return val
+end
+
 function MM:CalculateStatsFromTime(reID,sTime)
   local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
   local stats = self.db.realm.RE_AH_STATISTICS[reID]
@@ -126,7 +141,8 @@ function MM:CalculateStatsFromTime(reID,sTime)
   if listing.other ~= nil then
     oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
   end
-	local limitor = tMed and tMed * 2 or oMed and oMed * 2 or nil
+	-- local limitor = tMed and oMed and tMed + oMed or tMed and tMed * 2 or oMed and oMed * 2 or nil
+	local limitor = calculateLimitor(tMed,tMax,oMed)
 	local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
   aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
   if tCount and tCount > 0 or oCount and oCount > 0 then

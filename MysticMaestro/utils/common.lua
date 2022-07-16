@@ -181,7 +181,7 @@ function MM:CombineListsLimited(l1,l2,maximum)
 		end
 	end
 	for k, v in next, l2 do
-		if not maximum or maximum and v <= maximum then
+		if not maximum or maximum and type(v) == 'number' and v <= maximum then
 			table.insert(list, v)
 		end
 	end
