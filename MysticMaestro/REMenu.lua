@@ -895,18 +895,20 @@ end
 do -- show/hide statistics functions
   function MM:ShowStatistics(enchantID)
     local info = MM:StatObj(enchantID)
-    statsContainerWidgets[1]:SetText("Minimum Buyout: "..(info.Min or "No Data"))
-    statsContainerWidgets[2]:SetText("Current Average: "..(info.Mean or "No Data"))
-    statsContainerWidgets[3]:SetText("10-Day Average: "..(info["10d_Mean"] or "No Data"))
-    statsContainerWidgets[4]:SetText("Standard Deviation: "..(info.Dev or "No Data"))
-    statsContainerWidgets[5]:SetText("Median: "..(info.Med or "No Data"))
-    statsContainerWidgets[6]:SetText("Max: "..(info.Max or "No Data"))
-    statsContainerWidgets[7]:SetText("Gold Per Orb: "..(MM:OrbValue(enchantID) or "No Data"))
-    statsContainerWidgets[8]:SetText("Last Seen: "..(MM:DaysAgoString(info.Last) or "No Data"))
-    statsContainerWidgets[9]:SetText("Total Listed: "..(info.Total or "No Data"))
-    statsContainerWidgets[10]:SetText("Trinkets Listed: "..(info.Trinkets or "No Data"))
-    statsContainerWidgets[11]:SetText("My Listed: No Data")
-    statsContainerWidgets[12]:SetText("Status: |cFF00FF00Lowest Buyout|r")
+    if info then
+      statsContainerWidgets[1]:SetText("Minimum Buyout: "..(GetCoinTextureString(info.Min * 10000) or "No Data"))
+      statsContainerWidgets[2]:SetText("Current Average: "..(GetCoinTextureString(info.Mean * 10000) or "No Data"))
+      statsContainerWidgets[3]:SetText("10-Day Average: "..(GetCoinTextureString(info["10d_Mean"] * 10000) or "No Data"))
+      statsContainerWidgets[4]:SetText("Standard Deviation: "..(GetCoinTextureString(info.Dev * 10000) or "No Data"))
+      statsContainerWidgets[5]:SetText("Median: "..(GetCoinTextureString(info.Med * 10000) or "No Data"))
+      statsContainerWidgets[6]:SetText("Max: "..(GetCoinTextureString(info.Max * 10000) or "No Data"))
+      statsContainerWidgets[7]:SetText("Gold Per Orb: "..(GetCoinTextureString(MM:OrbValue(enchantID) * 10000) or "No Data"))
+      statsContainerWidgets[8]:SetText("Last Seen: "..(MM:DaysAgoString(info.Last) or "No Data"))
+      statsContainerWidgets[9]:SetText("Total Listed: "..(info.Total or "No Data"))
+      statsContainerWidgets[10]:SetText("Trinkets Listed: "..(info.Trinkets or "No Data"))
+      statsContainerWidgets[11]:SetText("My Listed: No Data")
+      statsContainerWidgets[12]:SetText("Status: |cFF00FF00Lowest Buyout|r")
+    end
   
     for i=1, #statsContainerWidgets do
       statsContainerWidgets[i].frame:Show()
