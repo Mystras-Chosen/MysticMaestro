@@ -18,8 +18,6 @@ function MM:cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
 
-local tGold = MM:cTxt("g","gold")
-
 local function getNameAndID(input)
   local nameRE, idRE
   if type(input) == "number" then
@@ -53,10 +51,10 @@ local function addLinesTooltip(tt, input)
   if stats ~= nil then
     if stats.Last ~= nil then
       -- Add market value strings
-      local ttMin = MM:round(stats.Min or 0.0)
-      local ttMed = MM:round(stats.Med or 0.0)
-      local ttMean = MM:round(stats.Mean or 0.0)
-      local ttMax = MM:round(stats.Max or 0.0)
+      local ttMin = GetCoinTextureString(MM:round(stats.Min or 0.0) * 10000)
+      local ttMed = GetCoinTextureString(MM:round(stats.Med or 0.0) * 10000)
+      local ttMean = GetCoinTextureString(MM:round(stats.Mean or 0.0) * 10000)
+      local ttMax = GetCoinTextureString(MM:round(stats.Max or 0.0) * 10000)
       local ttTotal = MM:round(stats.Total or 0.0)
       local ttListed = stats.Count or 0.0
       local ttStr = ""
@@ -64,13 +62,13 @@ local function addLinesTooltip(tt, input)
         ttStr = " of " .. ttTotal
       end
       tt:AddDoubleLine("("..ttListed..ttStr..") Market Value ("..MM:DaysAgoString(stats.Last)..")"
-      , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttMean,"mean")..tGold.."/"..MM:cTxt(ttMax,"max")..tGold..")"
+      , MM:cTxt(ttMin,"min").." ("..MM:cTxt(ttMed,"med").."/"..MM:cTxt(ttMean,"mean").."/"..MM:cTxt(ttMax,"max")..")"
       , 1, 1, 0)
       -- Add 10 day strings
-      ttMin = MM:round(stats["10d_Min"] or 0.0, 1)
-      ttMed = MM:round(stats["10d_Med"] or 0.0, 1)
-      ttMean = MM:round(stats["10d_Mean"] or 0.0, 1)
-      ttMax = MM:round(stats["10d_Max"] or 0.0, 1)
+      ttMin = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0) * 10000)
+      ttMed = GetCoinTextureString(MM:round(stats["10d_Med"] or 0.0) * 10000)
+      ttMean = GetCoinTextureString(MM:round(stats["10d_Mean"] or 0.0) * 10000)
+      ttMax = GetCoinTextureString(MM:round(stats["10d_Max"] or 0.0) * 10000)
       ttTotal = MM:round(stats["10d_Total"] or 0.0, 1)
       ttListed = MM:round(stats["10d_Count"] or 0.0, 1)
       ttStr = ""
@@ -78,7 +76,7 @@ local function addLinesTooltip(tt, input)
         ttStr = " of " .. ttTotal
       end
       tt:AddDoubleLine("("..ttListed..ttStr..") 10-Day Value"
-      , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttMean,"mean")..tGold.."/"..MM:cTxt(ttMax,"max")..tGold..")"
+      , MM:cTxt(ttMin,"min").." ("..MM:cTxt(ttMed,"med").."/"..MM:cTxt(ttMean,"mean").."/"..MM:cTxt(ttMax,"max")..")"
       , 1, 1, 0)
     end
     tt:AddDoubleLine("Gold per Mystic Orb"
