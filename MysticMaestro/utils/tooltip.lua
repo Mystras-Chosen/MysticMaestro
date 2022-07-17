@@ -52,6 +52,7 @@ local function addLinesTooltip(tt, input)
   tt:AddDoubleLine("RE: " ..name, (stats and demoString or "None Listed" ))
   if stats ~= nil then
     if stats.Last ~= nil then
+      -- Add market value strings
       local ttMin = MM:round(stats.Min or 0.0)
       local ttMed = MM:round(stats.Med or 0.0)
       local ttMean = MM:round(stats.Mean or 0.0)
@@ -60,9 +61,23 @@ local function addLinesTooltip(tt, input)
       local ttListed = stats.Count or 0.0
       local ttStr = ""
       if stats.Total ~= stats.Count then
-        ttStr = " of " .. stats.Total
+        ttStr = " of " .. ttTotal
       end
       tt:AddDoubleLine("("..ttListed..ttStr..") Market Value ("..MM:DaysAgoString(stats.Last)..")"
+      , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttMean,"mean")..tGold.."/"..MM:cTxt(ttMax,"max")..tGold..")"
+      , 1, 1, 0)
+      -- Add 10 day strings
+      ttMin = MM:round(stats["10d_Min"] or 0.0, 1)
+      ttMed = MM:round(stats["10d_Med"] or 0.0, 1)
+      ttMean = MM:round(stats["10d_Mean"] or 0.0, 1)
+      ttMax = MM:round(stats["10d_Max"] or 0.0, 1)
+      ttTotal = MM:round(stats["10d_Total"] or 0.0, 1)
+      ttListed = MM:round(stats["10d_Count"] or 0.0, 1)
+      ttStr = ""
+      if stats["10d_Total"] ~= stats["10d_Count"] then
+        ttStr = " of " .. ttTotal
+      end
+      tt:AddDoubleLine("("..ttListed..ttStr..") 10-Day Value"
       , MM:cTxt(ttMin,"min")..tGold.." ("..MM:cTxt(ttMed,"med")..tGold.."/"..MM:cTxt(ttMean,"mean")..tGold.."/"..MM:cTxt(ttMax,"max")..tGold..")"
       , 1, 1, 0)
     end
