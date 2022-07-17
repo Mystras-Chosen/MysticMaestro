@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 function MM:ValidateAHIsOpen()
   local AuctionFrame = _G["AuctionFrame"]
@@ -137,25 +137,64 @@ function MM:CalculateStatsFromTime(reID,sTime)
   local stats = self.db.realm.RE_AH_STATISTICS[reID]
   local tMin, tMed, tMean, tMax, tCount, tDev = MM:CalculateStatsFromList(listing)
   local oMin, oMed, oMean, oMax, oCount, oDev
-  local aMin, aMed, aMean, aMax, aCount, aDev
   if listing.other ~= nil then
     oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
   end
   if tCount and tCount > 0 or oCount and oCount > 0 then
     local limitor = calculateLimitor(tMed,oMed,tMax)
     local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
-    aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
-    stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
-    local t = stats[sTime]
+    local aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
+    stats["daily"], stats["current"] = stats["daily"] or {}, stats["current"] or {}
+    local d = stats["daily"]
+    local t = {}
     local c = stats["current"]
+    local dCode = MM:TimeToDate(sTime)
     local total = ( tCount or 0 ) + ( oCount or 0 )
     t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = aMin,aMed,aMean,aMax,aCount,aDev,total,tCount or 0
+    d[dCode] = d[dCode] or {}
+    table.insert(d[dCode],t)
     if c.Last == nil or c.Last <= sTime then
       c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total,tCount or 0
     end
   end
 end
 
+local valueList = { "Min", "Med", "Mean", "Max", "Count", "Dev", "Total", "Trinkets" }
+
+function MM:CalculateDailyAverages(reID)
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
+  if stats then
+    local daily = stats["daily"]
+    if daily then
+      local rAvg, rCount = {}, 0
+      -- setup rolling average obj
+      for _, val in pairs(valueList) do rAvg[val] = 0 end
+      for dCode, scans in pairs(daily) do
+        local avg, count, remove = {}, 0, {}
+        rCount = rCount + 1
+        for _, val in pairs(valueList) do avg[val] = 0 end
+        for k, scan in ipairs(scans) do
+          -- setup daily average
+          for _, val in pairs(valueList) do avg[val] = avg[val] + scan[val] end
+          count = count + 1
+          table.insert(remove,k)
+        end
+        for _, val in pairs(valueList) do
+          -- set each day average value
+          avg[val] = avg[val] / count
+          scans[val] = MM:round( avg[val], 2 , true  )
+          rAvg[val] = rAvg[val] + avg[val]
+        end
+        for _, val in ipairs(remove) do table.remove(scans,val) end
+      end
+      for _, val in pairs(valueList) do
+        -- set total average of each data point
+        rAvg[val] = rAvg[val] / rCount
+        stats["current"]["10d_"..val] = MM:round( rAvg[val] , 1 , true  )
+      end
+  end
+  end
+end
 
 function MM:CalculateAllStats()
   local listDB = self.db.realm.RE_AH_LISTINGS
@@ -164,7 +203,7 @@ function MM:CalculateAllStats()
     for timekey, values in pairs(listing) do
       MM:CalculateStatsFromTime(reID,timekey)
     end
-    end
+    MM:CalculateDailyAverages(reID)
   end
 end
 
