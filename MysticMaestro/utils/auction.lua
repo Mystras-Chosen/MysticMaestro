@@ -149,9 +149,9 @@ function MM:CalculateStatsFromTime(reID,sTime)
     local t = stats[sTime]
     local c = stats["current"]
     local total = ( tCount or 0 ) + ( oCount or 0 )
-    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = aMin,aMed,aMean,aMax,aCount,aDev,total,tCount
+    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = aMin,aMed,aMean,aMax,aCount,aDev,total,tCount or 0
     if c.Last == nil or c.Last <= sTime then
-      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total,tCount
+      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total,tCount or 0
     end
   end
 end
