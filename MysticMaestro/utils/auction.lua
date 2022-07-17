@@ -141,17 +141,17 @@ function MM:CalculateStatsFromTime(reID,sTime)
   if listing.other ~= nil then
     oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
   end
-	local limitor = calculateLimitor(tMed,oMed,tMax)
-	local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
-  aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
   if tCount and tCount > 0 or oCount and oCount > 0 then
+    local limitor = calculateLimitor(tMed,oMed,tMax)
+    local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
+    aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
     stats[sTime], stats["current"] = stats[sTime] or {}, stats["current"] or {}
     local t = stats[sTime]
     local c = stats["current"]
     local total = ( tCount or 0 ) + ( oCount or 0 )
-    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total = aMin,aMed,aMean,aMax,aCount,aDev,total
+    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = aMin,aMed,aMean,aMax,aCount,aDev,total,tCount
     if c.Last == nil or c.Last <= sTime then
-      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total
+      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total,tCount
     end
   end
 end
