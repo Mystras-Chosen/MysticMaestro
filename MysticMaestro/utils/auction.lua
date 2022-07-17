@@ -192,7 +192,7 @@ function MM:CalculateDailyAverages(reID)
         rAvg[val] = rAvg[val] / rCount
         stats["current"]["10d_"..val] = MM:round( rAvg[val] , 1 , true  )
       end
-  end
+    end
   end
 end
 
