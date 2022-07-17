@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 function MM:ValidateAHIsOpen()
   local AuctionFrame = _G["AuctionFrame"]
@@ -156,14 +156,14 @@ function MM:CalculateStatsFromTime(reID,sTime)
   end
 end
 
-function MM:CalculateAllStats(forceCalc)
+
+function MM:CalculateAllStats()
   local listDB = self.db.realm.RE_AH_LISTINGS
   local reID, listing, timekey, values
   for reID, listing in pairs(listDB) do
     for timekey, values in pairs(listing) do
-      if forceCalc or self.db.realm.RE_AH_STATISTICS[reID][timekey] == nil then
-        MM:CalculateStatsFromTime(reID,timekey)
-      end
+      MM:CalculateStatsFromTime(reID,timekey)
+    end
     end
   end
 end

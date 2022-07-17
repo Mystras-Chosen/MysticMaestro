@@ -68,7 +68,7 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^scan") then
     MM:HandleScan(input:match("^%w+%s+(.+)"))
   elseif lowerInput:match("^calc") then
-    MM:CalculateAllStats(input:match("^%w+%s+(.+)") == "all")
+    MM:CalculateAllStats()
   elseif input == "" then
     MM:HandleMenuSlashCommand()
   else
