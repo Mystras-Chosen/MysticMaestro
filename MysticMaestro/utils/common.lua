@@ -203,3 +203,8 @@ end
 function MM:StatObj(reID)
   return self.db.realm.RE_AH_STATISTICS[reID].current
 end
+
+function MM:TimeToDate(stamp)
+  local d = date("*t",stamp)
+  return time({year=d.year, month=d.month, day=d.day})
+end
