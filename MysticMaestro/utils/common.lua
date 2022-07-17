@@ -1,5 +1,10 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+-- API for other addons to get information about an RE
+function Maestro(reID)
+  return MM:DeepClone(MM:StatObj(reID))
+end
+
 function MM:MatchTooltipRE(TT)
   for i=1, TT:NumLines() do
     local line = _G[TT:GetName() .. "TextLeft" .. i]:GetText()
@@ -201,7 +206,8 @@ function MM:Lowest(a,b)
 end
 
 function MM:StatObj(reID)
-  return self.db.realm.RE_AH_STATISTICS[reID].current
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
+  return stats and stats.current
 end
 
 function MM:TimeToDate(stamp)
