@@ -513,11 +513,9 @@ do -- show and hide MysticMaestroMenu
     "Gold/Orb (Min)",
     "Gold/Orb (Med)",
     "Gold/Orb (Mean)",
-    "Gold/Orb (Max)",
     "Gold/Orb (10d_Min)",
     "Gold/Orb (10d_Med)",
     "Gold/Orb (10d_Mean)",
-    "Gold/Orb (10d_Max)"
   }
 
   local function sortDropdown_OnValueChanged(self, event, key, checked)
@@ -713,11 +711,9 @@ do -- sort functions
     "goldperorb_min",
     "goldperorb_med",
     "goldperorb_mean",
-    "goldperorb_max",
     "goldperorb_10d_min",
     "goldperorb_10d_med",
     "goldperorb_10d_mean",
-    "goldperorb_10d_max",
   }
 
   local sortFunctions = {
@@ -726,11 +722,9 @@ do -- sort functions
     goldperorb_min = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"Min"), MM:OrbValue(k2,"Min"), ">") end,
     goldperorb_med = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"Med"), MM:OrbValue(k2,"Med"), ">") end,
     goldperorb_mean = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"Mean"), MM:OrbValue(k2,"Mean"), ">") end,
-    goldperorb_max = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"Max"), MM:OrbValue(k2,"Max"), ">") end,
     goldperorb_10d_min = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"10d_Min"), MM:OrbValue(k2,"10d_Min"), ">") end,
     goldperorb_10d_med = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"10d_Med"), MM:OrbValue(k2,"10d_Med"), ">") end,
     goldperorb_10d_mean = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"10d_Mean"), MM:OrbValue(k2,"10d_Mean"), ">") end,
-    goldperorb_10d_max = function(k1, k2) return MM:Compare(MM:OrbValue(k1,"10d_Max"), MM:OrbValue(k2,"10d_Max"), ">") end,
   }
 
   function MM:SortMysticEnchants(itemKey)
