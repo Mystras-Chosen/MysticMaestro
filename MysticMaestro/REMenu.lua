@@ -876,17 +876,18 @@ end
 
 do -- show/hide statistics functions
   function MM:ShowStatistics(enchantID)
-    statsContainerWidgets[1]:SetText("Current Average: ")
-    statsContainerWidgets[2]:SetText("10-Day Average: ")
-    statsContainerWidgets[3]:SetText("Standard Deviation: ")
-    statsContainerWidgets[4]:SetText("Median: ")
-    statsContainerWidgets[5]:SetText("Max: ")
-    statsContainerWidgets[6]:SetText("Total Listed: ")
-    statsContainerWidgets[7]:SetText("Minimum Buyout")
+    local info = MM:StatObj(enchantID)
+    statsContainerWidgets[1]:SetText("Current Average: "..(info.Mean or "No Data"))
+    statsContainerWidgets[2]:SetText("10-Day Average: "..(info.Mean or "No Data"))
+    statsContainerWidgets[3]:SetText("Standard Deviation: "..(info.Dev or "No Data"))
+    statsContainerWidgets[4]:SetText("Median: "..(info.Med or "No Data"))
+    statsContainerWidgets[5]:SetText("Max: "..(info.Max or "No Data"))
+    statsContainerWidgets[6]:SetText("Total Listed: "..(info.Total or "No Data"))
+    statsContainerWidgets[7]:SetText("Minimum Buyout: "..(info.Min or "No Data"))
     statsContainerWidgets[8]:SetText("Gold Per Orb: "..(MM:OrbValue(enchantID) or "No Data"))
-    statsContainerWidgets[9]:SetText("Last Scan: 1 hr")
-    statsContainerWidgets[10]:SetText("All Listed: 9")
-    statsContainerWidgets[11]:SetText("My Listed: 2")
+    statsContainerWidgets[9]:SetText("Last Scan: "..(MM:DaysAgoString(info.Last) or "No Data"))
+    statsContainerWidgets[10]:SetText("All Listed: "..(info.Trinkets or "No Data"))
+    statsContainerWidgets[11]:SetText("My Listed: No Data")
     statsContainerWidgets[12]:SetText("Status: |cFF00FF00Lowest Buyout|r")
   
     for i=1, #statsContainerWidgets do
