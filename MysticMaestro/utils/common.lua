@@ -199,3 +199,7 @@ function MM:Lowest(a,b)
 	end
 	return lowest
 end
+
+function MM:StatObj(reID)
+  return self.db.realm.RE_AH_STATISTICS[reID].current
+end
