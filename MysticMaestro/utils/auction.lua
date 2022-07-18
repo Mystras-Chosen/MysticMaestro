@@ -112,8 +112,8 @@ function MM:CalculateStatsFromList(list)
     sort(list)
     local med = list[midKey]
     local mean = MM:round(tally/count)
-    local dev = MM:StdDev(list,mean)
-    return min, med, mean, max, count, MM:round(dev,2)
+    -- local dev = MM:StdDev(list,mean)
+    return min, med, mean, max, count
   end
 end
 
@@ -132,29 +132,37 @@ local function calculateLimitor(tMed,oMed,tMax)
   return val
 end
 
-function MM:CalculateStatsFromTime(reID,sTime)
-  local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
-  local stats = self.db.realm.RE_AH_STATISTICS[reID]
-  local tMin, tMed, tMean, tMax, tCount, tDev = MM:CalculateStatsFromList(listing)
-  local oMin, oMed, oMean, oMax, oCount, oDev
-  if listing.other ~= nil then
-    oMin, oMed, oMean, oMax, oCount, oDev = MM:CalculateStatsFromList(listing.other)
+function MM:CalculateMarketValues(list,dev)
+  local tMin, tMed, tMean, tMax, tCount = MM:CalculateStatsFromList(list)
+  local oMin, oMed, oMean, oMax, oCount
+  if list.other ~= nil then
+    oMin, oMed, oMean, oMax, oCount = MM:CalculateStatsFromList(list.other)
   end
   if tCount and tCount > 0 or oCount and oCount > 0 then
     local limitor = calculateLimitor(tMed,oMed,tMax)
-    local adjustedList = MM:CombineListsLimited(listing,listing.other,limitor)
-    local aMin, aMed, aMean, aMax, aCount, aDev = MM:CalculateStatsFromList(adjustedList)
+    local adjustedList = MM:CombineListsLimited(list,list.other,limitor)
+    local aMin, aMed, aMean, aMax, aCount = MM:CalculateStatsFromList(adjustedList)
+    local aDev = dev and MM:StdDev(adjustedList,aMean) or 0
+    local total = ( tCount or 0 ) + ( oCount or 0 )
+    return {Min=aMin, Med=aMed, Mean=aMean, Max=aMax, Dev=aDev, Count=aCount, Trinkets=(tCount or 0), Total=total}
+  end
+end
+
+function MM:CalculateStatsFromTime(reID,sTime)
+  local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
+  local r = MM:CalculateMarketValues(listing,true)
+  if r then
     stats["daily"], stats["current"] = stats["daily"] or {}, stats["current"] or {}
     local d = stats["daily"]
     local t = {}
     local c = stats["current"]
     local dCode = MM:TimeToDate(sTime)
-    local total = ( tCount or 0 ) + ( oCount or 0 )
-    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = aMin,aMed,aMean,aMax,aCount,aDev,total,tCount or 0
+    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = r.Min,r.Med,r.Mean,r.Max,r.Count,r.Dev,r.Total,r.Trinkets
     d[dCode] = d[dCode] or {}
     table.insert(d[dCode],t)
     if c.Last == nil or c.Last <= sTime then
-      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = aMin,aMed,aMean,aMax,aCount,sTime,aDev,total,tCount or 0
+      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = r.Min,r.Med,r.Mean,r.Max,r.Count,sTime,r.Dev,r.Total,r.Trinkets
     end
   end
 end
