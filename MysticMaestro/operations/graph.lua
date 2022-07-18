@@ -3,22 +3,6 @@ local Graph = LibStub("LibGraph-2.0")
 
 local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
 
-local function averageBuyout(buyouts)
-  local sum = 0
-  for _, buyout in ipairs(buyouts) do
-    sum = sum + buyout
-  end
-  return sum / #buyouts
-end
-
-local function minimumBuyout(buyouts)
-  local minimum
-  for _, buyout in ipairs(buyouts) do
-    minimum = (not minimum or buyout < minimum) and buyout or minimum
-  end
-  return minimum
-end
-
 local function createMysticEnchantData(enchantListingData, correction)
   local averageData, minimumData = {}, {}
   for timeStamp, buyouts in pairs(enchantListingData) do
