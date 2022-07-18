@@ -23,19 +23,20 @@ local function createMysticEnchantData(enchantListingData, correction)
   local averageData, minimumData = {}, {}
   for timeStamp, buyouts in pairs(enchantListingData) do
     timeStamp = timeStamp - correction
+    local r = MM:CalculateMarketValues(buyouts)
     if #buyouts ~= 0 then
       table.insert(
         averageData,
         {
           timeStamp,
-          averageBuyout(buyouts) -- convert copper to gold
+          r.Mean
         }
       )
       table.insert(
         minimumData,
         {
           timeStamp,
-          minimumBuyout(buyouts) -- convert copper to gold
+          r.Min
         }
       )
     end
