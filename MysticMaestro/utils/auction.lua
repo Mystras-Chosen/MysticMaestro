@@ -182,16 +182,16 @@ function MM:CalculateDailyAverages(reID)
         for _, val in pairs(valueList) do
           -- set each day average value
           avg[val] = avg[val] / count
-          scans[val] = MM:round( avg[val], 2 , true  )
           rAvg[val] = rAvg[val] + avg[val]
         end
-        for _, val in ipairs(remove) do table.remove(scans,val) end
       end
       for _, val in pairs(valueList) do
         -- set total average of each data point
         rAvg[val] = rAvg[val] / rCount
         stats["current"]["10d_"..val] = MM:round( rAvg[val] , 1 , true  )
       end
+      -- We have finished with the Daily data and can remove it
+      stats.daily = nil
     end
   end
 end
