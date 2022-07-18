@@ -10,9 +10,9 @@ function MM:ValidateAHIsOpen()
 end
 
 function MM:GetAHItemEnchantID(index)
-  GameTooltip:SetOwner(_G["BrowseButton1Item"], "ANCHOR_NONE") -- not sure why this makes it work.  should look into it.
-  GameTooltip:SetAuctionItem("list", index)
-  return self:MatchTooltipRE(GameTooltip)
+  MysticMaestroTT:ClearLines()
+  MysticMaestroTT:SetAuctionItem("list", index)
+  return self:MatchTooltipRE(MysticMaestroTT)
 end
 
 local function getAuctionInfo(i)
