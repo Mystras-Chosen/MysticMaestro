@@ -4,7 +4,7 @@ local Graph = LibStub("LibGraph-2.0")
 local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
 
 local function createMysticEnchantData(enchantListingData, correction)
-  local averageData, minimumData = {}, {}
+  local averageData, minimumData, maxData = {}, {}, {}
   for timeStamp, buyouts in pairs(enchantListingData) do
     timeStamp = timeStamp - correction
     local r = MM:CalculateMarketValues(buyouts)
@@ -23,9 +23,16 @@ local function createMysticEnchantData(enchantListingData, correction)
           r.Min
         }
       )
+      table.insert(
+        maxData,
+        {
+          timeStamp,
+          r.Max
+        }
+      )
     end
   end
-  return averageData, minimumData
+  return averageData, minimumData, maxData
 end
 
 local function sortData(data)
@@ -118,12 +125,14 @@ function MM:PopulateGraph(enchantID)
     return
   end
   local correction = calcGridLineCorrection()
-  local averageData, minimumData = createMysticEnchantData(enchantListingData, correction)
+  local averageData, minimumData, maxData = createMysticEnchantData(enchantListingData, correction)
   sortData(averageData)
   sortData(minimumData)
+  sortData(maxData)
   updateXAxisRange(correction)
-  updateYAxisRange(averageData)
-  g:AddDataSeries(averageData, {1.0, 0.0, 0.0, 0.8})
+  updateYAxisRange(maxData)
+  g:AddDataSeries(maxData, {1.0, 0.0, 0.0, 0.8})
+  g:AddDataSeries(averageData, {1.0, 1.0, 0.0, 0.8})
   g:AddDataSeries(minimumData, {0.0, 1.0, 0.0, 0.8})
   g:SetGridSpacing(secondsPerDay, getYSpacing(averageData))
 end
