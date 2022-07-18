@@ -1,23 +1,5 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local colors = {
-  ["gold"] = "|cffffd700",
-  ["green"] = "|cff00ff00",
-  ["red"] = "|cffff0000",
-  ["min"] = "|cff03fffb",
-  ["med"] = "|cff00c25e",
-  ["mean"] = "|cffc29e00",
-  ["max"] = "|cffff0000",
-  ["2"] = "|cff1eff00",
-  ["3"] = "|cff0070dd",
-  ["4"] = "|cffa335ee",
-  ["5"] = "|cffff8000"
-}
-
-function MM:cTxt(text, color)
-  return (colors[color] or "|cffffffff") .. text .. "|r"
-end
-
 local function getNameAndID(input)
   local nameRE, idRE
   if type(input) == "number" then

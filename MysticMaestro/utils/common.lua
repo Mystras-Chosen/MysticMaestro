@@ -214,3 +214,23 @@ function MM:TimeToDate(stamp)
   local d = date("*t",stamp)
   return time({year=d.year, month=d.month, day=d.day})
 end
+
+
+local colors = {
+  ["gold"] = "|cffffd700",
+  ["green"] = "|cff00ff00",
+  ["red"] = "|cffff0000",
+  ["yellow"] = "|cffffff00",
+  ["min"] = "|cff03fffb",
+  ["med"] = "|cff00c25e",
+  ["mean"] = "|cffc29e00",
+  ["max"] = "|cffff0000",
+  ["2"] = "|cff1eff00",
+  ["3"] = "|cff0070dd",
+  ["4"] = "|cffa335ee",
+  ["5"] = "|cffff8000"
+}
+
+function MM:cTxt(text, color)
+  return (colors[color] or "|cffffffff") .. text .. "|r"
+end
