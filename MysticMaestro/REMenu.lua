@@ -73,6 +73,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
   LibStub("AceConfig-3.0"):RegisterOptionsTable("MysticMaestro", myOptions)
 end
 
+local enchantDropdown
 local numEnchantButtons = 8
 local enchantButtons = {}
 local prevPageButton, nextPageButton, pageTextFrame
@@ -240,6 +241,9 @@ do -- functions to initialize menu and menu container
         MM:SetSelectedEnchantButton(self)
       elseif button == "RightButton" then
         -- Add trigger for dropdown menu here
+        -- ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
+        MM:Print("Context menu should display")
+        ToggleDropDownMenu(1, nil, enchantDropdown, "cursor", 15, -15)
       end
     end)
     enchantButton:Hide()
@@ -525,6 +529,14 @@ do -- show and hide MysticMaestroMenu
     "Gold/Orb (10d_Max)"
   }
 
+  local enchantOptions = {
+    "Craft",
+    "Craft ...",
+    "List Auction",
+    "List ...",
+    "Cancel Auctions"
+  }
+
   local function sortDropdown_OnValueChanged(self, event, key, checked)
     local items = self.pullout.items
     items[1]:SetValue(key == 1 or nil)
@@ -570,6 +582,13 @@ do -- show and hide MysticMaestroMenu
     sortDropdown:SetValue(currentSort or 1)
     sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
     sortDropdown.frame:Show()
+    
+    enchantDropdown = AceGUI:Create("Dropdown")
+    -- enchantDropdown.frame:SetParent(MysticMaestroMenu)
+    enchantDropdown:SetWidth(160)
+    enchantDropdown:SetHeight(27)
+    enchantDropdown:SetList(enchantOptions)
+    enchantDropdown.frame:Show()
   end
 
   local defaultSearchText = "|cFF777777Search|r"
