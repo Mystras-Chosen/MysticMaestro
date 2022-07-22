@@ -240,9 +240,6 @@ do -- functions to initialize menu and menu container
         end
         MM:SetSelectedEnchantButton(self)
       elseif button == "RightButton" then
-        -- Add trigger for dropdown menu here
-        -- ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset, yOffset, menuList, button, autoHideDelay)
-        MM:Print("Context menu should display")
         ToggleDropDownMenu(1, nil, enchantDropdown, "cursor", 15, -15)
       end
     end)
@@ -553,6 +550,22 @@ do -- show and hide MysticMaestroMenu
     return filterDropdown
   end
 
+  local function enchantDDM_OnClick(self, arg1, arg2, checked)
+    MM:Print("You Clicked "..arg1)
+  end
+
+  local function enchantDDM(frame,level,menuList)
+    local info = UIDropDownMenu_CreateInfo()
+    info.func = enchantDDM_OnClick
+    if level == 1 then
+      for k, v in pairs(enchantOptions) do
+        info.text, info.arg1 = v, v
+        UIDropDownMenu_AddButton(info)
+      end
+    elseif menuList == "Submenu" then
+    end
+  end
+
   local function setUpDropdownWidgets()
     filterDropdown = AceGUI:Create("Dropdown")
     filterDropdown.frame:SetParent(MysticMaestroMenu)
@@ -583,12 +596,8 @@ do -- show and hide MysticMaestroMenu
     sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
     sortDropdown.frame:Show()
     
-    enchantDropdown = AceGUI:Create("Dropdown")
-    -- enchantDropdown.frame:SetParent(MysticMaestroMenu)
-    enchantDropdown:SetWidth(160)
-    enchantDropdown:SetHeight(27)
-    enchantDropdown:SetList(enchantOptions)
-    enchantDropdown.frame:Show()
+    enchantDropdown = CreateFrame("Frame", "MMenchantDropdown", MysticMaestroMenu, "UIDropDownMenuTemplate")
+    UIDropDownMenu_Initialize(enchantDropdown, enchantDDM, "MENU")
   end
 
   local defaultSearchText = "|cFF777777Search|r"
