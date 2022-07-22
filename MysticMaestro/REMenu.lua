@@ -230,12 +230,17 @@ do -- functions to initialize menu and menu container
         self.H:Hide()
       end
     end)
-    enchantButton:SetScript("OnClick", function(self)
-      local filterDropdown = MM:GetFilterDropdown()
-      if filterDropdown.open then
-        filterDropdown.pullout:Close()
+    enchantButton:RegisterForClicks("AnyUp")
+    enchantButton:SetScript("OnClick", function(self, button, down)
+      if button == "LeftButton" then
+        local filterDropdown = MM:GetFilterDropdown()
+        if filterDropdown.open then
+          filterDropdown.pullout:Close()
+        end
+        MM:SetSelectedEnchantButton(self)
+      elseif button == "RightButton" then
+        -- Add trigger for dropdown menu here
       end
-      MM:SetSelectedEnchantButton(self) 
     end)
     enchantButton:Hide()
 
