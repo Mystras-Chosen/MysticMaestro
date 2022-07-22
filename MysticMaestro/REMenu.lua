@@ -73,7 +73,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
   LibStub("AceConfig-3.0"):RegisterOptionsTable("MysticMaestro", myOptions)
 end
 
-local enchantDropdown
+local enchantDropdown, rightClickedEnchant
 local numEnchantButtons = 8
 local enchantButtons = {}
 local prevPageButton, nextPageButton, pageTextFrame
@@ -240,6 +240,7 @@ do -- functions to initialize menu and menu container
         end
         MM:SetSelectedEnchantButton(self)
       elseif button == "RightButton" then
+        rightClickedEnchant = self.enchantID
         ToggleDropDownMenu(1, nil, enchantDropdown, "cursor", 15, -15)
       end
     end)
@@ -551,7 +552,7 @@ do -- show and hide MysticMaestroMenu
   end
 
   local function enchantDDM_OnClick(self, arg1, arg2, checked)
-    MM:Print("You Clicked "..arg1)
+    MM:Print("You Clicked "..arg1,arg2)
   end
 
   local function enchantDDM(frame,level,menuList)
@@ -559,7 +560,7 @@ do -- show and hide MysticMaestroMenu
     info.func = enchantDDM_OnClick
     if level == 1 then
       for k, v in pairs(enchantOptions) do
-        info.text, info.arg1 = v, v
+        info.text, info.arg1, info.arg2 = v, v, rightClickedEnchant
         UIDropDownMenu_AddButton(info)
       end
     elseif menuList == "Submenu" then
