@@ -79,6 +79,14 @@ function MM:TimeToDate(stamp)
   return time({year=d.year, month=d.month, day=d.day})
 end
 
+function MM:BeyondDays(stamp,limitNum)
+  local todayDate = MM:TimeToDate(time())
+  local compareDate = MM:TimeToDate(stamp)
+  local values = MM:CompareTime(todayDate,compareDate)
+  local limit = limitNum and limitNum or 10
+  return values.day and values.day > limit and true or false
+end
+
 function MM:Dump(orig, depth)
   if not depth then print("Line","Key","Value") end
   depth = depth or 0
