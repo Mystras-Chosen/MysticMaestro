@@ -206,12 +206,21 @@ end
 
 function MM:CalculateAllStats()
   local listDB = self.db.realm.RE_AH_LISTINGS
-  local reID, listing, timekey, values
+  local removeList = {}
+  local reID, listing, timekey, values, k
   for reID, listing in pairs(listDB) do
     for timekey, values in pairs(listing) do
-      MM:CalculateStatsFromTime(reID,timekey)
+      if not MM:BeyondDays(timekey) then 
+        MM:CalculateStatsFromTime(reID,timekey)
+      else
+        table.insert(removeList,timekey)
+      end
     end
     MM:CalculateDailyAverages(reID)
+
+    for k, timekey in pairs(removeList) do 
+      listing[timekey] = nil
+    end
   end
 end
 
