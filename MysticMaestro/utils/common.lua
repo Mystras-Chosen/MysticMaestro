@@ -74,6 +74,11 @@ function MM:DaysAgoString(stamp)
   return string
 end
 
+function MM:TimeToDate(stamp)
+  local d = date("*t",stamp)
+  return time({year=d.year, month=d.month, day=d.day})
+end
+
 function MM:Dump(orig, depth)
   if not depth then print("Line","Key","Value") end
   depth = depth or 0
@@ -208,11 +213,6 @@ end
 function MM:StatObj(reID)
   local stats = self.db.realm.RE_AH_STATISTICS[reID]
   return stats and stats.current
-end
-
-function MM:TimeToDate(stamp)
-  local d = date("*t",stamp)
-  return time({year=d.year, month=d.month, day=d.day})
 end
 
 
