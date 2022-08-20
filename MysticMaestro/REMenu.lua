@@ -552,7 +552,7 @@ do -- show and hide MysticMaestroMenu
   end
 
   local function enchantDDM_OnClick(self, arg1, arg2, checked)
-    MM:Print("You Clicked "..arg1,arg2)
+    MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM.RE_NAMES[arg2])
   end
 
   local function enchantDDM(frame,level,menuList)
