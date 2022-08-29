@@ -44,6 +44,33 @@ function MM:Compare(a,b,comparitor)
   end
 end
 
+function MM:ItemLinkRE(reID)
+  local RE = MYSTIC_ENCHANTS[reID]
+  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[RE.quality][1]
+  return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
+end
+
+function MM:FindBlankInsignia()
+  -- Find a valid insignia to use for crafting
+  for i=0, 4 do
+    for j=1, GetContainerNumSlots(i) do
+      local item = select(7, GetContainerItemInfo(i, j))
+      if item and item:find("Insignia of the") then
+        local re = GetREInSlot(i, j)
+        local reObj = MYSTIC_ENCHANTS[re]
+        if reObj == nil then
+          return {bag=i,index=j}
+        end
+      end
+    end
+  end
+end
+
+function MM:ApplyRE(slot,reID)
+  -- Craft onto the inventory slot with the specified Random Enchant
+  RequestSlotReforgeEnchantment(slot.bag, slot.index, reID)
+end
+
 function MM:CompareTime(a,b)
   local time = difftime(a,b)
   local yDif = floor(time / 31536000)
