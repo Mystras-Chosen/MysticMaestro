@@ -552,7 +552,17 @@ do -- show and hide MysticMaestroMenu
   end
 
   local function enchantDDM_OnClick(self, arg1, arg2, checked)
-    MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM.RE_NAMES[arg2])
+    if arg1 == "Craft" and arg2 then
+      local slot = MM:FindBlankInsignia()
+      if slot ~= nil then
+        MM:ApplyRE(slot,arg2)
+        MM:Print("Applied to insignia: "..MM:ItemLinkRE(arg2))
+      else
+        MM:Print("No blank insignia found")
+      end
+    else
+      MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM:ItemLinkRE(arg2))
+    end
   end
 
   local function enchantDDM(frame,level,menuList)
