@@ -15,12 +15,13 @@ end
 local function addLinesTooltip(tt, input)
   local name, reID = getNameAndID(input)
   local stats = MM.db.realm.RE_AH_STATISTICS[reID]["current"]
+  local known = IsReforgeEnchantmentKnown(reID)
   local dataRE = MYSTIC_ENCHANTS[reID]
   local indicator
   if dataRE then
-    mmText = MM:cTxt(dataRE.known and "Known " or "Unknown " , dataRE.known and "green" or "red")
+    mmText = MM:cTxt(known and "Known " or "Unknown " , known and "green" or "red")
     name = MM:cTxt(name, tostring(dataRE.quality))
-    if dataRE.known then
+    if known then
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_green", 64, 64, 16, 16, 0, 1, 0, 1)
     else
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_red", 64, 64, 16, 16, 0, 1, 0, 1)
