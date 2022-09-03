@@ -66,6 +66,31 @@ function MM:FindBlankInsignia()
   end
 end
 
+function MM:InventoryInsignia()
+  local insignia = {blank={},re={}}
+  for i=0, 4 do
+    for j=1, GetContainerNumSlots(i) do
+      local item = select(7, GetContainerItemInfo(i, j))
+      if item and item:find("Insignia of the") then
+        local re = GetREInSlot(i, j)
+        local reObj = MYSTIC_ENCHANTS[re]
+        if reObj == nil then
+          table.insert(insignia.blank, {bag=i,index=j})
+        else
+          table.insert(insignia.re, {bag=i,index=j,enchant=re})
+        end
+      end
+    end
+  end
+  local hasBlank = #insignia.blank > 0
+  local hasRE = #insignia.re > 0
+  if hasBlank or hasRE then
+    return true, insignia, hasBlank, hasRE
+  else
+    return false
+  end
+end
+
 function MM:ApplyRE(slot,reID)
   -- Craft onto the inventory slot with the specified Random Enchant
   RequestSlotReforgeEnchantment(slot.bag, slot.index, reID)
