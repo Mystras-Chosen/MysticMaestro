@@ -68,6 +68,7 @@ end
 
 function MM:InventoryInsignia()
   local insignia = {blank={},re={}}
+  local tallyRE = {}
   for i=0, 4 do
     for j=1, GetContainerNumSlots(i) do
       local item = select(7, GetContainerItemInfo(i, j))
@@ -78,14 +79,14 @@ function MM:InventoryInsignia()
           table.insert(insignia.blank, {bag=i,index=j})
         else
           table.insert(insignia.re, {bag=i,index=j,enchant=re})
+          if tallyRE[re] == nil then tallyRE[re] = 0 end
+          tallyRE[re] = tallyRE[re] + 1
         end
       end
     end
   end
-  local hasBlank = #insignia.blank > 0
-  local hasRE = #insignia.re > 0
-  if hasBlank or hasRE then
-    return true, insignia, hasBlank, hasRE
+  if #insignia.blank > 0 or #insignia.re > 0 then
+    return true, insignia, tallyRE
   else
     return false
   end
