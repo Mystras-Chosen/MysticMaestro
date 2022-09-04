@@ -89,14 +89,6 @@ do -- functions to initialize menu and menu container
     insets = {left = 8, right = 8, top = 8, bottom = 8}
   }
 
-  local EdgelessFrameBackdrop = {
-    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-    tile = true,
-    tileSize = 32,
-    edgeSize = 32,
-    insets = {left = 8, right = 8, top = 8, bottom = 8}
-  }
-
   function initializeStandaloneMenuContainer()
     local standaloneMenuContainer = CreateFrame("Frame", "MysticMaestroMenuContainer", UIParent)
     table.insert(UISpecialFrames, standaloneMenuContainer:GetName())
@@ -178,17 +170,6 @@ do -- functions to initialize menu and menu container
     mmf:SetSize(609, 378)
   end
 
-  local function createContainer(parent, anchorPoint, width, height, xOffset, yOffset)
-    local container = CreateFrame("Frame", nil, parent)
-    container:SetResizable(false)
-    container:SetBackdrop(EdgelessFrameBackdrop)
-    container:SetBackdropColor(0, 0, 0, 1)
-    container:SetToplevel(true)
-    container:SetPoint(anchorPoint, parent, anchorPoint, xOffset or 0, yOffset or 0)
-    container:SetSize(width, height)
-    return container
-  end
-
   local function getOrbCurrency()
     return GetItemCount(98570)
   end
@@ -208,7 +189,7 @@ do -- functions to initialize menu and menu container
     local width = parent:GetWidth()
     currencyContainer = CreateFrame("Frame", nil, parent)
     currencyContainer:SetSize(width, enchantContainerHeight)
-    currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 11)
+    currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 3)
     currencyContainer.FontString = currencyContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     currencyContainer.FontString:SetPoint("CENTER", currencyContainer, "CENTER")
     currencyContainer.FontString:SetSize(currencyContainer:GetWidth(), currencyContainer:GetHeight())
@@ -222,8 +203,8 @@ do -- functions to initialize menu and menu container
 
   local function createEnchantButton(enchantContainer, i)
     local enchantButton = CreateFrame("Button", nil, enchantContainer)
-    enchantButton:SetSize(enchantContainer:GetWidth() - 16, 36)
-    enchantButton:SetPoint("TOP", enchantContainer, "TOP", 0, -(i-1)*36-8)
+    enchantButton:SetSize(enchantContainer:GetWidth(), 36)
+    enchantButton:SetPoint("TOP", enchantContainer, "TOP", 0, -(i-1)*36)
     enchantButton:SetScript("OnLeave",
     function(self)
       GameTooltip:Hide()
@@ -285,7 +266,7 @@ do -- functions to initialize menu and menu container
     end
   end
 
-  local paginationVerticalPosition = 22
+  local paginationVerticalPosition = 14
   local function createPageButton(enchantContainer, prevOrNext, xOffset, yOffset)
     local pageButton = CreateFrame("BUTTON", nil, enchantContainer)
     pageButton:SetSize(32, 32)
@@ -332,7 +313,7 @@ do -- functions to initialize menu and menu container
 
   function initializeMenu()
     createMenu()
-    enchantContainer = createContainer(mmf, "BOTTOMLEFT", 200, 350)
+    enchantContainer = MM:CreateContainer(mmf, "BOTTOMLEFT", 184, 334, 8, 8)
     enchantContainer:EnableMouseWheel()
     enchantContainer:SetScript("OnMouseWheel",
     function(self, delta)
@@ -342,9 +323,9 @@ do -- functions to initialize menu and menu container
         MM:NextPage()
       end
     end)
-    statsContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 150)
-    graphContainer = createContainer(mmf, "BOTTOMRIGHT", 412, 186, 0, 163)
-    MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 8, 9, 396, 170)
+    statsContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 396, 134, -8, 8)
+    graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 396, 170, -8, 171)
+    MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 0, 1, 396, 170)
     setUpCurrencyDisplay(enchantContainer)
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
@@ -375,6 +356,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
       AuctionPortraitTexture:Show()
       if MysticMaestroMenu:GetParent() == AuctionFrame and MysticMaestroMenu:IsVisible() then
         MM:HideMysticMaestroMenu()
+        MM:HideAHExtension()
       end
     else
       AuctionPortraitTexture:Hide()
@@ -391,6 +373,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
         MysticMaestroMenuContainer:Hide()
       end
       MM:ShowMysticMaestroMenu()
+      MM:ShowAHExtension()
     end
   end
 
@@ -407,6 +390,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
     function()
       if MysticMaestroMenu and MysticMaestroMenu:IsShown() and MysticMaestroMenu:GetParent() == AuctionFrame then
         self:HideMysticMaestroMenu()
+        self:HideAHExtension()
       end
     end)
   end
@@ -699,6 +683,7 @@ do -- show and hide MysticMaestroMenu
     else
       if AuctionFrame and AuctionFrame:IsVisible() and AuctionFrame.selectedTab == self.AHTabIndex then
         self:HideMysticMaestroMenu()
+        self:HideAHExtension()
         HideUIPanel(AuctionFrame)
       end
       self:OpenStandaloneMenu()
