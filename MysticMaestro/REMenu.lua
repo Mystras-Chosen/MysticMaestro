@@ -499,16 +499,16 @@ do -- show and hide MysticMaestroMenu
   end
 
   local sortOptions = {
-    "Alphabetical (Ascending)",
-    "Alphabetical (Descending)",
-    "Gold/Orb (Min)",
-    "Gold/Orb (Med)",
-    "Gold/Orb (Mean)",
-    "Gold/Orb (Max)",
-    "Gold/Orb (10d_Min)",
-    "Gold/Orb (10d_Med)",
-    "Gold/Orb (10d_Mean)",
-    "Gold/Orb (10d_Max)"
+    "A - Z",
+    "Z - A",
+    "Min GpO",
+    "Med GpO",
+    "Mean GpO",
+    "Max GpO",
+    "10d_Min GpO",
+    "10d_Med GpO",
+    "10d_Mean GpO",
+    "10d_Max GpO"
   }
 
   local enchantOptions = {
