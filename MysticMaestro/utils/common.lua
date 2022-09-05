@@ -296,13 +296,15 @@ function MM:cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
 
+
 function MM:ASC_COLLECTION_RE_UNLOCKED(event, entry)
   RE = GetREData(entry)
   if RE and RE.enchantID > 0 then
-      local name, _, icon = GetSpellInfo(RE.spellID)
-      texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
-      local enchantColor = colors[tostring(RE.quality)]
-      MM:Print(format("|Hspell:%s|h%s[%s]|r|h RE unlocked!", RE.spellID, enchantColor, name))
-      DEFAULT_CHAT_FRAME:AddMessage(texture)
+    local message = RE.known and " was already a known RE!" or " RE has been unlocked!"
+    local name, _, icon = GetSpellInfo(RE.spellID)
+    texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
+    local enchantColor = colors[tostring(RE.quality)]
+    MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", RE.spellID, enchantColor, name, message))
+    DEFAULT_CHAT_FRAME:AddMessage(texture)
   end
 end
