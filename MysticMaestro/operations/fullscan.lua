@@ -30,5 +30,3 @@ function MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
     self:CalculateAllStats()
   end
 end
-
-MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Fullscan_AUCTION_ITEM_LIST_UPDATE")

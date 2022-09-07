@@ -151,8 +151,6 @@ function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
 	end
 end
 
-MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", "Scan_AUCTION_ITEM_LIST_UPDATE")
-
 local function onUpdate()
 	if scanPending and CanSendAuctionQuery() then
 		scanPending = false

@@ -94,3 +94,9 @@ for k, v in pairs(MYSTIC_ENCHANTS) do
     end
   end
 end
+
+MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", function()
+  MM:Scan_AUCTION_ITEM_LIST_UPDATE()
+  MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
+  MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
+end)

@@ -907,6 +907,9 @@ do -- show/hide and select/deselect mystic enchant button functions
     end
     self:PopulateGraph(button.enchantID)
     self:ShowStatistics(button.enchantID)
+    if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+      self:AsyncDisplayEnchantAuctions(button.enchantID) -- async populate scroll bars
+    end
     selectedEnchantButton = button
   end
 

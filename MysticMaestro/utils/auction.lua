@@ -87,6 +87,52 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
+local displayInProgress, pendingQuery, awaitingResults, enchantToQuery
+function MM:AsyncDisplayEnchantAuctions(enchantID)
+  displayInProgress = true
+  pendingQuery = true
+  enchantToQuery = enchantID
+end
+
+local results = {}
+function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
+  if awaitingResults then
+    awaitingResults = false
+    wipe(results)
+    for i=1, GetNumAuctionItems("list") do
+      local _, _, buyoutPrice, quality, seller = getAuctionInfo(i)
+      if seller == nil then
+        awaitingResults = true
+      end
+      local itemFound, enchantID = isEnchantItemFound(quality, buyoutPrice, i)
+      if itemFound and enchantToQuery == enchantID then
+        table.insert(results, {
+          id = i,
+          seller = seller,
+          buyoutPrice = buyoutPrice
+        })
+      end
+    end
+    for i,v in ipairs(results) do
+      print(v.id, v.seller, v.buyoutPrice)
+    end
+    --self:PopulateSelectedEnchantAuctions(results)
+  end
+end
+
+local function onUpdate()
+  if displayInProgress then
+    if pendingQuery and CanSendAuctionQuery() then
+      print("performing query")
+      QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
+      pendingQuery = false
+      awaitingResults = true
+    end
+  end
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
+
 ---------------------------------
 --   Auction Stats functions   --
 ---------------------------------
