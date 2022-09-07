@@ -52,14 +52,14 @@ local myAuctionsScrollFrame
 local myAuctionsButtonCount = 8
 local function createMyAuctionsScrollFrame()
   myAuctionsScrollFrame = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -40)
-  myAuctionsScrollFrame.scrollframe = createAuctionsScrollFrame("MysticMaestroMyAuctions", "My Auctions", myAuctionsScrollFrame, myAuctionsButtonCount)
+  myAuctionsScrollFrame.scrollFrame = createAuctionsScrollFrame("MysticMaestroMyAuctions", "My Auctions", myAuctionsScrollFrame, myAuctionsButtonCount)
 end
 
 local selectedEnchantAuctionsScrollFrame
 local selectedEnchantAuctionsButtonCount = 6
 local function createSelectedEnchantAuctionsScrollFrame()
   selectedEnchantAuctionsScrollFrame = MM:CreateContainer(ahExtensionMenu, "BOTTOMRIGHT", auctionScrollFrameWidth, buttonHeight * selectedEnchantAuctionsButtonCount, -11, 40)
-  selectedEnchantAuctionsScrollFrame.scrollframe = createAuctionsScrollFrame("MysticMaestroSelectedEnchantAuctions", "Selected Enchant Auctions", selectedEnchantAuctionsScrollFrame, selectedEnchantAuctionsButtonCount)
+  selectedEnchantAuctionsScrollFrame.scrollFrame = createAuctionsScrollFrame("MysticMaestroSelectedEnchantAuctions", "Selected Enchant Auctions", selectedEnchantAuctionsScrollFrame, selectedEnchantAuctionsButtonCount)
 end
 
 local function initAHExtension()
@@ -72,6 +72,7 @@ function MM:ShowAHExtension()
   if not MysticMaestroMenuAHExtension then
     initAHExtension()
   end
+  self:HideSelectedEnchantAuctionsButtons()
   MysticMaestroMenuAHExtension:Show()
   MysticMaestroMenuAHExtension:ClearAllPoints()
   MysticMaestroMenuAHExtension:SetPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", 0, 0)
@@ -80,4 +81,25 @@ end
 
 function MM:HideAHExtension()
   MysticMaestroMenuAHExtension:Hide()
+end
+
+function MM:HideSelectedEnchantAuctionsButtons()
+  for _, button in ipairs(selectedEnchantAuctionsScrollFrame.scrollFrame.buttons) do
+    button:Hide()
+  end
+end
+
+function MM:ShowSelectedEnchantAuctionsButtons(results)
+  local i = 1
+  local buttons = selectedEnchantAuctionsScrollFrame.scrollFrame.buttons
+  while (i <= #buttons and i <= #results) do
+    MoneyFrame_Update(buttons[i].price, results[i].buyoutPrice)
+    buttons[i]:Show()
+    i = i + 1
+  end
+end
+
+function MM:PopulateSelectedEnchantAuctions(results)
+  self:HideSelectedEnchantAuctionsButtons()
+  self:ShowSelectedEnchantAuctionsButtons(results)
 end

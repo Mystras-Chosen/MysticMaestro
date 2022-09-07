@@ -91,6 +91,7 @@ local displayInProgress, pendingQuery, awaitingResults, enchantToQuery
 function MM:AsyncDisplayEnchantAuctions(enchantID)
   displayInProgress = true
   pendingQuery = true
+  awaitingResults = false
   enchantToQuery = enchantID
 end
 
@@ -109,14 +110,12 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
         table.insert(results, {
           id = i,
           seller = seller,
-          buyoutPrice = buyoutPrice
+          buyoutPrice = buyoutPrice,
+          yours = seller == UnitName("player")
         })
       end
     end
-    for i,v in ipairs(results) do
-      print(v.id, v.seller, v.buyoutPrice)
-    end
-    --self:PopulateSelectedEnchantAuctions(results)
+    self:PopulateSelectedEnchantAuctions(results)
   end
 end
 
