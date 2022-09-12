@@ -93,6 +93,9 @@ function MM:ShowSelectedEnchantAuctionsButtons(results)
   local i = 1
   local buttons = selectedEnchantAuctionsScrollFrame.scrollFrame.buttons
   while (i <= #buttons and i <= #results) do
+    if results[i].yours then
+      MM:Print("Button " ..i.." is your listing @",GetCoinTextureString(results[i].buyoutPrice))
+    end
     MoneyFrame_Update(buttons[i].price, results[i].buyoutPrice)
     buttons[i]:Show()
     i = i + 1
