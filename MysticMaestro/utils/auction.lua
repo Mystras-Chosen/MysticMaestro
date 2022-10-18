@@ -25,6 +25,7 @@ local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
   local enchantID
   if trinketFound then
     enchantID = MM:GetAHItemEnchantID(i)
+    -- enchantID = GetAuctionItemMysticEnchant("list", i)
   end
   return trinketFound and enchantID, enchantID
 end
@@ -34,6 +35,7 @@ local function isEnchantItemFound(quality, buyoutPrice, i)
   local enchantID
   if properItem then
     enchantID = MM:GetAHItemEnchantID(i)
+    -- enchantID = GetAuctionItemMysticEnchant("list", i)
   end
   return properItem and enchantID, enchantID
 end
