@@ -71,7 +71,7 @@ end
 
 function MM:TooltipHandlerItem(tooltip)
   local enchant
-  enchant = MM:MatchTooltipRE(tooltip)
+  enchant = tooltip:GetItemMysticEnchant()
   if enchant then
     addLinesTooltip(tooltip, enchant)
   end

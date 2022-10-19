@@ -5,18 +5,6 @@ function Maestro(reID)
   return MM:DeepClone(MM:StatObj(reID))
 end
 
-function MM:MatchTooltipRE(TT)
-  for i=1, TT:NumLines() do
-    local line = _G[TT:GetName() .. "TextLeft" .. i]:GetText()
-    if line and line ~= "" then
-      name, description = line:match("Equip: (.-) %- (.+)")
-      if name then
-        return self.RE_LOOKUP[name]
-      end
-    end
-  end
-end
-
 function MM:round(num, numDecimalPlaces, alwaysDown)
   local mult = 10^(numDecimalPlaces or 0)
   return math.floor(num * mult + (alwaysDown and 0 or 0.5)) / mult

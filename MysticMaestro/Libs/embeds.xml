@@ -19,12 +19,4 @@
 	<Include file="AceTimer-3.0\AceTimer-3.0.xml" />
 
     <Script file="LibGraph-2.0.lua" />
-
-    <GameTooltip name="MysticMaestroTT" inherits="GameTooltipTemplate">
-    <Scripts>
-        <Onload>
-            self:SetOwner(WorldFrame, "ANCHOR_NONE");
-        </Onload>
-    </Scripts>
-    </GameTooltip>
 </Ui>

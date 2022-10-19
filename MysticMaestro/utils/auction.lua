@@ -9,11 +9,6 @@ function MM:ValidateAHIsOpen()
   return true
 end
 
-function MM:GetAHItemEnchantID(index)
-  MysticMaestroTT:ClearLines()
-  MysticMaestroTT:SetAuctionItem("list", index)
-  return self:MatchTooltipRE(MysticMaestroTT)
-end
 
 local function getAuctionInfo(i)
   local itemName, _, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
@@ -24,8 +19,7 @@ local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
   local trinketFound = itemName and itemName:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0
   local enchantID
   if trinketFound then
-    enchantID = MM:GetAHItemEnchantID(i)
-    -- enchantID = GetAuctionItemMysticEnchant("list", i)
+    enchantID = GetAuctionItemMysticEnchant("list", i)
   end
   return trinketFound and enchantID, enchantID
 end
@@ -34,8 +28,7 @@ local function isEnchantItemFound(quality, buyoutPrice, i)
   local properItem = buyoutPrice and buyoutPrice > 0 and quality and quality >= 3
   local enchantID
   if properItem then
-    enchantID = MM:GetAHItemEnchantID(i)
-    -- enchantID = GetAuctionItemMysticEnchant("list", i)
+    enchantID = GetAuctionItemMysticEnchant("list", i)
   end
   return properItem and enchantID, enchantID
 end
