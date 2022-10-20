@@ -285,14 +285,16 @@ function MM:cTxt(text, color)
 end
 
 
-function MM:ASC_COLLECTION_RE_UNLOCKED(event, entry)
-  RE = GetREData(entry)
-  if RE and RE.enchantID > 0 then
-    local message = RE.known and " was already a known RE!" or " RE has been unlocked!"
-    local name, _, icon = GetSpellInfo(RE.spellID)
-    texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
-    local enchantColor = colors[tostring(RE.quality)]
-    MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", RE.spellID, enchantColor, name, message))
-    DEFAULT_CHAT_FRAME:AddMessage(texture)
+function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry)
+  if event == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
+    RE = GetREData(entry)
+    if RE and RE.enchantID > 0 then
+      local message = RE.known and " was already a known RE!" or " RE has been unlocked!"
+      local name, _, icon = GetSpellInfo(RE.spellID)
+      texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
+      local enchantColor = colors[tostring(RE.quality)]
+      MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", RE.spellID, enchantColor, name, message))
+      DEFAULT_CHAT_FRAME:AddMessage(texture)
+    end
   end
 end

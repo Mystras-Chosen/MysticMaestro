@@ -54,7 +54,7 @@ function MM:OnInitialize()
   self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
   self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
   self.db.realm.FAVORITE_ENCHANTS = self.db.realm.FAVORITE_ENCHANTS or {}
-  MM:RegisterMessage("ASC_COLLECTION_RE_UNLOCKED")
+  MM:RegisterEvent("COMMENTATOR_SKIRMISH_QUEUE_REQUEST")
 end
 
 function MM:OnEnable()
