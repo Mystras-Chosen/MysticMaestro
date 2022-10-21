@@ -82,6 +82,7 @@ end
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")
 
 MM.RE_LOOKUP = {}
+MM.RE_KNOWN = {}
 MM.RE_NAMES = {}
 MM.RE_ID = {}
 for k, v in pairs(MYSTIC_ENCHANTS) do
@@ -89,6 +90,7 @@ for k, v in pairs(MYSTIC_ENCHANTS) do
     local enchantName = GetSpellInfo(v.spellID)
     MM.RE_LOOKUP[enchantName] = v.enchantID
     MM.RE_NAMES[v.enchantID] = enchantName
+    MM.RE_KNOWN[v.enchantID] = IsReforgeEnchantmentKnown(v.enchantID)
     if v.spellID ~= v.enchantID then
       MM.RE_ID[v.spellID] = v.enchantID
     end
