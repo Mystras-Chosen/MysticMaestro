@@ -14,6 +14,7 @@ end
 
 local function addLinesTooltip(tt, input)
   local name, reID = getNameAndID(input)
+  if name == nil or reID == nil then return end
   local stats = MM.db.realm.RE_AH_STATISTICS[reID]["current"]
   local known = IsReforgeEnchantmentKnown(reID)
   local dataRE = MYSTIC_ENCHANTS[reID]
