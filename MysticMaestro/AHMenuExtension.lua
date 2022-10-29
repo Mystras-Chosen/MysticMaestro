@@ -35,7 +35,7 @@ local function createAuctionsScrollFrame(name, title, parent, numRows)
   scrollFrame.Title:SetText(title)
   scrollFrame.buttons = {}
   for i=1, numRows do
-    local listingButton = createListingButton(scrollFrame, name.."Button"..i)
+    local listingButton = createListingButton(parent, name.."Button"..i)
     listingButton:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, (1-i)*buttonHeight)
     table.insert(scrollFrame.buttons, listingButton)
   end
@@ -50,7 +50,7 @@ end
 local function selectEnchantAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
   local results = MM:GetSelectedEnchantAuctionsResults()
-  FauxScrollFrame_Update(self, #results, #buttons, buttonHeight)
+  FauxScrollFrame_Update(self, #results, #buttons, buttonHeight, nil, nil, nil, nil, nil, nil, true)
   local offset = FauxScrollFrame_GetOffset(self)
 
   -- go through each button and set visibility and associate with results
