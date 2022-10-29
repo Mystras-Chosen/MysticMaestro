@@ -10,6 +10,7 @@ local function createContainerFrame()
 end
 
 local buttonHeight = 16
+local auctionScrollFrameWidth = 195
 
 local function createListingButton(parent, listingName)
   local listingButton = CreateFrame("Button", listingName, parent)
@@ -25,17 +26,10 @@ local function createListingButton(parent, listingName)
   return listingButton
 end
 
-local auctionScrollFrameWidth = 195
 local function createAuctionsScrollFrame(name, title, parent, numRows)
   local scrollFrame = CreateFrame("ScrollFrame", name.."ScrollFrame", parent, "FauxScrollFrameTemplate")
   scrollFrame:SetSize(auctionScrollFrameWidth - 24, buttonHeight * numRows)
   scrollFrame:SetPoint("LEFT")
-  scrollFrame:SetScript("OnVerticalScroll",
-    function(self, value, itemsHeight, updateFunction)
-      
-    
-    end
-  )
   scrollFrame.Title = scrollFrame:CreateFontString(name.."Title", "OVERLAY", "GameTooltipText")
   scrollFrame.Title:SetPoint("BOTTOMLEFT", scrollFrame, "TOPLEFT", 0, 2)
   scrollFrame.Title:SetText(title)
@@ -48,18 +42,68 @@ local function createAuctionsScrollFrame(name, title, parent, numRows)
   return scrollFrame
 end
 
-local myAuctionsScrollFrame
-local myAuctionsButtonCount = 8
-local function createMyAuctionsScrollFrame()
-  myAuctionsScrollFrame = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -40)
-  myAuctionsScrollFrame.scrollFrame = createAuctionsScrollFrame("MysticMaestroMyAuctions", "My Auctions", myAuctionsScrollFrame, myAuctionsButtonCount)
+
+local function myAuctionsScrollFrame_Update(self)
+  -- change scroll button contents and associate results
 end
 
-local selectedEnchantAuctionsScrollFrame
+local function selectEnchantAuctionsScrollFrame_Update(self)
+  local buttons = self.buttons
+  local results = MM:GetSelectedEnchantAuctionsResults()
+  FauxScrollFrame_Update(self, #results, #buttons, buttonHeight)
+  local offset = FauxScrollFrame_GetOffset(self)
+
+  -- go through each button and set visibility and associate with results
+  for line = 1, #buttons do
+    local lineplusoffset = line + offset
+    local button = buttons[line]
+    if lineplusoffset > #results then
+      button:Hide()
+    else
+      local result = results[lineplusoffset]
+      MoneyFrame_Update(button.price, result.buyoutPrice)
+      button.id = result.id
+      button:Show()
+    end
+  end
+end
+
+
+
+
+
+
+
+
+local myAuctionsScrollFrameContainer
+local myAuctionsButtonCount = 8
+local function createMyAuctionsScrollFrame()
+  myAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -40)
+  myAuctionsScrollFrameContainer.scrollFrame = createAuctionsScrollFrame(
+    "MysticMaestroMyAuctions",
+    "My Auctions",
+    myAuctionsScrollFrameContainer,
+    myAuctionsButtonCount)
+    myAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
+      function(self, offset)
+        FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, myAuctionsScrollFrame_Update)
+      end)
+end
+
+local selectedEnchantAuctionsScrollFrameContainer
 local selectedEnchantAuctionsButtonCount = 6
 local function createSelectedEnchantAuctionsScrollFrame()
-  selectedEnchantAuctionsScrollFrame = MM:CreateContainer(ahExtensionMenu, "BOTTOMRIGHT", auctionScrollFrameWidth, buttonHeight * selectedEnchantAuctionsButtonCount, -11, 40)
-  selectedEnchantAuctionsScrollFrame.scrollFrame = createAuctionsScrollFrame("MysticMaestroSelectedEnchantAuctions", "Selected Enchant Auctions", selectedEnchantAuctionsScrollFrame, selectedEnchantAuctionsButtonCount)
+  selectedEnchantAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "BOTTOMRIGHT", auctionScrollFrameWidth, buttonHeight * selectedEnchantAuctionsButtonCount, -11, 40)
+  selectedEnchantAuctionsScrollFrameContainer.scrollFrame = createAuctionsScrollFrame(
+    "MysticMaestroSelectedEnchantAuctions",
+    "Selected Enchant Auctions",
+    selectedEnchantAuctionsScrollFrameContainer,
+    selectedEnchantAuctionsButtonCount)
+    selectedEnchantAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
+      function(self, offset)
+        print(offset)
+        FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, selectEnchantAuctionsScrollFrame_Update)
+      end)
 end
 
 local function initAHExtension()
@@ -72,7 +116,7 @@ function MM:ShowAHExtension()
   if not MysticMaestroMenuAHExtension then
     initAHExtension()
   end
-  self:HideSelectedEnchantAuctionsButtons()
+  selectEnchantAuctionsScrollFrame_Update(selectedEnchantAuctionsScrollFrameContainer.scrollFrame)
   MysticMaestroMenuAHExtension:Show()
   MysticMaestroMenuAHExtension:ClearAllPoints()
   MysticMaestroMenuAHExtension:SetPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", 0, 0)
@@ -81,12 +125,12 @@ end
 
 function MM:HideAHExtension()
   MysticMaestroMenuAHExtension:Hide()
+  self:SetSelectedEnchantAuctionsResults(nil)
 end
 
-function MM:HideSelectedEnchantAuctionsButtons()
-  for _, button in ipairs(selectedEnchantAuctionsScrollFrame.scrollFrame.buttons) do
-    button:Hide()
-  end
+function MM:PopulateSelectedEnchantAuctions(results)
+  self:SetSelectedEnchantAuctionsResults(results)
+  selectEnchantAuctionsScrollFrame_Update(selectedEnchantAuctionsScrollFrameContainer.scrollFrame)
 end
 
 function MM:ShowSelectedEnchantAuctionsButtons(results)
@@ -102,7 +146,12 @@ function MM:ShowSelectedEnchantAuctionsButtons(results)
   end
 end
 
-function MM:PopulateSelectedEnchantAuctions(results)
-  self:HideSelectedEnchantAuctionsButtons()
-  self:ShowSelectedEnchantAuctionsButtons(results)
+local selectedEnchantAuctionsResults
+function MM:GetSelectedEnchantAuctionsResults()
+  self:SetSelectedEnchantAuctionsResults(selectedEnchantAuctionsResults or {})
+  return selectedEnchantAuctionsResults
+end
+
+function MM:SetSelectedEnchantAuctionsResults(results)
+  selectedEnchantAuctionsResults = results
 end
