@@ -98,7 +98,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     for i=1, GetNumAuctionItems("list") do
       local _, _, buyoutPrice, quality, seller = getAuctionInfo(i)
       if seller == nil then
-        awaitingResults = true
+        awaitingResults = true  -- TODO: timeout awaitingResults
       end
       local itemFound, enchantID = isEnchantItemFound(quality, buyoutPrice, i)
       if itemFound and enchantToQuery == enchantID then
@@ -110,7 +110,9 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
         })
       end
     end
-    self:PopulateSelectedEnchantAuctions(results)
+    if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+      self:PopulateSelectedEnchantAuctions(results)
+    end
   end
 end
 

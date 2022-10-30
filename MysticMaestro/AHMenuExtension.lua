@@ -12,17 +12,62 @@ end
 local buttonHeight = 16
 local auctionScrollFrameWidth = 195
 
+local selectedEnchantAuctionID
+
+function MM:GetSelectedEnchantAuctionID()
+  self:SetSelectedEnchantAuctionID(selectedEnchantAuctionID or {})
+end
+
+function MM:SetSelectedEnchantAuctionID(id)
+  selectedEnchantAuctionID = id
+end
+
 local function createListingButton(parent, listingName)
   local listingButton = CreateFrame("Button", listingName, parent)
   listingButton:SetSize(parent:GetWidth(), buttonHeight)
-  listingButton:SetHighlightTexture("Interface\\HelpFrame\\HelpFrameButton-Highlight", "ADD")
-  listingButton.HighlightTexture = listingButton:GetHighlightTexture()
-  listingButton.HighlightTexture:SetTexCoord(0, 1, 0, 0.578125)
-
+  listingButton.H = listingButton:CreateTexture(nil, "OVERLAY")
+  listingButton.H:SetTexture("Interface\\HelpFrame\\HelpFrameButton-Highlight")
+  listingButton.H:SetAllPoints()
+  listingButton.H:SetBlendMode("ADD")
+  listingButton.H:SetTexCoord(0, 1, 0, 0.578125)
+  listingButton.H:Hide()
+  
   listingButton.price = CreateFrame("Frame", listingName.."Price", listingButton, "SmallMoneyFrameTemplate")
   MoneyFrame_SetType(listingButton.price, "AUCTION")
   listingButton.price:SetPoint("LEFT")
   listingButton.price:SetSize(parent:GetWidth(), buttonHeight)
+
+  -- set selected button and highlight
+  listingButton:SetScript("OnClick",
+    function(self)
+      MM:SetSelectedEnchantAuctionID(self.id)
+      for _, button in ipairs(parent.buttons) do
+        if button.id ~= selectedEnchantAuctionID then
+          button.H:Hide()
+        end
+      end
+      self.H:Show()
+      self.H:SetDesaturated(false)
+    end
+  )
+
+  listingButton:SetScript("OnLeave",
+    function(self)
+      if self.id ~= selectedEnchantAuctionID then
+        self.H:Hide()
+      end
+    end
+  )
+
+  listingButton:SetScript("OnEnter",
+    function(self)
+      if self.id ~= selectedEnchantAuctionID then
+        self.H:Show()
+        self.H:SetDesaturated(true)
+      end
+    end
+  )
+
   return listingButton
 end
 
@@ -35,7 +80,7 @@ local function createAuctionsScrollFrame(name, title, parent, numRows)
   scrollFrame.Title:SetText(title)
   scrollFrame.buttons = {}
   for i=1, numRows do
-    local listingButton = createListingButton(parent, name.."Button"..i)
+    local listingButton = createListingButton(scrollFrame, name.."Button"..i)
     listingButton:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, (1-i)*buttonHeight)
     table.insert(scrollFrame.buttons, listingButton)
   end
@@ -59,11 +104,22 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
     local button = buttons[line]
     if lineplusoffset > #results then
       button:Hide()
+      button.id = nil
     else
       local result = results[lineplusoffset]
       MoneyFrame_Update(button.price, result.buyoutPrice)
       button.id = result.id
       button:Show()
+      if button.id == selectedEnchantAuctionID then
+        button.H:Show()
+        button.H:SetDesaturated(false)
+      elseif button:IsMouseOver() then
+        button.H:Show()
+        button.H:SetDesaturated(true)
+      else
+        button.H:Hide()
+        button.H:SetDesaturated(true)
+      end
     end
   end
 end
@@ -87,7 +143,8 @@ local function createMyAuctionsScrollFrame()
     myAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
       function(self, offset)
         FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, myAuctionsScrollFrame_Update)
-      end)
+      end
+    )
 end
 
 local selectedEnchantAuctionsScrollFrameContainer
@@ -101,9 +158,9 @@ local function createSelectedEnchantAuctionsScrollFrame()
     selectedEnchantAuctionsButtonCount)
     selectedEnchantAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
       function(self, offset)
-        print(offset)
         FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, selectEnchantAuctionsScrollFrame_Update)
-      end)
+      end
+    )
 end
 
 local function initAHExtension()
@@ -129,6 +186,7 @@ function MM:HideAHExtension()
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)
+  self:SetSelectedEnchantAuctionID(nil)
   self:SetSelectedEnchantAuctionsResults(results)
   selectEnchantAuctionsScrollFrame_Update(selectedEnchantAuctionsScrollFrameContainer.scrollFrame)
 end
