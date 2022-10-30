@@ -37,7 +37,9 @@ local function createListingButton(parent, listingName)
   listingButton.price:SetPoint("LEFT")
   listingButton.price:SetSize(parent:GetWidth(), buttonHeight)
 
-  -- set selected button and highlight
+  listingButton.price.SuffixText = listingButton.price:CreateFontString(listingButton.price:GetName().."SuffixText", "OVERLAY", "GameTooltipText")
+  listingButton.price.SuffixText:SetJustifyH("LEFT")
+
   listingButton:SetScript("OnClick",
     function(self)
       MM:SetSelectedEnchantAuctionID(self.id)
@@ -107,7 +109,9 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
       button.id = nil
     else
       local result = results[lineplusoffset]
+      button.price.SuffixText:SetText(result.yours and "  (yours)" or nil)
       MoneyFrame_Update(button.price, result.buyoutPrice)
+      button.price:SetWidth(button.price:GetWidth() - button.price.SuffixText:GetWidth())
       button.id = result.id
       button:Show()
       if button.id == selectedEnchantAuctionID then
