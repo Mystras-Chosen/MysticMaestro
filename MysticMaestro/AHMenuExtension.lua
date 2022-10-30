@@ -219,4 +219,5 @@ end
 
 function MM:ClearSelectedEnchantAuctions()
   self:PopulateSelectedEnchantAuctions({})
+  self:DeactivateSelectScanListener()
 end

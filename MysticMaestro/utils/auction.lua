@@ -83,6 +83,11 @@ function MM:CollectAllREData(scanTime)
 end
 
 local displayInProgress, pendingQuery, awaitingResults, enchantToQuery
+
+function MM:DeactivateSelectScanListener()
+  awaitingResults = false
+end
+
 function MM:AsyncDisplayEnchantAuctions(enchantID)
   displayInProgress = true
   pendingQuery = true
