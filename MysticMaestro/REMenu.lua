@@ -920,6 +920,9 @@ do -- show/hide and select/deselect mystic enchant button functions
     end
     self:ClearGraph()
     self:HideStatistics()
+    if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+      MM:ClearSelectedEnchantAuctions()
+    end
     selectedEnchantButton = nil
   end
 end
