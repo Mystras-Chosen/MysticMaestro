@@ -82,7 +82,7 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
-local displayInProgress, pendingQuery, awaitingResults, enchantToQuery
+local displayInProgress, pendingQuery, awaitingResults, enchantToQuery, selectedScanTime
 
 function MM:DeactivateSelectScanListener()
   awaitingResults = false
@@ -93,19 +93,23 @@ function MM:AsyncDisplayEnchantAuctions(enchantID)
   pendingQuery = true
   awaitingResults = false
   enchantToQuery = enchantID
+  selectedScanTime = time()
 end
 
 local results = {}
 function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
+    local listings = self.db.realm.RE_AH_LISTINGS
+    listings[enchantToQuery][selectedScanTime] = listings[enchantToQuery][selectedScanTime] or {}
+    listings[enchantToQuery][selectedScanTime]["other"] = listings[enchantToQuery][selectedScanTime]["other"] or {}
     awaitingResults = false
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
-      local _, _, buyoutPrice, quality, seller = getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality, seller = getAuctionInfo(i)
       if seller == nil then
         awaitingResults = true  -- TODO: timeout awaitingResults
       end
-      local itemFound, enchantID = isEnchantItemFound(quality, buyoutPrice, i)
+      local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
       if itemFound and enchantToQuery == enchantID then
         table.insert(results, {
           id = i,
@@ -113,6 +117,20 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           buyoutPrice = buyoutPrice,
           yours = seller == UnitName("player")
         })
+        buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
+        table.insert(listings[enchantToQuery][selectedScanTime], buyoutPrice)
+      else
+        itemFound, enchantID = isEnchantItemFound(quality, buyoutPrice, i)
+        if itemFound and enchantToQuery == enchantID then
+          table.insert(results, {
+            id = i,
+            seller = seller,
+            buyoutPrice = buyoutPrice,
+            yours = seller == UnitName("player")
+          })
+          buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
+          table.insert(listings[enchantToQuery][selectedScanTime]["other"], buyoutPrice)
+        end
       end
     end
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
