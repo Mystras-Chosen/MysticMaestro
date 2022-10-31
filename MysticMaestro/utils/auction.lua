@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 function MM:ValidateAHIsOpen()
   local AuctionFrame = _G["AuctionFrame"]
@@ -283,10 +283,21 @@ function MM:CalculateAllStats()
     end
     MM:CalculateDailyAverages(reID)
 
-    for k, timekey in pairs(removeList) do 
-      listing[timekey] = nil
+function MM:CalculateREStats(reID)
+  local listing = self.db.realm.RE_AH_LISTINGS[reID]
+  local removeList = {}
+  local timekey, values, k
+  for timekey, values in pairs(listing) do
+    if not MM:BeyondDays(timekey) then 
+      MM:CalculateStatsFromTime(reID,timekey)
+    else
+      table.insert(removeList,timekey)
     end
   end
+  for k, timekey in pairs(removeList) do 
+    listing[timekey] = nil
+  end
+  MM:CalculateDailyAverages(reID)
 end
 
 function MM:LowestListed(reID,keytype)
