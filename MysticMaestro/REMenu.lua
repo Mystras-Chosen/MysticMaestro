@@ -947,7 +947,7 @@ do -- show/hide statistics functions
       coinStr.listed = info.Trinkets.." Trnk ("..info.Count.. " Mkt of "..info.Total..")"
       coinStr.d_listed = info["10d_Trinkets"].." Trnk ("..info["10d_Count"].. " Mkt of "..info["10d_Total"]..")"
 
-      statsContainerWidgets[ 1]:SetText("Current Buyout ("..MM:cTxt("10 Day Average","min")..")")
+      statsContainerWidgets[ 1]:SetText("Buyout ("..MM:cTxt("10 Day Average","min")..")")
       statsContainerWidgets[ 2]:SetText(MM:cTxt("Minimum: ","yellow")..coinStr.min.." ("..coinStr.d_min..")")
       statsContainerWidgets[ 3]:SetText(MM:cTxt("Median: ","yellow")..coinStr.med.." ("..coinStr.d_med..")")
       statsContainerWidgets[ 4]:SetText(MM:cTxt("Mean: ","yellow")..coinStr.mean.." ("..coinStr.d_mean..")")
