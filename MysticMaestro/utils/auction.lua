@@ -281,7 +281,12 @@ function MM:CalculateAllStats()
         table.insert(removeList,timekey)
       end
     end
+    for k, timekey in pairs(removeList) do 
+      listing[timekey] = nil
+    end
     MM:CalculateDailyAverages(reID)
+  end
+end
 
 function MM:CalculateREStats(reID)
   local listing = self.db.realm.RE_AH_LISTINGS[reID]
