@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 function MM:ValidateAHIsOpen()
   local AuctionFrame = _G["AuctionFrame"]
@@ -135,6 +135,8 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     end
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
+      self:PopulateGraph(enchantToQuery)
+      self:ShowStatistics(enchantToQuery)
     end
   end
 end
