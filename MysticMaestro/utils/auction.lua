@@ -135,6 +135,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     end
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
+      self:CalculateREStats(enchantToQuery)
       self:PopulateGraph(enchantToQuery)
       self:ShowStatistics(enchantToQuery)
     end
