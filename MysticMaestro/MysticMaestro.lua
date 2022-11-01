@@ -102,3 +102,7 @@ MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", function()
   MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
   MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
 end)
+
+MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE", function()
+  MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
+end)

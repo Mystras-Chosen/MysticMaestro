@@ -142,6 +142,10 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   end
 end
 
+function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
+  
+end
+
 local function onUpdate()
   if displayInProgress then
     if pendingQuery and CanSendAuctionQuery() then

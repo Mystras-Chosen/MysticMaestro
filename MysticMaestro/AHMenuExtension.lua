@@ -22,7 +22,33 @@ function MM:SetSelectedEnchantAuctionID(id)
   selectedEnchantAuctionID = id
 end
 
-local function createListingButton(parent, listingName)
+local function createMyAuctionsButton(parent, listingName)
+  local listingButton = CreateFrame("Button", listingName, parent)
+  listingButton:SetSize(parent:GetWidth(), buttonHeight)
+  listingButton.H = listingButton:CreateTexture(nil, "OVERLAY")
+  listingButton.H:SetTexture("Interface\\HelpFrame\\HelpFrameButton-Highlight")
+  listingButton.H:SetAllPoints()
+  listingButton.H:SetBlendMode("ADD")
+  listingButton.H:SetTexCoord(0, 1, 0, 0.578125)
+  listingButton.H:Hide()
+
+  listingButton.statusIcon = listingButton:CreateTexture(nil, "OVERLAY")
+  listingButton.statusIcon:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\white_square")
+  listingButton.statusIcon:SetSize(buttonHeight, buttonHeight)
+  listingButton.statusIcon:SetPoint("LEFT")
+
+  listingButton.itemIcon = listingButton:CreateTexture(nil, "OVERLAY")
+  listingButton.itemIcon:SetSize(buttonHeight, buttonHeight)
+  listingButton.itemIcon:SetPoint("LEFT", listingButton.statusIcon, "RIGHT", 0, 0)
+
+  listingButton.text = listingButton:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+  listingButton.text:SetPoint("LEFT", listingButton.itemIcon, "RIGHT", 0, 0)
+
+
+  return listingButton
+end
+
+local function createSelectedAuctionsButton(parent, listingName)
   local listingButton = CreateFrame("Button", listingName, parent)
   listingButton:SetSize(parent:GetWidth(), buttonHeight)
   listingButton.H = listingButton:CreateTexture(nil, "OVERLAY")
@@ -73,7 +99,7 @@ local function createListingButton(parent, listingName)
   return listingButton
 end
 
-local function createAuctionsScrollFrame(name, title, parent, numRows)
+local function createAuctionsScrollFrame(name, title, parent, numRows, buttonCreateFunc)
   local scrollFrame = CreateFrame("ScrollFrame", name.."ScrollFrame", parent, "FauxScrollFrameTemplate")
   scrollFrame:SetSize(auctionScrollFrameWidth - 24, buttonHeight * numRows)
   scrollFrame:SetPoint("LEFT")
@@ -81,17 +107,41 @@ local function createAuctionsScrollFrame(name, title, parent, numRows)
   scrollFrame.Title:SetPoint("BOTTOMLEFT", scrollFrame, "TOPLEFT", 0, 2)
   scrollFrame.Title:SetText(title)
   scrollFrame.buttons = {}
+  
   for i=1, numRows do
-    local listingButton = createListingButton(scrollFrame, name.."Button"..i)
+    local listingButton = buttonCreateFunc(scrollFrame, name.."Button"..i)
     listingButton:SetPoint("TOPLEFT", scrollFrame, "TOPLEFT", 0, (1-i)*buttonHeight)
     table.insert(scrollFrame.buttons, listingButton)
   end
+
   return scrollFrame
 end
 
 
 local function myAuctionsScrollFrame_Update(self)
-  -- change scroll button contents and associate results
+  local buttons = self.buttons
+  local results = MM:GetMyAuctionsResults()
+  FauxScrollFrame_Update(self, #results, #buttons, buttonHeight, nil, nil, nil, nil, nil, nil, true)
+  local offset = FauxScrollFrame_GetOffset(self)
+
+  for line = 1, #buttons do
+    local lineplusoffset = line + offset
+    local button = buttons[line]
+    if lineplusoffset > #results then
+      button:Hide()
+      button.id = nil
+    else
+      local result = results[lineplusoffset]
+      button.id = result.id
+      button.itemIcon:SetTexture(result.icon)
+      local reData = GetREData(result.enchantID)
+
+      print(result.enchantID)
+      print(reData.spellName)
+      button.text:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
+      button:Show()
+    end
+  end
 end
 
 local function selectEnchantAuctionsScrollFrame_Update(self)
@@ -104,6 +154,7 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
   for line = 1, #buttons do
     local lineplusoffset = line + offset
     local button = buttons[line]
+    MM:EnableSelectEnchantAuctionButton(button)
     if lineplusoffset > #results then
       button:Hide()
       button.id = nil
@@ -113,6 +164,7 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
       MoneyFrame_Update(button.price, result.buyoutPrice)
       button.id = result.id
       button:Show()
+      MM:EnableSelectEnchantAuctionButton(button)
       if button.id == selectedEnchantAuctionID then
         button.H:Show()
         button.H:SetDesaturated(false)
@@ -135,19 +187,21 @@ end
 
 
 local myAuctionsScrollFrameContainer
-local myAuctionsButtonCount = 8
+local myAuctionsButtonCount = 10
 local function createMyAuctionsScrollFrame()
-  myAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -40)
+  myAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -50)
   myAuctionsScrollFrameContainer.scrollFrame = createAuctionsScrollFrame(
     "MysticMaestroMyAuctions",
     "My Auctions",
     myAuctionsScrollFrameContainer,
-    myAuctionsButtonCount)
-    myAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
-      function(self, offset)
-        FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, myAuctionsScrollFrame_Update)
-      end
-    )
+    myAuctionsButtonCount,
+    createMyAuctionsButton
+  )
+  myAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
+    function(self, offset)
+      FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, myAuctionsScrollFrame_Update)
+    end
+  )
 end
 
 local selectedEnchantAuctionsScrollFrameContainer
@@ -158,12 +212,14 @@ local function createSelectedEnchantAuctionsScrollFrame()
     "MysticMaestroSelectedEnchantAuctions",
     "Selected Enchant Auctions",
     selectedEnchantAuctionsScrollFrameContainer,
-    selectedEnchantAuctionsButtonCount)
-    selectedEnchantAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
-      function(self, offset)
-        FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, selectEnchantAuctionsScrollFrame_Update)
-      end
-    )
+    selectedEnchantAuctionsButtonCount,
+    createSelectedAuctionsButton
+  )
+  selectedEnchantAuctionsScrollFrameContainer.scrollFrame:SetScript("OnVerticalScroll",
+    function(self, offset)
+      FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, selectEnchantAuctionsScrollFrame_Update)
+    end
+  )
 end
 
 local function initAHExtension()
@@ -176,6 +232,7 @@ function MM:ShowAHExtension()
   if not MysticMaestroMenuAHExtension then
     initAHExtension()
   end
+  myAuctionsScrollFrame_Update(myAuctionsScrollFrameContainer.scrollFrame)
   selectEnchantAuctionsScrollFrame_Update(selectedEnchantAuctionsScrollFrameContainer.scrollFrame)
   MysticMaestroMenuAHExtension:Show()
   MysticMaestroMenuAHExtension:ClearAllPoints()
@@ -185,7 +242,12 @@ end
 
 function MM:HideAHExtension()
   MysticMaestroMenuAHExtension:Hide()
+  self:ClearMyAuctions()
   self:ClearSelectedEnchantAuctions()
+end
+
+function MM:PopulateMyAuctions(results)
+  myAuctionsScrollFrame_Update(myAuctionsScrollFrameContainer.scrollFrame)
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)
@@ -193,17 +255,28 @@ function MM:PopulateSelectedEnchantAuctions(results)
   selectEnchantAuctionsScrollFrame_Update(selectedEnchantAuctionsScrollFrameContainer.scrollFrame)
 end
 
-function MM:ShowSelectedEnchantAuctionsButtons(results)
-  local i = 1
-  local buttons = selectedEnchantAuctionsScrollFrame.scrollFrame.buttons
-  while (i <= #buttons and i <= #results) do
-    if results[i].yours then
-      MM:Print("Button " ..i.." is your listing @",GetCoinTextureString(results[i].buyoutPrice))
+local function getMyAuctionInfo(i)
+  local _, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
+  local enchantID = GetAuctionItemMysticEnchant("owner", i)
+  return icon, quality, buyoutPrice, enchantID
+end
+
+function MM:GetMyAuctionsResults()
+  local myAuctionsResults = {}
+  local numPlayerAuctions = GetNumAuctionItems("owner")
+  for i=1, numPlayerAuctions do
+    print(getMyAuctionInfo(i))
+    local icon, quality, buyoutPrice, enchantID = getMyAuctionInfo(i)
+    if buyoutPrice and quality >= 3 and enchantID then
+      table.insert(myAuctionsResults, {
+        id = i,
+        icon = icon,
+        buyoutPrice = buyoutPrice,
+        enchantID = enchantID
+      })
     end
-    MoneyFrame_Update(buttons[i].price, results[i].buyoutPrice)
-    buttons[i]:Show()
-    i = i + 1
   end
+  return myAuctionsResults
 end
 
 local selectedEnchantAuctionsResults
@@ -217,7 +290,32 @@ function MM:SetSelectedEnchantAuctionsResults(results)
   selectedEnchantAuctionsResults = results
 end
 
+function MM:ClearMyAuctions()
+  self:PopulateMyAuctions({})
+end
+
 function MM:ClearSelectedEnchantAuctions()
   self:PopulateSelectedEnchantAuctions({})
   self:DeactivateSelectScanListener()
+end
+
+local function setMoneyButtonTransparency(button, alpha)
+  local moneyFrameName = button.price:GetName()
+  _G[moneyFrameName.."GoldButton"]:GetNormalTexture():SetVertexColor(1, 1, 1, alpha)
+  _G[moneyFrameName.."GoldButtonText"]:SetTextColor(1, 1, 1, alpha)
+  _G[moneyFrameName.."SilverButton"]:GetNormalTexture():SetVertexColor(1, 1, 1, alpha)
+  _G[moneyFrameName.."SilverButtonText"]:SetTextColor(1, 1, 1, alpha)
+  _G[moneyFrameName.."CopperButton"]:GetNormalTexture():SetVertexColor(1, 1, 1, alpha)
+  _G[moneyFrameName.."CopperButtonText"]:SetTextColor(1, 1, 1, alpha)
+  button.price.Suffix:SetTextColor(1, 1, 1, alpha)
+end
+
+function MM:DisableSelectEnchantAuctionButton(button)
+  setMoneyButtonTransparency(button, .3)
+  button:Disable()
+end
+
+function MM:EnableSelectEnchantAuctionButton(button)
+  setMoneyButtonTransparency(button, 1)
+  button:Enable()
 end
