@@ -153,7 +153,7 @@ function MM:GetMyAuctionsResults()
   myAuctionsResults = {}
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    print(getMyAuctionInfo(i))
+    -- print(getMyAuctionInfo(i))
     local icon, quality, buyoutPrice, enchantID = getMyAuctionInfo(i)
     if buyoutPrice and quality >= 3 and enchantID then
       table.insert(myAuctionsResults, {
