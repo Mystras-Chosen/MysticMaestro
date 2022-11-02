@@ -528,7 +528,8 @@ do -- show and hide MysticMaestroMenu
     "Craft ...",
     "List Auction",
     "List ...",
-    "Cancel Auctions"
+    "Cancel Auctions",
+    "Favorite"
   }
 
   local function sortDropdown_OnValueChanged(self, event, key, checked)
@@ -556,6 +557,14 @@ do -- show and hide MysticMaestroMenu
       else
         MM:Print("No blank insignia found")
       end
+    elseif arg1 == "Favorite" and arg2 then
+      if MM.db.realm.FAVORITE_ENCHANTS[arg2] then
+        MM.db.realm.FAVORITE_ENCHANTS[arg2] = nil
+      else
+        MM.db.realm.FAVORITE_ENCHANTS[arg2] = true
+      end
+      local insert = MM.db.realm.FAVORITE_ENCHANTS[arg2] and "w" or " longer"
+      MM:Print(MM:ItemLinkRE(arg2).." is no"..insert.." a favorite.")
     else
       MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM:ItemLinkRE(arg2))
     end
@@ -566,7 +575,7 @@ do -- show and hide MysticMaestroMenu
     info.func = enchantDDM_OnClick
     if level == 1 then
       for k, v in pairs(enchantOptions) do
-        info.text, info.arg1, info.arg2 = v, v, rightClickedEnchant
+        info.text, info.arg1, info.arg2, info.checked = v, v, rightClickedEnchant,v=="Favorite" and MM.db.realm.FAVORITE_ENCHANTS[rightClickedEnchant] or nil
         UIDropDownMenu_AddButton(info)
       end
     elseif menuList == "Submenu" then
