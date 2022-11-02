@@ -35,6 +35,9 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:SetResultSet({key})
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
+          if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+            MM:DeselectSelectedAuctionData()
+          end
           return key, enchantName
         else
           key, enchantName = next(queryResults)
@@ -43,6 +46,9 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:SetResultSet({key})
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
+            if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+              MM:DeselectSelectedAuctionData()
+            end
             return key, enchantName
           end
         end
@@ -308,6 +314,9 @@ do -- functions to initialize menu and menu container
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants()
       MM:GoToPage(1)
+      if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+        MM:DeselectSelectedAuctionData()
+      end
     end)
   end
 
@@ -495,6 +504,9 @@ do -- show and hide MysticMaestroMenu
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants(itemsToFilter(items))
       MM:GoToPage(1)
+      if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+        MM:DeselectSelectedAuctionData()
+      end
     end
   end
 

@@ -22,6 +22,19 @@ function MM:SetSelectedAuctionData(data)
   selectedAuctionData = data
 end
 
+function MM:DeselectSelectedAuctionData()
+  self:SetSelectedAuctionData(nil)
+  local myAuctionsButton = MM:GetMyAuctionsScrollFrame().buttons
+  for _, button in ipairs(myAuctionsButton) do
+      button.H:Hide()
+  end
+
+  local selectedEnchantAuctionsButtons = MM:GetSelectedEnchantAuctionsScrollFrame().buttons
+  for _, button in ipairs(selectedEnchantAuctionsButtons) do
+      button.H:Hide()
+  end
+end
+
 local function createMyAuctionsButton(parent, listingName)
   local listingButton = CreateFrame("Button", listingName, parent)
   listingButton:SetSize(parent:GetWidth(), buttonHeight)
@@ -46,23 +59,16 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
+      MM:DeselectSelectedAuctionData()
       MM:SetSelectedAuctionData(self.data)
-      local myAuctionsButton = MM:GetMyAuctionsScrollFrame().buttons
-      for _, button in ipairs(myAuctionsButton) do
-        if button.data ~= self.data then
-          button.H:Hide()
-        end
-      end
-
-      local selectedEnchantAuctionsButtons = MM:GetSelectedEnchantAuctionsScrollFrame().buttons
-      for _, button in ipairs(selectedEnchantAuctionsButtons) do
-        if button.data ~= self.data then
-          button.H:Hide()
-        end
-      end
 
       self.H:Show()
       self.H:SetDesaturated(false)
+
+      MM:SetSearchBarDefaultText()
+      MM:SetResultSet({self.data.enchantID})
+      MM:GoToPage(1)
+      MM:SetSelectedEnchantButton(1)
     end
   )
 
@@ -106,21 +112,9 @@ local function createSelectedAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
+      MM:DeselectSelectedAuctionData()
       MM:SetSelectedAuctionData(self.data)
-      local myAuctionsButton = MM:GetMyAuctionsScrollFrame().buttons
-      for _, button in ipairs(myAuctionsButton) do
-        if button.data ~= self.data then
-          button.H:Hide()
-        end
-      end
-
-      local selectedEnchantAuctionsButtons = MM:GetSelectedEnchantAuctionsScrollFrame().buttons
-      for _, button in ipairs(selectedEnchantAuctionsButtons) do
-        if button.data ~= self.data then
-          button.H:Hide()
-        end
-      end
-
+      
       self.H:Show()
       self.H:SetDesaturated(false)
     end
@@ -223,10 +217,6 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
   end
 end
 
-
-
-
-
 local myAuctionsScrollFrame
 
 function MM:GetMyAuctionsScrollFrame()
@@ -305,6 +295,7 @@ end
 
 function MM:HideAHExtension()
   MysticMaestroMenuAHExtension:Hide()
+  self:DeselectSelectedAuctionData()
   self:ClearMyAuctions()
   self:ClearSelectedEnchantAuctions()
 end
@@ -325,7 +316,6 @@ function MM:GetSelectedEnchantAuctionsResults()
 end
 
 function MM:SetSelectedEnchantAuctionsResults(results)
-  self:SetSelectedAuctionData(nil)
   selectedEnchantAuctionsResults = results
 end
 
@@ -334,6 +324,11 @@ function MM:ClearMyAuctions()
 end
 
 function MM:ClearSelectedEnchantAuctions()
+  local selectedAuction = self:GetSelectedAuctionData()
+  -- only deselect if selection is in selected enchant scroll frame
+  if selectedAuction and selectedAuction.seller then
+    self:SetSelectedAuctionData(nil)
+  end
   self:PopulateSelectedEnchantAuctions({})
   self:DeactivateSelectScanListener()
 end
