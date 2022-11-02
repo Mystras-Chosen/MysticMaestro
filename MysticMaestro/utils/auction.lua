@@ -142,8 +142,29 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   end
 end
 
-function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
-  
+local function getMyAuctionInfo(i)
+  local _, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
+  local enchantID = GetAuctionItemMysticEnchant("owner", i)
+  return icon, quality, buyoutPrice, enchantID
+end
+
+local myAuctionResults
+function MM:GetMyAuctionsResults()
+  myAuctionsResults = {}
+  local numPlayerAuctions = GetNumAuctionItems("owner")
+  for i=1, numPlayerAuctions do
+    print(getMyAuctionInfo(i))
+    local icon, quality, buyoutPrice, enchantID = getMyAuctionInfo(i)
+    if buyoutPrice and quality >= 3 and enchantID then
+      table.insert(myAuctionsResults, {
+        id = i,
+        icon = icon,
+        buyoutPrice = buyoutPrice,
+        enchantID = enchantID
+      })
+    end
+  end
+  return myAuctionsResults
 end
 
 local function onUpdate()
