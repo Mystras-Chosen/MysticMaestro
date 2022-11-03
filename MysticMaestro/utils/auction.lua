@@ -361,11 +361,11 @@ StaticPopupDialogs["MM_BUYOUT_AUCTION"] = {
   button2 = CANCEL,
   OnAccept = function(self)
     local data = MM:GetSelectedSelectedEnchantAuctionData()
-      PlaceAuctionBid("list", data.id, data.buyoutPrice);
+      PlaceAuctionBid("list", data.id, data.buyoutPrice)
   end,
   OnShow = function(self)
     local data = MM:GetSelectedSelectedEnchantAuctionData()
-    MoneyFrame_Update(self.moneyFrame, data.buyoutPrice);
+    MoneyFrame_Update(self.moneyFrame, data.buyoutPrice)
   end,
   hasMoneyFrame = 1,
   showAlert = 1,
@@ -384,19 +384,12 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
 	button1 = ACCEPT,
 	button2 = CANCEL,
 	OnAccept = function()
-		CancelAuction(GetSelectedAuctionItem("owner"));
+		CancelAuction(GetSelectedAuctionItem("owner"))
 	end,
 	OnShow = function(self)
-    local data = MM:GetSelectedSelectedEnchantAuctionData()
-		MoneyFrame_Update(self.moneyFrame, data.buyoutPrice);
-		if ( data.buyoutPrice > 0 ) then
-			self.text:SetText(CANCEL_AUCTION_CONFIRMATION_MONEY);
-		else
-			self.text:SetText(CANCEL_AUCTION_CONFIRMATION);
-		end
+    self.text:SetText(CANCEL_AUCTION_CONFIRMATION)
 		
 	end,
-	hasMoneyFrame = 1,
 	showAlert = 1,
 	timeout = 0,
 	exclusive = 1,
@@ -406,10 +399,8 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
 -- returns the first id that matches enchantID and buyoutPrice
 local function findOwnerAuctionID(enchantID, buyoutPrice)
   local results = MM:GetMyAuctionsResults()
-  print(#results)
   for _, result in ipairs(results) do
     if result.enchantID == enchantID then
-      print(#result.auctions)
       for _, auction in ipairs(result.auctions) do
         if auction.buyoutPrice == buyoutPrice then
           print("found ID: " .. auction.id)

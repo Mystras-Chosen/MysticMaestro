@@ -462,4 +462,5 @@ end
 
 function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
   local results = self:GetMyAuctionsResults()
+  print("MyAuctions_AUCTION_OWNED_LIST_UPDATE")
 end
