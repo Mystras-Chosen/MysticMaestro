@@ -36,7 +36,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
           if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-            MM:SetSelectedMyAuctionData(nil)
+            MM:SelectMyAuctionByEnchantID(key)
             MM:ClearSelectedEnchantAuctions()
           end
           return key, enchantName
@@ -48,7 +48,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
             if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-              MM:SetSelectedMyAuctionData(nil)
+              MM:SelectMyAuctionByEnchantID(key)
               MM:ClearSelectedEnchantAuctions()
             end
             return key, enchantName
@@ -933,6 +933,8 @@ do -- show/hide and select/deselect mystic enchant button functions
     self:ShowStatistics(button.enchantID)
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:AsyncDisplayEnchantAuctions(button.enchantID) -- async populate scroll bars
+      self:SelectMyAuctionByEnchantID(button.enchantID)
+      self:ClearSelectedEnchantAuctions()
     end
     selectedEnchantButton = button
   end
