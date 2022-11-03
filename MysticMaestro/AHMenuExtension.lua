@@ -18,18 +18,29 @@ function MM:GetSelectedMyAuctionData()
   return selectedMyAuctionData
 end
 
-function MM:SetSelectedMyAuctionData(selectedButton)
+-- 
+function MM:SetSelectedMyAuctionData(data)
+  selectedMyAuctionData = data
   local myAuctionsButton = self:GetMyAuctionsScrollFrame().buttons
   for _, button in ipairs(myAuctionsButton) do
-      button.H:Hide()
+      if data and button.data and button.data.enchantID == data.enchantID then
+        button.H:Show()
+        button.H:SetDesaturated(false)
+      else
+        button.H:Hide()
+      end
   end
-  if selectedButton then
-    selectedMyAuctionData = selectedButton.data
-    selectedButton.H:Show()
-    selectedButton.H:SetDesaturated(false)
-  else
-    selectedMyAuctionData = nil
+end
+
+function MM:SelectMyAuctionByEnchantID(enchantID)
+  local myAuctionResults = self:GetMyAuctionsResults()
+  for _, result in ipairs(myAuctionResults) do
+    if result.enchantID == enchantID then
+      self:SetSelectedMyAuctionData(result)
+      return
+    end
   end
+  self:SetSelectedMyAuctionData(nil)
 end
 
 local selectedSelectedEnchantAuctionData
@@ -70,13 +81,7 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
-      print(self.data)
-      MM:SetSelectedMyAuctionData(self)
-      if self.data.yours == false then
-        MM:EnableUndercutButton()
-      else
-        MM:DisableUndercutButton()
-      end
+      MM:SetSelectedMyAuctionData(self.data)
 
       MM:SetSearchBarDefaultText()
       MM:SetResultSet({self.data.enchantID})
@@ -87,7 +92,8 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnLeave",
     function(self)
-      if self.data ~= MM:GetSelectedMyAuctionData() then
+      local data = MM:GetSelectedMyAuctionData()
+      if not data or self.data.enchantID ~= data.enchantID then
         self.H:Hide()
       end
     end
@@ -95,7 +101,8 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnEnter",
     function(self)
-      if self.data ~= MM:GetSelectedMyAuctionData() then
+      local data = MM:GetSelectedMyAuctionData()
+      if not data or self.data.enchantID ~= data.enchantID then
         self.H:Show()
         self.H:SetDesaturated(true)
       end
@@ -192,8 +199,8 @@ local function myAuctionsScrollFrame_Update(self)
     else
       local result = results[lineplusoffset]
       button.data = result
-      button.auctionCount:SetText(#result.data)
-      local reData = GetREData(result.enchantID)
+      button.auctionCount:SetText(#button.data.auctions)
+      local reData = GetREData(button.data.enchantID)
       button.enchantName:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
       button:Show()
     end

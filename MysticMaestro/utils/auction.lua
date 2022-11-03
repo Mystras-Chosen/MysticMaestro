@@ -178,10 +178,10 @@ end
 
 local function convertMyAuctionResults(results)
   local r = {}
-  for enchantID, data in pairs(results) do
+  for enchantID, auctions in pairs(results) do
     table.insert(r, {
       enchantID = enchantID,
-      data = data
+      auctions = auctions
     })
   end
   return r
