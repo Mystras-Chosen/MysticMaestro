@@ -221,6 +221,12 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
       button.data = result
       button.icon:SetTexture(result.icon)
       button:Show()
+      button:SetScript("OnEnter", function() 
+        GameTooltip:SetOwner(button, "ANCHOR_NONE");
+        GameTooltip:SetPoint("TOPLEFT",button,"TOPRIGHT")
+        GameTooltip:SetHyperlink(button.data.link); 
+        GameTooltip:Show() end)
+      button:SetScript("OnLeave", function() GameTooltip:Hide() end)
       MM:EnableSelectEnchantAuctionButton(button)
       if button.data == selectedEnchant then
         button.H:Show()
