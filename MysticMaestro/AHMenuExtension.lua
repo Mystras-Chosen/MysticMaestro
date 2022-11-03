@@ -58,8 +58,10 @@ function MM:SetSelectedSelectedEnchantAuctionData(selectedButton)
     selectedSelectedEnchantAuctionData = selectedButton.data
     selectedButton.H:Show()
     selectedButton.H:SetDesaturated(false)
+    self:EnableBuyoutCancelButton()
   else
     selectedSelectedEnchantAuctionData = nil
+    self:DisableBuyoutCancelButton()
   end
 end
 
@@ -356,17 +358,16 @@ local function setUpButtonWidgets()
   buyCancelbutton:SetText("Buyout/Cancel")
   buyCancelbutton:SetCallback("OnClick",
     function(self, event)
-      -- local selectedAuctionData = MM:GetSelectedAuctionData()
-      -- if not selectedAuctionData then error("Buyout click when no selected auction") return end
-      -- if selectedAuctionData.yours then
-      --   print("cancel auction in selected enchant auctions")
-      -- elseif selectedAuctionData.yours == false then
-      --   print("Buy selected auction")
-      -- else
-      --   print("cancel auction in my auctions")
-      -- end
-      print("Selected My Auction: " .. tostring(MM:GetSelectedMyAuctionData()))
-      print("Selected Selected Enchant Auction: " .. tostring(MM:GetSelectedSelectedEnchantAuctionData()))
+      local selectedAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
+      if not selectedAuctionData then return end
+      if selectedAuctionData.yours then
+        MM:CancelAuction(selectedAuctionData.enchantID, selectedAuctionData.buyoutPrice)
+      else
+        MM:BuyoutAuction(selectedAuctionData.id)
+      end
+
+      --print("Selected My Auction: " .. tostring(MM:GetSelectedMyAuctionData()))
+      --print("Selected Selected Enchant Auction: " .. tostring(MM:GetSelectedSelectedEnchantAuctionData()))
     end
   )
   buyCancelbutton.frame:Show()
@@ -382,11 +383,11 @@ function MM:DisableUndercutButton()
 end
 
 function MM:EnableUndercutButton()
-  undercutButton:SetDisabled(false)
+  --undercutButton:SetDisabled(false)
 end
 
 function MM:DisableBuyoutCancelButton()
-  --buyCancelbutton:SetDisabled(true)
+  buyCancelbutton:SetDisabled(true)
 end
 
 function MM:EnableBuyoutCancelButton()

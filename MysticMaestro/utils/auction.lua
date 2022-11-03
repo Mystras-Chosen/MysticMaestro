@@ -9,7 +9,6 @@ function MM:ValidateAHIsOpen()
   return true
 end
 
-
 local function getAuctionInfo(i)
   local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
   local link = GetAuctionItemLink("list", i)
@@ -349,4 +348,36 @@ function MM:OrbValue(reID, keytype)
   local cost = MM:OrbCost(reID)
   local value = MM:LowestListed(reID,keytype)
   return value and MM:round(value / cost,2,true) or nil
+end
+
+---------------------------------------
+--   Auction Interaction functions   --
+---------------------------------------
+
+StaticPopupDialogs["MM_BUYOUT_AUCTION"] = {
+  text = BUYOUT_AUCTION_CONFIRMATION,
+  button1 = ACCEPT,
+  button2 = CANCEL,
+  OnAccept = function(self)
+    local data = MM:GetSelectedSelectedEnchantAuctionData()
+      PlaceAuctionBid("list", data.id, data.buyoutPrice);
+  end,
+  OnShow = function(self)
+    local data = MM:GetSelectedSelectedEnchantAuctionData()
+    MoneyFrame_Update(self.moneyFrame, data.buyoutPrice);
+  end,
+  hasMoneyFrame = 1,
+  showAlert = 1,
+  timeout = 0,
+  exclusive = 1,
+  hideOnEscape = 1
+}
+
+function MM:BuyoutAuction(id)
+  SetSelectedAuctionItem("list", id)
+  StaticPopup_Show("MM_BUYOUT_AUCTION")
+end
+
+function MM:CancelAuction(enchantID, buyoutPrice)
+  print(enchantID, buyoutPrice)
 end
