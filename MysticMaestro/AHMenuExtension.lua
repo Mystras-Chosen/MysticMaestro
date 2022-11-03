@@ -170,7 +170,7 @@ local function createAuctionsScrollFrame(name, title, parent, numRows, buttonCre
   scrollFrame:SetSize(auctionScrollFrameWidth - 24, buttonHeight * numRows)
   scrollFrame:SetPoint("LEFT")
   scrollFrame.Title = scrollFrame:CreateFontString(name.."Title", "OVERLAY", "GameTooltipText")
-  scrollFrame.Title:SetPoint("BOTTOMLEFT", scrollFrame, "TOPLEFT", 0, 2)
+  scrollFrame.Title:SetPoint("BOTTOM", scrollFrame, "TOP", 0, 2)
   scrollFrame.Title:SetText(title)
   scrollFrame.buttons = {}
   
