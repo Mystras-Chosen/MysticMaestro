@@ -102,6 +102,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       if itemFound and enchantToQuery == enchantID then
         table.insert(results, {
           id = i,
+          enchantID = enchantID,
           seller = seller,
           buyoutPrice = buyoutPrice,
           yours = seller == UnitName("player"),
@@ -378,6 +379,51 @@ function MM:BuyoutAuction(id)
   StaticPopup_Show("MM_BUYOUT_AUCTION")
 end
 
+StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
+	text = CANCEL_AUCTION_CONFIRMATION,
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function()
+		CancelAuction(GetSelectedAuctionItem("owner"));
+	end,
+	OnShow = function(self)
+    local data = MM:GetSelectedSelectedEnchantAuctionData()
+		MoneyFrame_Update(self.moneyFrame, data.buyoutPrice);
+		if ( data.buyoutPrice > 0 ) then
+			self.text:SetText(CANCEL_AUCTION_CONFIRMATION_MONEY);
+		else
+			self.text:SetText(CANCEL_AUCTION_CONFIRMATION);
+		end
+		
+	end,
+	hasMoneyFrame = 1,
+	showAlert = 1,
+	timeout = 0,
+	exclusive = 1,
+	hideOnEscape = 1
+}
+
+-- returns the first id that matches enchantID and buyoutPrice
+local function findOwnerAuctionID(enchantID, buyoutPrice)
+  local results = MM:GetMyAuctionsResults()
+  print(#results)
+  for _, result in ipairs(results) do
+    if result.enchantID == enchantID then
+      print(#result.auctions)
+      for _, auction in ipairs(result.auctions) do
+        if auction.buyoutPrice == buyoutPrice then
+          print("found ID: " .. auction.id)
+          return auction.id
+        end
+      end
+    end
+  end
+  print("this shouldn't print")
+  return nil
+end
+
 function MM:CancelAuction(enchantID, buyoutPrice)
-  print(enchantID, buyoutPrice)
+  local auctionID = findOwnerAuctionID(enchantID, buyoutPrice)
+  SetSelectedAuctionItem("owner", auctionID)
+  StaticPopup_Show("MM_CANCEL_AUCTION")
 end
