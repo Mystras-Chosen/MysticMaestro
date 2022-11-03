@@ -160,8 +160,8 @@ local function collectMyAuctionsData(results)
       results[enchantID] = results[enchantID] or {}
       table.insert(results[enchantID], {
         id = i, -- need to have owner ID so auction can be canceled
-        buyoutPrice = buyoutPrice -- need to have buyout price so canceled auction can be matched
-        link = link -- need an item link to make the tooltip
+        buyoutPrice = buyoutPrice, -- need to have buyout price so canceled auction can be matched
+        link = link
       })
     end
   end
