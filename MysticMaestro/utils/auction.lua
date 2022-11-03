@@ -26,11 +26,16 @@ local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
   return trinketFound and enchantID, enchantID
 end
 
-local function isEnchantItemFound(quality, buyoutPrice, i)
-  local properItem = buyoutPrice and buyoutPrice > 0 and quality and quality >= 3
+local function isEnchantItemFound(itemName, quality, buyoutPrice, i)
+  local mysticScroll = itemName:match("Mystic Scroll: (.+)")
+  local properItem = buyoutPrice and buyoutPrice > 0 and ((quality and quality >= 3) or mysticScroll) 
   local enchantID
   if properItem then
-    enchantID = GetAuctionItemMysticEnchant("list", i)
+    if mysticScroll then
+      enchantID = MM.RE_LOOKUP[mysticScroll]
+    else
+      enchantID = GetAuctionItemMysticEnchant("list", i)
+    end
   end
   return properItem and enchantID, enchantID
 end
@@ -50,7 +55,7 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
         enchantFound = true
         table.insert(listings[enchantID][scanTime], buyoutPrice)
       else
-        itemFound, enchantID = isEnchantItemFound(quality,buyoutPrice,i)
+        itemFound, enchantID = isEnchantItemFound(itemName,quality,buyoutPrice,i)
         if itemFound and enchantID == expectedEnchantID then
           enchantFound = true
           table.insert(listings[enchantID][scanTime]["other"], buyoutPrice)
@@ -73,7 +78,7 @@ function MM:CollectAllREData(scanTime)
         listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
         table.insert(listings[enchantID][scanTime], buyoutPrice)
       else
-        itemFound, enchantID = isEnchantItemFound(quality,buyoutPrice,i)
+        itemFound, enchantID = isEnchantItemFound(itemName,quality,buyoutPrice,i)
         if itemFound then
           listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
           listings[enchantID][scanTime]["other"] = listings[enchantID][scanTime]["other"] or {}
@@ -125,7 +130,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
         buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
         table.insert(listings[enchantToQuery][selectedScanTime], buyoutPrice)
       else
-        itemFound, enchantID = isEnchantItemFound(quality, buyoutPrice, i)
+        itemFound, enchantID = isEnchantItemFound(itemName,quality,buyoutPrice,i)
         if itemFound and enchantToQuery == enchantID then
           table.insert(results, {
             id = i,
