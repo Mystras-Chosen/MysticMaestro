@@ -148,18 +148,20 @@ end
 local function getMyAuctionInfo(i)
   local _, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
-  return icon, quality, buyoutPrice, enchantID
+  local link = GetAuctionItemLink("owner", i)
+  return icon, quality, buyoutPrice, enchantID, link
 end
 
 local function collectMyAuctionsData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    local icon, quality, buyoutPrice, enchantID = getMyAuctionInfo(i)
+    local icon, quality, buyoutPrice, enchantID, link = getMyAuctionInfo(i)
     if buyoutPrice and quality >= 3 and enchantID then
       results[enchantID] = results[enchantID] or {}
       table.insert(results[enchantID], {
         id = i, -- need to have owner ID so auction can be canceled
         buyoutPrice = buyoutPrice -- need to have buyout price so canceled auction can be matched
+        link = link -- need an item link to make the tooltip
       })
     end
   end
