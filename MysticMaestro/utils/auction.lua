@@ -17,27 +17,21 @@ local function getAuctionInfo(i)
   return itemName, level, buyoutPrice, quality, seller, icon, link, duration
 end
 
-local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
-  local trinketFound = itemName and itemName:find("Insignia") and level == 15 and buyoutPrice and buyoutPrice ~= 0
+local function isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
+  local trinketFound = itemName and itemName:find("Insignia") and level == 15
+  local mysticScroll = itemName and itemName:match("Mystic Scroll: (.+)")
+  local properItem = buyoutPrice and buyoutPrice > 0 and ((quality and quality >= 3) or mysticScroll) 
   local enchantID
   if trinketFound then
     enchantID = GetAuctionItemMysticEnchant("list", i)
-  end
-  return trinketFound and enchantID, enchantID
-end
-
-local function isEnchantItemFound(itemName, quality, buyoutPrice, i)
-  local mysticScroll = itemName:match("Mystic Scroll: (.+)")
-  local properItem = buyoutPrice and buyoutPrice > 0 and ((quality and quality >= 3) or mysticScroll) 
-  local enchantID
-  if properItem then
+  elseif properItem then
     if mysticScroll then
       enchantID = MM.RE_LOOKUP[mysticScroll]
     else
       enchantID = GetAuctionItemMysticEnchant("list", i)
     end
   end
-  return properItem and enchantID, enchantID
+  return properItem and enchantID, enchantID, trinketFound
 end
 
 function MM:CollectSpecificREData(scanTime, expectedEnchantID)
@@ -50,16 +44,10 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
-      local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
+      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
         enchantFound = true
-        table.insert(listings[enchantID][scanTime], buyoutPrice)
-      else
-        itemFound, enchantID = isEnchantItemFound(itemName,quality,buyoutPrice,i)
-        if itemFound and enchantID == expectedEnchantID then
-          enchantFound = true
-          table.insert(listings[enchantID][scanTime]["other"], buyoutPrice)
-        end  
+        table.insert(trinketFound and listings[enchantID][scanTime] or listings[enchantID][scanTime]["other"], buyoutPrice)
       end
     end
   end
@@ -73,17 +61,11 @@ function MM:CollectAllREData(scanTime)
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
-      local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice)
+      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound then
         listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
-        table.insert(listings[enchantID][scanTime], buyoutPrice)
-      else
-        itemFound, enchantID = isEnchantItemFound(itemName,quality,buyoutPrice,i)
-        if itemFound then
-          listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
-          listings[enchantID][scanTime]["other"] = listings[enchantID][scanTime]["other"] or {}
-          table.insert(listings[enchantID][scanTime]["other"], buyoutPrice)
-        end
+        listings[enchantID][scanTime]["other"] = listings[enchantID][scanTime]["other"] or {}
+        table.insert(trinketFound and listings[enchantID][scanTime] or listings[enchantID][scanTime]["other"], buyoutPrice)
       end
     end
   end
@@ -113,10 +95,11 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
       local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
+      local other, rounded, destination
       if seller == nil then
         awaitingResults = true  -- TODO: timeout awaitingResults
       end
-      local itemFound, enchantID = isEnchantTrinketFound(itemName, level, buyoutPrice, i)
+      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantToQuery == enchantID then
         table.insert(results, {
           id = i,
@@ -127,23 +110,8 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           link = link,
           duration = duration
         })
-        buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
-        table.insert(listings[enchantToQuery][selectedScanTime], buyoutPrice)
-      else
-        itemFound, enchantID = isEnchantItemFound(itemName,quality,buyoutPrice,i)
-        if itemFound and enchantToQuery == enchantID then
-          table.insert(results, {
-            id = i,
-            seller = seller,
-            buyoutPrice = buyoutPrice,
-            yours = seller == UnitName("player"),
-            icon = icon,
-            link = link,
-            duration = duration
-          })
-          buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
-          table.insert(listings[enchantToQuery][selectedScanTime]["other"], buyoutPrice)
-        end
+        rounded = MM:round(buyoutPrice / 10000, 4, true)
+        table.insert(trinketFound and listings[enchantToQuery][selectedScanTime] or listings[enchantToQuery][selectedScanTime]["other"], rounded)
       end
     end
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
