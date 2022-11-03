@@ -188,8 +188,8 @@ local function myAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
   local results = MM:GetMyAuctionsResults()
   FauxScrollFrame_Update(self, #results, #buttons, buttonHeight, nil, nil, nil, nil, nil, nil, true)
+  local selectedData = MM:GetSelectedMyAuctionData()
   local offset = FauxScrollFrame_GetOffset(self)
-
   for line = 1, #buttons do
     local lineplusoffset = line + offset
     local button = buttons[line]
@@ -203,6 +203,16 @@ local function myAuctionsScrollFrame_Update(self)
       local reData = GetREData(button.data.enchantID)
       button.enchantName:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
       button:Show()
+      if selectedData and button.data.enchantID == selectedData.enchantID then
+        button.H:Show()
+        button.H:SetDesaturated(false)
+      elseif button:IsMouseOver() then
+        button.H:Show()
+        button.H:SetDesaturated(true)
+      else
+        button.H:Hide()
+        button.H:SetDesaturated(true)
+      end
     end
   end
 end
