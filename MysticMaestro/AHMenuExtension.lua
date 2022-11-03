@@ -156,8 +156,8 @@ local function createSelectedAuctionsButton(parent, listingName)
     function(self)
       if self.data ~= MM:GetSelectedSelectedEnchantAuctionData() then
         self.H:Hide()
-        GameTooltip:Hide()
       end
+      GameTooltip:Hide()
     end
   )
 
@@ -166,13 +166,13 @@ local function createSelectedAuctionsButton(parent, listingName)
       if self.data ~= MM:GetSelectedSelectedEnchantAuctionData() then
         self.H:Show()
         self.H:SetDesaturated(true)
-        GameTooltip:SetOwner(self, "ANCHOR_NONE")
-        GameTooltip:SetPoint("TOPLEFT",self,"TOPRIGHT")
-        GameTooltip:SetHyperlink(self.data.link)
-        GameTooltip:AddDoubleLine("Posted By", MM:cTxt(self.data.seller and self.data.seller or "unknown","white"))
-        GameTooltip:AddDoubleLine("Time Left", MM:cTxt(durationKey[self.data.duration],"white"))
-        GameTooltip:Show()
       end
+      GameTooltip:SetOwner(self, "ANCHOR_NONE")
+      GameTooltip:SetPoint("TOPLEFT",self,"TOPRIGHT")
+      GameTooltip:SetHyperlink(self.data.link)
+      GameTooltip:AddDoubleLine("Posted By", MM:cTxt(self.data.seller and self.data.seller or "unknown","white"))
+      GameTooltip:AddDoubleLine("Time Left", MM:cTxt(durationKey[self.data.duration],"white"))
+      GameTooltip:Show()
     end
   )
 
