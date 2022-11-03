@@ -13,7 +13,8 @@ end
 local function getAuctionInfo(i)
   local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
   local link = GetAuctionItemLink("list", i)
-  return itemName, level, buyoutPrice, quality, seller, icon, link
+  local duration = GetAuctionItemTimeLeft("list", i)
+  return itemName, level, buyoutPrice, quality, seller, icon, link, duration
 end
 
 local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
@@ -106,7 +107,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     awaitingResults = false
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
-      local itemName, level, buyoutPrice, quality, seller, icon, link = getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
       if seller == nil then
         awaitingResults = true  -- TODO: timeout awaitingResults
       end
@@ -118,7 +119,8 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           buyoutPrice = buyoutPrice,
           yours = seller == UnitName("player"),
           icon = icon,
-          link = link
+          link = link,
+          duration = duration
         })
         buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
         table.insert(listings[enchantToQuery][selectedScanTime], buyoutPrice)
@@ -131,7 +133,8 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
             buyoutPrice = buyoutPrice,
             yours = seller == UnitName("player"),
             icon = icon,
-            link = link
+            link = link,
+            duration = duration
           })
           buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
           table.insert(listings[enchantToQuery][selectedScanTime]["other"], buyoutPrice)
@@ -152,7 +155,8 @@ local function getMyAuctionInfo(i)
   local _, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
   local link = GetAuctionItemLink("owner", i)
-  return icon, quality, buyoutPrice, enchantID, link
+  local duration = GetAuctionItemTimeLeft("owner", i)
+  return icon, quality, buyoutPrice, enchantID, link, duration
 end
 
 local function collectMyAuctionsData(results)

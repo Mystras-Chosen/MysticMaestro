@@ -200,6 +200,13 @@ local function myAuctionsScrollFrame_Update(self)
   end
 end
 
+local durationKey = {}
+durationKey[1] = "Short"
+durationKey[2] = "Medium"
+durationKey[3] = "Long"
+durationKey[4] = "Very Long"
+
+
 local function selectEnchantAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
   local results = MM:GetSelectedEnchantAuctionsResults()
@@ -222,9 +229,11 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
       button.icon:SetTexture(result.icon)
       button:Show()
       button:SetScript("OnEnter", function() 
-        GameTooltip:SetOwner(button, "ANCHOR_NONE");
+        GameTooltip:SetOwner(button, "ANCHOR_NONE")
         GameTooltip:SetPoint("TOPLEFT",button,"TOPRIGHT")
-        GameTooltip:SetHyperlink(button.data.link); 
+        GameTooltip:SetHyperlink(button.data.link)
+        GameTooltip:AddDoubleLine("Auction Owner", button.data.seller and button.data.seller or "unknown")
+        GameTooltip:AddDoubleLine("Auction Duration", durationKey[button.data.duration])
         GameTooltip:Show() end)
       button:SetScript("OnLeave", function() GameTooltip:Hide() end)
       MM:EnableSelectEnchantAuctionButton(button)
