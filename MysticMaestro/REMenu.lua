@@ -36,7 +36,8 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
           if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-            MM:DeselectSelectedAuctionData()
+            MM:SetSelectedMyAuctionData(nil)
+            MM:ClearSelectedEnchantAuctions()
           end
           return key, enchantName
         else
@@ -47,7 +48,8 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
             if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-              MM:DeselectSelectedAuctionData()
+              MM:SetSelectedMyAuctionData(nil)
+              MM:ClearSelectedEnchantAuctions()
             end
             return key, enchantName
           end
@@ -315,7 +317,8 @@ do -- functions to initialize menu and menu container
       MM:FilterMysticEnchants()
       MM:GoToPage(1)
       if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-        MM:DeselectSelectedAuctionData()
+        MM:SetSelectedMyAuctionData(nil)
+        MM:ClearSelectedEnchantAuctions()
       end
     end)
   end
@@ -505,7 +508,8 @@ do -- show and hide MysticMaestroMenu
       MM:FilterMysticEnchants(itemsToFilter(items))
       MM:GoToPage(1)
       if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-        MM:DeselectSelectedAuctionData()
+        MM:SetSelectedMyAuctionData(nil)
+        MM:ClearSelectedEnchantAuctions()
       end
     end
   end
@@ -942,8 +946,8 @@ do -- show/hide and select/deselect mystic enchant button functions
     self:ClearGraph()
     self:HideStatistics()
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-      --MM:DeselectSelectedAuctionData()
-      MM:ClearSelectedEnchantAuctions()
+      self:SetSelectedMyAuctionData(nil)
+      self:ClearSelectedEnchantAuctions()
     end
     selectedEnchantButton = nil
   end

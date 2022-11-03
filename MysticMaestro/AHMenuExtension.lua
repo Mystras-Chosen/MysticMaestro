@@ -18,15 +18,17 @@ function MM:GetSelectedMyAuctionData()
   return selectedMyAuctionData
 end
 
-function MM:SetSelectedMyAuctionData(data)
-  selectedMyAuctionData = data
-end
-
-function MM:DeselectSelectedMyAuctionData()
-  self:SetSelectedMyAuctionData(nil)
-  local myAuctionsButton = MM:GetMyAuctionsScrollFrame().buttons
+function MM:SetSelectedMyAuctionData(selectedButton)
+  local myAuctionsButton = self:GetMyAuctionsScrollFrame().buttons
   for _, button in ipairs(myAuctionsButton) do
       button.H:Hide()
+  end
+  if selectedButton then
+    selectedMyAuctionData = selectedButton.data
+    selectedButton.H:Show()
+    selectedButton.H:SetDesaturated(false)
+  else
+    selectedMyAuctionData = nil
   end
 end
 
@@ -36,20 +38,17 @@ function MM:GetSelectedSelectedEnchantAuctionData()
   return selectedSelectedEnchantAuctionData
 end
 
-function MM:SetSelectedSelectedEnchantAuctionData(data)
-  if data == nil then
-    self:DisableUndercutButton()
-    self:DisableBuyoutCancelButton()
-  end
-  selectedSelectedEnchantAuctionButtonData = data
-end
-
-function MM:DeselectSelectedSelectedEnchantAuctionData()
-  self:SetSelectedSelectedEnchantAuctionData(nil)
-
-  local selectedEnchantAuctionsButtons = MM:GetSelectedEnchantAuctionsScrollFrame().buttons
+function MM:SetSelectedSelectedEnchantAuctionData(selectedButton)
+  local selectedEnchantAuctionsButtons = self:GetSelectedEnchantAuctionsScrollFrame().buttons
   for _, button in ipairs(selectedEnchantAuctionsButtons) do
       button.H:Hide()
+  end
+  if selectedButton then
+    selectedSelectedEnchantAuctionData = selectedButton.data
+    selectedButton.H:Show()
+    selectedButton.H:SetDesaturated(false)
+  else
+    selectedSelectedEnchantAuctionData = nil
   end
 end
 
@@ -71,16 +70,13 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
-      MM:DeselectSelectedMyAuctionData()
-      MM:SetSelectedMyAuctionData(self.data)
+      print(self.data)
+      MM:SetSelectedMyAuctionData(self)
       if self.data.yours == false then
         MM:EnableUndercutButton()
       else
         MM:DisableUndercutButton()
       end
-
-      self.H:Show()
-      self.H:SetDesaturated(false)
 
       MM:SetSearchBarDefaultText()
       MM:SetResultSet({self.data.enchantID})
@@ -133,15 +129,12 @@ local function createSelectedAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
-      MM:DeselectSelectedSelectedEnchantAuctionData()
-      MM:SetSelectedSelectedEnchantAuctionData(self.data)
+      MM:SetSelectedSelectedEnchantAuctionData(self)
       if self.data.yours then
         MM:DisableUndercutButton()
       else
         MM:EnableUndercutButton()
       end
-      self.H:Show()
-      self.H:SetDesaturated(false)
     end
   )
 
@@ -384,8 +377,7 @@ end
 function MM:HideAHExtension()
   tearDownButtonWidgets()
   MysticMaestroMenuAHExtension:Hide()
-  self:DeselectSelectedAuctionData()
-  self:ClearMyAuctions()
+  self:SetSelectedMyAuctionData(nil)
   self:ClearSelectedEnchantAuctions()
 end
 
@@ -406,10 +398,6 @@ end
 
 function MM:SetSelectedEnchantAuctionsResults(results)
   selectedEnchantAuctionsResults = results
-end
-
-function MM:ClearMyAuctions()
-  self:PopulateMyAuctions({})
 end
 
 function MM:ClearSelectedEnchantAuctions()
