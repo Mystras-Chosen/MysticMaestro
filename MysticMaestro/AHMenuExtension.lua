@@ -6,28 +6,46 @@ local ahExtensionMenu
 
 local function createContainerFrame()
   ahExtensionMenu = CreateFrame("Frame", "MysticMaestroMenuAHExtension", UIParent)
-  ahExtensionMenu:SetSize(180, 378)
+  ahExtensionMenu:SetSize(212, 378)
 end
 
 local buttonHeight = 16
 local auctionScrollFrameWidth = 195
 
-local selectedAuctionData
+local selectedMyAuctionData
 
-function MM:GetSelectedAuctionData()
-  return selectedAuctionData
+function MM:GetSelectedMyAuctionData()
+  return selectedMyAuctionData
 end
 
-function MM:SetSelectedAuctionData(data)
-  selectedAuctionData = data
+function MM:SetSelectedMyAuctionData(data)
+  selectedMyAuctionData = data
 end
 
-function MM:DeselectSelectedAuctionData()
-  self:SetSelectedAuctionData(nil)
+function MM:DeselectSelectedMyAuctionData()
+  self:SetSelectedMyAuctionData(nil)
   local myAuctionsButton = MM:GetMyAuctionsScrollFrame().buttons
   for _, button in ipairs(myAuctionsButton) do
       button.H:Hide()
   end
+end
+
+local selectedSelectedEnchantAuctionData
+
+function MM:GetSelectedSelectedEnchantAuctionData()
+  return selectedSelectedEnchantAuctionData
+end
+
+function MM:SetSelectedSelectedEnchantAuctionData(data)
+  if data == nil then
+    self:DisableUndercutButton()
+    self:DisableBuyoutCancelButton()
+  end
+  selectedSelectedEnchantAuctionButtonData = data
+end
+
+function MM:DeselectSelectedSelectedEnchantAuctionData()
+  self:SetSelectedSelectedEnchantAuctionData(nil)
 
   local selectedEnchantAuctionsButtons = MM:GetSelectedEnchantAuctionsScrollFrame().buttons
   for _, button in ipairs(selectedEnchantAuctionsButtons) do
@@ -45,22 +63,21 @@ local function createMyAuctionsButton(parent, listingName)
   listingButton.H:SetTexCoord(0, 1, 0, 0.578125)
   listingButton.H:Hide()
 
-  listingButton.statusIcon = listingButton:CreateTexture(nil, "OVERLAY")
-  listingButton.statusIcon:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\white_square")
-  listingButton.statusIcon:SetSize(buttonHeight, buttonHeight)
-  listingButton.statusIcon:SetPoint("LEFT")
+  listingButton.auctionCount = listingButton:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+  listingButton.auctionCount:SetPoint("LEFT")
 
-  listingButton.itemIcon = listingButton:CreateTexture(nil, "OVERLAY")
-  listingButton.itemIcon:SetSize(buttonHeight, buttonHeight)
-  listingButton.itemIcon:SetPoint("LEFT", listingButton.statusIcon, "RIGHT", 0, 0)
-
-  listingButton.text = listingButton:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-  listingButton.text:SetPoint("LEFT", listingButton.itemIcon, "RIGHT", 0, 0)
+  listingButton.enchantName = listingButton:CreateFontString(nil, "OVERLAY", "GameTooltipText")
+  listingButton.enchantName:SetPoint("LEFT", listingButton, "LEFT", 10, 0)
 
   listingButton:SetScript("OnClick",
     function(self)
-      MM:DeselectSelectedAuctionData()
-      MM:SetSelectedAuctionData(self.data)
+      MM:DeselectSelectedMyAuctionData()
+      MM:SetSelectedMyAuctionData(self.data)
+      if self.data.yours == false then
+        MM:EnableUndercutButton()
+      else
+        MM:DisableUndercutButton()
+      end
 
       self.H:Show()
       self.H:SetDesaturated(false)
@@ -74,7 +91,7 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnLeave",
     function(self)
-      if self.data ~= MM:GetSelectedAuctionData() then
+      if self.data ~= MM:GetSelectedMyAuctionData() then
         self.H:Hide()
       end
     end
@@ -82,7 +99,7 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnEnter",
     function(self)
-      if self.data ~= MM:GetSelectedAuctionData() then
+      if self.data ~= MM:GetSelectedMyAuctionData() then
         self.H:Show()
         self.H:SetDesaturated(true)
       end
@@ -102,19 +119,27 @@ local function createSelectedAuctionsButton(parent, listingName)
   listingButton.H:SetTexCoord(0, 1, 0, 0.578125)
   listingButton.H:Hide()
   
+  listingButton.icon = listingButton:CreateTexture(nil, "OVERLAY")
+  listingButton.icon:SetSize(buttonHeight, buttonHeight)
+  listingButton.icon:SetPoint("LEFT")
+
   listingButton.price = CreateFrame("Frame", listingName.."Price", listingButton, "SmallMoneyFrameTemplate")
   MoneyFrame_SetType(listingButton.price, "AUCTION")
-  listingButton.price:SetPoint("LEFT")
+  listingButton.price:SetPoint("LEFT", listingButton.icon, "RIGHT", 0, 0)
   listingButton.price:SetSize(parent:GetWidth(), buttonHeight)
 
   listingButton.price.Suffix = listingButton.price:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-  listingButton.price.Suffix:SetPoint("LEFT", listingName.."PriceCopperButton", "RIGHT", 0, 0)
+  listingButton.price.Suffix:SetPoint("RIGHT", listingButton, "RIGHT", 0, 0)
 
   listingButton:SetScript("OnClick",
     function(self)
-      MM:DeselectSelectedAuctionData()
-      MM:SetSelectedAuctionData(self.data)
-      
+      MM:DeselectSelectedSelectedEnchantAuctionData()
+      MM:SetSelectedSelectedEnchantAuctionData(self.data)
+      if self.data.yours then
+        MM:DisableUndercutButton()
+      else
+        MM:EnableUndercutButton()
+      end
       self.H:Show()
       self.H:SetDesaturated(false)
     end
@@ -122,7 +147,7 @@ local function createSelectedAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnLeave",
     function(self)
-      if self.data ~= MM:GetSelectedAuctionData() then
+      if self.data ~= MM:GetSelectedSelectedEnchantAuctionData() then
         self.H:Hide()
       end
     end
@@ -130,7 +155,7 @@ local function createSelectedAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnEnter",
     function(self)
-      if self.data ~= MM:GetSelectedAuctionData() then
+      if self.data ~= MM:GetSelectedSelectedEnchantAuctionData() then
         self.H:Show()
         self.H:SetDesaturated(true)
       end
@@ -174,9 +199,9 @@ local function myAuctionsScrollFrame_Update(self)
     else
       local result = results[lineplusoffset]
       button.data = result
-      button.itemIcon:SetTexture(result.icon)
+      button.auctionCount:SetText(#result.data)
       local reData = GetREData(result.enchantID)
-      button.text:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
+      button.enchantName:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
       button:Show()
     end
   end
@@ -187,7 +212,7 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
   local results = MM:GetSelectedEnchantAuctionsResults()
   FauxScrollFrame_Update(self, #results, #buttons, buttonHeight, nil, nil, nil, nil, nil, nil, true)
   local offset = FauxScrollFrame_GetOffset(self)
-  local selectedEnchant = MM:GetSelectedAuctionData()
+  local selectedEnchant = MM:GetSelectedSelectedEnchantAuctionData()
   -- go through each button and set visibility and associate with results
   for line = 1, #buttons do
     local lineplusoffset = line + offset
@@ -201,6 +226,7 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
       button.price.Suffix:SetText(result.yours and "  (yours)" or nil)
       MoneyFrame_Update(button.price, result.buyoutPrice)
       button.data = result
+      button.icon:SetTexture(result.icon)
       button:Show()
       MM:EnableSelectEnchantAuctionButton(button)
       if button.data == selectedEnchant then
@@ -281,10 +307,72 @@ local function initAHExtension()
   createSelectedEnchantAuctionsScrollFrame()
 end
 
+local undercutButton, buyCancelbutton
+local function setUpButtonWidgets()
+  undercutButton = AceGUI:Create("Button")
+  undercutButton.frame:SetParent(ahExtensionMenu)
+  undercutButton:SetPoint("BOTTOMLEFT", ahExtensionMenu, "BOTTOMLEFT", 0, 15)
+  undercutButton:SetWidth(82)
+  undercutButton:SetHeight(22)
+  undercutButton:SetText("Undercut")
+  undercutButton:SetCallback("OnClick",
+    function(self, event)
+      print("relist clicked")
+    end
+  )
+  undercutButton.frame:Show()
+  
+
+  buyCancelbutton = AceGUI:Create("Button")
+  buyCancelbutton.frame:SetParent(ahExtensionMenu)
+  buyCancelbutton:SetPoint("BOTTOMRIGHT", ahExtensionMenu, "BOTTOMRIGHT", -6, 15)
+  buyCancelbutton:SetWidth(124)
+  buyCancelbutton:SetHeight(22)
+  buyCancelbutton:SetText("Buyout/Cancel")
+  buyCancelbutton:SetCallback("OnClick",
+    function(self, event)
+      -- local selectedAuctionData = MM:GetSelectedAuctionData()
+      -- if not selectedAuctionData then error("Buyout click when no selected auction") return end
+      -- if selectedAuctionData.yours then
+      --   print("cancel auction in selected enchant auctions")
+      -- elseif selectedAuctionData.yours == false then
+      --   print("Buy selected auction")
+      -- else
+      --   print("cancel auction in my auctions")
+      -- end
+      print("Selected My Auction: " .. tostring(MM:GetSelectedMyAuctionData()))
+      print("Selected Selected Enchant Auction: " .. tostring(MM:GetSelectedSelectedEnchantAuctionData()))
+    end
+  )
+  buyCancelbutton.frame:Show()
+end
+
+local function tearDownButtonWidgets()
+  undercutButton:Release()
+  buyCancelbutton:Release()
+end
+
+function MM:DisableUndercutButton()
+  --undercutButton:SetDisabled(true)
+end
+
+function MM:EnableUndercutButton()
+  undercutButton:SetDisabled(false)
+end
+
+function MM:DisableBuyoutCancelButton()
+  --buyCancelbutton:SetDisabled(true)
+end
+
+function MM:EnableBuyoutCancelButton()
+  buyCancelbutton:SetDisabled(false)
+end
+
 function MM:ShowAHExtension()
   if not MysticMaestroMenuAHExtension then
     initAHExtension()
   end
+  setUpButtonWidgets()
   myAuctionsScrollFrame_Update(self:GetMyAuctionsScrollFrame())
   selectEnchantAuctionsScrollFrame_Update(self:GetSelectedEnchantAuctionsScrollFrame())
   MysticMaestroMenuAHExtension:Show()
@@ -294,6 +382,7 @@ function MM:ShowAHExtension()
 end
 
 function MM:HideAHExtension()
+  tearDownButtonWidgets()
   MysticMaestroMenuAHExtension:Hide()
   self:DeselectSelectedAuctionData()
   self:ClearMyAuctions()
@@ -324,11 +413,7 @@ function MM:ClearMyAuctions()
 end
 
 function MM:ClearSelectedEnchantAuctions()
-  local selectedAuction = self:GetSelectedAuctionData()
-  -- only deselect if selection is in selected enchant scroll frame
-  if selectedAuction and selectedAuction.seller then
-    self:SetSelectedAuctionData(nil)
-  end
+  self:SetSelectedSelectedEnchantAuctionData(nil)
   self:PopulateSelectedEnchantAuctions({})
   self:DeactivateSelectScanListener()
 end

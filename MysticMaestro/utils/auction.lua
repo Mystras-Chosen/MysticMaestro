@@ -11,8 +11,8 @@ end
 
 
 local function getAuctionInfo(i)
-  local itemName, _, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
-  return itemName, level, buyoutPrice, quality, seller
+  local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
+  return itemName, level, buyoutPrice, quality, seller, icon
 end
 
 local function isEnchantTrinketFound(itemName, level, buyoutPrice, i)
@@ -105,7 +105,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     awaitingResults = false
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
-      local itemName, level, buyoutPrice, quality, seller = getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality, seller, icon = getAuctionInfo(i)
       if seller == nil then
         awaitingResults = true  -- TODO: timeout awaitingResults
       end
@@ -115,7 +115,8 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           id = i,
           seller = seller,
           buyoutPrice = buyoutPrice,
-          yours = seller == UnitName("player")
+          yours = seller == UnitName("player"),
+          icon = icon
         })
         buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
         table.insert(listings[enchantToQuery][selectedScanTime], buyoutPrice)
@@ -126,13 +127,15 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
             id = i,
             seller = seller,
             buyoutPrice = buyoutPrice,
-            yours = seller == UnitName("player")
+            yours = seller == UnitName("player"),
+            icon = icon
           })
           buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
           table.insert(listings[enchantToQuery][selectedScanTime]["other"], buyoutPrice)
         end
       end
     end
+    table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
       self:CalculateREStats(enchantToQuery)
@@ -148,23 +151,43 @@ local function getMyAuctionInfo(i)
   return icon, quality, buyoutPrice, enchantID
 end
 
-local myAuctionResults
-function MM:GetMyAuctionsResults()
-  myAuctionsResults = {}
+local function collectMyAuctionsData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    -- print(getMyAuctionInfo(i))
     local icon, quality, buyoutPrice, enchantID = getMyAuctionInfo(i)
     if buyoutPrice and quality >= 3 and enchantID then
-      table.insert(myAuctionsResults, {
-        id = i,
-        icon = icon,
-        buyoutPrice = buyoutPrice,
-        enchantID = enchantID
+      results[enchantID] = results[enchantID] or {}
+      table.insert(results[enchantID], {
+        id = i, -- need to have owner ID so auction can be canceled
+        buyoutPrice = buyoutPrice -- need to have buyout price so canceled auction can be matched
       })
     end
   end
-  return myAuctionsResults
+end
+
+local function collectFavoritesData(results)
+  for enchantID in pairs(MM.db.realm.FAVORITE_ENCHANTS) do
+    results[enchantID] = results[enchantID] or {}
+  end
+end
+
+local function convertMyAuctionResults(results)
+  local r = {}
+  for enchantID, data in pairs(results) do
+    table.insert(r, {
+      enchantID = enchantID,
+      data = data
+    })
+  end
+  return r
+end
+
+local myAuctionResults
+function MM:GetMyAuctionsResults()
+  myAuctionsResults = {}
+  collectMyAuctionsData(myAuctionsResults)
+  collectFavoritesData(myAuctionsResults)
+  return convertMyAuctionResults(myAuctionsResults)
 end
 
 local function onUpdate()
