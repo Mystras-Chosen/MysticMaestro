@@ -270,6 +270,7 @@ local colors = {
   ["green"] = "|cff00ff00",
   ["red"] = "|cffff0000",
   ["yellow"] = "|cffffff00",
+  ["white"] = "|cffffffff",
   ["min"] = "|cff03fffb",
   ["med"] = "|cff00c25e",
   ["mean"] = "|cffc29e00",
