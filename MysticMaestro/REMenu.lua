@@ -426,7 +426,6 @@ do  -- display MysticMaestroMenu in standalone container
   end
 end
 
-local currentFilter, currentSort
 local statsContainerWidgets = {}
 do -- show and hide MysticMaestroMenu
   local filterOptions = {
@@ -445,7 +444,7 @@ do -- show and hide MysticMaestroMenu
   }
 
   local function itemsToFilter(items)
-    currentFilter = {
+    MM.db.realm.VIEWS.filter = {
       allQualities = items[1]:GetValue(),
       uncommon = items[2]:GetValue(),
       rare = items[3]:GetValue(),
@@ -456,7 +455,7 @@ do -- show and hide MysticMaestroMenu
       unknown = items[9]:GetValue(),
       favorites = items[11]:GetValue()
     }
-    return currentFilter
+    return MM.db.realm.VIEWS.filter
   end
 
   local function filterToItems(filterDropdown, filter)
@@ -541,7 +540,7 @@ do -- show and hide MysticMaestroMenu
     items[1]:SetValue(key == 1 or nil)
     items[2]:SetValue(key == 2 or nil)
     MM:SetSearchBarDefaultText()
-    currentSort = key
+    MM.db.realm.VIEWS.sort = key
     MM:SortMysticEnchants(key)
     MM:GoToPage(1)
   end
@@ -597,11 +596,11 @@ do -- show and hide MysticMaestroMenu
     filterDropdown:SetItemDisabled(6, true)
     filterDropdown:SetItemDisabled(10, true)
     filterDropdown:SetItemDisabled(12, true)
-    if not currentFilter then
+    if not MM.db.realm.VIEWS.filter then
       filterDropdown:SetItemValue(1, true)
       filterDropdown:SetItemValue(7, true)
     else
-      filterToItems(filterDropdown, currentFilter)
+      filterToItems(filterDropdown, MM.db.realm.VIEWS.filter)
     end
     filterDropdown:SetCallback("OnValueChanged", filterDropdown_OnValueChanged)
     filterDropdown.frame:Show()
@@ -612,7 +611,7 @@ do -- show and hide MysticMaestroMenu
     sortDropdown:SetWidth(160)
     sortDropdown:SetHeight(27)
     sortDropdown:SetList(sortOptions)
-    sortDropdown:SetValue(currentSort or 1)
+    sortDropdown:SetValue(MM.db.realm.VIEWS.sort or 1)
     sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
     sortDropdown.frame:Show()
     
@@ -679,7 +678,7 @@ do -- show and hide MysticMaestroMenu
     setUpSearchWidget()
     setUpStatisticsWidgets()
     self:ClearGraph()
-    self:FilterMysticEnchants(currentFilter or {allQualities = true, allKnown = true})
+    self:FilterMysticEnchants(MM.db.realm.VIEWS.filter or {allQualities = true, allKnown = true})
     self:GoToPage(1)
     MysticMaestroMenu:Show()
   end
@@ -747,8 +746,8 @@ do -- filter functions
   end
 
   function MM:FilterMysticEnchants(filter)
-    filter = filter or currentFilter
-    currentFilter = filter
+    filter = filter or MM.db.realm.VIEWS.filter
+    MM.db.realm.VIEWS.filter = filter
     resultSet = {}
     for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
       if enchantID ~= 0 and qualityCheckMet(enchantID, filter)
@@ -756,7 +755,7 @@ do -- filter functions
         table.insert(resultSet, enchantID)
       end
     end
-    self:SortMysticEnchants(currentSort or 1)
+    self:SortMysticEnchants(MM.db.realm.VIEWS.sort or 1)
   end
 end
 
