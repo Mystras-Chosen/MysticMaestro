@@ -112,6 +112,13 @@ local function createMyAuctionsButton(parent, listingName)
   return listingButton
 end
 
+local durationKey = {}
+durationKey[1] = "Short"
+durationKey[2] = "Medium"
+durationKey[3] = "Long"
+durationKey[4] = "Very Long"
+
+
 local function createSelectedAuctionsButton(parent, listingName)
   local listingButton = CreateFrame("Button", listingName, parent)
   listingButton:SetSize(parent:GetWidth(), buttonHeight)
@@ -149,6 +156,7 @@ local function createSelectedAuctionsButton(parent, listingName)
     function(self)
       if self.data ~= MM:GetSelectedSelectedEnchantAuctionData() then
         self.H:Hide()
+        GameTooltip:Hide()
       end
     end
   )
@@ -158,6 +166,12 @@ local function createSelectedAuctionsButton(parent, listingName)
       if self.data ~= MM:GetSelectedSelectedEnchantAuctionData() then
         self.H:Show()
         self.H:SetDesaturated(true)
+        GameTooltip:SetOwner(self, "ANCHOR_NONE")
+        GameTooltip:SetPoint("TOPLEFT",self,"TOPRIGHT")
+        GameTooltip:SetHyperlink(self.data.link)
+        GameTooltip:AddDoubleLine("Posted By", MM:cTxt(self.data.seller and self.data.seller or "unknown","white"))
+        GameTooltip:AddDoubleLine("Time Left", MM:cTxt(durationKey[self.data.duration],"white"))
+        GameTooltip:Show()
       end
     end
   )
@@ -217,12 +231,6 @@ local function myAuctionsScrollFrame_Update(self)
   end
 end
 
-local durationKey = {}
-durationKey[1] = "Short"
-durationKey[2] = "Medium"
-durationKey[3] = "Long"
-durationKey[4] = "Very Long"
-
 
 local function selectEnchantAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
@@ -245,14 +253,6 @@ local function selectEnchantAuctionsScrollFrame_Update(self)
       button.data = result
       button.icon:SetTexture(result.icon)
       button:Show()
-      button:SetScript("OnEnter", function() 
-        GameTooltip:SetOwner(button, "ANCHOR_NONE")
-        GameTooltip:SetPoint("TOPLEFT",button,"TOPRIGHT")
-        GameTooltip:SetHyperlink(button.data.link)
-        GameTooltip:AddDoubleLine("Posted By", MM:cTxt(button.data.seller and button.data.seller or "unknown","white"))
-        GameTooltip:AddDoubleLine("Time Left", MM:cTxt(durationKey[button.data.duration],"white"))
-        GameTooltip:Show() end)
-      button:SetScript("OnLeave", function() GameTooltip:Hide() end)
       MM:EnableSelectEnchantAuctionButton(button)
       if button.data == selectedEnchant then
         button.H:Show()
