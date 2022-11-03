@@ -299,6 +299,11 @@ local function createMyAuctionsScrollFrame()
   MM:SetMyAuctionsScrollFrame(scrollFrame)
 end
 
+function MM:RefreshMyAuctionsScrollFrame()
+  self:SetSelectedMyAuctionData(nil)
+  myAuctionsScrollFrame_Update(self:GetMyAuctionsScrollFrame())
+end
+
 local selectedEnchantAuctionsScrollFrame
 
 function MM:GetSelectedEnchantAuctionsScrollFrame()
@@ -414,10 +419,6 @@ function MM:HideAHExtension()
   self:ClearSelectedEnchantAuctions()
 end
 
-function MM:PopulateMyAuctions(results)
-  myAuctionsScrollFrame_Update(self:GetMyAuctionsScrollFrame())
-end
-
 function MM:PopulateSelectedEnchantAuctions(results)
   self:SetSelectedEnchantAuctionsResults(results)
   selectEnchantAuctionsScrollFrame_Update(self:GetSelectedEnchantAuctionsScrollFrame())
@@ -461,6 +462,8 @@ function MM:EnableSelectEnchantAuctionButton(button)
 end
 
 function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
-  local results = self:GetMyAuctionsResults()
   print("MyAuctions_AUCTION_OWNED_LIST_UPDATE")
+  if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+    self:RefreshMyAuctionsScrollFrame()
+  end
 end
