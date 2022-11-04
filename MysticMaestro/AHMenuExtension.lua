@@ -18,7 +18,6 @@ function MM:GetSelectedMyAuctionData()
   return selectedMyAuctionData
 end
 
--- 
 function MM:SetSelectedMyAuctionData(data)
   selectedMyAuctionData = data
   local myAuctionsButton = self:GetMyAuctionsScrollFrame().buttons
@@ -463,7 +462,6 @@ function MM:EnableSelectEnchantAuctionButton(button)
 end
 
 function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
-  print("MyAuctions_AUCTION_OWNED_LIST_UPDATE")
   if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
     self:RefreshMyAuctionsScrollFrame()
   end

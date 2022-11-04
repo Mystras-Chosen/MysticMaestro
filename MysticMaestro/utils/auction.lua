@@ -427,8 +427,10 @@ function MM:ClosePopups()
 end
 
 local refreshInProgress, restoreInProgress, refreshList, restoreList
+local enchantToRestore
 function MM:RefreshSelectedEnchantAuctions()
   refreshInProgress = true
+  enchantToRestore = MM:GetSelectedSelectedEnchantAuctionData().enchantID
 end
 
 function MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
@@ -442,21 +444,30 @@ function MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
   end
 end
 
+local function enchantToRestoreIsStillSelected()
+  local selectedMyAuctionData = MM:GetSelectedMyAuctionData()
+  local selectedSelectedEnchantAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
+  return selectedMyAuctionData and selectedMyAuctionData.enchantID == enchantToRestore
+  or selectedSelectedEnchantAuctionData and selectedSelectedEnchantAuctionData.enchantID == enchantToRestore
+end
+
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if refreshList and CanSendAuctionQuery() then
-      MM:Print("performing query refresh 1")
-      QueryAuctionItems("zzxxzzy")
-      refreshList = false
-      restoreInProgress = true
+      if enchantToRestoreIsStillSelected() then
+        QueryAuctionItems("zzxxzzy")
+        refreshList = false
+        restoreInProgress = true
+      else
+        refreshList = false
+      end
     end
     if restoreList and CanSendAuctionQuery() then
-      MM:Print("performing query refresh 2")
-      local enchantID = MM:GetSelectedSelectedEnchantAuctionData().enchantID
-      MM:AsyncDisplayEnchantAuctions(enchantID)
-      QueryAuctionItems(MM.RE_NAMES[enchantID], nil, nil, 0, 0, 3, false, true, nil)
+      if enchantToRestoreIsStillSelected() then
+        MM:AsyncDisplayEnchantAuctions(enchantToRestore)
+        QueryAuctionItems(MM.RE_NAMES[enchantToRestore], nil, nil, 0, 0, 3, false, true, nil)
+      end
       restoreList = false
     end
-
   end
 )
