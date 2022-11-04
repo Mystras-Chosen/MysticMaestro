@@ -58,9 +58,11 @@ function MM:SetSelectedSelectedEnchantAuctionData(selectedButton)
     selectedButton.H:Show()
     selectedButton.H:SetDesaturated(false)
     self:EnableBuyoutCancelButton()
+    self:EnableListButton()
   else
     selectedSelectedEnchantAuctionData = nil
     self:DisableBuyoutCancelButton()
+    self:DisableListButton()
   end
 end
 
@@ -144,11 +146,11 @@ local function createSelectedAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
-      MM:SetSelectedSelectedEnchantAuctionData(self)
-      if self.data.yours then
-        MM:DisableUndercutButton()
+      local currentSelectionData = MM:GetSelectedSelectedEnchantAuctionData()
+      if self.data == currentSelectionData then
+        MM:SetSelectedSelectedEnchantAuctionData(nil)
       else
-        MM:EnableUndercutButton()
+        MM:SetSelectedSelectedEnchantAuctionData(self)
       end
     end
   )
@@ -338,21 +340,21 @@ local function initAHExtension()
   createSelectedEnchantAuctionsScrollFrame()
 end
 
-local undercutButton, buyCancelbutton
+local listButton, buyCancelbutton
 local function setUpButtonWidgets()
-  undercutButton = AceGUI:Create("Button")
-  undercutButton.frame:SetParent(ahExtensionMenu)
-  undercutButton:SetPoint("BOTTOMLEFT", ahExtensionMenu, "BOTTOMLEFT", 0, 15)
-  undercutButton:SetWidth(82)
-  undercutButton:SetHeight(22)
-  undercutButton:SetText("Undercut")
-  undercutButton:SetCallback("OnClick",
+  listButton = AceGUI:Create("Button")
+  listButton.frame:SetParent(ahExtensionMenu)
+  listButton:SetPoint("BOTTOMLEFT", ahExtensionMenu, "BOTTOMLEFT", 0, 15)
+  listButton:SetWidth(82)
+  listButton:SetHeight(22)
+  listButton:SetText("List")
+  listButton:SetCallback("OnClick",
     function(self, event)
       print("relist clicked")
     end
   )
-  undercutButton.frame:Show()
-  MM:DisableUndercutButton()
+  listButton.frame:Show()
+  MM:DisableListButton()
 
   buyCancelbutton = AceGUI:Create("Button")
   buyCancelbutton.frame:SetParent(ahExtensionMenu)
@@ -376,16 +378,16 @@ local function setUpButtonWidgets()
 end
 
 local function tearDownButtonWidgets()
-  undercutButton:Release()
+  listButton:Release()
   buyCancelbutton:Release()
 end
 
-function MM:DisableUndercutButton()
-  --undercutButton:SetDisabled(true)
+function MM:DisableListButton()
+  listButton:SetDisabled(true)
 end
 
-function MM:EnableUndercutButton()
-  --undercutButton:SetDisabled(false)
+function MM:EnableListButton()
+  listButton:SetDisabled(false)
 end
 
 function MM:DisableBuyoutCancelButton()
