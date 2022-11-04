@@ -456,11 +456,9 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
     if refreshList and CanSendAuctionQuery() then
       if enchantToRestoreIsStillSelected() then
         QueryAuctionItems("zzxxzzy")
-        refreshList = false
         restoreInProgress = true
-      else
-        refreshList = false
       end
+      refreshList = false
     end
     if restoreList and CanSendAuctionQuery() then
       if enchantToRestoreIsStillSelected() then

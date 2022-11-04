@@ -352,7 +352,7 @@ local function setUpButtonWidgets()
     end
   )
   undercutButton.frame:Show()
-  
+  MM:DisableUndercutButton()
 
   buyCancelbutton = AceGUI:Create("Button")
   buyCancelbutton.frame:SetParent(ahExtensionMenu)
@@ -369,12 +369,10 @@ local function setUpButtonWidgets()
       else
         MM:BuyoutAuction(selectedAuctionData.id)
       end
-
-      --print("Selected My Auction: " .. tostring(MM:GetSelectedMyAuctionData()))
-      --print("Selected Selected Enchant Auction: " .. tostring(MM:GetSelectedSelectedEnchantAuctionData()))
     end
   )
   buyCancelbutton.frame:Show()
+  MM:DisableBuyoutCancelButton()
 end
 
 local function tearDownButtonWidgets()
