@@ -172,18 +172,18 @@ function MM:GetMyAuctionsResults()
   return convertMyAuctionResults(myAuctionsResults)
 end
 
-local function onUpdate()
-  if displayInProgress then
-    if pendingQuery and CanSendAuctionQuery() then
-      MM:Print("performing query of " .. MM.RE_NAMES[enchantToQuery])
-      QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
-      pendingQuery = false
-      awaitingResults = true
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    if displayInProgress then
+      if pendingQuery and CanSendAuctionQuery() then
+        MM:Print("performing query of " .. MM.RE_NAMES[enchantToQuery])
+        QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
+        pendingQuery = false
+        awaitingResults = true
+      end
     end
   end
-end
-
-MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
+)
 
 ---------------------------------
 --   Auction Stats functions   --
@@ -362,6 +362,7 @@ StaticPopupDialogs["MM_BUYOUT_AUCTION"] = {
   OnAccept = function(self)
     local data = MM:GetSelectedSelectedEnchantAuctionData()
       PlaceAuctionBid("list", data.id, data.buyoutPrice)
+      MM:RefreshSelectedEnchantAuctions()
   end,
   OnShow = function(self)
     local data = MM:GetSelectedSelectedEnchantAuctionData()
@@ -385,6 +386,7 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
 	button2 = CANCEL,
 	OnAccept = function()
 		CancelAuction(GetSelectedAuctionItem("owner"))
+    MM:RefreshSelectedEnchantAuctions()
 	end,
 	OnShow = function(self)
     self.text:SetText(CANCEL_AUCTION_CONFIRMATION)
@@ -418,3 +420,43 @@ function MM:CancelAuction(enchantID, buyoutPrice)
   SetSelectedAuctionItem("owner", auctionID)
   StaticPopup_Show("MM_CANCEL_AUCTION")
 end
+
+function MM:ClosePopups()
+  StaticPopup_Hide("MM_BUYOUT_AUCTION")
+  StaticPopup_Hide("MM_CANCEL_AUCTION")
+end
+
+local refreshInProgress, restoreInProgress, refreshList, restoreList
+function MM:RefreshSelectedEnchantAuctions()
+  refreshInProgress = true
+end
+
+function MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
+  if refreshInProgress then
+    refreshInProgress = false
+    refreshList = true
+  end
+  if restoreInProgress then
+    restoreInProgress = false
+    restoreList = true
+  end
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    if refreshList and CanSendAuctionQuery() then
+      MM:Print("performing query refresh 1")
+      QueryAuctionItems("zzxxzzy")
+      refreshList = false
+      restoreInProgress = true
+    end
+    if restoreList and CanSendAuctionQuery() then
+      MM:Print("performing query refresh 2")
+      local enchantID = MM:GetSelectedSelectedEnchantAuctionData().enchantID
+      MM:AsyncDisplayEnchantAuctions(enchantID)
+      QueryAuctionItems(MM.RE_NAMES[enchantID], nil, nil, 0, 0, 3, false, true, nil)
+      restoreList = false
+    end
+
+  end
+)

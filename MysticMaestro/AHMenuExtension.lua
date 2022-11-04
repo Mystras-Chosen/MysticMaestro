@@ -417,6 +417,7 @@ function MM:HideAHExtension()
   MysticMaestroMenuAHExtension:Hide()
   self:SetSelectedMyAuctionData(nil)
   self:ClearSelectedEnchantAuctions()
+  self:ClosePopups()
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)
