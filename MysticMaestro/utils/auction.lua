@@ -446,19 +446,16 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local cTip = CreateFrame("GameTooltip","MMScanTip",nil,"GameTooltipTemplate")
 local function IsSoulbound(bag, slot)
-    cTip:SetOwner(UIParent, "ANCHOR_NONE")
-    cTip:SetBagItem(bag, slot)
-    cTip:Show()
-    for i = 1,cTip:NumLines() do
-        if(_G["MMScanTipTooltipTextLeft"..i]:GetText()==ITEM_SOULBOUND) then
-            -- cTip:Hide()
-            return true
-        end
+  local TT = MysticMaestroTT
+  TT:ClearLines()  
+  TT:SetBagItem(bag, slot)
+  for i = 1,TT:NumLines() do
+    if(_G[TT:GetName().."TextLeft"..i]:GetText()==ITEM_SOULBOUND) then
+      return true
     end
-    -- cTip:Hide()
-    return false
+  end
+  return false
 end
 
 -- only do trinkets for now, and return nil if trinket with enchantID not found
