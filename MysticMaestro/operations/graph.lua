@@ -85,21 +85,23 @@ end
 local yBuffer = 1.1
 local defaultYRange = 100
 
-local function updateYAxisRange(averageData)
-  if not averageData then
+local function updateYAxisRange(maxData)
+  if not maxData then
     g:SetYAxis(0, defaultYRange)
   else
-    local maxBuyout = getMaxBuyout(averageData)
+    local maxBuyout = getMaxBuyout(maxData)
     g:SetYAxis(0, maxBuyout > defaultYRange / yBuffer and yBuffer * maxBuyout or defaultYRange)
   end
 end
 
 local maxYAxisGridLines = 8
 
-local function getYSpacing(averageData)
-  local maxBuyout = getMaxBuyout(averageData)
+local function getYSpacing(maxData)
+  local maxBuyout = getMaxBuyout(maxData) -- doesn't consider historic data for max buyouts
+  print("maxBuyout" .. maxBuyout)
   if maxBuyout < 100 then return 20 end
   local unprocessedYSpacing = maxBuyout / maxYAxisGridLines
+  print("spacing " .. unprocessedYSpacing % 10 ~= 0 and unprocessedYSpacing + 10 - unprocessedYSpacing % 10 or unprocessedYSpacing)
   return unprocessedYSpacing % 10 ~= 0 and unprocessedYSpacing + 10 - unprocessedYSpacing % 10 or unprocessedYSpacing
 end
 
@@ -134,7 +136,7 @@ function MM:PopulateGraph(enchantID)
   g:AddDataSeries(maxData, {1.0, 0.0, 0.0, 0.8})
   g:AddDataSeries(averageData, {1.0, 1.0, 0.0, 0.8})
   g:AddDataSeries(minimumData, {0.0, 1.0, 0.0, 0.8})
-  g:SetGridSpacing(secondsPerDay, getYSpacing(averageData))
+  g:SetGridSpacing(secondsPerDay, getYSpacing(maxData))
 end
 
 function MM:ClearGraph()
