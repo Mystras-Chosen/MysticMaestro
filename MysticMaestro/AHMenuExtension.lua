@@ -350,7 +350,13 @@ local function setUpButtonWidgets()
   listButton:SetText("List")
   listButton:SetCallback("OnClick",
     function(self, event)
-      print("relist clicked")
+      local selectedAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
+      if not selectedAuctionData then return end
+      if selectedAuctionData.yours then
+        MM:ListAuction(selectedAuctionData.enchantID, selectedAuctionData.buyoutPrice)
+      else
+        MM:ListAuction(selectedAuctionData.enchantID, selectedAuctionData.buyoutPrice - 1)
+      end
     end
   )
   listButton.frame:Show()

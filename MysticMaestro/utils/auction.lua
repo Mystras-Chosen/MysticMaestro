@@ -372,7 +372,8 @@ StaticPopupDialogs["MM_BUYOUT_AUCTION"] = {
   showAlert = 1,
   timeout = 0,
   exclusive = 1,
-  hideOnEscape = 1
+  hideOnEscape = 1,
+  --enterClicksFirstButton = 1  -- causes taint for some reason
 }
 
 function MM:BuyoutAuction(id)
@@ -390,12 +391,12 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
 	end,
 	OnShow = function(self)
     self.text:SetText(CANCEL_AUCTION_CONFIRMATION)
-		
 	end,
 	showAlert = 1,
 	timeout = 0,
 	exclusive = 1,
-	hideOnEscape = 1
+	hideOnEscape = 1,
+  --enterClicksFirstButton = 1  -- causes taint for some reason
 }
 
 -- returns the first id that matches enchantID and buyoutPrice
@@ -405,7 +406,7 @@ local function findOwnerAuctionID(enchantID, buyoutPrice)
     if result.enchantID == enchantID then
       for _, auction in ipairs(result.auctions) do
         if auction.buyoutPrice == buyoutPrice then
-          print("found ID: " .. auction.id)
+          print(auction.id)
           return auction.id
         end
       end
@@ -421,18 +422,74 @@ function MM:CancelAuction(enchantID, buyoutPrice)
   StaticPopup_Show("MM_CANCEL_AUCTION")
 end
 
+local listingPrice
+StaticPopupDialogs["MM_LIST_AUCTION"] = {
+	text = "List auction for the following amount?",
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function()
+		StartAuction(listingPrice, listingPrice, 1, 1, 1)
+    MM:RefreshSelectedEnchantAuctions()
+	end,
+	OnShow = function(self)
+    MoneyFrame_Update(self.moneyFrame, listingPrice)
+	end,
+  OnCancel = function(self)
+    ClickAuctionSellItemButton()
+    ClearCursor()
+  end,
+  hasMoneyFrame = 1,
+	showAlert = 1,
+	timeout = 0,
+	exclusive = 1,
+	hideOnEscape = 1,
+  enterClicksFirstButton = 1  -- doesn't cause taint for some reason
+}
+
+-- only do trinkets for now, and return nil if trinket with enchantID not found
+local function findSellableItemWithEnchantID(enchantID)
+  -- for bagID=0, 4 do
+  --   for slotIndex=1, GetContainerNumSlots(bagID) or 0 do
+  --     -- not soulbound, is rare or higher quality, and istrinket with the specified enchantID on it
+  --     if true then
+  --       return bagID, slotIndex
+  --     end
+  --   end
+  -- end
+  return 0, 1
+end
+
+
+function MM:ListAuction(enchantID, price)
+  local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
+  if bagID then
+    PickupContainerItem(bagID, slotIndex)
+    ClickAuctionSellItemButton()
+    listingPrice = price
+    StaticPopup_Show("MM_LIST_AUCTION")
+  else
+    print("No item found")
+  end
+end
+
 function MM:ClosePopups()
   StaticPopup_Hide("MM_BUYOUT_AUCTION")
   StaticPopup_Hide("MM_CANCEL_AUCTION")
+  StaticPopup_Hide("MM_LIST_AUCTION")
+  if GetAuctionSellItemInfo() then
+    ClickAuctionSellItemButton()
+    ClearCursor()
+  end
 end
 
 local refreshInProgress, restoreInProgress, refreshList, restoreList
 local enchantToRestore
 function MM:RefreshSelectedEnchantAuctions()
   refreshInProgress = true
-  enchantToRestore = MM:GetSelectedSelectedEnchantAuctionData().enchantID
+  enchantToRestore = MM:GetSelectedSelectedEnchantAuctionData().enchantID  -- will need to be updated if refreshed and no item selected
 end
 
+-- entry point for refresh after buying or cancelling an auction
 function MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
   if refreshInProgress then
     refreshInProgress = false
@@ -441,6 +498,14 @@ function MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
   if restoreInProgress then
     restoreInProgress = false
     restoreList = true
+  end
+end
+
+-- entry point for refresh after listing an auction
+function MM:List_AUCTION_OWNED_LIST_UPDATE()
+  if refreshInProgress then
+    refreshInProgress = false
+    refreshList = true
   end
 end
 
@@ -464,6 +529,12 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       if enchantToRestoreIsStillSelected() then
         MM:AsyncDisplayEnchantAuctions(enchantToRestore)
         QueryAuctionItems(MM.RE_NAMES[enchantToRestore], nil, nil, 0, 0, 3, false, true, nil)
+        local results = MM:GetMyAuctionsResults()
+        for _, result in ipairs(results) do
+          if enchantToRestore == result.enchantID then
+            MM:SetSelectedMyAuctionData(result)
+          end
+        end
       end
       restoreList = false
     end

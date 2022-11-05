@@ -107,4 +107,5 @@ end)
 
 MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE", function()
   MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
+  MM:List_AUCTION_OWNED_LIST_UPDATE()
 end)
