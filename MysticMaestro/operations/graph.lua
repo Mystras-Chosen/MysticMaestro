@@ -97,11 +97,9 @@ end
 local maxYAxisGridLines = 8
 
 local function getYSpacing(maxData)
-  local maxBuyout = getMaxBuyout(maxData) -- doesn't consider historic data for max buyouts
-  print("maxBuyout" .. maxBuyout)
+  local maxBuyout = getMaxBuyout(maxData)
   if maxBuyout < 100 then return 20 end
   local unprocessedYSpacing = maxBuyout / maxYAxisGridLines
-  print("spacing " .. unprocessedYSpacing % 10 ~= 0 and unprocessedYSpacing + 10 - unprocessedYSpacing % 10 or unprocessedYSpacing)
   return unprocessedYSpacing % 10 ~= 0 and unprocessedYSpacing + 10 - unprocessedYSpacing % 10 or unprocessedYSpacing
 end
 

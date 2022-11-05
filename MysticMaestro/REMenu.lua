@@ -648,6 +648,8 @@ do -- show and hide MysticMaestroMenu
       function(self)
         if searchBar.lastText == defaultSearchText then
           searchBar:SetText("")
+        else
+          searchBar.editBox:HighlightText()
         end
       end
     )
