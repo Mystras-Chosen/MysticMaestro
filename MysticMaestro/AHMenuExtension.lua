@@ -84,12 +84,15 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton:SetScript("OnClick",
     function(self)
-      MM:SetSelectedMyAuctionData(self.data)
+      local currentSelectionData = MM:GetSelectedMyAuctionData()
+      if not currentSelectionData or self.data.enchantID ~= currentSelectionData.enchantID then
+        MM:SetSelectedMyAuctionData(self.data)
 
-      MM:SetSearchBarDefaultText()
-      MM:SetResultSet({self.data.enchantID})
-      MM:GoToPage(1)
-      MM:SetSelectedEnchantButton(1)
+        MM:SetSearchBarDefaultText()
+        MM:SetResultSet({self.data.enchantID})
+        MM:GoToPage(1)
+        MM:SetSelectedEnchantButton(1)
+      end
     end
   )
 
