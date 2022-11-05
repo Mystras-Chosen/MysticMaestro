@@ -541,6 +541,7 @@ do -- show and hide MysticMaestroMenu
     items[2]:SetValue(key == 2 or nil)
     MM:SetSearchBarDefaultText()
     MM.db.realm.VIEWS.sort = key
+    MM:FilterMysticEnchants()
     MM:SortMysticEnchants(key)
     MM:GoToPage(1)
   end
