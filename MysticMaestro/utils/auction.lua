@@ -469,8 +469,9 @@ local function findSellableItemWithEnchantID(enchantID)
         local re = GetREInSlot(bagID, slotIndex)
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
-          local istrinket = item:find("Insignia of the")
-          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID=bagID, slotIndex=slotIndex} or {bagID=bagID, slotIndex=slotIndex, vendorPrice=select(11,GetItemInfo(item))})
+          local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
+          local istrinket = reqLevel == 15 and item:find("Insignia of the")
+          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID=bagID, slotIndex=slotIndex} or {bagID=bagID, slotIndex=slotIndex, vendorPrice=vendorPrice})
         end
       end
     end
