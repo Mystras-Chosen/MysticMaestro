@@ -81,6 +81,7 @@ local function createMyAuctionsButton(parent, listingName)
 
   listingButton.enchantName = listingButton:CreateFontString(nil, "OVERLAY", "GameTooltipText")
   listingButton.enchantName:SetPoint("LEFT", listingButton, "LEFT", 14, 0)
+  listingButton.enchantName:SetPoint("RIGHT", listingButton, "RIGHT", 0, 0)
 
   listingButton:SetScript("OnClick",
     function(self)

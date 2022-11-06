@@ -235,7 +235,7 @@ do -- functions to initialize menu and menu container
     end)
     enchantButton:Hide()
 
-    enchantButton.BG = enchantButton:CreateTexture(nil, "DIALOG")
+    enchantButton.BG = enchantButton:CreateTexture(nil, "BACKGROUND")
     enchantButton.BG:SetTexture(AwAddonsTexturePath .. "CAOverhaul\\SpellSlot")
     enchantButton.BG:SetSize(248, 66)
     enchantButton.BG:SetPoint("CENTER", 19, 0)
@@ -249,21 +249,24 @@ do -- functions to initialize menu and menu container
     enchantButton.H:Hide()
 
     enchantButton.Icon = enchantButton:CreateTexture(nil, "DIALOG")
-    enchantButton.Icon:SetTexture("Interface\\Icons\\5_dragonfirebreath")
     enchantButton.Icon:SetSize(32, 32)
     enchantButton.Icon:SetPoint("CENTER", -74, 0)
 
-    enchantButton.IconBorder = enchantButton:CreateTexture(nil, "OVERLAY")
-    enchantButton.IconBorder:SetTexture(AwAddonsTexturePath .. "LootTex\\Loot_Icon_Purple")
+    enchantButton.IconBorder = enchantButton:CreateTexture(nil, "ARTWORK")
     enchantButton.IconBorder:SetSize(38, 38)
     enchantButton.IconBorder:SetPoint("CENTER", -74, 0)
 
     enchantButton.REText = enchantButton:CreateFontString()
     enchantButton.REText:SetFontObject(GameFontNormal)
     enchantButton.REText:SetPoint("CENTER", 19, 0)
-    enchantButton.REText:SetText("|cff00ff00Blade Vortex|r")
     enchantButton.REText:SetJustifyH("CENTER")
     enchantButton.REText:SetSize(148, 36)
+
+    enchantButton.FavoriteIcon = enchantButton:CreateTexture(nil, "OVERLAY")
+    enchantButton.FavoriteIcon:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\star")
+    enchantButton.FavoriteIcon:SetSize(22, 22)
+    enchantButton.FavoriteIcon:SetPoint("CENTER", enchantButton, "TOPLEFT", 10, -6)
+    enchantButton.FavoriteIcon:Hide()
 
     return enchantButton
   end
@@ -564,8 +567,10 @@ do -- show and hide MysticMaestroMenu
     elseif arg1 == "Favorite" and arg2 then
       if MM.db.realm.FAVORITE_ENCHANTS[arg2] then
         MM.db.realm.FAVORITE_ENCHANTS[arg2] = nil
+        MM:GetEnchantButtonByEnchantID(arg2).FavoriteIcon:Hide()
       else
         MM.db.realm.FAVORITE_ENCHANTS[arg2] = true
+        MM:GetEnchantButtonByEnchantID(arg2).FavoriteIcon:Show()
       end
       local insert = MM.db.realm.FAVORITE_ENCHANTS[arg2] and "w" or " longer"
       MM:Print(MM:ItemLinkRE(arg2).." is no"..insert.." a favorite.")
@@ -888,6 +893,11 @@ do -- show/hide and select/deselect mystic enchant button functions
       button.BG:SetVertexColor(mult, mult, mult)
       button.REText:SetTextColor(mult*r, mult*g, mult*b)
     end
+    if MM.db.realm.FAVORITE_ENCHANTS[enchantID] then
+      button.FavoriteIcon:Show()
+    else
+      button.FavoriteIcon:Hide()
+    end
     button:Show()
   end
 
@@ -915,6 +925,14 @@ do -- show/hide and select/deselect mystic enchant button functions
   function MM:RefreshEnchantButtons()
     self:HideEnchantButtons()
     self:ShowEnchantButtons()
+  end
+
+  function MM:GetEnchantButtonByEnchantID(enchantID)
+    for _, button in ipairs(enchantButtons) do
+      if button.enchantID == enchantID then
+        return button
+      end
+    end
   end
 
   local selectedEnchantButton
