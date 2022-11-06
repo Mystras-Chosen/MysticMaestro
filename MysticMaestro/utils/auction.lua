@@ -453,7 +453,7 @@ local function findSellableItemWithEnchantID(enchantID)
     for slotIndex=1, GetContainerNumSlots(bagID) do
       local _,_,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
       -- we have an item, with at least 3 quality and is not soulbound
-      if item and quality >= 3 and not MM:IsSoulbound(item) then
+      if item and quality >= 3 and not MM:IsSoulbound(bagID, slotIndex) then
         local re = GetREInSlot(bagID, slotIndex)
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then

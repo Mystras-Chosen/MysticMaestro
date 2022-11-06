@@ -80,10 +80,10 @@ function MM:InventoryInsignia()
   end
 end
 
-function MM:IsSoulbound(item)
+function MM:IsSoulbound(bag, slot)
   local TT = MysticMaestroTT
   TT:ClearLines()  
-  TT:SetHyperlink(item)
+  TT:SetBagItem(bag, slot)
   for i = 1,TT:NumLines() do
     if(_G[TT:GetName().."TextLeft"..i]:GetText()==ITEM_SOULBOUND) then
       return true
@@ -97,7 +97,7 @@ function MM:InventoryRE()
   for i=0, 4 do
     for j=1, GetContainerNumSlots(i) do
       local _,_,_,quality,_,_,item = GetContainerItemInfo(i, j)
-      if item and quality >= 3 and not MM:IsSoulbound(item) then
+      if item and quality >= 3 and not MM:IsSoulbound(i, j) then
         local re = GetREInSlot(i, j)
         if re ~= nil then
           if tallyRE[re] == nil then tallyRE[re] = 0 end
