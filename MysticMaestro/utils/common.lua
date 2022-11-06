@@ -80,6 +80,35 @@ function MM:InventoryInsignia()
   end
 end
 
+function MM:IsSoulbound(item)
+  local TT = MysticMaestroTT
+  TT:ClearLines()  
+  TT:SetHyperlink(item)
+  for i = 1,TT:NumLines() do
+    if(_G[TT:GetName().."TextLeft"..i]:GetText()==ITEM_SOULBOUND) then
+      return true
+    end
+  end
+  return false
+end
+
+function MM:InventoryRE()
+  local tallyRE = {}
+  for i=0, 4 do
+    for j=1, GetContainerNumSlots(i) do
+      local _,_,_,quality,_,_,item = GetContainerItemInfo(i, j)
+      if item and quality >= 3 and not MM:IsSoulbound(item) then
+        local re = GetREInSlot(i, j)
+        if re ~= nil then
+          if tallyRE[re] == nil then tallyRE[re] = 0 end
+          tallyRE[re] = tallyRE[re] + 1
+        end
+      end
+    end
+  end
+  return #tallyRE > 0, tallyRE
+end
+
 function MM:ApplyRE(slot,reID)
   -- Craft onto the inventory slot with the specified Random Enchant
   RequestSlotReforgeEnchantment(slot.bag, slot.index, reID)

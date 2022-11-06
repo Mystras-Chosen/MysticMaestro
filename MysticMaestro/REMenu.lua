@@ -443,6 +443,8 @@ do -- show and hide MysticMaestroMenu
     "Unknown",
     "-------------",
     "Favorites",
+    "-------------",
+    "In Bags",
     "-------------"
   }
 
@@ -456,7 +458,8 @@ do -- show and hide MysticMaestroMenu
       allKnown = items[7]:GetValue(),
       known = items[8]:GetValue(),
       unknown = items[9]:GetValue(),
-      favorites = items[11]:GetValue()
+      favorites = items[11]:GetValue(),
+      bags = items[13]:GetValue()
     }
     return MM.db.realm.VIEWS.filter
   end
@@ -471,6 +474,7 @@ do -- show and hide MysticMaestroMenu
     filterDropdown:SetItemValue(8, filter.known)
     filterDropdown:SetItemValue(9, filter.unknown)
     filterDropdown:SetItemValue(11, filter.favorites)
+    filterDropdown:SetItemValue(13, filter.bags)
   end
 
   local function filterDropdown_OnValueChanged(self, event, key, checked)
@@ -754,13 +758,20 @@ do -- filter functions
     return not filter.favorites or MM.db.realm.FAVORITE_ENCHANTS[enchantID]
   end
 
+  local bagREList
+  local function bagsCheckMet(enchantID, filter)
+    return not filter.bags or bagREList[enchantID] and bagREList[enchantID] > 0
+  end
+
   function MM:FilterMysticEnchants(filter)
     filter = filter or MM.db.realm.VIEWS.filter
     MM.db.realm.VIEWS.filter = filter
     resultSet = {}
+    _, bagREList = MM:InventoryRE()
     for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
       if enchantID ~= 0 and qualityCheckMet(enchantID, filter)
-      and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter) then
+      and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter)
+      and bagsCheckMet(enchantID, filter) then
         table.insert(resultSet, enchantID)
       end
     end

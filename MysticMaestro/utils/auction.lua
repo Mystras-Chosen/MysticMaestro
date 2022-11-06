@@ -446,18 +446,6 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local function IsSoulbound(bag, slot)
-  local TT = MysticMaestroTT
-  TT:ClearLines()  
-  TT:SetBagItem(bag, slot)
-  for i = 1,TT:NumLines() do
-    if(_G[TT:GetName().."TextLeft"..i]:GetText()==ITEM_SOULBOUND) then
-      return true
-    end
-  end
-  return false
-end
-
 -- only do trinkets for now, and return nil if trinket with enchantID not found
 local function findSellableItemWithEnchantID(enchantID)
   local items = {trinket = {},other = {}}
@@ -465,7 +453,7 @@ local function findSellableItemWithEnchantID(enchantID)
     for slotIndex=1, GetContainerNumSlots(bagID) do
       local _,_,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
       -- we have an item, with at least 3 quality and is not soulbound
-      if item and quality >= 3 and not IsSoulbound(bagID, slotIndex) then
+      if item and quality >= 3 and not MM:IsSoulbound(item) then
         local re = GetREInSlot(bagID, slotIndex)
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
