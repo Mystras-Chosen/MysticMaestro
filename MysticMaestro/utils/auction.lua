@@ -460,9 +460,7 @@ end
 
 -- only do trinkets for now, and return nil if trinket with enchantID not found
 local function findSellableItemWithEnchantID(enchantID)
-  local items = {}
-  items.trinket = {}
-  items.other = {}
+  local items = {trinket = {},other = {}}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) or 0 do
       local _,_,_,quality,_,_,item = GetContainerItemInfo(i, j)
@@ -472,13 +470,19 @@ local function findSellableItemWithEnchantID(enchantID)
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
           local istrinket = item:find("Insignia of the")
-          table.insert(istrinket and items.trinket or items.other, {bagID=bagID, slotIndex=slotIndex})
+          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID=bagID, slotIndex=slotIndex} or {bagID=bagID, slotIndex=slotIndex, vendorPrice=select(11,GetItemInfo(item))})
         end
       end
     end
   end
   if #items.trinket then
     return unpack(items.trinket[1])
+  elseif #items.other then
+    return -- Remove this when we are ready for non trinket
+    -- table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
+    -- return unpack(items.other[1])
+  else
+    return
   end
 end
 
