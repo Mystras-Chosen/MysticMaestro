@@ -92,6 +92,7 @@ function MM:IsSoulbound(bag, slot)
   return false
 end
 
+local MMSetting_IlvlLimit,MMSetting_GoldLimit,MMSetting_QualityLimit=115,8,3
 function MM:InventoryRE()
   local tallyRE = {}
   for i=0, 4 do
@@ -99,7 +100,9 @@ function MM:InventoryRE()
       local _,_,_,quality,_,_,item = GetContainerItemInfo(i, j)
       if item and quality >= 3 and not MM:IsSoulbound(i, j) then
         local re = GetREInSlot(i, j)
-        if re ~= nil then
+        local _,_,_,iLevel,_,_,_,_,_,_,vendorPrice = GetItemInfo(item)
+        local withinLimits = iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit
+        if re ~= nil and withinLimits then
           if tallyRE[re] == nil then tallyRE[re] = 0 end
           tallyRE[re] = tallyRE[re] + 1
         end
