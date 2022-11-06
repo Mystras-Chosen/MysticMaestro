@@ -462,8 +462,8 @@ end
 local function findSellableItemWithEnchantID(enchantID)
   local items = {trinket = {},other = {}}
   for bagID=0, 4 do
-    for slotIndex=1, GetContainerNumSlots(bagID) or 0 do
-      local _,_,_,quality,_,_,item = GetContainerItemInfo(i, j)
+    for slotIndex=1, GetContainerNumSlots(bagID) do
+      local _,_,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
       -- we have an item, with at least 3 quality and is not soulbound
       if item and quality >= 3 and not IsSoulbound(bagID, slotIndex) then
         local re = GetREInSlot(bagID, slotIndex)
@@ -471,12 +471,12 @@ local function findSellableItemWithEnchantID(enchantID)
         if re == enchantID then
           local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
           local istrinket = reqLevel == 15 and item:find("Insignia of the")
-          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID=bagID, slotIndex=slotIndex} or {bagID=bagID, slotIndex=slotIndex, vendorPrice=vendorPrice})
+          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, vendorPrice})
         end
       end
     end
   end
-  if #items.trinket then
+  if #items.trinket > 0 then
     return unpack(items.trinket[1])
   elseif #items.other then
     return -- Remove this when we are ready for non trinket
