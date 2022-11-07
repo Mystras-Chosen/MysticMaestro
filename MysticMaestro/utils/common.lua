@@ -129,6 +129,7 @@ end
 
 function MM:DaysAgoString(stamp)
   local string = ""
+  if stamp == 0 then return "No Scan Data" end
   local dif = MM:CompareTime(time(),stamp)
   if dif.year > 0 then
     string = string .. dif.year .. " year" .. (dif.year > 1 and "s" or "")
