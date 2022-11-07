@@ -678,8 +678,8 @@ do -- show and hide MysticMaestroMenu
       local label = AceGUI:Create("Label")
       local p = (i - 1) % 4 + 1
       local h = p == 1 and 22 or 28
-      local w = i <= 4 and 90 or 130
-      local x = i <= 4 and -185 or i <= 8 and -90 or 43
+      local w = i <= 4 and 90 or 110
+      local x = i <= 4 and -185 or i <= 8 and -80 or 43
       local y = 77-h*p
       local j = i <= 4 and "RIGHT" or "CENTER"
       label.frame:SetParent(statsContainer)
