@@ -27,7 +27,7 @@ local function addLinesTooltip(tt, input)
     end
     tt:AppendText("   "..indicator)
   end
-  tt:AddDoubleLine(MM:cTxt("Mystic Maestro:", tostring(dataRE.quality)),MM:DaysAgoString(stats and stats.Last or "No Data"),1,1,0,1,1,1)
+  tt:AddDoubleLine(dataRE and MM:cTxt(name, tostring(dataRE.quality)) or "Mystic Maestro:",MM:DaysAgoString(stats and stats.Last or "No Data"),1,1,0,1,1,1)
   if stats ~= nil then
     if stats.Last ~= nil then
       local ttMin = GetCoinTextureString(MM:round(stats.Min or 0.0))
