@@ -992,18 +992,18 @@ do -- show/hide statistics functions
     local info = MM:StatObj(enchantID)
     local coinStr = {}
     if info then
-      coinStr.min = GetCoinTextureString(MM:round(info.Min,2) * 10000)
-      coinStr.d_min = MM:cTxt(GetCoinTextureString(MM:round(info["10d_Min"],2) * 10000),"min")
-      coinStr.mean = GetCoinTextureString(MM:round(info.Mean,2) * 10000)
-      coinStr.d_mean = MM:cTxt(GetCoinTextureString(MM:round(info["10d_Mean"],2) * 10000),"min")
-      coinStr.dev = GetCoinTextureString(MM:round(info.Dev,2) * 10000)
-      coinStr.d_dev = MM:cTxt(GetCoinTextureString(MM:round(info["10d_Dev"],2) * 10000),"min")
-      coinStr.med = GetCoinTextureString(MM:round(info.Med,2) * 10000)
-      coinStr.d_med = MM:cTxt(GetCoinTextureString(MM:round(info["10d_Med"],2) * 10000),"min")
-      coinStr.max = GetCoinTextureString(MM:round(info.Max,2) * 10000)
-      coinStr.d_max = MM:cTxt(GetCoinTextureString(MM:round(info["10d_Max"],2) * 10000),"min")
-      coinStr.gpo = GetCoinTextureString(MM:round(MM:OrbValue(enchantID,"Min"),2) * 10000)
-      coinStr.d_gpo = MM:cTxt(GetCoinTextureString(MM:round(MM:OrbValue(enchantID,"10d_Min"),2) * 10000),"min")
+      coinStr.min = GetCoinTextureString(info.Min)
+      coinStr.d_min = MM:cTxt(GetCoinTextureString(info["10d_Min"]),"min")
+      coinStr.mean = GetCoinTextureString(info.Mean)
+      coinStr.d_mean = MM:cTxt(GetCoinTextureString(info["10d_Mean"]),"min")
+      coinStr.dev = GetCoinTextureString(info.Dev)
+      coinStr.d_dev = MM:cTxt(GetCoinTextureString(info["10d_Dev"]),"min")
+      coinStr.med = GetCoinTextureString(info.Med)
+      coinStr.d_med = MM:cTxt(GetCoinTextureString(info["10d_Med"]),"min")
+      coinStr.max = GetCoinTextureString(info.Max)
+      coinStr.d_max = MM:cTxt(GetCoinTextureString(info["10d_Max"]),"min")
+      coinStr.gpo = GetCoinTextureString(MM:OrbValue(enchantID,"Min"))
+      coinStr.d_gpo = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Min")),"min")
       coinStr.listed = info.Trinkets.." Trnk ("..info.Count.. " Mkt of "..info.Total..")"
       coinStr.d_listed = info["10d_Trinkets"].." Trnk ("..info["10d_Count"].. " Mkt of "..info["10d_Total"]..")"
 

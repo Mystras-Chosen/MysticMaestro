@@ -35,10 +35,10 @@ local function addLinesTooltip(tt, input)
   if stats ~= nil then
     if stats.Last ~= nil then
       -- Add market value strings
-      local ttMin = GetCoinTextureString(MM:round(stats.Min or 0.0) * 10000)
-      local ttMed = GetCoinTextureString(MM:round(stats.Med or 0.0) * 10000)
-      local ttMean = GetCoinTextureString(MM:round(stats.Mean or 0.0) * 10000)
-      local ttMax = GetCoinTextureString(MM:round(stats.Max or 0.0) * 10000)
+      local ttMin = GetCoinTextureString(MM:round(stats.Min or 0.0))
+      local ttMed = GetCoinTextureString(MM:round(stats.Med or 0.0))
+      local ttMean = GetCoinTextureString(MM:round(stats.Mean or 0.0))
+      local ttMax = GetCoinTextureString(MM:round(stats.Max or 0.0))
       local ttTotal = MM:round(stats.Total or 0.0)
       local ttListed = stats.Count or 0.0
       local ttStr = ""
@@ -49,10 +49,10 @@ local function addLinesTooltip(tt, input)
       , MM:cTxt(ttMin,"min").." ("..MM:cTxt(ttMed,"med").."/"..MM:cTxt(ttMean,"mean").."/"..MM:cTxt(ttMax,"max")..")"
       , 1, 1, 0)
       -- Add 10 day strings
-      ttMin = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0) * 10000)
-      ttMed = GetCoinTextureString(MM:round(stats["10d_Med"] or 0.0) * 10000)
-      ttMean = GetCoinTextureString(MM:round(stats["10d_Mean"] or 0.0) * 10000)
-      ttMax = GetCoinTextureString(MM:round(stats["10d_Max"] or 0.0) * 10000)
+      ttMin = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0))
+      ttMed = GetCoinTextureString(MM:round(stats["10d_Med"] or 0.0))
+      ttMean = GetCoinTextureString(MM:round(stats["10d_Mean"] or 0.0))
+      ttMax = GetCoinTextureString(MM:round(stats["10d_Max"] or 0.0))
       ttTotal = MM:round(stats["10d_Total"] or 0.0, 1)
       ttListed = MM:round(stats["10d_Count"] or 0.0, 1)
       ttStr = ""

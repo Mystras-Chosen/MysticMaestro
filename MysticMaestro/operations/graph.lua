@@ -13,21 +13,21 @@ local function createMysticEnchantData(enchantListingData, correction)
         averageData,
         {
           timeStamp,
-          r.Mean
+          r.Mean / 10000
         }
       )
       table.insert(
         minimumData,
         {
           timeStamp,
-          r.Min
+          r.Min / 10000
         }
       )
       table.insert(
         maxData,
         {
           timeStamp,
-          r.Max
+          r.Max / 10000
         }
       )
     end

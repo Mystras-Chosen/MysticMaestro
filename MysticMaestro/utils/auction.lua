@@ -42,7 +42,6 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
         enchantFound = true
@@ -59,7 +58,6 @@ function MM:CollectAllREData(scanTime)
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      buyoutPrice = MM:round(buyoutPrice / 10000, 4, true)
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound then
         listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
@@ -94,7 +92,6 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
       local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
-      local other, rounded, destination
       if seller == nil then
         awaitingResults = true  -- TODO: timeout awaitingResults
       end
@@ -110,8 +107,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           link = link,
           duration = duration
         })
-        rounded = MM:round(buyoutPrice / 10000, 4, true)
-        table.insert(trinketFound and listings[enchantToQuery][selectedScanTime] or listings[enchantToQuery][selectedScanTime]["other"], rounded)
+        table.insert(trinketFound and listings[enchantToQuery][selectedScanTime] or listings[enchantToQuery][selectedScanTime]["other"], buyoutPrice)
       end
     end
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
@@ -446,7 +442,6 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
--- only do trinkets for now, and return nil if trinket with enchantID not found
 local function findSellableItemWithEnchantID(enchantID)
   local items = {trinket = {},other = {}}
   for bagID=0, 4 do
@@ -466,10 +461,9 @@ local function findSellableItemWithEnchantID(enchantID)
   end
   if #items.trinket > 0 then
     return unpack(items.trinket[1])
-  elseif #items.other then
-    return -- Remove this when we are ready for non trinket
-    -- table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
-    -- return unpack(items.other[1])
+  elseif #items.other > 0 then
+    table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
+    return unpack(items.other[1])
   else
     return
   end
