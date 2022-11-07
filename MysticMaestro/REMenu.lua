@@ -676,10 +676,18 @@ do -- show and hide MysticMaestroMenu
   local function setUpStatisticsWidgets()
     for i=1, 12 do
       local label = AceGUI:Create("Label")
+      local p = (i - 1) % 4 + 1
+      local h = p == 1 and 22 or 28
+      local w = i <= 4 and 75 or 145
+      local x = i <= 4 and -182 or i <= 8 and -102 or 48
+      local y = 77-h*p
+      local j = i <= 4 and "RIGHT" or "CENTER"
       label.frame:SetParent(statsContainer)
-      label:SetWidth(182)
-      label:SetHeight(18)
-      label:SetPoint("TOPLEFT", statsContainer, "CENTER", i < 7 and -182 or 16, 72-18*((i - 1) % 6 + 1))
+      label:SetWidth(w)
+      label:SetHeight(h)
+      label:SetJustifyH(j)
+      label:SetJustifyV("MIDDLE")
+      label:SetPoint("TOPLEFT", statsContainer, "CENTER", x, y)
       label:SetFontObject(GameFontNormal)
       label.frame:Show()
       table.insert(statsContainerWidgets, label)
@@ -1004,23 +1012,35 @@ do -- show/hide statistics functions
       coinStr.d_max = MM:cTxt(GetCoinTextureString(info["10d_Max"]),"min")
       coinStr.gpo = GetCoinTextureString(MM:OrbValue(enchantID,"Min"))
       coinStr.d_gpo = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Min")),"min")
-      coinStr.listed = info.Trinkets.." Trnk ("..info.Count.. " Mkt of "..info.Total..")"
-      coinStr.d_listed = info["10d_Trinkets"].." Trnk ("..info["10d_Count"].. " Mkt of "..info["10d_Total"]..")"
+      local daysAgo = MM:DaysAgoString(info.Last)
+      if daysAgo == "" then daysAgo = "Just Now" end
 
-      statsContainerWidgets[ 1]:SetText("Buyout ("..MM:cTxt("10 Day Average","min")..")")
-      statsContainerWidgets[ 2]:SetText(MM:cTxt("Minimum: ","yellow")..coinStr.min.." ("..coinStr.d_min..")")
-      statsContainerWidgets[ 3]:SetText(MM:cTxt("Median: ","yellow")..coinStr.med.." ("..coinStr.d_med..")")
-      statsContainerWidgets[ 4]:SetText(MM:cTxt("Mean: ","yellow")..coinStr.mean.." ("..coinStr.d_mean..")")
-      statsContainerWidgets[ 5]:SetText(MM:cTxt("Maximum: ","yellow")..coinStr.max.." ("..coinStr.d_max..")")
-      statsContainerWidgets[ 6]:SetText(MM:cTxt("Std. Dev.: ","yellow")..coinStr.dev.." ("..coinStr.d_dev..")")
-      statsContainerWidgets[ 7]:SetText(MM:cTxt("Gold Per Orb: ","yellow")..coinStr.gpo.." ("..coinStr.d_gpo..")")
-      statsContainerWidgets[ 8]:SetText(MM:cTxt("Last Seen: ","yellow")..(MM:DaysAgoString(info.Last) or "No Data"))
-      statsContainerWidgets[ 9]:SetText(MM:cTxt("Listed: ","yellow")..coinStr.listed)
-      statsContainerWidgets[10]:SetText(MM:cTxt("10 Day: ","yellow")..coinStr.d_listed)
-      statsContainerWidgets[11]:SetText(MM:cTxt("My Listed: ","yellow").."No Data")
-      statsContainerWidgets[12]:SetText(MM:cTxt("Status: ","yellow").."|cFF00FF00Lowest Buyout|r")
+      statsContainerWidgets[ 1]:SetText("")
+      statsContainerWidgets[ 2]:SetText(MM:cTxt("Minimum:","yellow"))
+      statsContainerWidgets[ 3]:SetText(MM:cTxt("Gold Per Orb:","yellow"))
+      statsContainerWidgets[ 4]:SetText(MM:cTxt("Listed:","yellow"))
+      statsContainerWidgets[ 5]:SetText(MM:cTxt("Last Seen:","yellow").."\n"..(daysAgo or "No Data"))
+      statsContainerWidgets[ 6]:SetText(coinStr.min)
+      statsContainerWidgets[ 7]:SetText(coinStr.gpo)
+      statsContainerWidgets[ 8]:SetText(info.Count .. " (" .. info.Trinkets .. " Trinkets)")
+      statsContainerWidgets[ 9]:SetText(MM:cTxt("10-Day Average:","yellow").."\n"..MM:cTxt("Calculate This","min"))
+      statsContainerWidgets[10]:SetText(coinStr.d_min)
+      statsContainerWidgets[11]:SetText(coinStr.d_gpo)
+      statsContainerWidgets[12]:SetText(MM:cTxt(info["10d_Count"] .. " (" .. info["10d_Trinkets"] .. " Trinkets)","min"))
     end
-  
+
+
+-- MM:cTxt("10 Day: ","yellow")..coinStr.d_listed
+-- MM:cTxt("Listed: ","yellow")..coinStr.listed
+
+    -- ...." ("....")"
+    -- ..coinStr.med.." ("..coinStr.d_med..")"
+    -- ..coinStr.mean.." ("..coinStr.d_mean..")"
+    -- ..coinStr.max.." ("..coinStr.d_max..")"
+    -- ..coinStr.dev.." ("..coinStr.d_dev..")"
+    -- ...." ("....")"
+
+
     for i=1, #statsContainerWidgets do
       statsContainerWidgets[i].frame:Show()
     end
