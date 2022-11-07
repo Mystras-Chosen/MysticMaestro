@@ -20,8 +20,6 @@ local function addLinesTooltip(tt, input)
   local dataRE = MYSTIC_ENCHANTS[reID]
   local indicator
   if dataRE then
-    mmText = MM:cTxt(known and "Known " or "Unknown " , known and "green" or "red")
-    name = MM:cTxt(name, tostring(dataRE.quality))
     if known then
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_green", 64, 64, 16, 16, 0, 1, 0, 1)
     else
@@ -29,45 +27,18 @@ local function addLinesTooltip(tt, input)
     end
     tt:AppendText("   "..indicator)
   end
-  tt:AddDoubleLine("Mystic Maestro:",(mmText and mmText or ""),1,1,0)
-  local demoString = MM:cTxt("Min","min").."("..MM:cTxt("Med","med").."/"..MM:cTxt("Mean","mean").."/"..MM:cTxt("Max","max")..")"
-  tt:AddDoubleLine("RE: " ..name, (stats and demoString or "None Listed" ))
+  tt:AddDoubleLine(MM:cTxt("Mystic Maestro:", tostring(dataRE.quality)),MM:DaysAgoString(stats and stats.Last or "No Data"),1,1,0,1,1,1)
   if stats ~= nil then
     if stats.Last ~= nil then
-      -- Add market value strings
       local ttMin = GetCoinTextureString(MM:round(stats.Min or 0.0))
-      local ttMed = GetCoinTextureString(MM:round(stats.Med or 0.0))
-      local ttMean = GetCoinTextureString(MM:round(stats.Mean or 0.0))
-      local ttMax = GetCoinTextureString(MM:round(stats.Max or 0.0))
-      local ttTotal = MM:round(stats.Total or 0.0)
-      local ttListed = stats.Count or 0.0
-      local ttStr = ""
-      if stats.Total ~= stats.Count then
-        ttStr = " of " .. ttTotal
-      end
-      tt:AddDoubleLine("("..ttListed..ttStr..") Market Value ("..MM:DaysAgoString(stats.Last)..")"
-      , MM:cTxt(ttMin,"min").." ("..MM:cTxt(ttMed,"med").."/"..MM:cTxt(ttMean,"mean").."/"..MM:cTxt(ttMax,"max")..")"
-      , 1, 1, 0)
-      -- Add 10 day strings
+      tt:AddDoubleLine("Last Scan Value", ttMin,1,1,0,1,1,1)
       ttMin = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0))
-      ttMed = GetCoinTextureString(MM:round(stats["10d_Med"] or 0.0))
-      ttMean = GetCoinTextureString(MM:round(stats["10d_Mean"] or 0.0))
-      ttMax = GetCoinTextureString(MM:round(stats["10d_Max"] or 0.0))
-      ttTotal = MM:round(stats["10d_Total"] or 0.0, 1)
-      ttListed = MM:round(stats["10d_Count"] or 0.0, 1)
-      ttStr = ""
-      if stats["10d_Total"] ~= stats["10d_Count"] then
-        ttStr = " of " .. ttTotal
-      end
-      tt:AddDoubleLine("("..ttListed..ttStr..") 10-Day Value"
-      , MM:cTxt(ttMin,"min").." ("..MM:cTxt(ttMed,"med").."/"..MM:cTxt(ttMean,"mean").."/"..MM:cTxt(ttMax,"max")..")"
-      , 1, 1, 0)
+      tt:AddDoubleLine("10-Day Value", MM:cTxt(ttMin,"min"),1,1,0)
+      local orbval = MM:OrbValue(reID)
+      tt:AddDoubleLine("Gold Per Mystic Orb", MM:cTxt(GetCoinTextureString(orbval), orbval > 10000 and "gold" or "red"),1,1,0)
     end
-    tt:AddDoubleLine("Gold per Mystic Orb"
-    , MM:OrbValue(reID)
-    , 1, 1, 0)
   end
-  tt:AddLine(" ")
+  -- tt:AddLine(" ")
 end
 
 function MM:TooltipHandlerItem(tooltip)
