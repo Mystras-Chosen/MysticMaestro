@@ -242,6 +242,7 @@ function MM:GetLastScanTimeColor(result)
       return "ff0000"
     -- subtract 1 because callback is called too early for some reason
     elseif result.lastScanTime + waitTimePeriod - 1 < GetTime() then
+      lastScanTimerHandles[Timer.NewTimer(veryLongTimePeriod - waitTimePeriod, updateColorCallback)] = result.enchantID
       return "ffff00"
     else
       return "00ff00"
