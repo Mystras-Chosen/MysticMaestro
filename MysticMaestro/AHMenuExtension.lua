@@ -220,7 +220,8 @@ local function myAuctionsScrollFrame_Update(self)
     else
       local result = results[lineplusoffset]
       button.data = result
-      button.auctionCount:SetText(#button.data.auctions)
+      local textColor = MM:GetLastScanTimeColor(result)
+      button.auctionCount:SetText("|cff" .. textColor .. #button.data.auctions .. "|r")
       local reData = GetREData(button.data.enchantID)
       button.enchantName:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
       button:Show()
@@ -305,8 +306,11 @@ local function createMyAuctionsScrollFrame()
 end
 
 function MM:RefreshMyAuctionsScrollFrame()
-  self:SetSelectedMyAuctionData(nil)
   myAuctionsScrollFrame_Update(self:GetMyAuctionsScrollFrame())
+  local selectedEnchantButton = self:GetSelectedEnchantButton()
+  if selectedEnchantButton then
+    self:SelectMyAuctionByEnchantID(selectedEnchantButton.enchantID)
+  end
 end
 
 local selectedEnchantAuctionsScrollFrame

@@ -113,6 +113,9 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
+      self:SetMyAuctionLastScanTime(enchantToQuery)
+      self:SetMyAuctionBuyoutStatus(enchantToQuery)
+      self:RefreshMyAuctionsScrollFrame()
       self:CalculateREStats(enchantToQuery)
       self:PopulateGraph(enchantToQuery)
       self:ShowStatistics(enchantToQuery)
@@ -133,8 +136,8 @@ local function collectMyAuctionData(results)
   for i=1, numPlayerAuctions do
     local icon, quality, buyoutPrice, enchantID, link = getMyAuctionInfo(i)
     if buyoutPrice and quality >= 3 and enchantID then
-      results[enchantID] = results[enchantID] or {}
-      table.insert(results[enchantID], {
+      results[enchantID] = results[enchantID] or { auctions = {} }
+      table.insert(results[enchantID].auctions, {
         id = i, -- need to have owner ID so auction can be canceled
         buyoutPrice = buyoutPrice, -- need to have buyout price so canceled auction can be matched
         link = link
@@ -145,7 +148,7 @@ end
 
 local function collectFavoritesData(results)
   for enchantID in pairs(MM.db.realm.FAVORITE_ENCHANTS) do
-    results[enchantID] = results[enchantID] or {}
+    results[enchantID] = results[enchantID] or { auctions = {} }
   end
 end
 
@@ -153,6 +156,7 @@ local function transferLastScanTime(fromResults, toResults)
   for enchantID, result in pairs(toResults) do
     if fromResults[enchantID] then
       result.lastScanTime = fromResults[enchantID].lastScanTime
+      result.lowestBuyout = fromResults[enchantID].lowestBuyout
     end
   end
 end
@@ -175,11 +179,12 @@ end
 
 local function convertMyAuctionResults(results)
   local r = {}
-  for enchantID, auctions in pairs(results) do
+  for enchantID, result in pairs(results) do
     table.insert(r, {
       enchantID = enchantID,
-      lastScanTime = lastScanTime,
-      auctions = auctions
+      lastScanTime = result.lastScanTime,
+      lowestBuyout = result.lowestBuyout,
+      auctions = result.auctions
     })
   end
   return r
@@ -193,6 +198,57 @@ function MM:GetSortedMyAuctionResults()
     end
   )
   return sortableMyAuctionResults
+end
+
+function MM:SetMyAuctionBuyoutStatus(enchantID)
+  local result = self:GetMyAuctionResults()[enchantID]
+  if result then
+    local selectedAuctionResults = self:GetSelectedEnchantAuctionsResults()
+    result.lowestBuyout = #selectedAuctionResults > 0 and selectedAuctionResults[1].yours
+  end
+end
+
+local lastScanTimerHandles = {} -- store handles in case enchant is scanned again to reset callback function timer
+
+local function updateColorCallback(self)
+  if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+    MM:RefreshMyAuctionsScrollFrame()
+    lastScanTimerHandles[self] = nil
+  end
+end
+
+local waitTimePeriod = 180 -- 3 minutes
+local veryLongTimePeriod = 1200  -- 20 minutes
+
+function MM:SetMyAuctionLastScanTime(myAuctionEnchantID)
+  local result = self:GetMyAuctionResults()[myAuctionEnchantID]
+  if result then
+    result.lastScanTime = GetTime()
+    for handle, enchantID in pairs(lastScanTimerHandles) do
+      if enchantID == myAuctionEnchantID then
+        lastScanTimerHandles[handle] = nil
+        handle:Cancel()
+      end
+    end
+    lastScanTimerHandles[Timer.NewTimer(waitTimePeriod, updateColorCallback)] = myAuctionEnchantID
+  end
+end
+
+function MM:GetLastScanTimeColor(result)
+  if #result.auctions > 0 then
+    local cheapestAuction = self:GetSelectedEnchantAuctionsResults()[1]
+    -- subtract 1 because callback is called too early for some reason
+    if not result.lowestBuyout or (result.lastScanTime or 0) + veryLongTimePeriod - 1 < GetTime() then
+      return "ff0000"
+    -- subtract 1 because callback is called too early for some reason
+    elseif result.lastScanTime + waitTimePeriod - 1 < GetTime() then
+      return "ffff00"
+    else
+      return "00ff00"
+    end
+  else
+    return "777777"
+  end
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
