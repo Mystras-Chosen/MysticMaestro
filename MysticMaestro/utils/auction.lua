@@ -116,6 +116,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       self:SetMyAuctionLastScanTime(enchantToQuery)
       self:SetMyAuctionBuyoutStatus(enchantToQuery)
       self:RefreshMyAuctionsScrollFrame()
+      self:EnableListButton()
       self:CalculateREStats(enchantToQuery)
       self:PopulateGraph(enchantToQuery)
       self:ShowStatistics(enchantToQuery)
@@ -502,23 +503,27 @@ function MM:CancelAuction(enchantID, buyoutPrice)
   StaticPopup_Show("MM_CANCEL_AUCTION")
 end
 
-local listingPrice
+local startingPrice, enchantToList
 StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	text = "List auction for the following amount?",
 	button1 = ACCEPT,
 	button2 = CANCEL,
-	OnAccept = function()
-		StartAuction(listingPrice, listingPrice, 1, 1, 1)
+	OnAccept = function(self)
+    local sellPrice = MoneyInputFrame_GetCopper(self.moneyInputFrame)
+		StartAuction(sellPrice, sellPrice, 1, 1, 1)
     MM:RefreshSelectedEnchantAuctions()
 	end,
 	OnShow = function(self)
-    MoneyFrame_Update(self.moneyFrame, listingPrice)
+    MoneyInputFrame_SetCopper(self.moneyInputFrame, startingPrice)
 	end,
+  EditBoxOnEnterPressed = function(self)
+    MoneyInputFrame_ClearFocus(self:GetParent())
+  end,
   OnCancel = function(self)
     ClickAuctionSellItemButton()
     ClearCursor()
   end,
-  hasMoneyFrame = 1,
+  hasMoneyInputFrame = 1,
 	showAlert = 1,
 	timeout = 0,
 	exclusive = 1,
@@ -559,7 +564,8 @@ function MM:ListAuction(enchantID, price)
   if bagID then
     PickupContainerItem(bagID, slotIndex)
     ClickAuctionSellItemButton()
-    listingPrice = price
+    startingPrice = price
+    enchantToList = enchantID
     StaticPopup_Show("MM_LIST_AUCTION")
   else
     print("No item found")
@@ -580,7 +586,8 @@ local refreshInProgress, restoreInProgress, refreshList, restoreList
 local enchantToRestore
 function MM:RefreshSelectedEnchantAuctions()
   refreshInProgress = true
-  enchantToRestore = MM:GetSelectedSelectedEnchantAuctionData().enchantID  -- will need to be updated if refreshed and no item selected
+  self:DisableListButton()
+  enchantToRestore = MM:GetSelectedEnchantButton().enchantID
 end
 
 -- entry point for refresh after buying or cancelling an auction

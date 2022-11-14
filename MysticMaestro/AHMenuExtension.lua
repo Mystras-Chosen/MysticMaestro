@@ -58,11 +58,9 @@ function MM:SetSelectedSelectedEnchantAuctionData(selectedButton)
     selectedButton.H:Show()
     selectedButton.H:SetDesaturated(false)
     self:EnableBuyoutCancelButton()
-    self:EnableListButton()
   else
     selectedSelectedEnchantAuctionData = nil
     self:DisableBuyoutCancelButton()
-    self:DisableListButton()
   end
 end
 
@@ -348,6 +346,14 @@ local function initAHExtension()
   createSelectedEnchantAuctionsScrollFrame()
 end
 
+local function undercut(auctionData)
+  if auctionData.yours then
+    MM:ListAuction(auctionData.enchantID, auctionData.buyoutPrice)
+  else
+    MM:ListAuction(auctionData.enchantID, auctionData.buyoutPrice - 1)
+  end
+end
+
 local listButton, buyCancelbutton
 local function setUpButtonWidgets()
   listButton = AceGUI:Create("Button")
@@ -358,12 +364,16 @@ local function setUpButtonWidgets()
   listButton:SetText("List")
   listButton:SetCallback("OnClick",
     function(self, event)
-      local selectedAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
-      if not selectedAuctionData then return end
-      if selectedAuctionData.yours then
-        MM:ListAuction(selectedAuctionData.enchantID, selectedAuctionData.buyoutPrice)
+      local auctionData = MM:GetSelectedSelectedEnchantAuctionData()
+      if not auctionData then
+        local results = MM:GetSelectedEnchantAuctionsResults()
+        if #results > 0 then
+          undercut(results[1])
+        else
+          MM:ListAuction(MM:GetSelectedEnchantButton().enchantID, 1200000)
+        end
       else
-        MM:ListAuction(selectedAuctionData.enchantID, selectedAuctionData.buyoutPrice - 1)
+        undercut(auctionData)
       end
     end
   )

@@ -322,6 +322,7 @@ do -- functions to initialize menu and menu container
       if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
         MM:SetSelectedMyAuctionData(nil)
         MM:ClearSelectedEnchantAuctions()
+        MM:DisableListButton()
       end
     end)
   end
@@ -516,6 +517,7 @@ do -- show and hide MysticMaestroMenu
       if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
         MM:SetSelectedMyAuctionData(nil)
         MM:ClearSelectedEnchantAuctions()
+        MM:DisableListButton()
       end
     end
   end
@@ -991,6 +993,7 @@ do -- show/hide and select/deselect mystic enchant button functions
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:SetSelectedMyAuctionData(nil)
       self:ClearSelectedEnchantAuctions()
+      self:DisableListButton()
     end
     selectedEnchantButton = nil
   end
