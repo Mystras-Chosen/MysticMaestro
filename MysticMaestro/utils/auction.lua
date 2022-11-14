@@ -128,7 +128,7 @@ local function getMyAuctionInfo(i)
   return icon, quality, buyoutPrice, enchantID, link, duration
 end
 
-local function collectMyAuctionsData(results)
+local function collectMyAuctionData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
     local icon, quality, buyoutPrice, enchantID, link = getMyAuctionInfo(i)
@@ -149,23 +149,50 @@ local function collectFavoritesData(results)
   end
 end
 
+local function transferLastScanTime(fromResults, toResults)
+  for enchantID, result in pairs(toResults) do
+    if fromResults[enchantID] then
+      result.lastScanTime = fromResults[enchantID].lastScanTime
+    end
+  end
+end
+
+local myAuctionResults
+
+function MM:GetMyAuctionResults()
+  return myAuctionResults
+end
+
+function MM:CacheMyAuctionResults()
+  local newResults = {}
+  collectMyAuctionData(newResults)
+  collectFavoritesData(newResults)
+  if myAuctionResults then
+    transferLastScanTime(myAuctionResults, newResults)
+  end
+  myAuctionResults = newResults
+end
+
 local function convertMyAuctionResults(results)
   local r = {}
   for enchantID, auctions in pairs(results) do
     table.insert(r, {
       enchantID = enchantID,
+      lastScanTime = lastScanTime,
       auctions = auctions
     })
   end
   return r
 end
 
-local myAuctionResults
-function MM:GetMyAuctionsResults()
-  myAuctionsResults = {}
-  collectMyAuctionsData(myAuctionsResults)
-  collectFavoritesData(myAuctionsResults)
-  return convertMyAuctionResults(myAuctionsResults)
+function MM:GetSortedMyAuctionResults()
+  local sortableMyAuctionResults = convertMyAuctionResults(myAuctionResults)
+  table.sort(sortableMyAuctionResults,
+    function(r1, r2)
+      return #r1.auctions > #r2.auctions
+    end
+  )
+  return sortableMyAuctionResults
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
@@ -397,7 +424,7 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
 
 -- returns the first id that matches enchantID and buyoutPrice
 local function findOwnerAuctionID(enchantID, buyoutPrice)
-  local results = MM:GetMyAuctionsResults()
+  local results = MM:GetSortedMyAuctionResults()
   for _, result in ipairs(results) do
     if result.enchantID == enchantID then
       for _, auction in ipairs(result.auctions) do
@@ -539,7 +566,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       if enchantToRestoreIsStillSelected() then
         MM:AsyncDisplayEnchantAuctions(enchantToRestore)
         QueryAuctionItems(MM.RE_NAMES[enchantToRestore], nil, nil, 0, 0, 3, false, true, nil)
-        local results = MM:GetMyAuctionsResults()
+        local results = MM:GetSortedMyAuctionResults()
         for _, result in ipairs(results) do
           if enchantToRestore == result.enchantID then
             MM:SetSelectedMyAuctionData(result)

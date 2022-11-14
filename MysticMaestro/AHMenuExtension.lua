@@ -32,7 +32,7 @@ function MM:SetSelectedMyAuctionData(data)
 end
 
 function MM:SelectMyAuctionByEnchantID(enchantID)
-  local myAuctionResults = self:GetMyAuctionsResults()
+  local myAuctionResults = self:GetSortedMyAuctionResults()
   for _, result in ipairs(myAuctionResults) do
     if result.enchantID == enchantID then
       self:SetSelectedMyAuctionData(result)
@@ -207,7 +207,7 @@ end
 
 local function myAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
-  local results = MM:GetMyAuctionsResults()
+  local results = MM:GetSortedMyAuctionResults()
   FauxScrollFrame_Update(self, #results, #buttons, buttonHeight, nil, nil, nil, nil, nil, nil, true)
   local selectedData = MM:GetSelectedMyAuctionData()
   local offset = FauxScrollFrame_GetOffset(self)
@@ -472,6 +472,7 @@ function MM:EnableSelectEnchantAuctionButton(button)
 end
 
 function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
+  self:CacheMyAuctionResults()
   if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
     self:RefreshMyAuctionsScrollFrame()
   end

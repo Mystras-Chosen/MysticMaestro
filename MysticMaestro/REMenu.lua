@@ -578,6 +578,7 @@ do -- show and hide MysticMaestroMenu
       end
       local insert = MM.db.realm.FAVORITE_ENCHANTS[arg2] and "w" or " longer"
       MM:Print(MM:ItemLinkRE(arg2).." is no"..insert.." a favorite.")
+      MM:CacheMyAuctionResults()
       MM:RefreshMyAuctionsScrollFrame()
     else
       MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM:ItemLinkRE(arg2))
