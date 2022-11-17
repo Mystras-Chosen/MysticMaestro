@@ -35,7 +35,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:SetResultSet({key})
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
-          if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+          if MM:IsAHEmbeddedMenuOpen() then
             MM:SelectMyAuctionByEnchantID(key)
             MM:ClearSelectedEnchantAuctions()
           end
@@ -47,7 +47,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:SetResultSet({key})
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
-            if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+            if MM:IsAHEmbeddedMenuOpen() then
               MM:SelectMyAuctionByEnchantID(key)
               MM:ClearSelectedEnchantAuctions()
             end
@@ -319,10 +319,8 @@ do -- functions to initialize menu and menu container
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants()
       MM:GoToPage(1)
-      if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-        MM:SetSelectedMyAuctionData(nil)
-        MM:ClearSelectedEnchantAuctions()
-        MM:DisableListButton()
+      if MM:IsAHEmbeddedMenuOpen() then
+        MM:ResetAHExtension()
       end
     end)
   end
@@ -514,10 +512,8 @@ do -- show and hide MysticMaestroMenu
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants(itemsToFilter(items))
       MM:GoToPage(1)
-      if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-        MM:SetSelectedMyAuctionData(nil)
-        MM:ClearSelectedEnchantAuctions()
-        MM:DisableListButton()
+      if MM:IsAHEmbeddedMenuOpen() then
+        MM:ResetAHExtension()
       end
     end
   end
@@ -975,7 +971,7 @@ do -- show/hide and select/deselect mystic enchant button functions
     end
     self:PopulateGraph(button.enchantID)
     self:ShowStatistics(button.enchantID)
-    if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+    if self:IsAHEmbeddedMenuOpen() then
       self:AsyncDisplayEnchantAuctions(button.enchantID) -- async populate scroll bars
       self:SelectMyAuctionByEnchantID(button.enchantID)
       self:ClearSelectedEnchantAuctions()
@@ -990,10 +986,8 @@ do -- show/hide and select/deselect mystic enchant button functions
     end
     self:ClearGraph()
     self:HideStatistics()
-    if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
-      self:SetSelectedMyAuctionData(nil)
-      self:ClearSelectedEnchantAuctions()
-      self:DisableListButton()
+    if self:IsAHEmbeddedMenuOpen() then
+      self:ResetAHExtension()
     end
     selectedEnchantButton = nil
   end

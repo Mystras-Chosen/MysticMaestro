@@ -4,6 +4,10 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 local ahExtensionMenu
 
+function MM:IsAHEmbeddedMenuOpen()
+  return MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible()
+end
+
 local function createContainerFrame()
   ahExtensionMenu = CreateFrame("Frame", "MysticMaestroMenuAHExtension", UIParent)
   ahExtensionMenu:SetSize(212, 378)
@@ -437,10 +441,15 @@ end
 
 function MM:HideAHExtension()
   tearDownButtonWidgets()
+  self:ResetAHExtension()
   MysticMaestroMenuAHExtension:Hide()
+end
+
+function MM:ResetAHExtension()
   self:SetSelectedMyAuctionData(nil)
   self:ClearSelectedEnchantAuctions()
   self:ClosePopups()
+  self:DisableListButton()
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)
