@@ -385,14 +385,25 @@ do -- functions to initialize menu and menu container
     end)
   end
 
+  local function updateSellableREsCache(bagIDs)
+    for bagID in pairs(bagIDs) do
+      if bagID ~= -2 and bagID ~= -4 then
+        MM:UpdateSellableREsCache(bagID)
+      end
+    end
+  end
+
+  local function updateCraftIndicators()
+    for _, button in ipairs(enchantButtons) do
+      MM:UpdateCraftIndicator(button)
+    end
+  end
+
   local function bagUpdateHandler(bagIDs)
     if MysticMaestroMenu and MysticMaestroMenu:IsVisible() then
       updateCurrencyDisplay()
-      for bagID in pairs(bagIDs) do
-        if bagID ~= -2 and bagID ~= -4 then
-          MM:UpdateSellableREsCache(bagID)
-        end
-      end
+      updateSellableREsCache(bagIDs)
+      updateCraftIndicators()
     end
   end
 
@@ -951,7 +962,7 @@ do -- show/hide and select/deselect mystic enchant button functions
     local enchantID = button.enchantID
     local itemCount = MM:CountSellableREInBags(enchantID)
     if itemCount == 0 then
-      button.CraftButton.Texture:SetDesaturated(true)
+      button.CraftButton.Texture:SetDesaturated(not button.CraftButton:IsMouseOver())
       button.CraftButton.ItemCount:SetText(nil)
       button.CraftButton.isEnchantInBags = false
     else
