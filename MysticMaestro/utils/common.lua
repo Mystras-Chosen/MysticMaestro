@@ -103,8 +103,7 @@ function MM:InventoryRE()
         local _,_,_,iLevel,_,_,_,_,_,_,vendorPrice = GetItemInfo(item)
         local withinLimits = iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit
         if re ~= nil and withinLimits then
-          if tallyRE[re] == nil then tallyRE[re] = 0 end
-          tallyRE[re] = tallyRE[re] + 1
+          tallyRE[re] = tallyRE[re] and tallyRE[re] + 1 or 1
         end
       end
     end

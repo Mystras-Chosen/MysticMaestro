@@ -209,64 +209,114 @@ do -- functions to initialize menu and menu container
     MM:RegisterBucketEvent({"BAG_UPDATE"}, .2, updateCurrencyDisplay)
   end
 
+  local function enchantButton_OnLeave(self)
+    GameTooltip:Hide()
+    if self ~= MM:GetSelectedEnchantButton() then
+      self.H:Hide()
+    end
+  end
+
+  local function enchantButton_OnClick(self, button, down)
+    if button == "LeftButton" then
+      local filterDropdown = MM:GetFilterDropdown()
+      if filterDropdown.open then
+        filterDropdown.pullout:Close()
+      end
+      MM:SetSelectedEnchantButton(self)
+    elseif button == "RightButton" then
+      rightClickedEnchant = self.enchantID
+      ToggleDropDownMenu(1, nil, enchantDropdown, "cursor", 15, -15)
+    end
+  end
+
+  local function favoriteButton_OnClick(self, button, down)
+    local enchantID = self:GetParent().enchantID
+    
+    MM.db.realm.FAVORITE_ENCHANTS[enchantID] = not MM.db.realm.FAVORITE_ENCHANTS[enchantID] or nil
+    MM:UpdateFavoriteIndicator(self:GetParent())
+
+    local insert = MM.db.realm.FAVORITE_ENCHANTS[enchantID] and "w" or " longer"
+    MM:Print(MM:ItemLinkRE(enchantID).." is no"..insert.." a favorite.")
+    if MM:IsAHEmbeddedMenuOpen() then
+      MM:CacheMyAuctionResults()
+      MM:RefreshMyAuctionsScrollFrame()
+    end
+  end
+
+  local function craftButton_OnClick(self, button, down)
+    print("craft button clicked for enchant: " .. self:GetParent().enchantID)
+  end
+
   local function createEnchantButton(enchantContainer, i)
     local enchantButton = CreateFrame("Button", nil, enchantContainer)
-    enchantButton:SetSize(enchantContainer:GetWidth(), 36)
-    enchantButton:SetPoint("TOP", enchantContainer, "TOP", 0, -(i-1)*36)
-    enchantButton:SetScript("OnLeave",
-    function(self)
-      GameTooltip:Hide()
-      if self ~= MM:GetSelectedEnchantButton() then
-        self.H:Hide()
-      end
-    end)
+    enchantButton:SetSize(enchantContainer:GetWidth()-54, 36) -- 202 
+    enchantButton:SetPoint("TOP", enchantContainer, "TOP", 27, -(i-1)*36)
+    enchantButton:SetScript("OnLeave", enchantButton_OnLeave)
     enchantButton:RegisterForClicks("AnyUp")
-    enchantButton:SetScript("OnClick", function(self, button, down)
-      if button == "LeftButton" then
-        local filterDropdown = MM:GetFilterDropdown()
-        if filterDropdown.open then
-          filterDropdown.pullout:Close()
-        end
-        MM:SetSelectedEnchantButton(self)
-      elseif button == "RightButton" then
-        rightClickedEnchant = self.enchantID
-        ToggleDropDownMenu(1, nil, enchantDropdown, "cursor", 15, -15)
-      end
-    end)
+    enchantButton:SetScript("OnClick", enchantButton_OnClick)
     enchantButton:Hide()
 
     enchantButton.BG = enchantButton:CreateTexture(nil, "BACKGROUND")
     enchantButton.BG:SetTexture(AwAddonsTexturePath .. "CAOverhaul\\SpellSlot")
-    enchantButton.BG:SetSize(248, 66)
-    enchantButton.BG:SetPoint("CENTER", 19, 0)
+    enchantButton.BG:SetSize(250, 66)
+    enchantButton.BG:SetPoint("CENTER")
 
     enchantButton.H = enchantButton:CreateTexture(nil, "OVERLAY")
     enchantButton.H:SetTexture(AwAddonsTexturePath .. "CAOverhaul\\SpellSlot_Highlight")
-    enchantButton.H:SetSize(248, 59)
-    enchantButton.H:SetPoint("CENTER", 19, 0)
+    enchantButton.H:SetSize(250, 59)
+    enchantButton.H:SetPoint("CENTER")
     enchantButton.H:SetBlendMode("ADD")
     enchantButton.H:SetDesaturated()
     enchantButton.H:Hide()
 
-    enchantButton.Icon = enchantButton:CreateTexture(nil, "DIALOG")
+    enchantButton.Icon = enchantButton:CreateTexture(nil, "ARTWORK")
     enchantButton.Icon:SetSize(32, 32)
-    enchantButton.Icon:SetPoint("CENTER", -74, 0)
+    enchantButton.Icon:SetPoint("CENTER", -92, 0)
 
-    enchantButton.IconBorder = enchantButton:CreateTexture(nil, "ARTWORK")
+    enchantButton.IconBorder = enchantButton:CreateTexture(nil, "OVERLAY")
     enchantButton.IconBorder:SetSize(38, 38)
-    enchantButton.IconBorder:SetPoint("CENTER", -74, 0)
+    enchantButton.IconBorder:SetPoint("CENTER", -92, 0)
 
     enchantButton.REText = enchantButton:CreateFontString()
     enchantButton.REText:SetFontObject(GameFontNormal)
-    enchantButton.REText:SetPoint("CENTER", 19, 0)
+    enchantButton.REText:SetPoint("CENTER")
     enchantButton.REText:SetJustifyH("CENTER")
     enchantButton.REText:SetSize(148, 36)
 
-    enchantButton.FavoriteIcon = enchantButton:CreateTexture(nil, "OVERLAY")
-    enchantButton.FavoriteIcon:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\star")
-    enchantButton.FavoriteIcon:SetSize(22, 22)
-    enchantButton.FavoriteIcon:SetPoint("CENTER", enchantButton, "TOPLEFT", 10, -6)
-    enchantButton.FavoriteIcon:Hide()
+    enchantButton.FavoriteButton = CreateFrame("Button", nil, enchantButton)
+    enchantButton.FavoriteButton:SetSize(16, 18)
+    enchantButton.FavoriteButton:SetPoint("CENTER", enchantButton, "CENTER", -119, 9)
+    enchantButton.FavoriteButton.Texture = enchantButton.FavoriteButton:CreateTexture(nil, "OVERLAY")
+    enchantButton.FavoriteButton.Texture:SetSize(18, 18)
+    enchantButton.FavoriteButton.Texture:SetPoint("CENTER", enchantButton.FavoriteButton, "CENTER", 1, 0)
+    enchantButton.FavoriteButton.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\star")
+    enchantButton.FavoriteButton:RegisterForClicks("AnyUp")
+    enchantButton.FavoriteButton:SetScript("OnClick", favoriteButton_OnClick)
+    
+    enchantButton.FavoriteButton:Show()
+
+    enchantButton.CraftButton = CreateFrame("Button", nil, enchantButton)
+    enchantButton.CraftButton:SetSize(18, 18)
+    enchantButton.CraftButton:SetPoint("CENTER", enchantButton, "CENTER", -119, -9)
+    enchantButton.CraftButton.Texture = enchantButton.CraftButton:CreateTexture(nil, "BACKGROUND")
+    enchantButton.CraftButton.Texture:SetSize(18, 18)
+    enchantButton.CraftButton.Texture:SetPoint("CENTER", enchantButton.CraftButton, "CENTER", 0, 0)
+    enchantButton.CraftButton.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\bag")
+    enchantButton.CraftButton:RegisterForClicks("AnyUp")
+    enchantButton.CraftButton:SetScript("OnClick", craftButton_OnClick)
+
+    enchantButton.CraftButton.ItemCount = enchantButton.CraftButton:CreateFontString()
+    enchantButton.CraftButton.ItemCount:SetFontObject(GameFontNormal)
+    enchantButton.CraftButton.ItemCount:SetPoint("CENTER", enchantButton.CraftButton, "CENTER", 0, 0)
+    enchantButton.CraftButton.ItemCount:SetJustifyH("CENTER")
+    enchantButton.CraftButton.ItemCount:SetSize(148, 36)
+    --enchantButton.CraftButton.ItemCount:SetText("2")
+    enchantButton.CraftButton.ItemCount:SetTextColor(1, 1, 1, 1)
+    enchantButton.CraftButton.ItemCount:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
+    --enchantButton.CraftButton.Texture:SetDesaturated(true)
+    --enchantButton.CraftButton.Texture:SetVertexColor(1, 1, 1, .3)
+    
+    enchantButton.CraftButton:Show()
 
     return enchantButton
   end
@@ -327,7 +377,7 @@ do -- functions to initialize menu and menu container
 
   function initializeMenu()
     createMenu()
-    enchantContainer = MM:CreateContainer(mmf, "BOTTOMLEFT", 184, 334, 8, 8)
+    enchantContainer = MM:CreateContainer(mmf, "BOTTOMLEFT", 202, 334, 8, 8)
     enchantContainer:EnableMouseWheel()
     enchantContainer:SetScript("OnMouseWheel",
     function(self, delta)
@@ -337,9 +387,9 @@ do -- functions to initialize menu and menu container
         MM:NextPage()
       end
     end)
-    statsContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 396, 134, -8, 8)
-    graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 396, 170, -8, 171)
-    MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 0, 1, 396, 170)
+    statsContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 134, -8, 8)
+    graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 170, -8, 171)
+    MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 0, 1, 378, 170)
     setUpCurrencyDisplay(enchantContainer)
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
@@ -536,8 +586,7 @@ do -- show and hide MysticMaestroMenu
     "Craft ...",
     "List Auction",
     "List ...",
-    "Cancel Auctions",
-    "Favorite"
+    "Cancel Auctions"
   }
 
   local function sortDropdown_OnValueChanged(self, event, key, checked)
@@ -566,18 +615,6 @@ do -- show and hide MysticMaestroMenu
       else
         MM:Print("No blank insignia found")
       end
-    elseif arg1 == "Favorite" and arg2 then
-      if MM.db.realm.FAVORITE_ENCHANTS[arg2] then
-        MM.db.realm.FAVORITE_ENCHANTS[arg2] = nil
-        MM:GetEnchantButtonByEnchantID(arg2).FavoriteIcon:Hide()
-      else
-        MM.db.realm.FAVORITE_ENCHANTS[arg2] = true
-        MM:GetEnchantButtonByEnchantID(arg2).FavoriteIcon:Show()
-      end
-      local insert = MM.db.realm.FAVORITE_ENCHANTS[arg2] and "w" or " longer"
-      MM:Print(MM:ItemLinkRE(arg2).." is no"..insert.." a favorite.")
-      MM:CacheMyAuctionResults()
-      MM:RefreshMyAuctionsScrollFrame()
     else
       MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM:ItemLinkRE(arg2))
     end
@@ -588,7 +625,7 @@ do -- show and hide MysticMaestroMenu
     info.func = enchantDDM_OnClick
     if level == 1 then
       for k, v in pairs(enchantOptions) do
-        info.text, info.arg1, info.arg2, info.checked = v, v, rightClickedEnchant,v=="Favorite" and MM.db.realm.FAVORITE_ENCHANTS[rightClickedEnchant] or nil
+        info.text, info.arg1, info.arg2 = v, v, rightClickedEnchant
         UIDropDownMenu_AddButton(info)
       end
     elseif menuList == "Submenu" then
@@ -774,7 +811,7 @@ do -- filter functions
     filter = filter or MM.db.realm.VIEWS.filter
     MM.db.realm.VIEWS.filter = filter
     resultSet = {}
-    _, bagREList = MM:InventoryRE()
+    bagREList = select(2, MM:InventoryRE())
     for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
       if enchantID ~= 0 and qualityCheckMet(enchantID, filter)
       and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter)
@@ -881,6 +918,25 @@ do -- show/hide and select/deselect mystic enchant button functions
     [5] = AwAddonsTexturePath .. "LootTex\\Loot_Icon_Leg"
   }
 
+  function MM:UpdateFavoriteIndicator(button)
+    local isFavorite = self.db.realm.FAVORITE_ENCHANTS[button.enchantID]
+    button.FavoriteButton.Texture:SetDesaturated(not isFavorite)
+    button.FavoriteButton.Texture:SetVertexColor(1, 1, 1, isFavorite and 1 or .3)
+  end
+
+  function MM:UpdateCraftIndicator(button)
+    local enchantID = button.enchantID
+    local itemCount = select(2, MM:InventoryRE())[enchantID] or 0
+    if itemCount == 0 then
+      button.CraftButton.Texture:SetDesaturated(true)
+      button.CraftButton.ItemCount:SetText(nil)
+    else
+      button.CraftButton.Texture:SetDesaturated(false)
+      button.CraftButton.ItemCount:SetText(itemCount)
+    end
+  end
+
+
   local function updateEnchantButton(enchantID, buttonNumber)
     local button = enchantButtons[buttonNumber]
     button.enchantID = enchantID
@@ -911,11 +967,8 @@ do -- show/hide and select/deselect mystic enchant button functions
       button.BG:SetVertexColor(mult, mult, mult)
       button.REText:SetTextColor(mult*r, mult*g, mult*b)
     end
-    if MM.db.realm.FAVORITE_ENCHANTS[enchantID] then
-      button.FavoriteIcon:Show()
-    else
-      button.FavoriteIcon:Hide()
-    end
+    MM:UpdateFavoriteIndicator(button)
+    MM:UpdateCraftIndicator(button)
     button:Show()
   end
 
