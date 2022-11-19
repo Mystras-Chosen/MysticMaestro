@@ -248,11 +248,13 @@ do -- functions to initialize menu and menu container
 
   local function craftButton_OnEnter(self)
     self.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\anvil")
+    self.Texture:SetDesaturated(false)
     self.ItemCount:Hide()
   end
 
   local function craftButton_OnLeave(self)
     self.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\bag")
+    self.Texture:SetDesaturated(not self.isEnchantInBags)
     self.ItemCount:Show()
   end
 
@@ -951,9 +953,11 @@ do -- show/hide and select/deselect mystic enchant button functions
     if itemCount == 0 then
       button.CraftButton.Texture:SetDesaturated(true)
       button.CraftButton.ItemCount:SetText(nil)
+      button.CraftButton.isEnchantInBags = false
     else
       button.CraftButton.Texture:SetDesaturated(false)
       button.CraftButton.ItemCount:SetText(itemCount)
+      button.CraftButton.isEnchantInBags = true
     end
   end
 
