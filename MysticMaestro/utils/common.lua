@@ -40,15 +40,11 @@ end
 
 function MM:FindBlankInsignia()
   -- Find a valid insignia to use for crafting
-  for i=0, 4 do
-    for j=1, GetContainerNumSlots(i) do
-      local item = select(7, GetContainerItemInfo(i, j))
-      if item and item:find("Insignia of the") then
-        local re = GetREInSlot(i, j)
-        local reObj = MYSTIC_ENCHANTS[re]
-        if reObj == nil then
-          return {bag=i,index=j}
-        end
+  for bagID=0, 4 do
+    for containerIndex=1, GetContainerNumSlots(bagID) do
+      local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
+      if itemLink and itemLink:find("Insignia of the") and not GetREInSlot(bagID, containerIndex) then
+        return bagID, containerIndex
       end
     end
   end
@@ -134,11 +130,6 @@ function MM:ResetSellableREsCache()
   for bagID=0, 4 do
     self:UpdateSellableREsCache(bagID)
   end
-end
-
-function MM:ApplyRE(slot,reID)
-  -- Craft onto the inventory slot with the specified Random Enchant
-  RequestSlotReforgeEnchantment(slot.bag, slot.index, reID)
 end
 
 function MM:CompareTime(a,b)

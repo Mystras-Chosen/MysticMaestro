@@ -239,13 +239,15 @@ do -- functions to initialize menu and menu container
   end
 
   local function craftButton_OnClick(self, button, down)
-    print("craft button clicked for enchant: " .. self:GetParent().enchantID)
-    local slot = MM:FindBlankInsignia()
-    if slot ~= nil then
-      MM:ApplyRE(slot, arg2)
-      MM:Print("Applied to insignia: "..MM:ItemLinkRE(arg2))
-    else
+    local enchantID = self:GetParent().enchantID
+    local bagID, containerIndex = MM:FindBlankInsignia()
+    if enchantID and bagID ~= nil then
+      RequestSlotReforgeEnchantment(bagID, containerIndex, enchantID)
+      MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantID))
+    elseif bagID == nil then
       MM:Print("No blank insignia found")
+    else
+      MM:Print("This shouldn't print")
     end
   end
 
