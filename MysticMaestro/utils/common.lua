@@ -130,6 +130,12 @@ function MM:UpdateSellableREsCache(bagID)
   sellableREsInBagsCache[bagID] = newContainerCache
 end
 
+function MM:ResetSellableREsCache()
+  for bagID=0, 4 do
+    self:UpdateSellableREsCache(bagID)
+  end
+end
+
 function MM:ApplyRE(slot,reID)
   -- Craft onto the inventory slot with the specified Random Enchant
   RequestSlotReforgeEnchantment(slot.bag, slot.index, reID)

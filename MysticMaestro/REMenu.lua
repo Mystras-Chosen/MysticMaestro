@@ -771,6 +771,7 @@ do -- show and hide MysticMaestroMenu
     setUpSearchWidget()
     setUpStatisticsWidgets()
     self:ClearGraph()
+    self:ResetSellableREsCache()
     self:FilterMysticEnchants(MM.db.realm.VIEWS.filter or {allQualities = true, allKnown = true})
     self:GoToPage(1)
     MysticMaestroMenu:Show()

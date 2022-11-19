@@ -487,7 +487,6 @@ local function findOwnerAuctionID(enchantID, buyoutPrice)
     if result.enchantID == enchantID then
       for _, auction in ipairs(result.auctions) do
         if auction.buyoutPrice == buyoutPrice then
-          print(auction.id)
           return auction.id
         end
       end
