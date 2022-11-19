@@ -92,23 +92,42 @@ function MM:IsSoulbound(bag, slot)
   return false
 end
 
-local MMSetting_IlvlLimit,MMSetting_GoldLimit,MMSetting_QualityLimit=115,8,3
-function MM:InventoryRE()
-  local tallyRE = {}
-  for i=0, 4 do
-    for j=1, GetContainerNumSlots(i) do
-      local _,_,_,quality,_,_,item = GetContainerItemInfo(i, j)
-      if item and quality >= 3 and not MM:IsSoulbound(i, j) then
-        local re = GetREInSlot(i, j)
-        local _,_,_,iLevel,_,_,_,_,_,_,vendorPrice = GetItemInfo(item)
-        local withinLimits = iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit
-        if re ~= nil and withinLimits then
-          tallyRE[re] = tallyRE[re] and tallyRE[re] + 1 or 1
+-- split up cache by bagID so BAG_UPDATE doesn't have to refresh the entire cache every time
+local sellableREsInBagsCache = setmetatable({ [0] = {}, [1] = {}, [2] = {}, [3] = {}, [4] = {} }, {
+  __index = function(t, enchantID)
+    local count = 0
+    for bagID=0, 4 do
+      count = count + (t[bagID][enchantID] or 0)
+    end
+    return count
+  end
+})
+
+-- get number of sellable REs with that ID in bags
+function MM:CountSellableREInBags(enchantID)
+  return sellableREsInBagsCache[enchantID]
+end
+
+local MMSetting_IlvlLimit = 115
+local MMSetting_GoldLimit = 8
+local MMSetting_QualityLimit = 3 -- Rare
+
+-- item exists, rare, has RE, is not soulbound
+function MM:UpdateSellableREsCache(bagID)
+  local newContainerCache = {}
+  for containerIndex=1, GetContainerNumSlots(bagID) do
+    local quality, _, _, itemLink = select(4, GetContainerItemInfo(bagID, containerIndex))
+    if itemLink and quality >= 3 and not self:IsSoulbound(bagID, containerIndex) then
+      local re = GetREInSlot(bagID, containerIndex)
+      if re then
+        local iLevel, _, _, _, _, _, _, vendorPrice = select(4, GetItemInfo(itemLink))
+        if iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit then
+          newContainerCache[re] = newContainerCache[re] and newContainerCache[re] + 1 or 1
         end
       end
     end
   end
-  return #tallyRE > 0, tallyRE
+  sellableREsInBagsCache[bagID] = newContainerCache
 end
 
 function MM:ApplyRE(slot,reID)

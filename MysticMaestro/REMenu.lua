@@ -206,7 +206,6 @@ do -- functions to initialize menu and menu container
 
   local function setUpCurrencyDisplay(enchantContainer)
     createCurrencyContainer(enchantContainer)
-    MM:RegisterBucketEvent({"BAG_UPDATE"}, .2, updateCurrencyDisplay)
   end
 
   local function enchantButton_OnLeave(self)
@@ -310,11 +309,8 @@ do -- functions to initialize menu and menu container
     enchantButton.CraftButton.ItemCount:SetPoint("CENTER", enchantButton.CraftButton, "CENTER", 0, 0)
     enchantButton.CraftButton.ItemCount:SetJustifyH("CENTER")
     enchantButton.CraftButton.ItemCount:SetSize(148, 36)
-    --enchantButton.CraftButton.ItemCount:SetText("2")
     enchantButton.CraftButton.ItemCount:SetTextColor(1, 1, 1, 1)
     enchantButton.CraftButton.ItemCount:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
-    --enchantButton.CraftButton.Texture:SetDesaturated(true)
-    --enchantButton.CraftButton.Texture:SetVertexColor(1, 1, 1, .3)
     
     enchantButton.CraftButton:Show()
 
@@ -375,6 +371,17 @@ do -- functions to initialize menu and menu container
     end)
   end
 
+  local function bagUpdateHandler(bagIDs)
+    if MysticMaestroMenu and MysticMaestroMenu:IsVisible() then
+      updateCurrencyDisplay()
+      for bagID in pairs(bagIDs) do
+        if bagID ~= -2 and bagID ~= -4 then
+          MM:UpdateSellableREsCache(bagID)
+        end
+      end
+    end
+  end
+
   function initializeMenu()
     createMenu()
     enchantContainer = MM:CreateContainer(mmf, "BOTTOMLEFT", 202, 334, 8, 8)
@@ -394,6 +401,10 @@ do -- functions to initialize menu and menu container
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
     createRefreshButton(mmf)
+    MM:RegisterBucketEvent({"BAG_UPDATE"}, 1, bagUpdateHandler)
+    for bagID=0, 4 do
+      MM:UpdateSellableREsCache(bagID)
+    end
   end
 end
 
@@ -802,16 +813,14 @@ do -- filter functions
     return not filter.favorites or MM.db.realm.FAVORITE_ENCHANTS[enchantID]
   end
 
-  local bagREList
   local function bagsCheckMet(enchantID, filter)
-    return not filter.bags or bagREList[enchantID] and bagREList[enchantID] > 0
+    return not filter.bags or MM:CountSellableREInBags(enchantID) > 0
   end
 
   function MM:FilterMysticEnchants(filter)
     filter = filter or MM.db.realm.VIEWS.filter
     MM.db.realm.VIEWS.filter = filter
     resultSet = {}
-    bagREList = select(2, MM:InventoryRE())
     for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
       if enchantID ~= 0 and qualityCheckMet(enchantID, filter)
       and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter)
@@ -926,7 +935,7 @@ do -- show/hide and select/deselect mystic enchant button functions
 
   function MM:UpdateCraftIndicator(button)
     local enchantID = button.enchantID
-    local itemCount = select(2, MM:InventoryRE())[enchantID] or 0
+    local itemCount = MM:CountSellableREInBags(enchantID)
     if itemCount == 0 then
       button.CraftButton.Texture:SetDesaturated(true)
       button.CraftButton.ItemCount:SetText(nil)
