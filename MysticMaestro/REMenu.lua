@@ -81,7 +81,6 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
   LibStub("AceConfig-3.0"):RegisterOptionsTable("MysticMaestro", myOptions)
 end
 
-local enchantDropdown, rightClickedEnchant
 local numEnchantButtons = 8
 local enchantButtons = {}
 local prevPageButton, nextPageButton, pageTextFrame
@@ -222,9 +221,6 @@ do -- functions to initialize menu and menu container
         filterDropdown.pullout:Close()
       end
       MM:SetSelectedEnchantButton(self)
-    elseif button == "RightButton" then
-      rightClickedEnchant = self.enchantID
-      ToggleDropDownMenu(1, nil, enchantDropdown, "cursor", 15, -15)
     end
   end
 
@@ -244,6 +240,13 @@ do -- functions to initialize menu and menu container
 
   local function craftButton_OnClick(self, button, down)
     print("craft button clicked for enchant: " .. self:GetParent().enchantID)
+    local slot = MM:FindBlankInsignia()
+    if slot ~= nil then
+      MM:ApplyRE(slot, arg2)
+      MM:Print("Applied to insignia: "..MM:ItemLinkRE(arg2))
+    else
+      MM:Print("No blank insignia found")
+    end
   end
 
   local function craftButton_OnEnter(self)
@@ -617,14 +620,6 @@ do -- show and hide MysticMaestroMenu
     "10d_Max GpO"
   }
 
-  local enchantOptions = {
-    "Craft",
-    "Craft ...",
-    "List Auction",
-    "List ...",
-    "Cancel Auctions"
-  }
-
   local function sortDropdown_OnValueChanged(self, event, key, checked)
     local items = self.pullout.items
     items[1]:SetValue(key == 1 or nil)
@@ -640,32 +635,6 @@ do -- show and hide MysticMaestroMenu
 
   function MM:GetFilterDropdown()
     return filterDropdown
-  end
-
-  local function enchantDDM_OnClick(self, arg1, arg2, checked)
-    if arg1 == "Craft" and arg2 then
-      local slot = MM:FindBlankInsignia()
-      if slot ~= nil then
-        MM:ApplyRE(slot,arg2)
-        MM:Print("Applied to insignia: "..MM:ItemLinkRE(arg2))
-      else
-        MM:Print("No blank insignia found")
-      end
-    else
-      MM:Print("You Clicked \""..arg1.."\" with selected enchant: "..MM:ItemLinkRE(arg2))
-    end
-  end
-
-  local function enchantDDM(frame,level,menuList)
-    local info = UIDropDownMenu_CreateInfo()
-    info.func = enchantDDM_OnClick
-    if level == 1 then
-      for k, v in pairs(enchantOptions) do
-        info.text, info.arg1, info.arg2 = v, v, rightClickedEnchant
-        UIDropDownMenu_AddButton(info)
-      end
-    elseif menuList == "Submenu" then
-    end
   end
 
   local function setUpDropdownWidgets()
@@ -697,9 +666,6 @@ do -- show and hide MysticMaestroMenu
     sortDropdown:SetValue(MM.db.realm.VIEWS.sort or 1)
     sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
     sortDropdown.frame:Show()
-    
-    enchantDropdown = CreateFrame("Frame", "MMenchantDropdown", MysticMaestroMenu, "UIDropDownMenuTemplate")
-    UIDropDownMenu_Initialize(enchantDropdown, enchantDDM, "MENU")
   end
 
   local defaultSearchText = "|cFF777777Search|r"
