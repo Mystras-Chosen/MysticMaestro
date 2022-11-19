@@ -254,12 +254,14 @@ do -- functions to initialize menu and menu container
   local function craftButton_OnEnter(self)
     self.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\anvil")
     self.Texture:SetDesaturated(false)
+    self.Texture:SetVertexColor(1, 1, 1, 1)
     self.ItemCount:Hide()
   end
 
   local function craftButton_OnLeave(self)
     self.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\bag")
     self.Texture:SetDesaturated(not self.isEnchantInBags)
+    self.Texture:SetVertexColor(1, 1, 1, self.isEnchantInBags and 1 or .3)
     self.ItemCount:Show()
   end
 
@@ -431,7 +433,7 @@ do -- functions to initialize menu and menu container
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
     createRefreshButton(mmf)
-    MM:RegisterBucketEvent({"BAG_UPDATE"}, 1, bagUpdateHandler)
+    MM:RegisterBucketEvent({"BAG_UPDATE"}, .1, bagUpdateHandler)
     for bagID=0, 4 do
       MM:UpdateSellableREsCache(bagID)
     end
@@ -932,10 +934,12 @@ do -- show/hide and select/deselect mystic enchant button functions
     local itemCount = MM:CountSellableREInBags(enchantID)
     if itemCount == 0 then
       button.CraftButton.Texture:SetDesaturated(not button.CraftButton:IsMouseOver())
+      button.CraftButton.Texture:SetVertexColor(1, 1, 1, button.CraftButton:IsMouseOver() and 1 or .3)
       button.CraftButton.ItemCount:SetText(nil)
       button.CraftButton.isEnchantInBags = false
     else
       button.CraftButton.Texture:SetDesaturated(false)
+      button.CraftButton.Texture:SetVertexColor(1, 1, 1, 1)
       button.CraftButton.ItemCount:SetText(itemCount)
       button.CraftButton.isEnchantInBags = true
     end
