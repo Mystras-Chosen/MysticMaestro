@@ -246,6 +246,16 @@ do -- functions to initialize menu and menu container
     print("craft button clicked for enchant: " .. self:GetParent().enchantID)
   end
 
+  local function craftButton_OnEnter(self)
+    self.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\anvil")
+    self.ItemCount:Hide()
+  end
+
+  local function craftButton_OnLeave(self)
+    self.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\bag")
+    self.ItemCount:Show()
+  end
+
   local function createEnchantButton(enchantContainer, i)
     local enchantButton = CreateFrame("Button", nil, enchantContainer)
     enchantButton:SetSize(enchantContainer:GetWidth()-54, 36) -- 202 
@@ -303,6 +313,8 @@ do -- functions to initialize menu and menu container
     enchantButton.CraftButton.Texture:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\bag")
     enchantButton.CraftButton:RegisterForClicks("AnyUp")
     enchantButton.CraftButton:SetScript("OnClick", craftButton_OnClick)
+    enchantButton.CraftButton:SetScript("OnEnter", craftButton_OnEnter)
+    enchantButton.CraftButton:SetScript("OnLeave", craftButton_OnLeave)
 
     enchantButton.CraftButton.ItemCount = enchantButton.CraftButton:CreateFontString()
     enchantButton.CraftButton.ItemCount:SetFontObject(GameFontNormal)
