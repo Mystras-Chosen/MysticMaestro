@@ -716,20 +716,20 @@ do -- show and hide MysticMaestroMenu
   end
 
   local function BuildTipFromLabelFrame(frame)
-    if frame == nil or frame.obj == nil or frame.obj.tip == nil then print("Nil error") return end
+    if frame == nil or frame.obj == nil or frame.obj.tip == nil then return end
     t = frame.obj.tip
-    if type(t) ~= "table" then print("Not Table") return end
-    print("Attempting to make TT")
+    if type(t) ~= "table" then return end
     GameTooltip:ClearLines()
-    for k, v in pairs(t) do
+    GameTooltip:ClearAllPoints()
+    GameTooltip:SetOwner(frame, "ANCHOR_NONE")
+    GameTooltip:SetPoint("LEFT",frame,"RIGHT")
+    for _, v in ipairs(t) do
       if #v == 1 then
         GameTooltip:AddLine(v[1])
       elseif #v == 2 then
         GameTooltip:AddDoubleLine(v[1],v[2])
       end
     end
-    GameTooltip:ClearAllPoints()
-    GameTooltip:SetPoint("LEFT",frame,"RIGHT")
     GameTooltip:Show()
   end
 
@@ -1090,12 +1090,10 @@ do -- show/hide statistics functions
   local function BuildTipTable(title,...)
     local t = {}
     table.insert(t,{title})
-    if arg and #arg > 0 then
-      for i=1, #arg / 2 do
-        index = 1 + (i-1)*2
-        descriptor,data = arg[index], arg[index+1]
-        table.insert(t,{descriptor,data})
-      end
+    local arg = {...}
+    for i=1, #arg, 2 do
+      descriptor,data = arg[i], arg[i+1]
+      table.insert(t,{descriptor,data})
     end
     return t
   end
@@ -1103,19 +1101,28 @@ do -- show/hide statistics functions
   function MM:ShowStatistics(enchantID)
     local info = MM:StatObj(enchantID)
     local coinStr = {}
+    local gpoStr = {}
     if info then
       coinStr.min = GetCoinTextureString(info.Min)
       coinStr.d_min = MM:cTxt(GetCoinTextureString(info["10d_Min"]),"min")
-      coinStr.mean = GetCoinTextureString(info.Mean)
-      coinStr.d_mean = MM:cTxt(GetCoinTextureString(info["10d_Mean"]),"min")
-      coinStr.dev = GetCoinTextureString(info.Dev)
-      coinStr.d_dev = MM:cTxt(GetCoinTextureString(info["10d_Dev"]),"min")
       coinStr.med = GetCoinTextureString(info.Med)
       coinStr.d_med = MM:cTxt(GetCoinTextureString(info["10d_Med"]),"min")
+      coinStr.mean = GetCoinTextureString(info.Mean)
+      coinStr.d_mean = MM:cTxt(GetCoinTextureString(info["10d_Mean"]),"min")
       coinStr.max = GetCoinTextureString(info.Max)
       coinStr.d_max = MM:cTxt(GetCoinTextureString(info["10d_Max"]),"min")
-      coinStr.gpo = GetCoinTextureString(MM:OrbValue(enchantID,"Min"))
-      coinStr.d_gpo = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Min")),"min")
+      coinStr.dev = GetCoinTextureString(info.Dev)
+      coinStr.d_dev = MM:cTxt(GetCoinTextureString(info["10d_Dev"]),"min")
+
+      gpoStr.min = GetCoinTextureString(MM:OrbValue(enchantID,"Min"))
+      gpoStr.d_min = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Min")),"min")
+      gpoStr.med = GetCoinTextureString(MM:OrbValue(enchantID,"Med"))
+      gpoStr.d_med = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Med")),"min")
+      gpoStr.mean = GetCoinTextureString(MM:OrbValue(enchantID,"Mean"))
+      gpoStr.d_mean = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Mean")),"min")
+      gpoStr.max = GetCoinTextureString(MM:OrbValue(enchantID,"Max"))
+      gpoStr.d_max = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Max")),"min")
+
       local daysAgo = MM:DaysAgoString(info.Last)
       if daysAgo == "" then daysAgo = "Just Now" end
 
@@ -1125,24 +1132,21 @@ do -- show/hide statistics functions
       statsContainerWidgets[ 4]:SetText(MM:cTxt("Listed:","yellow"))
       statsContainerWidgets[ 5]:SetText(MM:cTxt("Last Seen:","yellow").."\n"..(daysAgo or "No Data"))
       statsContainerWidgets[ 6]:SetText(coinStr.min)
-      statsContainerWidgets[ 7]:SetText(coinStr.gpo)
+      statsContainerWidgets[ 7]:SetText(gpoStr.min)
       statsContainerWidgets[ 8]:SetText(info.Count .. " (" .. info.Trinkets .. " Trinkets)")
       statsContainerWidgets[ 9]:SetText(MM:cTxt("10-Day Average:","yellow").."\n"..MM:cTxt("Calculate This","min"))
       statsContainerWidgets[10]:SetText(coinStr.d_min)
-      statsContainerWidgets[11]:SetText(coinStr.d_gpo)
+      statsContainerWidgets[11]:SetText(gpoStr.d_min)
       statsContainerWidgets[12]:SetText(MM:cTxt(info["10d_Count"] .. " (" .. info["10d_Trinkets"] .. " Trinkets)","min"))
 
-      statsContainerWidgets[6].tip = BuildTipTable("Current Scan Values",
-        "Minimum",coinStr.min,
-        "Median",coinStr.med,
-        "Mean",coinStr.mean,
-        "Max",coinStr.max,
-        "Deviation",coinStr.dev)
-      statsContainerWidgets[7].tip = BuildTipTable("Current Gold Per Orb")
-      statsContainerWidgets[8].tip = BuildTipTable("Current Counts")
-      statsContainerWidgets[10].tip = BuildTipTable("10 Day Scan Values")
-      statsContainerWidgets[11].tip = BuildTipTable("10 Day Gold Per Orb")
-      statsContainerWidgets[12].tip = BuildTipTable("10 Day Counts")
+      statsContainerWidgets[6].tip = BuildTipTable("Current Scan Values","Minimum",coinStr.min,"Median",coinStr.med,"Mean",coinStr.mean,"Max",coinStr.max,"Deviation",coinStr.dev)
+      statsContainerWidgets[10].tip = BuildTipTable("10 Day Scan Values","Minimum",coinStr.d_min,"Median",coinStr.d_med,"Mean",coinStr.d_mean,"Max",coinStr.d_max,"Deviation",coinStr.d_dev)
+      statsContainerWidgets[7].tip = BuildTipTable("Current Gold Per Orb","Minimum",gpoStr.min,"Median",gpoStr.med,"Mean",gpoStr.mean,"Max",gpoStr.max)
+      statsContainerWidgets[11].tip = BuildTipTable("10 Day Gold Per Orb","Minimum",gpoStr.d_min,"Median",gpoStr.d_med,"Mean",gpoStr.d_mean,"Max",gpoStr.d_max)
+      local outliers = (info.Total or 0) - (info.Count or 0)
+      statsContainerWidgets[8].tip = BuildTipTable("Current Counts","Total Items",info.Total,"Trinkets",info.Trinkets,"Market Value",info.Count,"Outliers",outliers)
+      outliers = (info["10d_Total"] or 0) - (info["10d_Count"] or 0)
+      statsContainerWidgets[12].tip = BuildTipTable("10 Day Counts","Total Items",info["10d_Total"],"Trinkets",info["10d_Trinkets"],"Market Value",info["10d_Count"],"Outliers",outliers)
     end
 
     for i=1, #statsContainerWidgets do
