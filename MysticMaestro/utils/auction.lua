@@ -85,9 +85,8 @@ end
 local results = {}
 function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
-    local listings = self.db.realm.RE_AH_LISTINGS
-    listings[enchantToQuery][selectedScanTime] = listings[enchantToQuery][selectedScanTime] or {}
-    listings[enchantToQuery][selectedScanTime]["other"] = listings[enchantToQuery][selectedScanTime]["other"] or {}
+    local listings, reID, sTime = self.db.realm.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
+    listings[reID][sTime] = {}; listings[reID][sTime]["other"] = {}
     awaitingResults = false
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
@@ -96,7 +95,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
         awaitingResults = true  -- TODO: timeout awaitingResults
       end
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
-      if itemFound and enchantToQuery == enchantID then
+      if itemFound and reID == enchantID then
         table.insert(results, {
           id = i,
           enchantID = enchantID,
@@ -107,19 +106,19 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           link = link,
           duration = duration
         })
-        table.insert(trinketFound and listings[enchantToQuery][selectedScanTime] or listings[enchantToQuery][selectedScanTime]["other"], buyoutPrice)
+        table.insert(trinketFound and listings[reID][sTime] or listings[reID][sTime]["other"], buyoutPrice)
       end
     end
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
-      self:SetMyAuctionLastScanTime(enchantToQuery)
-      self:SetMyAuctionBuyoutStatus(enchantToQuery)
+      self:SetMyAuctionLastScanTime(reID)
+      self:SetMyAuctionBuyoutStatus(reID)
       self:RefreshMyAuctionsScrollFrame()
       self:EnableListButton()
-      self:CalculateREStats(enchantToQuery)
-      self:PopulateGraph(enchantToQuery)
-      self:ShowStatistics(enchantToQuery)
+      self:CalculateREStats(reID)
+      self:PopulateGraph(reID)
+      self:ShowStatistics(reID)
     end
   end
 end
