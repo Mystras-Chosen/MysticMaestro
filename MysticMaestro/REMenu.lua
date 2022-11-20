@@ -715,9 +715,35 @@ do -- show and hide MysticMaestroMenu
     searchBar.frame:Show()
   end
 
+  local function BuildTipFromLabelFrame(frame)
+    if frame == nil or frame.obj == nil or frame.obj.tip == nil then print("Nil error") return end
+    t = frame.obj.tip
+    if type(t) ~= "table" then print("Not Table") return end
+    print("Attempting to make TT")
+    GameTooltip:ClearLines()
+    for k, v in pairs(t) do
+      if #v == 1 then
+        GameTooltip:AddLine(v[1])
+      elseif #v == 2 then
+        GameTooltip:AddDoubleLine(v[1],v[2])
+      end
+    end
+    GameTooltip:ClearAllPoints()
+    GameTooltip:SetPoint("LEFT",frame,"RIGHT")
+    GameTooltip:Show()
+  end
+
+  local function Stats_OnEnter(frame)
+    BuildTipFromLabelFrame(frame)
+  end
+  
+  local function Stats_OnLeave()
+    GameTooltip:Hide()
+  end
+
   local function setUpStatisticsWidgets()
     for i=1, 12 do
-      local label = AceGUI:Create("Label")
+      local label = AceGUI:Create("InteractiveLabel")
       local p = (i - 1) % 4 + 1
       local h = p == 1 and 22 or 28
       local w = i <= 4 and 90 or 110
@@ -732,6 +758,10 @@ do -- show and hide MysticMaestroMenu
       label:SetPoint("TOPLEFT", statsContainer, "CENTER", x, y)
       label:SetFontObject(GameFontNormal)
       label.frame:Show()
+      if i == 6 or i == 7 or i == 8 or i == 10 or i == 11 or i == 12 then
+        label.frame:SetScript("OnEnter", Stats_OnEnter)
+        label.frame:SetScript("OnLeave", Stats_OnLeave)
+      end
       table.insert(statsContainerWidgets, label)
     end
   end
@@ -1055,7 +1085,21 @@ do -- show/hide and select/deselect mystic enchant button functions
   end
 end
 
+
 do -- show/hide statistics functions
+  local function BuildTipTable(title,...)
+    local t = {}
+    table.insert(t,{title})
+    if arg and #arg > 0 then
+      for i=1, #arg / 2 do
+        index = 1 + (i-1)*2
+        descriptor,data = arg[index], arg[index+1]
+        table.insert(t,{descriptor,data})
+      end
+    end
+    return t
+  end
+
   function MM:ShowStatistics(enchantID)
     local info = MM:StatObj(enchantID)
     local coinStr = {}
@@ -1087,19 +1131,19 @@ do -- show/hide statistics functions
       statsContainerWidgets[10]:SetText(coinStr.d_min)
       statsContainerWidgets[11]:SetText(coinStr.d_gpo)
       statsContainerWidgets[12]:SetText(MM:cTxt(info["10d_Count"] .. " (" .. info["10d_Trinkets"] .. " Trinkets)","min"))
+
+      statsContainerWidgets[6].tip = BuildTipTable("Current Scan Values",
+        "Minimum",coinStr.min,
+        "Median",coinStr.med,
+        "Mean",coinStr.mean,
+        "Max",coinStr.max,
+        "Deviation",coinStr.dev)
+      statsContainerWidgets[7].tip = BuildTipTable("Current Gold Per Orb")
+      statsContainerWidgets[8].tip = BuildTipTable("Current Counts")
+      statsContainerWidgets[10].tip = BuildTipTable("10 Day Scan Values")
+      statsContainerWidgets[11].tip = BuildTipTable("10 Day Gold Per Orb")
+      statsContainerWidgets[12].tip = BuildTipTable("10 Day Counts")
     end
-
-
--- MM:cTxt("10 Day: ","yellow")..coinStr.d_listed
--- MM:cTxt("Listed: ","yellow")..coinStr.listed
-
-    -- ...." ("....")"
-    -- ..coinStr.med.." ("..coinStr.d_med..")"
-    -- ..coinStr.mean.." ("..coinStr.d_mean..")"
-    -- ..coinStr.max.." ("..coinStr.d_max..")"
-    -- ..coinStr.dev.." ("..coinStr.d_dev..")"
-    -- ...." ("....")"
-
 
     for i=1, #statsContainerWidgets do
       statsContainerWidgets[i].frame:Show()
