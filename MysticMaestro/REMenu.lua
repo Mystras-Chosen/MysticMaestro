@@ -437,6 +437,10 @@ do -- functions to initialize menu and menu container
     for bagID=0, 4 do
       MM:UpdateSellableREsCache(bagID)
     end
+    -- Create Global Values from our local
+    MM_FRAMES_MENU_ENCHANT = enchantContainer
+    MM_FRAMES_MENU_STATS = statsContainer
+    MM_FRAMES_MENU_GRAPH = graphContainer
   end
 end
 
@@ -1177,8 +1181,26 @@ HelpPlate["MysticMaestro"] = {
     helpTip = "MM_TIP1",
     parent = "MysticMaestroMenu",
     points = {
-      { "TOPLEFT", "MysticMaestroMenu", "TOPLEFT", 0, 0 },
-      { "BOTTOMRIGHT", "MysticMaestroMenu", "BOTTOMRIGHT", 0, 0 },
+      { "TOPLEFT", "MM_FRAMES_MENU_ENCHANT", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_ENCHANT", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP2",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_STATS", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_STATS", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP3",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_GRAPH", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_GRAPH", "BOTTOMRIGHT", 0, 0 },
     },
     flyoutPoint = { "CENTER" }
   }
@@ -1191,5 +1213,13 @@ HelpTips["MM_MAIN"] = {
 
 HelpTips["MM_TIP1"] = {
   text = "This is the TIP1",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
+HelpTips["MM_TIP2"] = {
+  text = "This is the TIP2",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
+HelpTips["MM_TIP3"] = {
+  text = "This is the TIP3",
   targetPoint = HelpTip.Point.RightEdgeCenter,
 }
