@@ -390,6 +390,7 @@ do -- functions to initialize menu and menu container
         MM:ResetAHExtension()
       end
     end)
+    MM_FRAMES_MENU_REFRESH = refreshButton
   end
 
   local function updateSellableREsCache(bagIDs)
@@ -1222,7 +1223,7 @@ HelpPlate["MysticMaestro"] = {
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_SEARCH", "TOPLEFT", 0, 0 },
-      { "BOTTOMRIGHT", "MM_FRAMES_MENU_SEARCH", "BOTTOMRIGHT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_SEARCH", "BOTTOMRIGHT", 0, -1 },
     },
     flyoutPoint = { "CENTER" }
   },
@@ -1232,6 +1233,15 @@ HelpPlate["MysticMaestro"] = {
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_FILTER", "TOPLEFT", 0, 0 },
       { "BOTTOMRIGHT", "MM_FRAMES_MENU_FILTER", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP_REFRESH",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_REFRESH", "TOPLEFT", -5, 5 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_REFRESH", "BOTTOMRIGHT", 4, -4 },
     },
     flyoutPoint = { "CENTER" }
   }
@@ -1272,15 +1282,24 @@ Red is Maximum.]],
 HelpTips["MM_TIP_SORT"] = {
   text = [[Sort Dropdown:
 Determines the order in which the enchantments are listed.]],
-  targetPoint = HelpTip.Point.TopEdgeRight,
+  targetPoint = HelpTip.Point.BottomEdgeRight,
 }
 HelpTips["MM_TIP_SEARCH"] = {
   text = [[Seach Box:
-Search for enchant by name, then click to select it.]],
-  targetPoint = HelpTip.Point.TopEdgeCenter,
+Search for enchant by name, then click to select it.
+  
+Use the Refresh List button to return to list mode.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
 }
 HelpTips["MM_TIP_FILTER"] = {
   text = [[Filter Dropdown:
 Determines which entries are shown within the Enchantment List.]],
-  targetPoint = HelpTip.Point.TopEdgeCenter,
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_REFRESH"] = {
+  text = [[Refresh List:
+This button will allow you to re-apply your selected filter.
+
+Use this button to return from a selected search to list mode.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
 }
