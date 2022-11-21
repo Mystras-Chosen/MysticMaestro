@@ -676,6 +676,8 @@ do -- show and hide MysticMaestroMenu
     sortDropdown.frame:Show()
 
     --- HELP PLATES ---
+    MM_FRAMES_MENU_FILTER = filterDropdown.frame
+    MM_FRAMES_MENU_SORT = sortDropdown.frame
     local M = MysticMaestroMenu
     M.HelpPlateButton = CreateFrame("Button", "$parentHelpPlateButton", M, "HelpPlateButtonTemplate")
     M.HelpPlateButton.HelpPlate = "MysticMaestro"
@@ -724,6 +726,8 @@ do -- show and hide MysticMaestroMenu
       end
     )
     searchBar.frame:Show()
+
+    MM_FRAMES_MENU_SEARCH = searchBar.frame
   end
 
   local function BuildTipFromLabelFrame(frame)
@@ -1203,6 +1207,33 @@ HelpPlate["MysticMaestro"] = {
       { "BOTTOMRIGHT", "MM_FRAMES_MENU_GRAPH", "BOTTOMRIGHT", 0, 0 },
     },
     flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP4",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_SORT", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_SORT", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP5",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_SEARCH", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_SEARCH", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP6",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_FILTER", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_FILTER", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
   }
 }
 
@@ -1221,5 +1252,17 @@ HelpTips["MM_TIP2"] = {
 }
 HelpTips["MM_TIP3"] = {
   text = "This is the TIP3",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
+HelpTips["MM_TIP4"] = {
+  text = "This is the TIP4",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
+HelpTips["MM_TIP5"] = {
+  text = "This is the TIP5",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
+HelpTips["MM_TIP6"] = {
+  text = "This is the TIP6",
   targetPoint = HelpTip.Point.RightEdgeCenter,
 }
