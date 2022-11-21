@@ -670,6 +670,13 @@ do -- show and hide MysticMaestroMenu
     sortDropdown:SetValue(MM.db.realm.VIEWS.sort or 1)
     sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
     sortDropdown.frame:Show()
+
+    --- HELP PLATES ---
+    local M = MysticMaestroMenu
+    M.HelpPlateButton = CreateFrame("Button", "$parentHelpPlateButton", M, "HelpPlateButtonTemplate")
+    M.HelpPlateButton.HelpPlate = "MysticMaestro"
+    M.HelpPlateButton:SetPoint("TOPLEFT", -16, 50)
+    M.HelpPlateButton:SetFrameLevel(1000)
   end
 
   local defaultSearchText = "|cFF777777Search|r"
@@ -1160,3 +1167,29 @@ do -- show/hide statistics functions
     end
   end
 end
+
+
+HelpPlate["MysticMaestro"] = {
+  cvar = "C_CVAR_HELP_PLATE_MYSTIC_MAESTRO",
+  cvarValue = true,
+  MainTip = "MM_MAIN",
+  {
+    helpTip = "MM_TIP1",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MysticMaestroMenu", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MysticMaestroMenu", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  }
+}
+
+HelpTips["MM_MAIN"] = {
+  text = "This is the main Tip Text",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
+
+HelpTips["MM_TIP1"] = {
+  text = "This is the TIP1",
+  targetPoint = HelpTip.Point.RightEdgeCenter,
+}
