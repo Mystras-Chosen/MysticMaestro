@@ -1182,7 +1182,7 @@ HelpPlate["MysticMaestro"] = {
   cvarValue = true,
   MainTip = "MM_MAIN",
   {
-    helpTip = "MM_TIP1",
+    helpTip = "MM_TIP_ENCHANT",
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_ENCHANT", "TOPLEFT", 0, 0 },
@@ -1191,7 +1191,7 @@ HelpPlate["MysticMaestro"] = {
     flyoutPoint = { "CENTER" }
   },
   {
-    helpTip = "MM_TIP2",
+    helpTip = "MM_TIP_STATS",
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_STATS", "TOPLEFT", 0, 0 },
@@ -1200,7 +1200,7 @@ HelpPlate["MysticMaestro"] = {
     flyoutPoint = { "CENTER" }
   },
   {
-    helpTip = "MM_TIP3",
+    helpTip = "MM_TIP_GRAPH",
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_GRAPH", "TOPLEFT", 0, 0 },
@@ -1209,7 +1209,7 @@ HelpPlate["MysticMaestro"] = {
     flyoutPoint = { "CENTER" }
   },
   {
-    helpTip = "MM_TIP4",
+    helpTip = "MM_TIP_SORT",
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_SORT", "TOPLEFT", 0, 0 },
@@ -1218,7 +1218,7 @@ HelpPlate["MysticMaestro"] = {
     flyoutPoint = { "CENTER" }
   },
   {
-    helpTip = "MM_TIP5",
+    helpTip = "MM_TIP_SEARCH",
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_SEARCH", "TOPLEFT", 0, 0 },
@@ -1227,7 +1227,7 @@ HelpPlate["MysticMaestro"] = {
     flyoutPoint = { "CENTER" }
   },
   {
-    helpTip = "MM_TIP6",
+    helpTip = "MM_TIP_FILTER",
     parent = "MysticMaestroMenu",
     points = {
       { "TOPLEFT", "MM_FRAMES_MENU_FILTER", "TOPLEFT", 0, 0 },
@@ -1238,31 +1238,49 @@ HelpPlate["MysticMaestro"] = {
 }
 
 HelpTips["MM_MAIN"] = {
-  text = "This is the main Tip Text",
+  text = [[Click here for info
+about Mystic Maestro Menu.]],
   targetPoint = HelpTip.Point.RightEdgeCenter,
 }
 
-HelpTips["MM_TIP1"] = {
-  text = "This is the TIP1",
+HelpTips["MM_TIP_ENCHANT"] = {
+  text = [[Enchantment List:
+Entries shown in the list change with sort/filter options.
+
+Bag icon shows current count of the enchant in inventory.
+
+Click star to set favorite.
+Click bag icon to craft.]],
   targetPoint = HelpTip.Point.RightEdgeCenter,
 }
-HelpTips["MM_TIP2"] = {
-  text = "This is the TIP2",
+HelpTips["MM_TIP_STATS"] = {
+  text = [[Statistics:
+This area shows stats regarding the selected enchantment.
+
+Mouse over each data point to see additional info.]],
   targetPoint = HelpTip.Point.RightEdgeCenter,
 }
-HelpTips["MM_TIP3"] = {
-  text = "This is the TIP3",
+HelpTips["MM_TIP_GRAPH"] = {
+  text = [[Price Graph:
+10 day price graph of the the selected enchantment.
+
+Green is Minimum.
+Yellow is Mean.
+Red is Maximum.]],
   targetPoint = HelpTip.Point.RightEdgeCenter,
 }
-HelpTips["MM_TIP4"] = {
-  text = "This is the TIP4",
-  targetPoint = HelpTip.Point.RightEdgeCenter,
+HelpTips["MM_TIP_SORT"] = {
+  text = [[Sort Dropdown:
+Determines the order in which the enchantments are listed.]],
+  targetPoint = HelpTip.Point.TopEdgeRight,
 }
-HelpTips["MM_TIP5"] = {
-  text = "This is the TIP5",
-  targetPoint = HelpTip.Point.RightEdgeCenter,
+HelpTips["MM_TIP_SEARCH"] = {
+  text = [[Seach Box:
+Search for enchant by name, then click to select it.]],
+  targetPoint = HelpTip.Point.TopEdgeCenter,
 }
-HelpTips["MM_TIP6"] = {
-  text = "This is the TIP6",
-  targetPoint = HelpTip.Point.RightEdgeCenter,
+HelpTips["MM_TIP_FILTER"] = {
+  text = [[Filter Dropdown:
+Determines which entries are shown within the Enchantment List.]],
+  targetPoint = HelpTip.Point.TopEdgeCenter,
 }
