@@ -286,10 +286,6 @@ do -- functions to initialize menu and menu container
       pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
       RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
     end,
-    OnShow = function(self)
-    end,
-    OnCancel = function(self)
-    end,
     showAlert = 1,
     timeout = 0,
     exclusive = 1,
