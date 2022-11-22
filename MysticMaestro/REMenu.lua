@@ -177,15 +177,11 @@ do -- functions to initialize menu and menu container
     mmf:SetSize(609, 378)
   end
 
-  local function getExtractCurrency()
-    return GetItemCount(98463)
-  end
-
   local enchantContainerHeight = 12
-  local function updateCurrencyDisplay()
+  function MM:UpdateCurrencyDisplay()
     currencyContainer.FontString:SetFormattedText("%s: |cFFFFFFFF%d|r %s %s: |cFFFFFFFF%d|r %s",
-    "Orbs", MM:GetOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
-    "Blanks", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\INV_Jewelry_TrinketPVP_01", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1))
+    "Orbs", self:GetOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
+    "Blanks", self:CountSellableREInBags("blanks"), CreateTextureMarkup("Interface\\Icons\\INV_Jewelry_TrinketPVP_01", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1))
   end
 
   local function createCurrencyContainer(parent)
@@ -196,7 +192,6 @@ do -- functions to initialize menu and menu container
     currencyContainer.FontString = currencyContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     currencyContainer.FontString:SetPoint("CENTER", currencyContainer, "CENTER")
     currencyContainer.FontString:SetSize(currencyContainer:GetWidth(), currencyContainer:GetHeight())
-    updateCurrencyDisplay()
   end
 
   local function setUpCurrencyDisplay(enchantContainer)
@@ -471,7 +466,7 @@ do -- functions to initialize menu and menu container
       end
     end
     if MysticMaestroMenu and MysticMaestroMenu:IsVisible() then
-      updateCurrencyDisplay()
+      MM:UpdateCurrencyDisplay()
       updateCraftIndicators()
     end
   end
@@ -496,9 +491,7 @@ do -- functions to initialize menu and menu container
     createPagination(enchantContainer)
     createRefreshButton(mmf)
     MM:RegisterBucketEvent({"BAG_UPDATE"}, .1, bagUpdateHandler)
-    for bagID=0, 4 do
-      MM:UpdateSellableREsCache(bagID)
-    end
+    
     -- Create Global Values from our local
     MM_FRAMES_MENU_ENCHANT = enchantContainer
     MM_FRAMES_MENU_STATS = statsContainer
@@ -849,6 +842,7 @@ do -- show and hide MysticMaestroMenu
     setUpStatisticsWidgets()
     self:ClearGraph()
     self:ResetSellableREsCache()
+    self:UpdateCurrencyDisplay()
     self:FilterMysticEnchants(MM.db.realm.VIEWS.filter or {allQualities = true, allKnown = true})
     self:GoToPage(1)
     MysticMaestroMenu:Show()
@@ -1051,7 +1045,6 @@ do -- show/hide and select/deselect mystic enchant button functions
       button.CraftButton.isEnchantInBags = true
     end
   end
-
 
   local function updateEnchantButton(enchantID, buttonNumber)
     local button = enchantButtons[buttonNumber]

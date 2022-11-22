@@ -50,32 +50,6 @@ function MM:FindBlankInsignia()
   end
 end
 
-function MM:InventoryInsignia()
-  local insignia = {blank={},re={}}
-  local tallyRE = {}
-  for i=0, 4 do
-    for j=1, GetContainerNumSlots(i) do
-      local item = select(7, GetContainerItemInfo(i, j))
-      if item and item:find("Insignia of the") then
-        local re = GetREInSlot(i, j)
-        local reObj = MYSTIC_ENCHANTS[re]
-        if reObj == nil then
-          table.insert(insignia.blank, {bag=i,index=j})
-        else
-          table.insert(insignia.re, {bag=i,index=j,enchant=re})
-          if tallyRE[re] == nil then tallyRE[re] = 0 end
-          tallyRE[re] = tallyRE[re] + 1
-        end
-      end
-    end
-  end
-  if #insignia.blank > 0 or #insignia.re > 0 then
-    return true, insignia, tallyRE
-  else
-    return false
-  end
-end
-
 function MM:IsSoulbound(bag, slot)
   local TT = MysticMaestroTT
   TT:ClearLines()  
@@ -100,6 +74,7 @@ local sellableREsInBagsCache = setmetatable({ [0] = {}, [1] = {}, [2] = {}, [3] 
 })
 
 -- get number of sellable REs with that ID in bags
+-- pass "blanks" to get the number of blank trinkets in bags
 function MM:CountSellableREInBags(enchantID)
   return sellableREsInBagsCache[enchantID]
 end
@@ -118,8 +93,10 @@ function MM:UpdateSellableREsCache(bagID)
       if re then
         local iLevel, _, _, _, _, _, _, vendorPrice = select(4, GetItemInfo(itemLink))
         if iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit then
-          newContainerCache[re] = newContainerCache[re] and newContainerCache[re] + 1 or 1
+          newContainerCache[re] = (newContainerCache[re] or 0) + 1
         end
+      elseif itemLink:find("Insignia of the") then
+        newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
     end
   end
@@ -350,4 +327,8 @@ end
 
 function MM:GetOrbCurrency()
   return GetItemCount(98570)
+end
+
+function MM:CountBlankTrinkets()
+
 end
