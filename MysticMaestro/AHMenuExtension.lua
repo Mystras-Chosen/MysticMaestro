@@ -448,7 +448,7 @@ end
 function MM:ResetAHExtension()
   self:SetSelectedMyAuctionData(nil)
   self:ClearSelectedEnchantAuctions()
-  self:ClosePopups()
+  self:CloseAuctionPopups()
   self:DisableListButton()
 end
 

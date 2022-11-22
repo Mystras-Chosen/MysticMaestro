@@ -276,7 +276,7 @@ do -- functions to initialize menu and menu container
 
   local enchantToCraft, insigniaBagID, insigniaContainerIndex
   StaticPopupDialogs["MM_CRAFT_RE"] = {
-    text = "Craft mystic enchant?\n\n%s?\n\nCost: %s " .. CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
+    text = "Craft mystic enchant?\n\n%s\n\n|cffffff00Cost:|r %s " .. CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1),
     button1 = ACCEPT,
     button2 = CANCEL,
     OnAccept = function(self)
@@ -904,6 +904,7 @@ do -- show and hide MysticMaestroMenu
     tearDownWidgets()
     MM:HideEnchantButtons()
     wipe(queryResults)
+    StaticPopup_Hide("MM_CRAFT_RE")
     MysticMaestroMenu:Hide()
   end
 

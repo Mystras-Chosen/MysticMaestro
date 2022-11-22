@@ -570,7 +570,7 @@ function MM:ListAuction(enchantID, price)
   end
 end
 
-function MM:ClosePopups()
+function MM:CloseAuctionPopups()
   StaticPopup_Hide("MM_BUYOUT_AUCTION")
   StaticPopup_Hide("MM_CANCEL_AUCTION")
   StaticPopup_Hide("MM_LIST_AUCTION")
