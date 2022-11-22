@@ -743,6 +743,7 @@ do -- show and hide MysticMaestroMenu
     filterDropdown:SetItemDisabled(6, true)
     filterDropdown:SetItemDisabled(10, true)
     filterDropdown:SetItemDisabled(12, true)
+    filterDropdown:SetItemDisabled(14, true)
     if not MM.db.realm.VIEWS.filter then
       filterDropdown:SetItemValue(1, true)
       filterDropdown:SetItemValue(7, true)
