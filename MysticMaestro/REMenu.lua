@@ -189,24 +189,40 @@ do -- functions to initialize menu and menu container
     currencyContainer:SetSize(width, enchantContainerHeight)
     currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 3)
 
-    currencyContainer.Orb = CreateFrame("Frame", nil, currencyContainer)
+    currencyContainer.Orb = CreateFrame("Button", nil, currencyContainer)
     currencyContainer.Orb:SetSize(enchantContainerHeight, enchantContainerHeight)
     currencyContainer.Orb:SetPoint("RIGHT", currencyContainer, "RIGHT", -4, 0)
     currencyContainer.Orb.Icon = currencyContainer.Orb:CreateTexture(nil, "ARTWORK")
     currencyContainer.Orb.Icon:SetAllPoints()
     currencyContainer.Orb.Icon:SetTexture("Interface\\Icons\\inv_custom_CollectionRCurrency")
+    currencyContainer.Orb:SetScript("OnEnter",
+      function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+        GameTooltip:SetHyperlink("|Hitem:98570|h[test]|h")
+        GameTooltip:Show()
+      end
+    )
+    currencyContainer.Orb:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     currencyContainer.Orb.Text = currencyContainer.Orb:CreateFontString()
     currencyContainer.Orb.Text:SetFontObject(GameFontNormalSmall)
     currencyContainer.Orb.Text:SetPoint("RIGHT", currencyContainer.Orb.Icon, "LEFT", -4, 0)
     currencyContainer.Orb.Text:SetJustifyH("RIGHT")
 
-    currencyContainer.Blank = CreateFrame("Frame", nil, currencyContainer)
+    currencyContainer.Blank = CreateFrame("Button", nil, currencyContainer)
     currencyContainer.Blank:SetSize(enchantContainerHeight, enchantContainerHeight)
     currencyContainer.Blank:SetPoint("RIGHT", currencyContainer.Orb.Text, "LEFT", -8, 0)
     currencyContainer.Blank.Icon = currencyContainer.Blank:CreateTexture(nil, "ARTWORK")
     currencyContainer.Blank.Icon:SetAllPoints()
-    currencyContainer.Blank.Icon:SetTexture("Interface\\Icons\\INV_Jewelry_TrinketPVP_01")
+    currencyContainer.Blank.Icon:SetTexture(UnitFactionGroup("player") == "Alliance" and "Interface\\Icons\\INV_Jewelry_TrinketPVP_01" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_02")
+    currencyContainer.Blank:SetScript("OnEnter",
+    function(self)
+      GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
+      GameTooltip:SetHyperlink(UnitFactionGroup("player") == "Alliance" and "|Hitem:18863|h[test]|h" or "|Hitem:18853|h[test]|h")
+      GameTooltip:Show()
+    end
+  )
+    currencyContainer.Blank:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
     currencyContainer.Blank.Text = currencyContainer.Blank:CreateFontString()
     currencyContainer.Blank.Text:SetFontObject(GameFontNormalSmall)
