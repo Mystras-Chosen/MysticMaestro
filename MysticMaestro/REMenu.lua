@@ -1368,7 +1368,7 @@ Mouse over each data point to see additional info.]],
 }
 HelpTips["MM_TIP_GRAPH"] = {
   text = [[Price Graph:
-10 day price graph of the the selected enchantment.
+10 day price graph of the selected enchantment.
 
 Green is Minimum.
 Yellow is Mean.
