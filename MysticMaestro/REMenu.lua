@@ -177,11 +177,10 @@ do -- functions to initialize menu and menu container
     mmf:SetSize(609, 378)
   end
 
-  local enchantContainerHeight = 12
+  local enchantContainerHeight = 14
   function MM:UpdateCurrencyDisplay()
-    currencyContainer.FontString:SetFormattedText("%s: |cFFFFFFFF%d|r %s %s: |cFFFFFFFF%d|r %s",
-    "Orbs", self:GetOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
-    "Blanks", self:CountSellableREInBags("blanks"), CreateTextureMarkup("Interface\\Icons\\INV_Jewelry_TrinketPVP_01", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1))
+    currencyContainer.Orb.Text:SetText(string.format("Mystic Orbs: |cffffffff%d|r", self:GetOrbCurrency()))
+    currencyContainer.Blank.Text:SetText(string.format("Blanks: |cffffffff%d|r", self:CountSellableREInBags("blanks")))
   end
 
   local function createCurrencyContainer(parent)
@@ -189,13 +188,30 @@ do -- functions to initialize menu and menu container
     currencyContainer = CreateFrame("Frame", nil, parent)
     currencyContainer:SetSize(width, enchantContainerHeight)
     currencyContainer:SetPoint("BOTTOM", parent, "BOTTOM", 0, 3)
-    currencyContainer.FontString = currencyContainer:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    currencyContainer.FontString:SetPoint("CENTER", currencyContainer, "CENTER")
-    currencyContainer.FontString:SetSize(currencyContainer:GetWidth(), currencyContainer:GetHeight())
-  end
 
-  local function setUpCurrencyDisplay(enchantContainer)
-    createCurrencyContainer(enchantContainer)
+    currencyContainer.Orb = CreateFrame("Frame", nil, currencyContainer)
+    currencyContainer.Orb:SetSize(enchantContainerHeight, enchantContainerHeight)
+    currencyContainer.Orb:SetPoint("RIGHT", currencyContainer, "RIGHT", -4, 0)
+    currencyContainer.Orb.Icon = currencyContainer.Orb:CreateTexture(nil, "ARTWORK")
+    currencyContainer.Orb.Icon:SetAllPoints()
+    currencyContainer.Orb.Icon:SetTexture("Interface\\Icons\\inv_custom_CollectionRCurrency")
+
+    currencyContainer.Orb.Text = currencyContainer.Orb:CreateFontString()
+    currencyContainer.Orb.Text:SetFontObject(GameFontNormalSmall)
+    currencyContainer.Orb.Text:SetPoint("RIGHT", currencyContainer.Orb.Icon, "LEFT", -4, 0)
+    currencyContainer.Orb.Text:SetJustifyH("RIGHT")
+
+    currencyContainer.Blank = CreateFrame("Frame", nil, currencyContainer)
+    currencyContainer.Blank:SetSize(enchantContainerHeight, enchantContainerHeight)
+    currencyContainer.Blank:SetPoint("RIGHT", currencyContainer.Orb.Text, "LEFT", -8, 0)
+    currencyContainer.Blank.Icon = currencyContainer.Blank:CreateTexture(nil, "ARTWORK")
+    currencyContainer.Blank.Icon:SetAllPoints()
+    currencyContainer.Blank.Icon:SetTexture("Interface\\Icons\\INV_Jewelry_TrinketPVP_01")
+
+    currencyContainer.Blank.Text = currencyContainer.Blank:CreateFontString()
+    currencyContainer.Blank.Text:SetFontObject(GameFontNormalSmall)
+    currencyContainer.Blank.Text:SetPoint("RIGHT", currencyContainer.Blank.Icon, "LEFT", -4, 0)
+    currencyContainer.Blank.Text:SetJustifyH("RIGHT")
   end
 
   local function enchantButton_OnLeave(self)
@@ -486,7 +502,7 @@ do -- functions to initialize menu and menu container
     statsContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 134, -8, 8)
     graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 170, -8, 171)
     MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 0, 1, 378, 170)
-    setUpCurrencyDisplay(enchantContainer)
+    createCurrencyContainer(enchantContainer)
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
     createRefreshButton(mmf)
