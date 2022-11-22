@@ -347,3 +347,7 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry)
     end
   end
 end
+
+function MM:GetOrbCurrency()
+  return GetItemCount(98570)
+end

@@ -177,10 +177,6 @@ do -- functions to initialize menu and menu container
     mmf:SetSize(609, 378)
   end
 
-  local function getOrbCurrency()
-    return GetItemCount(98570)
-  end
-
   local function getExtractCurrency()
     return GetItemCount(98463)
   end
@@ -188,8 +184,8 @@ do -- functions to initialize menu and menu container
   local enchantContainerHeight = 12
   local function updateCurrencyDisplay()
     currencyContainer.FontString:SetFormattedText("%s: |cFFFFFFFF%d|r %s %s: |cFFFFFFFF%d|r %s",
-    "Orbs", getOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
-    "Extracts", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\Inv_Custom_MysticExtract", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1))
+    "Orbs", MM:GetOrbCurrency(), CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
+    "Blanks", getExtractCurrency(), CreateTextureMarkup("Interface\\Icons\\INV_Jewelry_TrinketPVP_01", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1))
   end
 
   local function createCurrencyContainer(parent)
@@ -238,17 +234,69 @@ do -- functions to initialize menu and menu container
     end
   end
 
-  local function craftButton_OnClick(self, button, down)
-    local enchantID = self:GetParent().enchantID
-    local bagID, containerIndex = MM:FindBlankInsignia()
-    if enchantID and bagID ~= nil then
-      RequestSlotReforgeEnchantment(bagID, containerIndex, enchantID)
-      MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantID))
-    elseif bagID == nil then
-      MM:Print("No blank insignia found")
-    else
-      MM:Print("This shouldn't print")
+  local awaitingRECraftResults, craftTime, pendingCraftedEnchantID, pendingCraftedEnchantCount
+  local function onUpdate()
+    if awaitingRECraftResults and craftTime + 1 < GetTime() then
+      awaitingRECraftResults = nil
+      craftTime = nil
+      pendingCraftedEnchantCount = nil
+      pendingCraftedEnchantID = nil
+      MM:Print("WARNING: Enchant not applied")
     end
+  end
+
+  MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
+
+  local enchantToCraft, insigniaBagID, insigniaContainerIndex
+  StaticPopupDialogs["MM_CRAFT_RE"] = {
+    text = "Craft mystic enchant?\n\n%s?\n\nCost: %s " .. CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight, enchantContainerHeight, 0, 1, 0, 1),
+    button1 = ACCEPT,
+    button2 = CANCEL,
+    OnAccept = function(self)
+      awaitingRECraftResults = true
+      craftTime = GetTime()
+      pendingCraftedEnchantID = enchantToCraft
+      pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
+      RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
+    end,
+    OnShow = function(self)
+    end,
+    OnCancel = function(self)
+    end,
+    showAlert = 1,
+    timeout = 0,
+    exclusive = 1,
+    hideOnEscape = 1,
+    enterClicksFirstButton = 1
+  }
+
+  local function craftButton_OnClick(self, button, down)
+    enchantToCraft = nil
+    
+    local enchantID = self:GetParent().enchantID
+    if not enchantID then
+      error("No enchantID on enchant button")
+    end
+
+    if not IsReforgeEnchantmentKnown(enchantID) then
+      UIErrorsFrame:AddMessage("Mystic enchant is not known", 1, 0, 0)
+      return
+    end
+
+    local orbCost = MM:OrbCost(enchantID)
+    if orbCost > MM:GetOrbCurrency() then
+      UIErrorsFrame:AddMessage("Not enough mystic orbs", 1, 0, 0)
+      return
+    end
+
+    insigniaBagID, insigniaContainerIndex = MM:FindBlankInsignia()
+    if not insigniaBagID then
+      UIErrorsFrame:AddMessage("No blank trinkets in bags", 1, 0, 0)
+      return
+    end
+
+    enchantToCraft = enchantID
+    StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
   end
 
   local function craftButton_OnEnter(self)
@@ -408,9 +456,22 @@ do -- functions to initialize menu and menu container
   end
 
   local function bagUpdateHandler(bagIDs)
+    if MysticMaestroMenu and MysticMaestroMenu:IsVisible() or awaitingRECraftResults then
+      updateSellableREsCache(bagIDs)
+    end
+
+    if awaitingRECraftResults then
+      local newCount = MM:CountSellableREInBags(pendingCraftedEnchantID)
+      if newCount > pendingCraftedEnchantCount then
+        awaitingRECraftResults = nil
+        craftTime = nil
+        pendingCraftedEnchantCount = nil
+        pendingCraftedEnchantID = nil
+        MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantToCraft))
+      end
+    end
     if MysticMaestroMenu and MysticMaestroMenu:IsVisible() then
       updateCurrencyDisplay()
-      updateSellableREsCache(bagIDs)
       updateCraftIndicators()
     end
   end
