@@ -732,6 +732,10 @@ do -- show and hide MysticMaestroMenu
     return filterDropdown
   end
 
+  local function item_OnValueChanged(self, event, checked)
+    self.userdata.obj:Fire("OnValueChanged", self.userdata.value, checked)
+  end
+
   local function setUpDropdownWidgets()
     filterDropdown = AceGUI:Create("Dropdown")
     filterDropdown.frame:SetParent(MysticMaestroMenu)
@@ -751,6 +755,11 @@ do -- show and hide MysticMaestroMenu
       filterToItems(filterDropdown, MM.db.realm.VIEWS.filter)
     end
     filterDropdown:SetCallback("OnValueChanged", filterDropdown_OnValueChanged)
+    local items = filterDropdown.pullout.items
+    for _, item in ipairs(items) do
+      item:SetCallback("OnValueChanged", item_OnValueChanged)
+    end
+    filterDropdown:SetText("Filters")
     filterDropdown.frame:Show()
 
     sortDropdown = AceGUI:Create("Dropdown")
