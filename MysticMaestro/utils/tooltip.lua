@@ -38,14 +38,21 @@ local function addLinesTooltip(tt, input)
       tt:AddDoubleLine("Gold Per Mystic Orb", MM:cTxt(GetCoinTextureString(orbval), orbval > 10000 and "gold" or "red"),1,1,0)
     end
   end
-  -- tt:AddLine(" ")
 end
 
 function MM:TooltipHandlerItem(tooltip)
-  local enchant
+  local enchant, name
   enchant = tooltip:GetItemMysticEnchant()
   if enchant then
     addLinesTooltip(tooltip, enchant)
+  else
+    name = tooltip:GetItem()
+    if name ~= nil then
+      enchant = MM.RE_LOOKUP[name:match("Mystic Scroll: (.+)")]
+      if enchant then
+        addLinesTooltip(tooltip, enchant)
+      end
+    end
   end
 end
 
