@@ -38,6 +38,7 @@ local function addLinesTooltip(tt, input)
       tt:AddDoubleLine("Gold Per Mystic Orb", MM:cTxt(GetCoinTextureString(orbval), orbval > 10000 and "gold" or "red"),1,1,0)
     end
   end
+  tt:AddLine(" ")
 end
 
 function MM:TooltipHandlerItem(tooltip)
