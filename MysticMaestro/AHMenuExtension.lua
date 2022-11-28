@@ -288,10 +288,10 @@ function MM:SetMyAuctionsScrollFrame(scrollFrame)
   myAuctionsScrollFrame = scrollFrame
 end
 
-local myAuctionsButtonCount = 10
+local myAuctionsButtonCount = 12
 
 local function createMyAuctionsScrollFrame()
-  local myAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -50)
+  local myAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -20)
   local scrollFrame = createAuctionsScrollFrame(
     "MysticMaestroMyAuctions",
     "My Auctions",
