@@ -194,6 +194,7 @@ local function createAuctionsScrollFrame(name, title, parent, numRows, buttonCre
   scrollFrame:SetPoint("LEFT")
   scrollFrame.Title = scrollFrame:CreateFontString(name.."Title", "OVERLAY", "GameTooltipText")
   scrollFrame.Title:SetPoint("BOTTOM", scrollFrame, "TOP", 0, 2)
+  scrollFrame.Title:SetWidth(auctionScrollFrameWidth)
   scrollFrame.Title:SetText(title)
   scrollFrame.buttons = {}
   
@@ -299,6 +300,7 @@ local function createMyAuctionsScrollFrame()
     myAuctionsButtonCount,
     createMyAuctionsButton
   )
+  scrollFrame.Title:SetJustifyH("CENTER")
   scrollFrame:SetScript("OnVerticalScroll",
     function(self, offset)
       FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, myAuctionsScrollFrame_Update)
@@ -336,6 +338,7 @@ local function createSelectedEnchantAuctionsScrollFrame()
     selectedEnchantAuctionsButtonCount,
     createSelectedAuctionsButton
   )
+  scrollFrame.Title:SetJustifyH("RIGHT")
   scrollFrame:SetScript("OnVerticalScroll",
     function(self, offset)
       FauxScrollFrame_OnVerticalScroll(self, offset, buttonHeight, selectEnchantAuctionsScrollFrame_Update)
@@ -344,10 +347,37 @@ local function createSelectedEnchantAuctionsScrollFrame()
   MM:SetSelectedEnchantAuctionsScrollFrame(scrollFrame)
 end
 
+local refreshButton
+local function createRefreshButton()
+  refreshButton = CreateFrame("BUTTON", nil, ahExtensionMenu)
+  refreshButton:SetSize(18, 18)
+  refreshButton:SetPoint("LEFT", ahExtensionMenu, "BOTTOMLEFT", 8, 148)
+  refreshButton:SetNormalTexture("Interface\\BUTTONS\\UI-RefreshButton")
+  refreshButton:SetPushedTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-RefreshButton-Down")
+  refreshButton:SetDisabledTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-RefreshButton-Disabled")
+  refreshButton:SetScript("OnClick",
+  function()
+    if MM:GetSelectedEnchantButton() then
+      MM:ClearSelectedEnchantAuctions()
+      MM:RefreshSelectedEnchantAuctions(false)
+    end
+  end)
+  MM:DisableAuctionRefreshButton()
+end
+
+function MM:DisableAuctionRefreshButton()
+  refreshButton:Disable()
+end
+
+function MM:EnableAuctionRefreshButton()
+  refreshButton:Enable()
+end
+
 local function initAHExtension()
   createContainerFrame()
   createMyAuctionsScrollFrame()
   createSelectedEnchantAuctionsScrollFrame()
+  createRefreshButton()
 end
 
 local function undercut(auctionData)
@@ -450,6 +480,7 @@ function MM:ResetAHExtension()
   self:ClearSelectedEnchantAuctions()
   self:CloseAuctionPopups()
   self:DisableListButton()
+  self:DisableAuctionRefreshButton()
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)

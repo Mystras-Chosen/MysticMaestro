@@ -116,6 +116,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       self:SetMyAuctionBuyoutStatus(reID)
       self:RefreshMyAuctionsScrollFrame()
       self:EnableListButton()
+      self:EnableAuctionRefreshButton()
       self:CalculateREStats(reID)
       self:PopulateGraph(reID)
       self:ShowStatistics(reID)
@@ -442,7 +443,7 @@ StaticPopupDialogs["MM_BUYOUT_AUCTION"] = {
   OnAccept = function(self)
     local data = MM:GetSelectedSelectedEnchantAuctionData()
       PlaceAuctionBid("list", data.id, data.buyoutPrice)
-      MM:RefreshSelectedEnchantAuctions()
+      MM:RefreshSelectedEnchantAuctions(true)
   end,
   OnShow = function(self)
     local data = MM:GetSelectedSelectedEnchantAuctionData()
@@ -467,7 +468,7 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
 	button2 = CANCEL,
 	OnAccept = function()
 		CancelAuction(GetSelectedAuctionItem("owner"))
-    MM:RefreshSelectedEnchantAuctions()
+    MM:RefreshSelectedEnchantAuctions(true)
 	end,
 	OnShow = function(self)
     self.text:SetText(CANCEL_AUCTION_CONFIRMATION)
@@ -509,7 +510,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	OnAccept = function(self)
     local sellPrice = MoneyInputFrame_GetCopper(self.moneyInputFrame)
 		StartAuction(sellPrice, sellPrice, 1, 1, 1)
-    MM:RefreshSelectedEnchantAuctions()
+    MM:RefreshSelectedEnchantAuctions(true)
 	end,
 	OnShow = function(self)
     MoneyInputFrame_SetCopper(self.moneyInputFrame, startingPrice)
@@ -582,9 +583,14 @@ end
 
 local refreshInProgress, restoreInProgress, refreshList, restoreList
 local enchantToRestore
-function MM:RefreshSelectedEnchantAuctions()
-  refreshInProgress = true
+function MM:RefreshSelectedEnchantAuctions(waitForEvent)
+  if waitForEvent then
+    refreshInProgress = true
+  else
+    refreshList = true
+  end
   self:DisableListButton()
+  self:DisableAuctionRefreshButton()
   enchantToRestore = MM:GetSelectedEnchantButton().enchantID
 end
 
