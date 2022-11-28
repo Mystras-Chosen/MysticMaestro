@@ -452,6 +452,7 @@ do -- functions to initialize menu and menu container
     refreshButton:SetSize(18, 18)
     refreshButton:SetPoint("CENTER", mmf, "TOP", -76, -48)
     refreshButton:SetNormalTexture("Interface\\BUTTONS\\UI-RefreshButton")
+    refreshButton:SetPushedTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-RefreshButton-Down")
     refreshButton:SetScript("OnClick",
     function(self)
       MM:SetSearchBarDefaultText()
