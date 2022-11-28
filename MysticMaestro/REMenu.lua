@@ -450,7 +450,7 @@ do -- functions to initialize menu and menu container
   local function createRefreshButton(mmf)
     refreshButton = CreateFrame("BUTTON", nil, mmf)
     refreshButton:SetSize(18, 18)
-    refreshButton:SetPoint("CENTER", mmf, "TOPLEFT", 186, -14)
+    refreshButton:SetPoint("CENTER", mmf, "TOP", -76, -48)
     refreshButton:SetNormalTexture("Interface\\BUTTONS\\UI-RefreshButton")
     refreshButton:SetScript("OnClick",
     function(self)
@@ -462,6 +462,14 @@ do -- functions to initialize menu and menu container
       end
     end)
     MM_FRAMES_MENU_REFRESH = refreshButton
+  end
+
+  local settingsButton
+  local function createSettingsButton(mmf)
+    settingsButton = CreateFrame("BUTTON", nil, mmf)
+    settingsButton:SetSize(27, 27)
+    settingsButton:SetPoint("TOP", mmf, "TOP", -76, 0)
+    settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
   end
 
   local function updateSellableREsCache(bagIDs)
@@ -512,12 +520,13 @@ do -- functions to initialize menu and menu container
       end
     end)
     statsContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 134, -8, 8)
-    graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 170, -8, 171)
+    graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 170, -8, 144)
     MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 0, 1, 378, 170)
     createCurrencyContainer(enchantContainer)
     createEnchantButtons(enchantContainer)
     createPagination(enchantContainer)
     createRefreshButton(mmf)
+    createSettingsButton(mmf)
     MM:RegisterBucketEvent({"BAG_UPDATE"}, .1, bagUpdateHandler)
     
     -- Create Global Values from our local
@@ -722,7 +731,7 @@ do -- show and hide MysticMaestroMenu
     MM:GoToPage(1)
   end
 
-  local sortDropdown, filterDropdown
+  local automationDropdown, sortDropdown, filterDropdown
 
   function MM:GetFilterDropdown()
     return filterDropdown
@@ -733,10 +742,29 @@ do -- show and hide MysticMaestroMenu
   end
 
   local function setUpDropdownWidgets()
+    automationDropdown = AceGUI:Create("Dropdown")
+    automationDropdown.frame:SetParent(MysticMaestroMenu)
+    automationDropdown:SetPoint("TOPLEFT", MysticMaestroMenu, "TOPLEFT", 8, 0)
+    automationDropdown:SetHeight(27)
+    automationDropdown:SetWidth(200)
+    automationDropdown:SetList({"Automation1", "Automation2"})
+    
+    automationDropdown.frame:Show()
+
+    sortDropdown = AceGUI:Create("Dropdown")
+    sortDropdown.frame:SetParent(MysticMaestroMenu)
+    sortDropdown:SetPoint("LEFT", automationDropdown.frame, "RIGHT", 40, 0)
+    sortDropdown:SetWidth(174)
+    sortDropdown:SetHeight(27)
+    sortDropdown:SetList(sortOptions)
+    sortDropdown:SetValue(MM.db.realm.VIEWS.sort or 1)
+    sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
+    sortDropdown.frame:Show()
+
     filterDropdown = AceGUI:Create("Dropdown")
     filterDropdown.frame:SetParent(MysticMaestroMenu)
-    filterDropdown:SetPoint("TOPRIGHT", MysticMaestroMenu, "TOPRIGHT", -6, 0)
-    filterDropdown:SetWidth(160)
+    filterDropdown:SetPoint("LEFT", sortDropdown.frame, "RIGHT", 6, 0)
+    filterDropdown:SetWidth(174)
     filterDropdown:SetHeight(27)
     filterDropdown:SetMultiselect(true)
     filterDropdown:SetList(filterOptions)
@@ -757,16 +785,6 @@ do -- show and hide MysticMaestroMenu
     end
     filterDropdown:SetText("Filters")
     filterDropdown.frame:Show()
-
-    sortDropdown = AceGUI:Create("Dropdown")
-    sortDropdown.frame:SetParent(MysticMaestroMenu)
-    sortDropdown:SetPoint("TOPLEFT", MysticMaestroMenu, "TOPLEFT", 8, 0)
-    sortDropdown:SetWidth(160)
-    sortDropdown:SetHeight(27)
-    sortDropdown:SetList(sortOptions)
-    sortDropdown:SetValue(MM.db.realm.VIEWS.sort or 1)
-    sortDropdown:SetCallback("OnValueChanged", sortDropdown_OnValueChanged)
-    sortDropdown.frame:Show()
 
     --- HELP PLATES ---
     MM_FRAMES_MENU_FILTER = filterDropdown.frame
@@ -790,8 +808,8 @@ do -- show and hide MysticMaestroMenu
   local function setUpSearchWidget()
     searchBar = AceGUI:Create("EditBoxMysticMaestroREPredictor")
     searchBar.frame:SetParent(MysticMaestroMenu)
-    searchBar:SetPoint("TOP", MysticMaestroMenu, "TOP")
-    searchBar:SetWidth(200)
+    searchBar:SetPoint("CENTER", MysticMaestroMenu, "TOP", 64, -48)
+    searchBar:SetWidth(240)
     searchBar:SetText(defaultSearchText)
     searchBar.editBox:ClearFocus()
     searchBar:SetCallback(
@@ -887,6 +905,7 @@ do -- show and hide MysticMaestroMenu
   end
 
   local function tearDownWidgets()
+    automationDropdown:Release()
     sortDropdown:Release()
     filterDropdown:Release()
     searchBar:Release()
