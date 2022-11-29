@@ -481,6 +481,7 @@ function MM:ResetAHExtension()
   self:CloseAuctionPopups()
   self:DisableListButton()
   self:DisableAuctionRefreshButton()
+  self:CancelDisplayEnchantAuctions()
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)
@@ -501,7 +502,6 @@ end
 function MM:ClearSelectedEnchantAuctions()
   self:SetSelectedSelectedEnchantAuctionData(nil)
   self:PopulateSelectedEnchantAuctions({})
-  self:DeactivateSelectScanListener()
 end
 
 local function setMoneyButtonTransparency(button, alpha)

@@ -68,18 +68,20 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
-local displayInProgress, pendingQuery, awaitingResults, enchantToQuery, selectedScanTime
-
-function MM:DeactivateSelectScanListener()
-  awaitingResults = false
-end
+local pendingQuery, awaitingResults, enchantToQuery, selectedScanTime
 
 function MM:AsyncDisplayEnchantAuctions(enchantID)
-  displayInProgress = true
   pendingQuery = true
   awaitingResults = false
   enchantToQuery = enchantID
   selectedScanTime = time()
+end
+
+function MM:CancelDisplayEnchantAuctions()
+  pendingQuery = false
+  awaitingResults = false
+  enchantToQuery = nil
+  selectedScanTime = nil
 end
 
 local results = {}
@@ -255,13 +257,11 @@ end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
-    if displayInProgress then
-      if pendingQuery and CanSendAuctionQuery() then
-        MM:Print("performing query of " .. MM.RE_NAMES[enchantToQuery])
-        QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
-        pendingQuery = false
-        awaitingResults = true
-      end
+    if pendingQuery and CanSendAuctionQuery() then
+      MM:Print("performing query of " .. MM.RE_NAMES[enchantToQuery])
+      QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
+      pendingQuery = false
+      awaitingResults = true
     end
   end
 )
@@ -615,10 +615,8 @@ function MM:List_AUCTION_OWNED_LIST_UPDATE()
 end
 
 local function enchantToRestoreIsStillSelected()
-  local selectedMyAuctionData = MM:GetSelectedMyAuctionData()
-  local selectedSelectedEnchantAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
-  return selectedMyAuctionData and selectedMyAuctionData.enchantID == enchantToRestore
-  or selectedSelectedEnchantAuctionData and selectedSelectedEnchantAuctionData.enchantID == enchantToRestore
+  local selectedEnchantButton = MM:GetSelectedEnchantButton()
+  return selectedEnchantButton and enchantToRestore == MM:GetSelectedEnchantButton().enchantID
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",

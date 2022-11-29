@@ -1193,9 +1193,10 @@ do -- show/hide and select/deselect mystic enchant button functions
     self:PopulateGraph(button.enchantID)
     self:ShowStatistics(button.enchantID)
     if self:IsAHEmbeddedMenuOpen() then
+      self:CancelDisplayEnchantAuctions()
+      self:ClearSelectedEnchantAuctions()
       self:AsyncDisplayEnchantAuctions(button.enchantID) -- async populate scroll bars
       self:SelectMyAuctionByEnchantID(button.enchantID)
-      self:ClearSelectedEnchantAuctions()
     end
     selectedEnchantButton = button
   end
