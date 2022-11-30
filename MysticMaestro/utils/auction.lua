@@ -541,8 +541,8 @@ local function findSellableItemWithEnchantID(enchantID)
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
           local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
-          local istrinket = reqLevel == 15 and item:find("Insignia of the")
-          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, vendorPrice})
+          local istrinket = (reqLevel == 15 and item:find("Insignia of the")) or (reqLevel == 60 and item:find("Bloodforged Untarnished Mystic Scroll"))
+          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, (vendorPrice or 0)})
         end
       end
     end

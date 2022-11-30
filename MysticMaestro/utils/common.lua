@@ -43,7 +43,7 @@ function MM:FindBlankInsignia()
   for bagID=0, 4 do
     for containerIndex=1, GetContainerNumSlots(bagID) do
       local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
-      if itemLink and itemLink:find("Insignia of the") and not GetREInSlot(bagID, containerIndex) then
+      if itemLink and (itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll")) and not GetREInSlot(bagID, containerIndex) then
         return bagID, containerIndex
       end
     end
@@ -95,7 +95,7 @@ function MM:UpdateSellableREsCache(bagID)
         if iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit then
           newContainerCache[re] = (newContainerCache[re] or 0) + 1
         end
-      elseif itemLink:find("Insignia of the") then
+      elseif itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll") then
         newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
     end
