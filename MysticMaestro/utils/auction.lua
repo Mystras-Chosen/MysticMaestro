@@ -258,7 +258,6 @@ end
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if pendingQuery and CanSendAuctionQuery() then
-      MM:Print("performing query of " .. MM.RE_NAMES[enchantToQuery])
       QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
       pendingQuery = false
       awaitingResults = true
