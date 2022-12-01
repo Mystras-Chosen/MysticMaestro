@@ -471,6 +471,7 @@ do -- functions to initialize menu and menu container
     settingsButton:SetSize(27, 27)
     settingsButton:SetPoint("TOP", mmf, "TOP", -76, 0)
     settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
+    MM_FRAMES_MENU_SETTINGS = settingsButton
   end
 
   local function updateSellableREsCache(bagIDs)
@@ -749,7 +750,6 @@ do -- show and hide MysticMaestroMenu
     automationDropdown:SetHeight(27)
     automationDropdown:SetWidth(200)
     automationDropdown:SetList({"Automation1", "Automation2"})
-    
     automationDropdown.frame:Show()
 
     sortDropdown = AceGUI:Create("Dropdown")
@@ -790,6 +790,7 @@ do -- show and hide MysticMaestroMenu
     --- HELP PLATES ---
     MM_FRAMES_MENU_FILTER = filterDropdown.frame
     MM_FRAMES_MENU_SORT = sortDropdown.frame
+    MM_FRAMES_MENU_AUTOMATION = automationDropdown.frame
     local M = MysticMaestroMenu
     M.HelpPlateButton = CreateFrame("Button", "$parentHelpPlateButton", M, "HelpPlateButtonTemplate")
     M.HelpPlateButton.HelpPlate = "MysticMaestro"
@@ -1358,8 +1359,94 @@ HelpPlate["MysticMaestro"] = {
       { "BOTTOMRIGHT", "MM_FRAMES_MENU_REFRESH", "BOTTOMRIGHT", 4, -4 },
     },
     flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP_SETTINGS",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_SETTINGS", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_SETTINGS", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  {
+    helpTip = "MM_TIP_AUTOMATION",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_AUTOMATION", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_AUTOMATION", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
   }
 }
+
+local extensionAHPlates = {
+  MM_TIP_MYAUCTIONS = {
+    helpTip = "MM_TIP_MYAUCTIONS",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_MYAUCTIONS", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_MYAUCTIONS", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  MM_TIP_SELECTEDRESULTS = {
+    helpTip = "MM_TIP_SELECTEDRESULTS",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_SELECTEDRESULTS", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_SELECTEDRESULTS", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  MM_TIP_RESULTREFRESH = {
+    helpTip = "MM_TIP_RESULTREFRESH",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_RESULTREFRESH", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_RESULTREFRESH", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  MM_TIP_LIST = {
+    helpTip = "MM_TIP_LIST",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_LIST", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_LIST", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  },
+  MM_TIP_BUYOUTCANCEL = {
+    helpTip = "MM_TIP_BUYOUTCANCEL",
+    parent = "MysticMaestroMenu",
+    points = {
+      { "TOPLEFT", "MM_FRAMES_MENU_BUYOUTCANCEL", "TOPLEFT", 0, 0 },
+      { "BOTTOMRIGHT", "MM_FRAMES_MENU_BUYOUTCANCEL", "BOTTOMRIGHT", 0, 0 },
+    },
+    flyoutPoint = { "CENTER" }
+  }
+}
+
+function MM:toggleAHExtensionHelpPlates(add)
+  if add then
+    for _, v in pairs(extensionAHPlates) do
+      table.insert(HelpPlate["MysticMaestro"],v)
+    end
+  else
+    local remove = {}
+    for k, _ in pairs(extensionAHPlates) do
+      for i, v in pairs(HelpPlate["MysticMaestro"]) do
+        if type(v) == "table" and k == v.helpTip then
+          table.insert(remove,i)
+        end
+      end
+    end
+    for _, v in pairs(remove) do
+      table.remove(HelpPlate["MysticMaestro"],v)
+    end
+  end
+end
 
 HelpTips["MM_MAIN"] = {
   text = [[Click here for info
@@ -1415,5 +1502,45 @@ HelpTips["MM_TIP_REFRESH"] = {
 This button will allow you to re-apply your selected filter.
 
 Use this button to return from a selected search to list mode.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_SETTINGS"] = {
+  text = [[Settings:
+This button will allow you to change addon settings.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_AUTOMATION"] = {
+  text = [[Automation:
+This dropdown lets you begin automation actions.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_MYAUCTIONS"] = {
+  text = [[My Auctions:
+This is the list of all enchants you have posted.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_SELECTEDRESULTS"] = {
+  text = [[Selected Results:
+These are the auctions found for the selected enchant.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_RESULTREFRESH"] = {
+  text = [[Refresh Results:
+This button will allow you to refresh the result list.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_LIST"] = {
+  text = [[List:
+This button will list an item with the specified enchant.
+
+It will attempt to undercut the lowest listing if none selected.]],
+  targetPoint = HelpTip.Point.BottomEdgeCenter,
+}
+HelpTips["MM_TIP_BUYOUTCANCEL"] = {
+  text = [[Buyout/cancel:
+This button will perform two actions depending on the selection.
+
+Buyout any auction that is not yours.
+Cancels any auctions that is yours.]],
   targetPoint = HelpTip.Point.BottomEdgeCenter,
 }

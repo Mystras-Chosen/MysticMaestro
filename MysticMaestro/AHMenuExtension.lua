@@ -184,7 +184,6 @@ local function createSelectedAuctionsButton(parent, listingName)
       GameTooltip:Show()
     end
   )
-
   return listingButton
 end
 
@@ -307,6 +306,7 @@ local function createMyAuctionsScrollFrame()
     end
   )
   MM:SetMyAuctionsScrollFrame(scrollFrame)
+  MM_FRAMES_MENU_MYAUCTIONS = myAuctionsScrollFrameContainer
 end
 
 function MM:RefreshMyAuctionsScrollFrame()
@@ -345,6 +345,7 @@ local function createSelectedEnchantAuctionsScrollFrame()
     end
   )
   MM:SetSelectedEnchantAuctionsScrollFrame(scrollFrame)
+  MM_FRAMES_MENU_SELECTEDRESULTS = selectedEnchantAuctionsScrollFrameContainer
 end
 
 local refreshButton
@@ -363,6 +364,7 @@ local function createRefreshButton()
     end
   end)
   MM:DisableAuctionRefreshButton()
+  MM_FRAMES_MENU_RESULTREFRESH = refreshButton
 end
 
 function MM:DisableAuctionRefreshButton()
@@ -413,6 +415,7 @@ local function setUpButtonWidgets()
   )
   listButton.frame:Show()
   MM:DisableListButton()
+  MM_FRAMES_MENU_LIST = listButton.frame
 
   buyCancelbutton = AceGUI:Create("Button")
   buyCancelbutton.frame:SetParent(ahExtensionMenu)
@@ -433,6 +436,7 @@ local function setUpButtonWidgets()
   )
   buyCancelbutton.frame:Show()
   MM:DisableBuyoutCancelButton()
+  MM_FRAMES_MENU_BUYOUTCANCEL = buyCancelbutton.frame
 end
 
 local function tearDownButtonWidgets()
@@ -467,12 +471,14 @@ function MM:ShowAHExtension()
   MysticMaestroMenuAHExtension:ClearAllPoints()
   MysticMaestroMenuAHExtension:SetPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", 0, 0)
   MysticMaestroMenuAHExtension:SetParent(AuctionFrame)
+  MM:toggleAHExtensionHelpPlates(true)
 end
 
 function MM:HideAHExtension()
   tearDownButtonWidgets()
   self:ResetAHExtension()
   MysticMaestroMenuAHExtension:Hide()
+  MM:toggleAHExtensionHelpPlates(false)
 end
 
 function MM:ResetAHExtension()
