@@ -90,6 +90,9 @@ function MM:UpdateSellableREsCache(bagID)
     local quality, _, _, itemLink = select(4, GetContainerItemInfo(bagID, containerIndex))
     if itemLink and quality >= 3 and not self:IsSoulbound(bagID, containerIndex) then
       local re = GetREInSlot(bagID, containerIndex)
+      if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
+        re = MM.RE_ID[re]
+      end
       if re then
         local iLevel, _, _, _, _, _, _, vendorPrice = select(4, GetItemInfo(itemLink))
         if iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit then

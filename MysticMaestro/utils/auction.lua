@@ -30,6 +30,10 @@ local function isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
       enchantID = GetAuctionItemMysticEnchant("list", i)
     end
   end
+
+  if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
+    enchantID = MM.RE_ID[enchantID]
+  end
   return properItem and enchantID, enchantID, trinketFound
 end
 
@@ -131,6 +135,9 @@ local function getMyAuctionInfo(i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
   local link = GetAuctionItemLink("owner", i)
   local duration = GetAuctionItemTimeLeft("owner", i)
+  if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
+    enchantID = MM.RE_ID[enchantID]
+  end
   return icon, quality, buyoutPrice, enchantID, link, duration
 end
 
@@ -537,6 +544,10 @@ local function findSellableItemWithEnchantID(enchantID)
       -- we have an item, with at least 3 quality and is not soulbound
       if item and quality >= 3 and not MM:IsSoulbound(bagID, slotIndex) then
         local re = GetREInSlot(bagID, slotIndex)
+        if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
+          re = MM.RE_ID[re]
+        end
+      
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
           local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)

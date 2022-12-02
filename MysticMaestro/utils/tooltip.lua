@@ -44,6 +44,9 @@ end
 function MM:TooltipHandlerItem(tooltip)
   local enchant, name
   enchant = tooltip:GetItemMysticEnchant()
+  if enchant and not MYSTIC_ENCHANTS[enchant] and MM.RE_ID[enchant] then
+    enchant = MM.RE_ID[enchant]
+  end
   if enchant then
     addLinesTooltip(tooltip, enchant)
   else
