@@ -7,38 +7,6 @@ local Dialog = LibStub("AceConfigDialog-3.0")
 
 MM.OnUpdateFrame = CreateFrame("Frame")
 
-local myOptionsTable = {
-  name = "Mystic Maestro",
-  handler = MM,
-  type = "group",
-  args = {
-    enable = {
-      name = "Enable",
-      desc = "Enables / disables the addon",
-      type = "toggle",
-      set = function(info, val)
-        MM.enabled = val
-      end,
-      get = function(info)
-        return MM.enabled
-      end
-    }
-  }
-}
-
-LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro", myOptionsTable)
-
-local defaults = {
-  profile = {
-    optionA = true,
-    optionB = false,
-    suboptions = {
-      subOptionA = false,
-      subOptionB = true
-    }
-  }
-}
-
 local GetSpellInfo = GetSpellInfo
 
 local enchantMT = {
