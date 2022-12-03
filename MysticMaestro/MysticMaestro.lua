@@ -16,9 +16,20 @@ local enchantMT = {
     return newListing
   end
 }
+local defaultDB = {
+  realm = {
+    OPTIONS = {
+      confirmList = true,
+      rarityMagic = true,
+      rarityRare = true,
+      rarityEpic = true,
+      rarityLegendary = true,
+    }
+  }
+}
 
 function MM:OnInitialize()
-  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB")
+  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB",defaultDB,true)
   self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
   self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
   self.db.realm.FAVORITE_ENCHANTS = self.db.realm.FAVORITE_ENCHANTS or {}
