@@ -148,12 +148,15 @@ function MM:TimeToDate(stamp)
   return time({year=d.year, month=d.month, day=d.day})
 end
 
-function MM:BeyondDays(stamp,limitNum)
-  local todayDate = MM:TimeToDate(time())
-  local compareDate = MM:TimeToDate(stamp)
-  local values = MM:CompareTime(todayDate,compareDate)
-  local limit = limitNum and limitNum or 10
-  return values.day and values.day > limit and true or false
+local secondsPerDay, secondsPerHour, secondsPerMinute = 86400, 3600, 60
+
+-- if daysAgo is 0, get next midnight time
+function MM:GetMidnightTime(daysAgo)
+  local currentTime = time()
+  local currentDateTime = date("%H %M %S", currentTime)
+  local hours, minutes, seconds = currentDateTime:match("(%d+) (%d+) (%d+)")
+  local lastMidnightTime = currentTime - hours * secondsPerHour - minutes * secondsPerMinute - seconds
+  return lastMidnightTime - secondsPerDay * (daysAgo - 1)
 end
 
 function MM:Dump(orig, depth)
@@ -330,8 +333,4 @@ end
 
 function MM:GetOrbCurrency()
   return GetItemCount(98570)
-end
-
-function MM:CountBlankTrinkets()
-
 end

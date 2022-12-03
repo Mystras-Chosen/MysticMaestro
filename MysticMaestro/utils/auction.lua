@@ -92,7 +92,9 @@ local results = {}
 function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
     local listings, reID, sTime = self.db.realm.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
-    listings[reID][sTime] = {}; listings[reID][sTime]["other"] = {}
+    local listingData = listings[reID]
+    listingData[sTime] = {}
+    listingData[sTime]["other"] = {}
     awaitingResults = false
     wipe(results)
     for i=1, GetNumAuctionItems("list") do
@@ -112,7 +114,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           link = link,
           duration = duration
         })
-        table.insert(trinketFound and listings[reID][sTime] or listings[reID][sTime]["other"], buyoutPrice)
+        table.insert(trinketFound and listingData[sTime] or listingData[sTime]["other"], buyoutPrice)
       end
     end
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
@@ -123,7 +125,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       self:RefreshMyAuctionsScrollFrame()
       self:EnableListButton()
       self:EnableAuctionRefreshButton()
-      self:CalculateREStats(reID)
+      self:CalculateREStats(reID, listingData)
       self:PopulateGraph(reID)
       self:ShowStatistics(reID)
     end
@@ -390,39 +392,17 @@ function MM:CalculateDailyAverages(reID)
 end
 
 function MM:CalculateAllStats()
-  local listDB = self.db.realm.RE_AH_LISTINGS
-  local removeList = {}
-  local reID, listing, timekey, values, k
-  for reID, listing in pairs(listDB) do
-    for timekey, values in pairs(listing) do
-      if not MM:BeyondDays(timekey) then 
-        MM:CalculateStatsFromTime(reID,timekey)
-      else
-        table.insert(removeList,timekey)
-      end
-    end
-    for k, timekey in pairs(removeList) do 
-      listing[timekey] = nil
-    end
-    MM:CalculateDailyAverages(reID)
+  local listings = self.db.realm.RE_AH_LISTINGS
+  for reID, listingData in pairs(listings) do
+    self:CalculateREStats(reID, listingData)
   end
 end
 
-function MM:CalculateREStats(reID)
-  local listing = self.db.realm.RE_AH_LISTINGS[reID]
-  local removeList = {}
-  local timekey, values, k
-  for timekey, values in pairs(listing) do
-    if not MM:BeyondDays(timekey) then 
-      MM:CalculateStatsFromTime(reID,timekey)
-    else
-      table.insert(removeList,timekey)
-    end
+function MM:CalculateREStats(reID, listingData)
+  for timeKey in pairs(listingData) do
+    self:CalculateStatsFromTime(reID, timeKey)
   end
-  for k, timekey in pairs(removeList) do 
-    listing[timekey] = nil
-  end
-  MM:CalculateDailyAverages(reID)
+  self:CalculateDailyAverages(reID)
 end
 
 function MM:LowestListed(reID,keytype)

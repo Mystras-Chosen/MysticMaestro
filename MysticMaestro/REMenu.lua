@@ -1167,6 +1167,29 @@ do -- show/hide and select/deselect mystic enchant button functions
     self:ShowEnchantButtons()
   end
 
+  -- prunes all old listings except for the most recent one that also has buyouts
+local function pruneOldListings(enchantID)
+  local listingData = MM.db.realm.RE_AH_LISTINGS[enchantID]
+  local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+  local removeList = {}
+  for timeKey, buyouts in pairs(listingData) do
+    if timeKey < leftBoundMidnightTime then
+      table.insert(removeList, {timeKey, buyouts})
+    end
+  end
+  local mostRecentOldListingTime, mostRecentOldListingData
+  for _, data in ipairs(removeList) do
+    if #data[2] > 0 and (not mostRecentOldListingTime or mostRecentOldListingTime < data[1]) then
+      mostRecentOldListingTime = data[1]
+      mostRecentOldListingData = data[2]
+    end
+    listingData[data[1]] = nil
+  end
+  if mostRecentOldListingTime and next(listingData) then
+    listingData[mostRecentOldListingTime] = mostRecentOldListingData
+  end
+end
+
   function MM:GetEnchantButtonByEnchantID(enchantID)
     for _, button in ipairs(enchantButtons) do
       if button.enchantID == enchantID then
@@ -1191,6 +1214,7 @@ do -- show/hide and select/deselect mystic enchant button functions
       lastSelectedButton.H:SetDesaturated(true)
       lastSelectedButton.H:Hide()
     end
+    pruneOldListings(button.enchantID)
     self:PopulateGraph(button.enchantID)
     self:ShowStatistics(button.enchantID)
     if self:IsAHEmbeddedMenuOpen() then

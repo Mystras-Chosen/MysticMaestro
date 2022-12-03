@@ -51,26 +51,19 @@ local function sortData(data)
   end
 end
 
-local daysDisplayedInGraph = 10
+MM.daysDisplayedInGraph = 10
 
 local secondsPerDay, secondsPerHour, secondsPerMinute = 86400, 3600, 60
 
-local function getDayStartTime()
-  local currentTime = time()
-  local currentDateTime = date("%H %M %S", currentTime)
-  local hours, minutes, seconds = currentDateTime:match("(%d+) (%d+) (%d+)")
-  return currentTime - hours * secondsPerHour - minutes * secondsPerMinute - seconds
-end
-
 local function calcGridLineCorrection()
-  return getDayStartTime() % secondsPerDay
+  return MM:GetMidnightTime(0) % secondsPerDay
 end
 
 local g
 
 local function updateXAxisRange(correction)
-  local rightBound = getDayStartTime() + secondsPerDay - correction
-  local leftBound = rightBound - daysDisplayedInGraph * secondsPerDay
+  local rightBound = MM:GetMidnightTime(0) - correction
+  local leftBound = rightBound - MM.daysDisplayedInGraph * secondsPerDay
   g:SetXAxis(leftBound, rightBound)
 end
 
@@ -117,15 +110,68 @@ function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY
   g:SetYAxis(0, 100)
 end
 
+local function getOldListing(listingData, leftBoundMidnightTime)
+  for timeKey, buyouts in pairs(listingData) do
+    if timeKey < leftBoundMidnightTime and #buyouts > 0 then
+      return timeKey, buyouts
+    end
+  end
+end
+
+local function getOldestListingTimeAndIndex(data)
+  local oldestTimeIndex, oldestTime
+  for i, point in ipairs(data) do
+    if not oldestTimeIndex or point[1] < oldestTime then
+      oldestTimeIndex = i
+      oldestTime = point[1]
+    end
+  end
+  return oldestTime, oldestTimeIndex
+end
+
+local function interpolatePoints(x0, y2, y1, x2, x1)
+  local m = (y2 - y1) / (x2 - x1)
+  return m * (x0 - x1) + y1
+end
+
+local function collectAndTransformData(enchantListingData, correction)
+  local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+  local oldListingTime, oldListingBuyouts = getOldListing(enchantListingData, leftBoundMidnightTime)
+  if oldListingTime then
+    enchantListingData[oldListingTime] = nil
+  else
+    return createMysticEnchantData(enchantListingData, correction)
+  end
+  local averageData, minimumData, maxData = createMysticEnchantData(enchantListingData, correction)
+  local oldListingAverageData, oldListingMinimumData, oldListingMaxData = createMysticEnchantData({[oldListingTime] = oldListingBuyouts}, correction)
+  local leftBoundMidnightTimeCorrected = leftBoundMidnightTime - correction
+  local x2 = oldListingTime - correction
+  local x1, x1Index = getOldestListingTimeAndIndex(averageData)
+  table.insert(averageData, {leftBoundMidnightTimeCorrected, interpolatePoints(leftBoundMidnightTimeCorrected, oldListingAverageData[1][2], averageData[x1Index][2], x2, x1)})
+  table.insert(minimumData, {leftBoundMidnightTimeCorrected, interpolatePoints(leftBoundMidnightTimeCorrected, oldListingMinimumData[1][2], minimumData[x1Index][2], x2, x1)})
+  table.insert(maxData, {leftBoundMidnightTimeCorrected, interpolatePoints(leftBoundMidnightTimeCorrected, oldListingMaxData[1][2], maxData[x1Index][2], x2, x1)})
+  return averageData, minimumData, maxData
+end
+
+local function auctionDataExists(enchantListingData)
+  local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+  for timeKey, buyouts in pairs(enchantListingData) do
+    if timeKey >= leftBoundMidnightTime and #buyouts > 0 then
+      return true
+    end
+  end
+  return false
+end
+
 function MM:PopulateGraph(enchantID)
   g:ResetData()
-  local enchantListingData = self.db.realm.RE_AH_LISTINGS[enchantID]
-  if not next(enchantListingData) then
+  local enchantListingData = self:DeepClone(self.db.realm.RE_AH_LISTINGS[enchantID])
+  if not auctionDataExists(enchantListingData) then
     self:Print('No listings found for mystic enchant "' .. MM.RE_NAMES[enchantID] .. '"')
     return
   end
   local correction = calcGridLineCorrection()
-  local averageData, minimumData, maxData = createMysticEnchantData(enchantListingData, correction)
+  local averageData, minimumData, maxData = collectAndTransformData(enchantListingData, correction)
   sortData(averageData)
   sortData(minimumData)
   sortData(maxData)
