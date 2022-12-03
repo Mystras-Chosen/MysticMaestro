@@ -11,9 +11,9 @@ local myOptionsTable = {
       name = "General",
       type = "group",
       args={
-				subGeneral = {
-					name = "Tester",
-					desc = "Test if this option saves properly",
+				confirmList = {
+					name = "Confirm Listing",
+					desc = "Enables a confirmation before making a listing.",
 					type = "toggle"
 				}
       }
@@ -22,11 +22,35 @@ local myOptionsTable = {
       name = "Scan",
       type = "group",
       args={
-				subScan = {
-					name = "Tester",
-					desc = "Test if this option saves properly",
+				rarityHeader = {
+					order = 1,
+					name = "Included rarities in full scan",
+					type = "header"
+				},
+				rarityMagic = {
+					order = 2,
+					name = "Uncommon",
+					desc = "Include Uncommon enchants during full scan.",
 					type = "toggle"
-				}
+				},
+				rarityRare = {
+					order = 3,
+					name = "Rare",
+					desc = "Include Rare enchants during full scan.",
+					type = "toggle"
+				},
+				rarityEpic = {
+					order = 4,
+					name = "Epic",
+					desc = "Include Epic enchants during full scan.",
+					type = "toggle"
+				},
+				rarityLegendary = {
+					order = 5,
+					name = "Legendary",
+					desc = "Include Legendary enchants during full scan.",
+					type = "toggle"
+				},
       }
     }
   }
