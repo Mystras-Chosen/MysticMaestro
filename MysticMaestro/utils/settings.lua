@@ -1,27 +1,31 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local myOptionsTable = {
-  name = "Mystic Maestro",
+  name = "Mystic Maestro Options",
   handler = MM,
   type = "group",
+	set = function(info,val) MM.db.realm.OPTIONS[info[#info]] = val end,
+	get = function(info) return MM.db.realm.OPTIONS[info[#info]] end,
   args = {
-    enable = {
-      name = "Enable",
-      desc = "Enables / disables the addon",
-      type = "toggle",
-      set = function(info, val) MM.enabled = val end,
-      get = function(info) return MM.enabled end
-    },
-    moreoptions={
-      name = "More Options",
+    general={
+      name = "General",
       type = "group",
       args={
-				tester = {
+				subGeneral = {
 					name = "Tester",
 					desc = "Test if this option saves properly",
-					type = "toggle",
-					set = function(info,val) MM.db.realm[info[#info]] = val end,
-					get = function(info) return MM.db.realm[info[#info]] end
+					type = "toggle"
+				}
+      }
+    },
+    scan={
+      name = "Scan",
+      type = "group",
+      args={
+				subScan = {
+					name = "Tester",
+					desc = "Test if this option saves properly",
+					type = "toggle"
 				}
       }
     }
