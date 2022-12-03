@@ -28,4 +28,5 @@ local myOptionsTable = {
   }
 }
 
-LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro", myOptionsTable, {"mmc"})
+LibStub("AceConfig-3.0"):RegisterOptionsTable("Mystic Maestro", myOptionsTable)
+LibStub("AceConfigDialog-3.0"):AddToBlizOptions("Mystic Maestro")
