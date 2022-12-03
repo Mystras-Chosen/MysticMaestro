@@ -167,7 +167,6 @@ function MM:PopulateGraph(enchantID)
   g:ResetData()
   local enchantListingData = self:DeepClone(self.db.realm.RE_AH_LISTINGS[enchantID])
   if not auctionDataExists(enchantListingData) then
-    self:Print('No listings found for mystic enchant "' .. MM.RE_NAMES[enchantID] .. '"')
     return
   end
   local correction = calcGridLineCorrection()
