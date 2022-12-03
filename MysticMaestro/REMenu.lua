@@ -552,11 +552,10 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
     return frame
   end
 
-  local function MMTab_OnClick(self, index)
+  local function MMTab_OnClick(index)
     if not MysticMaestroMenu then
       initializeMenu()
     end
-    local index = self:GetID()
     if index ~= MM.AHTabIndex then
       AuctionPortraitTexture:Show()
       if MysticMaestroMenu:GetParent() == AuctionFrame and MysticMaestroMenu:IsVisible() then
@@ -582,15 +581,18 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
     end
   end
 
-  local mm_orig_AuctionFrameTab_OnClick
   function MM:REMenu_ADDON_LOADED(event, addonName)
     if addonName ~= "Blizzard_AuctionUI" then return end
     local tab = initAHTab()
-    mm_orig_AuctionFrameTab_OnClick = AuctionFrameTab_OnClick
-    AuctionFrameTab_OnClick = function(self, index, down)
-      mm_orig_AuctionFrameTab_OnClick(self, index, down)
-      MMTab_OnClick(self, index, down)
-    end
+ 
+    hooksecurefunc("PanelTemplates_SetTab",
+      function(frame, id)
+        if frame == AuctionFrame then
+          MMTab_OnClick(id)
+        end
+      end
+    )
+
     self:HookScript(AuctionFrame, "OnHide",
     function()
       if MysticMaestroMenu and MysticMaestroMenu:IsShown() and MysticMaestroMenu:GetParent() == AuctionFrame then
