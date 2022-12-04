@@ -568,19 +568,14 @@ end
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if bagClear then
-      print("bagClear")
       if MM:ClearAuctionItem() then
-        print("bagClear inside")
         bagClear = nil
         isFetching = true
       end
     elseif isFetching then
-      print("isFetching")
       if not GetAuctionSellItemInfo() then
-        print("fetchItem")
         MM:PlaceItemInAuctionSlot(fetchBag, fetchSlot)
       else
-        print("fetchComplete")
         isFetching = nil
         fetchBag = nil
         fetchSlot = nil
