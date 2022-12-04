@@ -562,7 +562,7 @@ end
 function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
   PickupContainerItem(bagID, slotIndex)
   ClickAuctionSellItemButton()
-  -- ClearCursor()
+  ClearCursor()
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
@@ -595,6 +595,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 function MM:ListAuction(enchantID, price)
   local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
   if bagID then
+    MM:CloseAuctionPopups()
     bagClear = true
     fetchBag, fetchSlot = bagID, slotIndex
     startingPrice = price
