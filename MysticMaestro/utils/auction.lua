@@ -579,7 +579,12 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         isFetching = nil
         fetchBag = nil
         fetchSlot = nil
-        StaticPopup_Show("MM_LIST_AUCTION")
+        if MM.db.realm.OPTIONS.confirmList then
+          StaticPopup_Show("MM_LIST_AUCTION")
+        else
+          StartAuction(startingPrice, startingPrice, 1, 1, 1)
+          MM:RefreshSelectedEnchantAuctions(true)
+        end
       end
     end
   end
