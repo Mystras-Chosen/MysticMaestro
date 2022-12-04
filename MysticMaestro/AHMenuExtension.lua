@@ -209,7 +209,7 @@ end
 
 local function myAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
-  local results = MM:GetSortedMyAuctionResults()
+  local results = MM:GetSortedMyAuctionResults() or MM:CacheMyAuctionResults()
   FauxScrollFrame_Update(self, #results, #buttons, buttonHeight, nil, nil, nil, nil, nil, nil, true)
   local selectedData = MM:GetSelectedMyAuctionData()
   local offset = FauxScrollFrame_GetOffset(self)
