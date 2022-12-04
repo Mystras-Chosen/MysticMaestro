@@ -187,6 +187,7 @@ function MM:CacheMyAuctionResults()
     transferLastScanTime(myAuctionResults, newResults)
   end
   myAuctionResults = newResults
+  return myAuctionResults
 end
 
 local function convertMyAuctionResults(results)
@@ -495,7 +496,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	button2 = CANCEL,
 	OnAccept = function(self)
     local sellPrice = MoneyInputFrame_GetCopper(self.moneyInputFrame)
-		StartAuction(sellPrice, sellPrice, 1, 1, 1)
+    StartAuction(sellPrice, sellPrice, 1, 1, 1)
     MM:RefreshSelectedEnchantAuctions(true)
 	end,
 	OnShow = function(self)
