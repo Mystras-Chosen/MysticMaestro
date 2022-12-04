@@ -547,19 +547,63 @@ local function findSellableItemWithEnchantID(enchantID)
   end
 end
 
+local bagClear, isFetching, fetchBag, fetchSlot
+function MM:ClearAuctionItem()
+  ClearCursor()
+  if GetAuctionSellItemInfo() then
+      ClickAuctionSellItemButton()
+      ClearCursor()
+      return GetAuctionSellItemInfo() and false or true
+  end
+  return true
+end
+
+function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
+  PickupContainerItem(bagID, slotIndex)
+  ClickAuctionSellItemButton()
+  -- ClearCursor()
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    if bagClear then
+      print("bagClear")
+      if MM:ClearAuctionItem() then
+        print("bagClear inside")
+        bagClear = nil
+        isFetching = true
+      end
+    elseif isFetching then
+      print("isFetching")
+      if not GetAuctionSellItemInfo() then
+        print("fetchItem")
+        MM:PlaceItemInAuctionSlot(fetchBag, fetchSlot)
+      else
+        print("fetchComplete")
+        isFetching = nil
+        fetchBag = nil
+        fetchSlot = nil
+        StaticPopup_Show("MM_LIST_AUCTION")
+      end
+    end
+  end
+)
+
+
 
 function MM:ListAuction(enchantID, price)
   local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
   if bagID then
-    PickupContainerItem(bagID, slotIndex)
-    ClickAuctionSellItemButton()
+    bagClear = true
+    fetchBag, fetchSlot = bagID, slotIndex
     startingPrice = price
     enchantToList = enchantID
-    StaticPopup_Show("MM_LIST_AUCTION")
   else
     print("No item found")
   end
 end
+
+
 
 function MM:CloseAuctionPopups()
   StaticPopup_Hide("MM_BUYOUT_AUCTION")
