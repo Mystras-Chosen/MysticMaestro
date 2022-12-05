@@ -12,10 +12,23 @@ local myOptionsTable = {
       type = "group",
       args={
 				confirmList = {
+					order = 1,
 					name = "Confirm Listing",
 					desc = "Enables a confirmation before making a listing.",
 					type = "toggle"
-				}
+				},
+				confirmBuyout = {
+					order = 2,
+					name = "Confirm Buyout",
+					desc = "Enables a confirmation before buying an auction.",
+					type = "toggle"
+				},
+				confirmCancel = {
+					order = 3,
+					name = "Confirm Cancel",
+					desc = "Enables a confirmation before canceling your auction.",
+					type = "toggle"
+				},
       }
     },
     scan={
