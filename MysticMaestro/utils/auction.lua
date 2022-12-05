@@ -446,7 +446,14 @@ StaticPopupDialogs["MM_BUYOUT_AUCTION"] = {
 
 function MM:BuyoutAuction(id)
   SetSelectedAuctionItem("list", id)
-  StaticPopup_Show("MM_BUYOUT_AUCTION")
+  if MM.db.realm.OPTIONS.confirmBuyout then
+    StaticPopup_Show("MM_BUYOUT_AUCTION")
+  else
+    local data = MM:GetSelectedSelectedEnchantAuctionData()
+    PlaceAuctionBid("list", data.id, data.buyoutPrice)
+    MM:RefreshSelectedEnchantAuctions(true)
+  end
+
 end
 
 StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
@@ -486,7 +493,12 @@ end
 function MM:CancelAuction(enchantID, buyoutPrice)
   local auctionID = findOwnerAuctionID(enchantID, buyoutPrice)
   SetSelectedAuctionItem("owner", auctionID)
-  StaticPopup_Show("MM_CANCEL_AUCTION")
+  if MM.db.realm.OPTIONS.confirmCancel then
+    StaticPopup_Show("MM_CANCEL_AUCTION")
+  else
+    CancelAuction(GetSelectedAuctionItem("owner"))
+    MM:RefreshSelectedEnchantAuctions(true)
+  end
 end
 
 local startingPrice, enchantToList
