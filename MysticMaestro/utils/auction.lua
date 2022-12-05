@@ -534,9 +534,19 @@ local function findSellableItemWithEnchantID(enchantID)
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
       local _,_,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
+      local name, reqLevel, vendorPrice, mysticScroll
+      if item then
+        name, _, _, _, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(item)
+        mysticScroll = name:match("^Mystic Scroll: (.*)")
+      end
       -- we have an item, with at least 3 quality and is not soulbound
-      if item and quality >= 3 and not MM:IsSoulbound(bagID, slotIndex) then
-        local re = GetREInSlot(bagID, slotIndex)
+      if item and (quality >= 3 and not MM:IsSoulbound(bagID, slotIndex) or mysticScroll) then
+        local re
+        if mysticScroll then
+          re = MM.RE_LOOKUP[mysticScroll]
+        else
+          re = GetREInSlot(bagID, slotIndex)
+        end
         if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
           re = MM.RE_ID[re]
         end

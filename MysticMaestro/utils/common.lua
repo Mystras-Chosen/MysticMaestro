@@ -86,16 +86,25 @@ local MMSetting_QualityLimit = 3 -- Rare
 -- item exists, rare, has RE, is not soulbound
 function MM:UpdateSellableREsCache(bagID)
   local newContainerCache = {}
+  local name, iLevel, vendorPrice, mysticScroll
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local quality, _, _, itemLink = select(4, GetContainerItemInfo(bagID, containerIndex))
-    if itemLink and quality >= 3 and not self:IsSoulbound(bagID, containerIndex) then
-      local re = GetREInSlot(bagID, containerIndex)
+    if itemLink then
+      name, _, _, iLevel, _, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
+      mysticScroll = name:match("^Mystic Scroll: (.*)")
+    end
+    if itemLink and ((quality >= 3 and not self:IsSoulbound(bagID, containerIndex)) or mysticScroll) then
+      local re
+      if mysticScroll then
+        re = MM.RE_LOOKUP[mysticScroll]
+      else
+        re = GetREInSlot(bagID, containerIndex)
+      end
       if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
         re = MM.RE_ID[re]
       end
       if re then
-        local iLevel, _, _, _, _, _, _, vendorPrice = select(4, GetItemInfo(itemLink))
-        if iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit then
+        if mysticScroll or (iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit) then
           newContainerCache[re] = (newContainerCache[re] or 0) + 1
         end
       elseif itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll") then
