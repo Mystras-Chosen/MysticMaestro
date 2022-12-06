@@ -207,6 +207,9 @@ local function convertMyAuctionResults(results)
 end
 
 function MM:GetSortedMyAuctionResults()
+  if not myAuctionResults then
+    self:CacheMyAuctionResults()
+  end
   local sortableMyAuctionResults = convertMyAuctionResults(myAuctionResults)
   table.sort(sortableMyAuctionResults,
     function(r1, r2)
