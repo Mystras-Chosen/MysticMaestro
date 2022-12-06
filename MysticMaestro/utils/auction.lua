@@ -133,21 +133,24 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
 end
 
 local function getMyAuctionInfo(i)
-  local _, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
+  local itemName, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
+  if itemName and itemName:match("^Mystic Scroll: (.*)") then
+    enchantID = MM.RE_LOOKUP[itemName:match("^Mystic Scroll: (.*)")]
+  end
   local link = GetAuctionItemLink("owner", i)
   local duration = GetAuctionItemTimeLeft("owner", i)
   if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
     enchantID = MM.RE_ID[enchantID]
   end
-  return icon, quality, buyoutPrice, enchantID, link, duration
+  return itemName, icon, quality, buyoutPrice, enchantID, link, duration
 end
 
 local function collectMyAuctionData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    local icon, quality, buyoutPrice, enchantID, link = getMyAuctionInfo(i)
-    if buyoutPrice and quality >= 3 and enchantID then
+    local itemName, icon, quality, buyoutPrice, enchantID, link = getMyAuctionInfo(i)
+    if buyoutPrice and (quality >= 3 or itemName:match("^Mystic Scroll: (.*)")) and enchantID then
       results[enchantID] = results[enchantID] or { auctions = {} }
       table.insert(results[enchantID].auctions, {
         id = i, -- need to have owner ID so auction can be canceled
