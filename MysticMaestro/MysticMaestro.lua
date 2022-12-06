@@ -33,6 +33,11 @@ local defaultDB = {
       ttMed = false,
       ttMean = false,
       ttMax = false,
+      ttTENMin = true,
+      ttTENGPO = false,
+      ttTENMed = false,
+      ttTENMean = false,
+      ttTENMax = false,
     }
   }
 }

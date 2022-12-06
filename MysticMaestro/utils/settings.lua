@@ -82,35 +82,75 @@ local myOptionsTable = {
 				desc = "Enable or disable tooltip information for Mystic Enchants.",
 				type = "toggle"
 				},
+				ttLatestHeader = {
+					order = 3,
+					name = "Last Scan Values",
+					type = "header"
+				},
 				ttMin = {
-				order = 3,
-				name = "Show Minimum",
-				desc = "Show Minimum value in tooltip",
-				type = "toggle"
+					order = 4,
+					name = "Show Minimum",
+					desc = "Show Minimum value in tooltip",
+					type = "toggle"
 				},
 				ttGPO = {
-				order = 4,
-				name = "Show Gold Per Orb",
-				desc = "Show Gold Per Orb value in tooltip",
-				type = "toggle"
+					order = 5,
+					name = "Show Gold Per Orb",
+					desc = "Show Gold Per Orb value in tooltip",
+					type = "toggle"
 				},
 				ttMed = {
-				order = 5,
-				name = "Show Median",
-				desc = "Show Median value in tooltip",
-				type = "toggle"
+					order = 6,
+					name = "Show Median",
+					desc = "Show Median value in tooltip",
+					type = "toggle"
 				},
 				ttMean = {
-				order = 6,
-				name = "Show Mean",
-				desc = "Show Mean value in tooltip",
-				type = "toggle"
+					order = 7,
+					name = "Show Mean",
+					desc = "Show Mean value in tooltip",
+					type = "toggle"
 				},
 				ttMax = {
-				order = 7,
-				name = "Show Maximum",
-				desc = "Show Maximum value in tooltip",
-				type = "toggle"
+					order = 8,
+					name = "Show Maximum",
+					desc = "Show Maximum value in tooltip",
+					type = "toggle"
+				},
+				ttTenDayHeader = {
+					order = 9,
+					name = "10 Day Average Values",
+					type = "header"
+				},
+				ttTENMin = {
+					order = 10,
+					name = "Show 10 day Minimum",
+					desc = "Show 10 day Minimum value in tooltip",
+					type = "toggle"
+				},
+				ttTENGPO = {
+					order = 11,
+					name = "Show 10 day Gold Per Orb",
+					desc = "Show 10 day Gold Per Orb value in tooltip",
+					type = "toggle"
+				},
+				ttTENMed = {
+					order = 12,
+					name = "Show 10 day Median",
+					desc = "Show 10 day Median value in tooltip",
+					type = "toggle"
+				},
+				ttTENMean = {
+					order = 13,
+					name = "Show 10 day Mean",
+					desc = "Show 10 day Mean value in tooltip",
+					type = "toggle"
+				},
+				ttTENMax = {
+					order = 14,
+					name = "Show 10 day Maximum",
+					desc = "Show 10 day Maximum value in tooltip",
+					type = "toggle"
 				},
 			}
 		}
