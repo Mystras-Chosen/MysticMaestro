@@ -135,7 +135,7 @@ end
 local function getMyAuctionInfo(i)
   local itemName, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
-  if itemName and itemName:match("^Mystic Scroll: (.*)") then
+  if itemName and not enchantID then
     enchantID = MM.RE_LOOKUP[itemName:match("^Mystic Scroll: (.*)")]
   end
   local link = GetAuctionItemLink("owner", i)
