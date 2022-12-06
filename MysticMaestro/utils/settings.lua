@@ -65,7 +65,55 @@ local myOptionsTable = {
 					type = "toggle"
 				},
       }
-    }
+    },
+		tooltip={
+			name = "Tooltip",
+      type = "group",
+      args={
+				ttKnownIndicator = {
+				order = 1,
+				name = "Known RE Icon",
+				desc = "Add a green or red icon to item names depending on their known status.",
+				type = "toggle"
+				},
+				ttEnable = {
+				order = 2,
+				name = "Enable Tooltip Info",
+				desc = "Enable or disable tooltip information for Mystic Enchants.",
+				type = "toggle"
+				},
+				ttMin = {
+				order = 3,
+				name = "Show Minimum",
+				desc = "Show Minimum value in tooltip",
+				type = "toggle"
+				},
+				ttGPO = {
+				order = 4,
+				name = "Show Gold Per Orb",
+				desc = "Show Gold Per Orb value in tooltip",
+				type = "toggle"
+				},
+				ttMed = {
+				order = 5,
+				name = "Show Median",
+				desc = "Show Median value in tooltip",
+				type = "toggle"
+				},
+				ttMean = {
+				order = 6,
+				name = "Show Mean",
+				desc = "Show Mean value in tooltip",
+				type = "toggle"
+				},
+				ttMax = {
+				order = 7,
+				name = "Show Maximum",
+				desc = "Show Maximum value in tooltip",
+				type = "toggle"
+				},
+			}
+		}
   }
 }
 

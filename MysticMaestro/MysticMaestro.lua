@@ -26,6 +26,13 @@ local defaultDB = {
       rarityRare = true,
       rarityEpic = true,
       rarityLegendary = true,
+      ttKnownIndicator = true,
+      ttEnable = true,
+      ttMin = true,
+      ttGPO = true,
+      ttMed = false,
+      ttMean = false,
+      ttMax = false,
     }
   }
 }
