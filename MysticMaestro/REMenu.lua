@@ -576,6 +576,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
       if MysticMaestroMenuContainer and MysticMaestroMenuContainer:IsVisible() then
         MysticMaestroMenuContainer:Hide()
       end
+      MysticMaestroMenu:SetFrameStrata("HIGH")
       MM:ShowMysticMaestroMenu()
       MM:ShowAHExtension()
     end
