@@ -91,6 +91,7 @@ end
 local results = {}
 function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
+    self.lastSelectScanTime = GetTime()
     local listings, reID, sTime = self.db.realm.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
     local listingData = listings[reID]
     listingData[sTime] = {}
@@ -176,18 +177,31 @@ local function transferLastScanTime(fromResults, toResults)
   end
 end
 
+local function inferListedAuctionResults(newResults, listedAuctionEnchantID)
+  newResults[listedAuctionEnchantID].lastScanTime = MM.lastSelectScanTime
+  local listedEnchantAuctionResults = MM:GetSelectedEnchantAuctionsResults()
+  if #listedEnchantAuctionResults > 0 then
+    newResults[listedAuctionEnchantID].lowestBuyout = listedEnchantAuctionResults[1].buyoutPrice > MM.listedAuctionBuyoutPrice or listedEnchantAuctionResults[1].yours
+  else
+    newResults[listedAuctionEnchantID].lowestBuyout = true
+  end
+end
+
 local myAuctionResults
 
 function MM:GetMyAuctionResults()
   return myAuctionResults
 end
 
-function MM:CacheMyAuctionResults()
+function MM:CacheMyAuctionResults(listedAuctionEnchantID)
   local newResults = {}
   collectMyAuctionData(newResults)
   collectFavoritesData(newResults)
   if myAuctionResults then
     transferLastScanTime(myAuctionResults, newResults)
+  end
+  if listedAuctionEnchantID and newResults[listedAuctionEnchantID] then
+    inferListedAuctionResults(newResults, listedAuctionEnchantID)
   end
   myAuctionResults = newResults
   return myAuctionResults
@@ -507,12 +521,14 @@ function MM:CancelAuction(enchantID, buyoutPrice)
   end
 end
 
-function MM:StartAuction(price)
+function MM:StartAuction(enchantID, price)
   if CalculateAuctionDeposit(1, 1) > GetMoney() then
     UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
     return false
   else
     StartAuction(price, price, 1, 1, 1)
+    self.listedAuctionEnchantID = enchantID
+    self.listedAuctionBuyoutPrice = price
     return true
   end
 end
@@ -524,7 +540,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	button2 = CANCEL,
 	OnAccept = function(self)
     local sellPrice = MoneyInputFrame_GetCopper(self.moneyInputFrame)
-    if MM:StartAuction(sellPrice) then
+    if MM:StartAuction(enchantToList, sellPrice) then
       MM:RefreshSelectedEnchantAuctions(true)
     end
 	end,
@@ -622,7 +638,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         if MM.db.realm.OPTIONS.confirmList then
           StaticPopup_Show("MM_LIST_AUCTION")
         else
-          if MM:StartAuction(startingPrice) then
+          if MM:StartAuction(enchantToList, startingPrice) then
             MM:RefreshSelectedEnchantAuctions(true)
           end
         end

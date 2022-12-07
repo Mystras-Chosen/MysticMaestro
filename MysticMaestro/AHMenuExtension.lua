@@ -532,7 +532,9 @@ function MM:EnableSelectEnchantAuctionButton(button)
 end
 
 function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
-  self:CacheMyAuctionResults()
+  self:CacheMyAuctionResults(MM.listedAuctionEnchantID)
+  self.listedAuctionEnchantID = nil
+  self.listedAuctionBuyoutPrice = nil
   if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
     self:RefreshMyAuctionsScrollFrame()
   end
