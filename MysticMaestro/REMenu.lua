@@ -103,7 +103,7 @@ do -- functions to initialize menu and menu container
     standaloneMenuContainer:EnableMouse(true)
     standaloneMenuContainer:SetMovable(true)
     standaloneMenuContainer:SetResizable(false)
-    standaloneMenuContainer:SetFrameStrata("DIALOG")
+    standaloneMenuContainer:SetFrameStrata("MEDIUM")
     standaloneMenuContainer:SetBackdrop(FrameBackdrop)
     standaloneMenuContainer:SetBackdropColor(0, 0, 0, 1)
     standaloneMenuContainer:SetToplevel(true)
@@ -117,18 +117,18 @@ do -- functions to initialize menu and menu container
       local deco = CreateFrame("Frame", nil, frame)
       deco:SetSize(width, 40)
 
-      local bg1 = deco:CreateTexture(nil, "DIALOG")
+      local bg1 = deco:CreateTexture(nil, "MEDIUM")
       bg1:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
       bg1:SetTexCoord(0.31, 0.67, 0, 0.63)
       bg1:SetAllPoints(deco)
 
-      local bg2 = deco:CreateTexture(nil, "DIALOG")
+      local bg2 = deco:CreateTexture(nil, "MEDIUM")
       bg2:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
       bg2:SetTexCoord(0.235, 0.275, 0, 0.63)
       bg2:SetPoint("RIGHT", bg1, "LEFT", 1, 0)
       bg2:SetSize(10, 40)
 
-      local bg3 = deco:CreateTexture(nil, "DIALOG")
+      local bg3 = deco:CreateTexture(nil, "MEDIUM")
       bg3:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
       bg3:SetTexCoord(0.72, 0.76, 0, 0.63)
       bg3:SetPoint("LEFT", bg1, "RIGHT", -1, 0)
@@ -471,6 +471,11 @@ do -- functions to initialize menu and menu container
     settingsButton:SetSize(27, 27)
     settingsButton:SetPoint("TOP", mmf, "TOP", -76, 0)
     settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
+    settingsButton:SetScript("OnClick",
+      function()
+        InterfaceOptionsFrame_OpenToCategory("Mystic Maestro")
+      end
+    )
     MM_FRAMES_MENU_SETTINGS = settingsButton
   end
 
@@ -576,7 +581,6 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
       if MysticMaestroMenuContainer and MysticMaestroMenuContainer:IsVisible() then
         MysticMaestroMenuContainer:Hide()
       end
-      MysticMaestroMenu:SetFrameStrata("HIGH")
       MM:ShowMysticMaestroMenu()
       MM:ShowAHExtension()
     end
@@ -906,6 +910,7 @@ do -- show and hide MysticMaestroMenu
     self:UpdateCurrencyDisplay()
     self:FilterMysticEnchants(MM.db.realm.VIEWS.filter or {allQualities = true, allKnown = true})
     self:GoToPage(1)
+    MysticMaestroMenu:SetFrameStrata("HIGH")
     MysticMaestroMenu:Show()
   end
 
