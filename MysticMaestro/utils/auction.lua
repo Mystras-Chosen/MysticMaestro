@@ -134,7 +134,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
 end
 
 local function getMyAuctionInfo(i)
-  local itemName, icon, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
+  local itemName, _, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
   if itemName and not enchantID then
     enchantID = MM.RE_LOOKUP[itemName:match("^Mystic Scroll: (.*)")]
@@ -145,18 +145,22 @@ local function getMyAuctionInfo(i)
     enchantID = MM.RE_ID[enchantID]
   end
   local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
-  local allowedQuality = (MM.db.realm.OPTIONS.allowEpic and quality >= 3 and quality <= 4) or (not MM.db.realm.OPTIONS.allowEpic and quality == 3)
-  local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
-  local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
-  local allowed = allowedQuality and allowedItemLevel and allowedVendorPrice
-  return itemName, icon, quality, buyoutPrice, enchantID, link, allowed
+  local mysticScroll = itemName:match("^Mystic Scroll: (.*)")
+  local allowedQuality, allowedItemLevel, allowedVendorPrice
+  if not mysticScroll then
+    allowedQuality = (MM.db.realm.OPTIONS.allowEpic and quality >= 3 and quality <= 4) or (not MM.db.realm.OPTIONS.allowEpic and quality == 3)
+    allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
+    allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
+  end
+  local allowed = mysticScroll or (allowedQuality and allowedItemLevel and allowedVendorPrice)
+  return buyoutPrice, enchantID, link, allowed
 end
 
 local function collectMyAuctionData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    local itemName, icon, quality, buyoutPrice, enchantID, link, allowed = getMyAuctionInfo(i)
-    if buyoutPrice and (allowed or itemName:match("^Mystic Scroll: (.*)")) and enchantID then
+    local buyoutPrice, enchantID, link, allowed = getMyAuctionInfo(i)
+    if buyoutPrice and allowed and enchantID then
       results[enchantID] = results[enchantID] or { auctions = {} }
       table.insert(results[enchantID].auctions, {
         id = i, -- need to have owner ID so auction can be canceled
