@@ -43,9 +43,11 @@ function MM:FindBlankInsignia()
   for bagID=0, 4 do
     for containerIndex=1, GetContainerNumSlots(bagID) do
       local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
-      local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
-      if MM:IsTrinket(itemName,reqLevel) and not GetREInSlot(bagID, containerIndex) then
-        return bagID, containerIndex
+      if itemLink then
+        local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
+        if MM:IsTrinket(itemName,reqLevel) and not GetREInSlot(bagID, containerIndex) then
+          return bagID, containerIndex
+        end
       end
     end
   end
