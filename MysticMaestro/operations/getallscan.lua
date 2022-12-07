@@ -10,7 +10,7 @@ local function remainingTime()
   end
 end
 
-function MM:HandleFullScan()
+function MM:HandleGetAllScan()
   if not self:ValidateAHIsOpen() then
     return
   end
@@ -19,11 +19,11 @@ function MM:HandleFullScan()
     lastScanTime = time()
     QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
   else
-    MM:Print("Full scan not available. Time remaining: " .. remainingTime())
+    MM:Print("Get All scan not available. Time remaining: " .. remainingTime())
   end
 end
 
-function MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
+function MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
   if scanInProgress == true then
     scanInProgress = false
     self:CollectAllREData(lastScanTime)

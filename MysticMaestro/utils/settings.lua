@@ -97,31 +97,31 @@ local myOptionsTable = {
       args={
 				rarityHeader = {
 					order = 1,
-					name = "Included rarities in full scan",
+					name = "Included rarities in scan",
 					type = "header"
 				},
 				rarityMagic = {
 					order = 2,
 					name = "Uncommon",
-					desc = "Include Uncommon enchants during full scan.",
+					desc = "Include Uncommon enchants during scan.",
 					type = "toggle"
 				},
 				rarityRare = {
 					order = 3,
 					name = "Rare",
-					desc = "Include Rare enchants during full scan.",
+					desc = "Include Rare enchants during scan.",
 					type = "toggle"
 				},
 				rarityEpic = {
 					order = 4,
 					name = "Epic",
-					desc = "Include Epic enchants during full scan.",
+					desc = "Include Epic enchants during scan.",
 					type = "toggle"
 				},
 				rarityLegendary = {
 					order = 5,
 					name = "Legendary",
-					desc = "Include Legendary enchants during full scan.",
+					desc = "Include Legendary enchants during scan.",
 					type = "toggle"
 				},
       }

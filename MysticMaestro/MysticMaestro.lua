@@ -70,8 +70,8 @@ end
 
 function MM:ProcessSlashCommand(input)
   local lowerInput = input:lower()
-  if lowerInput:match("^fullscan$") then
-    MM:HandleFullScan()
+  if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
+    MM:HandleGetAllScan()
   elseif lowerInput:match("^scan") then
     MM:HandleScan(input:match("^%w+%s+(.+)"))
   elseif lowerInput:match("^calc") then
@@ -80,7 +80,7 @@ function MM:ProcessSlashCommand(input)
     MM:HandleMenuSlashCommand()
   else
     MM:Print("Command not recognized")
-    MM:Print("Valid input is scan, fullscan, calc")
+    MM:Print("Valid input is scan, getall, calc")
     MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
   end
 end
@@ -105,7 +105,7 @@ end
 
 MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", function()
   MM:Scan_AUCTION_ITEM_LIST_UPDATE()
-  MM:Fullscan_AUCTION_ITEM_LIST_UPDATE()
+  MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
   MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
 end)
