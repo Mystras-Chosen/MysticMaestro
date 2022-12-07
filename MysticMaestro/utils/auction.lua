@@ -136,8 +136,9 @@ end
 local function getMyAuctionInfo(i)
   local itemName, _, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
   local enchantID = GetAuctionItemMysticEnchant("owner", i)
-  if itemName and not enchantID then
-    enchantID = MM.RE_LOOKUP[itemName:match("^Mystic Scroll: (.*)")]
+  local mysticScroll = itemName:match("^Mystic Scroll: (.*)")
+  if mysticScroll and not enchantID then
+    enchantID = MM.RE_LOOKUP[mysticScroll]
   end
   local link = GetAuctionItemLink("owner", i)
   -- local duration = GetAuctionItemTimeLeft("owner", i)
@@ -145,7 +146,6 @@ local function getMyAuctionInfo(i)
     enchantID = MM.RE_ID[enchantID]
   end
   local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
-  local mysticScroll = itemName:match("^Mystic Scroll: (.*)")
   local allowedQuality, allowedItemLevel, allowedVendorPrice
   local allowed = mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice)
   return buyoutPrice, enchantID, link, allowed
