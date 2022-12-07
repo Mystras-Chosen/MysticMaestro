@@ -43,7 +43,8 @@ function MM:FindBlankInsignia()
   for bagID=0, 4 do
     for containerIndex=1, GetContainerNumSlots(bagID) do
       local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
-      if itemLink and (itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll")) and not GetREInSlot(bagID, containerIndex) then
+      local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
+      if MM:IsTrinket(itemName,reqLevel) and not GetREInSlot(bagID, containerIndex) then
         return bagID, containerIndex
       end
     end
@@ -82,28 +83,18 @@ end
 -- item exists, rare, has RE, is not soulbound
 function MM:UpdateSellableREsCache(bagID)
   local newContainerCache = {}
-  local name, iLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
+  local itemName, iLevel, reqLevel, vendorPrice, mysticScroll
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local quality, _, _, itemLink = select(4, GetContainerItemInfo(bagID, containerIndex))
+    local enchantID = GetREInSlot(bagID, containerIndex)
     if itemLink then
-      name, _, _, iLevel, _, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
-      mysticScroll = name:match("^Mystic Scroll: (.*)")
+      itemName, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
+      enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
     end
-    if itemLink and ((quality >= 3 and not self:IsSoulbound(bagID, containerIndex)) or mysticScroll) then
-      local re
-      if mysticScroll then
-        re = MM.RE_LOOKUP[mysticScroll]
-      else
-        re = GetREInSlot(bagID, containerIndex)
-      end
-      if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
-        re = MM.RE_ID[re]
-      end
-      if re then
-        if mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice) then
-          newContainerCache[re] = (newContainerCache[re] or 0) + 1
-        end
-      elseif itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll") then
+    if itemLink and (MM:AllowedItem(quality, iLevel, vendorPrice) or mysticScroll) then
+      if enchantID then
+        newContainerCache[enchantID] = (newContainerCache[enchantID] or 0) + 1
+      elseif MM:IsTrinket(itemName,reqLevel) then
         newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
     end
@@ -345,4 +336,21 @@ function MM:AllowedItem(quality, iLevel, vendorPrice)
   local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
   local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
   return allowedQuality and allowedItemLevel and allowedVendorPrice
+end
+
+function MM:StandardizeEnchantID(itemName, enchantID)
+  local mysticScroll = itemName and itemName:match("^Mystic Scroll: (.*)")
+  if not enchantID and mysticScroll then
+    enchantID = MM.RE_LOOKUP[mysticScroll]
+  end
+  if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
+    enchantID = MM.RE_ID[enchantID]
+  end
+  return enchantID, mysticScroll
+end
+
+function MM:IsTrinket(itemName,reqLevel)
+  if itemName and reqLevel then
+    return (reqLevel == 15 and itemName:find("Insignia of the")) or (reqLevel == 60 and itemName:find("Bloodforged Untarnished Mystic Scroll"))
+  end
 end

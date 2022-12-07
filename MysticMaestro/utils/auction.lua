@@ -17,23 +17,10 @@ local function getAuctionInfo(i)
 end
 
 local function isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
-  local trinketFound = itemName and itemName:find("Insignia") and level == 15
-  local mysticScroll = itemName and itemName:match("Mystic Scroll: (.+)")
+  local trinketFound = MM:IsTrinket(itemName,level)
+  local enchantID, mysticScroll = GetAuctionItemMysticEnchant("list", i)
+  enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
   local properItem = buyoutPrice and buyoutPrice > 0 and ((quality and quality >= 3) or mysticScroll) 
-  local enchantID
-  if trinketFound then
-    enchantID = GetAuctionItemMysticEnchant("list", i)
-  elseif properItem then
-    if mysticScroll then
-      enchantID = MM.RE_LOOKUP[mysticScroll]
-    else
-      enchantID = GetAuctionItemMysticEnchant("list", i)
-    end
-  end
-
-  if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
-    enchantID = MM.RE_ID[enchantID]
-  end
   return properItem and enchantID, enchantID, trinketFound
 end
 
@@ -135,16 +122,11 @@ end
 
 local function getMyAuctionInfo(i)
   local itemName, _, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
-  local enchantID = GetAuctionItemMysticEnchant("owner", i)
-  local mysticScroll = itemName:match("^Mystic Scroll: (.*)")
-  if mysticScroll and not enchantID then
-    enchantID = MM.RE_LOOKUP[mysticScroll]
-  end
+  local enchantID, mysticScroll
+  enchantID = GetAuctionItemMysticEnchant("owner", i)
+  enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
   local link = GetAuctionItemLink("owner", i)
   -- local duration = GetAuctionItemTimeLeft("owner", i)
-  if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
-    enchantID = MM.RE_ID[enchantID]
-  end
   local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
   local allowedQuality, allowedItemLevel, allowedVendorPrice
   local allowed = mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice)
@@ -591,7 +573,7 @@ local function findSellableItemWithEnchantID(enchantID)
         -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
           local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
-          local istrinket = (reqLevel == 15 and item:find("Insignia of the")) or (reqLevel == 60 and item:find("Bloodforged Untarnished Mystic Scroll"))
+          local istrinket = MM:IsTrinket(name,reqLevel)
           table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, (vendorPrice or 0)})
         end
       end
