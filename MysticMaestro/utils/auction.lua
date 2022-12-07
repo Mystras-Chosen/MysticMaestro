@@ -140,18 +140,23 @@ local function getMyAuctionInfo(i)
     enchantID = MM.RE_LOOKUP[itemName:match("^Mystic Scroll: (.*)")]
   end
   local link = GetAuctionItemLink("owner", i)
-  local duration = GetAuctionItemTimeLeft("owner", i)
+  -- local duration = GetAuctionItemTimeLeft("owner", i)
   if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
     enchantID = MM.RE_ID[enchantID]
   end
-  return itemName, icon, quality, buyoutPrice, enchantID, link, duration
+  local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
+  local allowedQuality = (MM.db.realm.OPTIONS.allowEpic and quality >= 3 and quality <= 4) or (not MM.db.realm.OPTIONS.allowEpic and quality == 3)
+  local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
+  local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
+  local allowed = allowedQuality and allowedItemLevel and allowedVendorPrice
+  return itemName, icon, quality, buyoutPrice, enchantID, link, allowed
 end
 
 local function collectMyAuctionData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    local itemName, icon, quality, buyoutPrice, enchantID, link = getMyAuctionInfo(i)
-    if buyoutPrice and (quality >= 3 or itemName:match("^Mystic Scroll: (.*)")) and enchantID then
+    local itemName, icon, quality, buyoutPrice, enchantID, link, allowed = getMyAuctionInfo(i)
+    if buyoutPrice and (allowed or itemName:match("^Mystic Scroll: (.*)")) and enchantID then
       results[enchantID] = results[enchantID] or { auctions = {} }
       table.insert(results[enchantID].auctions, {
         id = i, -- need to have owner ID so auction can be canceled
@@ -567,13 +572,18 @@ local function findSellableItemWithEnchantID(enchantID)
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
       local _,_,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
-      local name, reqLevel, vendorPrice, mysticScroll
+      local name, reqLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
       if item then
-        name, _, _, _, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(item)
+        name, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(item)
         mysticScroll = name:match("^Mystic Scroll: (.*)")
       end
       -- we have an item, with at least 3 quality and is not soulbound
-      if item and (quality >= 3 and not MM:IsSoulbound(bagID, slotIndex) or mysticScroll) then
+      if not mysticScroll then
+        allowedQuality = (MM.db.realm.OPTIONS.allowEpic and quality >= 3 and quality <= 4) or (not MM.db.realm.OPTIONS.allowEpic and quality == 3)
+        allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
+        allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
+      end
+      if item and (mysticScroll or (allowedQuality and allowedItemLevel and allowedVendorPrice and not MM:IsSoulbound(bagID, slotIndex))) then
         local re
         if mysticScroll then
           re = MM.RE_LOOKUP[mysticScroll]

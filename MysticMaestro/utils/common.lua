@@ -79,14 +79,10 @@ function MM:CountSellableREInBags(enchantID)
   return sellableREsInBagsCache[enchantID]
 end
 
-local MMSetting_IlvlLimit = 115
-local MMSetting_GoldLimit = 8
-local MMSetting_QualityLimit = 3 -- Rare
-
 -- item exists, rare, has RE, is not soulbound
 function MM:UpdateSellableREsCache(bagID)
   local newContainerCache = {}
-  local name, iLevel, vendorPrice, mysticScroll
+  local name, iLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local quality, _, _, itemLink = select(4, GetContainerItemInfo(bagID, containerIndex))
     if itemLink then
@@ -104,7 +100,12 @@ function MM:UpdateSellableREsCache(bagID)
         re = MM.RE_ID[re]
       end
       if re then
-        if mysticScroll or (iLevel <= MMSetting_IlvlLimit and vendorPrice <= MMSetting_GoldLimit * 10000 and quality <= MMSetting_QualityLimit) then
+        if not mysticScroll then
+          allowedQuality = (MM.db.realm.OPTIONS.allowEpic and quality >= 3 and quality <= 4) or (not MM.db.realm.OPTIONS.allowEpic and quality == 3)
+          allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
+          allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
+        end
+        if mysticScroll or (allowedItemLevel and allowedVendorPrice and allowedQuality) then
           newContainerCache[re] = (newContainerCache[re] or 0) + 1
         end
       elseif itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll") then
