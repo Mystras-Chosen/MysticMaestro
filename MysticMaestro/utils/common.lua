@@ -100,12 +100,7 @@ function MM:UpdateSellableREsCache(bagID)
         re = MM.RE_ID[re]
       end
       if re then
-        if not mysticScroll then
-          allowedQuality = quality == 3 or MM.db.realm.OPTIONS.allowEpic and quality == 4
-          allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
-          allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
-        end
-        if mysticScroll or (allowedItemLevel and allowedVendorPrice and allowedQuality) then
+        if mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice) then
           newContainerCache[re] = (newContainerCache[re] or 0) + 1
         end
       elseif itemLink:find("Insignia of the") or itemLink:find("Bloodforged Untarnished Mystic Scroll") then
@@ -343,4 +338,11 @@ end
 
 function MM:GetOrbCurrency()
   return GetItemCount(98570)
+end
+
+function MM:AllowedItem(quality, iLevel, vendorPrice)
+  local allowedQuality = quality == 3 or MM.db.realm.OPTIONS.allowEpic and quality == 4
+  local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
+  local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
+  return allowedQuality and allowedItemLevel and allowedVendorPrice
 end
