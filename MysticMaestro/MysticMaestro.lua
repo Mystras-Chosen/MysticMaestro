@@ -22,17 +22,28 @@ local defaultDB = {
       confirmList = true,
       confirmBuyout = true,
       confirmCancel = true,
+
+      allowEpic = false,
+      limitIlvl = 71,
+      limitGold = 2,
+
+      myTimeout = 20,
+      mySortAlpha = false,
+
       rarityMagic = true,
       rarityRare = true,
       rarityEpic = true,
       rarityLegendary = true,
+
       ttKnownIndicator = true,
       ttEnable = true,
+      
       ttMin = true,
       ttGPO = true,
       ttMed = false,
       ttMean = false,
       ttMax = false,
+
       ttTENMin = true,
       ttTENGPO = false,
       ttTENMed = false,

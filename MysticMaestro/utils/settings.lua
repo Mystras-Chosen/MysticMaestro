@@ -11,22 +11,82 @@ local myOptionsTable = {
       name = "General",
       type = "group",
       args={
-				confirmList = {
+				confirmHeader = {
 					order = 1,
+					name = "Confirmations",
+					type = "header"
+				},
+				confirmList = {
+					order = 2,
 					name = "Confirm Listing",
 					desc = "Enables a confirmation before making a listing.",
 					type = "toggle"
 				},
 				confirmBuyout = {
-					order = 2,
+					order = 3,
 					name = "Confirm Buyout",
 					desc = "Enables a confirmation before buying an auction.",
 					type = "toggle"
 				},
 				confirmCancel = {
-					order = 3,
+					order = 4,
 					name = "Confirm Cancel",
 					desc = "Enables a confirmation before canceling your auction.",
+					type = "toggle"
+				},
+				limitsHeader = {
+					order = 10,
+					name = "Item Limits",
+					type = "header"
+				},
+				allowEpic = {
+					order = 11,
+					name = "Allow Epic",
+					desc = "Allow epic items to be considered for listing.",
+					type = "toggle"
+				},
+				limitIlvl = {
+					order = 12,
+					name = "Limit by Item Level",
+					desc = "Define the highest allowable item level that is considered for listing.",
+					type = "range",
+					step = 1,
+					min = 15,
+					max = 999,
+					softMin = 15,
+					softMax = 120
+				},
+				limitGold = {
+					order = 13,
+					name = "Limit by Vendor Value",
+					desc = "Define the highest allowable vendor value that is considered for listing.",
+					type = "range",
+					step = .1,
+					min = 0,
+					max = 15,
+					softMin = 1,
+					softMax = 10
+				},
+				myHeader = {
+					order = 20,
+					name = "My Auctions",
+					type = "header"
+				},
+				myTimeout = {
+					order = 21,
+					name = "Timeout Scan Validity",
+					desc = "Set the duration the addon will wait before considering the last scan old.",
+					type = "range",
+					step = 1,
+					min = 1,
+					max = 60,
+					softMin = 5,
+					softMax = 30
+				},
+				mySortAlpha = {
+					order = 22,
+					name = "Sort My Auctions Alphabetically",
+					desc = "Enable to sort alphabetically, disable to sort based on the number of listed enchants.",
 					type = "toggle"
 				},
       }
