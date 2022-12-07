@@ -122,8 +122,7 @@ end
 
 local function getMyAuctionInfo(i)
   local itemName, _, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
-  local enchantID, mysticScroll
-  enchantID = GetAuctionItemMysticEnchant("owner", i)
+  local enchantID, mysticScroll = GetAuctionItemMysticEnchant("owner", i)
   enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
   local link = GetAuctionItemLink("owner", i)
   -- local duration = GetAuctionItemTimeLeft("owner", i)
