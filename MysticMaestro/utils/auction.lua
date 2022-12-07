@@ -507,6 +507,16 @@ function MM:CancelAuction(enchantID, buyoutPrice)
   end
 end
 
+function MM:StartAuction(price)
+  if CalculateAuctionDeposit(1, 1) > GetMoney() then
+    UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
+    return false
+  else
+    StartAuction(price, price, 1, 1, 1)
+    return true
+  end
+end
+
 local startingPrice, enchantToList
 StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	text = "List auction for the following amount?",
@@ -514,8 +524,9 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	button2 = CANCEL,
 	OnAccept = function(self)
     local sellPrice = MoneyInputFrame_GetCopper(self.moneyInputFrame)
-    StartAuction(sellPrice, sellPrice, 1, 1, 1)
-    MM:RefreshSelectedEnchantAuctions(true)
+    if MM:StartAuction(sellPrice) then
+      MM:RefreshSelectedEnchantAuctions(true)
+    end
 	end,
 	OnShow = function(self)
     MoneyInputFrame_SetCopper(self.moneyInputFrame, startingPrice)
@@ -607,11 +618,13 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         isFetching = nil
         fetchBag = nil
         fetchSlot = nil
+
         if MM.db.realm.OPTIONS.confirmList then
           StaticPopup_Show("MM_LIST_AUCTION")
         else
-          StartAuction(startingPrice, startingPrice, 1, 1, 1)
-          MM:RefreshSelectedEnchantAuctions(true)
+          if MM:StartAuction(startingPrice) then
+            MM:RefreshSelectedEnchantAuctions(true)
+          end
         end
       end
     end
