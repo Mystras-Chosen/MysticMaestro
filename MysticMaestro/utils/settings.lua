@@ -74,8 +74,8 @@ local myOptionsTable = {
 				},
 				myTimeout = {
 					order = 21,
-					name = "Timeout Scan Validity",
-					desc = "Set the duration the addon will wait before considering the last scan old.",
+					name = "Recent Scan Timeout",
+					desc = "Set the duration the addon will wait before considering the last scan old, this will turn the color from green/red to yellow.",
 					type = "range",
 					step = 1,
 					min = 1,
@@ -85,7 +85,7 @@ local myOptionsTable = {
 				},
 				mySortAlpha = {
 					order = 22,
-					name = "Sort My Auctions Alphabetically",
+					name = "Sort Alphabetically",
 					desc = "Enable to sort alphabetically, disable to sort based on the number of listed enchants.",
 					type = "toggle"
 				},
