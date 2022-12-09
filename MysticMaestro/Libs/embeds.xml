@@ -18,8 +18,8 @@
     <Include file="AceTab-3.0\AceTab-3.0.xml" />
 	<Include file="AceTimer-3.0\AceTimer-3.0.xml" />
 
-    <Script file="LibGraph-2.0.lua" />
-    <GameTooltip name="MysticMaestroTT" inherits="GameTooltipTemplate">
+    <Script file="LG\LibGraph-2.0.lua" />
+    <GameTooltip name="MysticMaestroTT" inherits="BasicTooltipTemplate">
     <Scripts>
         <Onload>
             self:SetOwner(WorldFrame, "ANCHOR_NONE");
