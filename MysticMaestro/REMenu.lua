@@ -1177,12 +1177,12 @@ do -- show/hide and select/deselect mystic enchant button functions
 
   -- prunes all old listings except for the most recent one that also has buyouts
 function MM:PruneOldListings(enchantID)
-  local listingData = MM.db.realm.RE_AH_LISTINGS[enchantID]
+  local listingData = MM.data.RE_AH_LISTINGS[enchantID]
   local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
   local removeList = {}
-  for timeKey, buyouts in pairs(listingData) do
+  for timeKey, auctionListString in pairs(listingData) do
     if timeKey < leftBoundMidnightTime then
-      table.insert(removeList, {timeKey, buyouts})
+      table.insert(removeList, {timeKey, self:AuctionListStringToList(auctionListString)})
     end
   end
   local mostRecentOldListingTime, mostRecentOldListingData

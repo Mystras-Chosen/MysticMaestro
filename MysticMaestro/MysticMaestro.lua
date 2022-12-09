@@ -68,10 +68,41 @@ local defaultDB = {
   }
 }
 
+local realmName = GetRealmName()
+
 function MM:OnInitialize()
-  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB",defaultDB,true)
-  self.db.realm.RE_AH_LISTINGS = setmetatable(self.db.realm.RE_AH_LISTINGS or {}, enchantMT)
-  self.db.realm.RE_AH_STATISTICS = setmetatable(self.db.realm.RE_AH_STATISTICS or {}, enchantMT)
+  if MysticMaestroDB and not MysticMaestroData then
+    MysticMaestroData = {}
+    for realmName, realmTable in pairs(MysticMaestroDB.realm) do
+      MysticMaestroData[realmName] = {
+        RE_AH_LISTINGS = realmTable.RE_AH_LISTINGS,
+        RE_AH_STATISTICS = realmTable.RE_AH_STATISTICS
+      }
+      realmTable.RE_AH_LISTINGS = nil
+      realmTable.RE_AH_STATISTICS = nil
+    end
+  elseif not MysticMaestroData then
+    MysticMaestroData = MysticMaestroData or {}
+  end
+
+  MysticMaestroData[realmName] = MysticMaestroData[realmName] or {
+    RE_AH_LISTINGS = {},
+    RE_AH_STATISTICS = {}
+  }
+  self.data = setmetatable(MysticMaestroData,
+    {
+      __index = function(t, k)
+        return t[realmName][k]
+      end,
+      __newindex = function(t, k, v)
+        t[realmName][k] = v
+      end
+    }
+  )
+  setmetatable(self.data.RE_AH_LISTINGS, enchantMT)
+  setmetatable(self.data.RE_AH_STATISTICS, enchantMT)
+
+  self.db = LibStub("AceDB-3.0"):New("MysticMaestroDB", defaultDB, true)
   self.db.realm.FAVORITE_ENCHANTS = self.db.realm.FAVORITE_ENCHANTS or {}
   self.db.realm.VIEWS = self.db.realm.VIEWS or {}
   self.db.realm.OPTIONS = self.db.realm.OPTIONS or {}
