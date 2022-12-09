@@ -26,8 +26,6 @@ end
 
 function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   local listings = self.db.realm.RE_AH_LISTINGS
-  listings[expectedEnchantID][scanTime] = listings[expectedEnchantID][scanTime] or {}
-  listings[expectedEnchantID][scanTime]["other"] = listings[expectedEnchantID][scanTime]["other"] or {}
   local enchantFound = false
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
@@ -35,6 +33,8 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
+        listings[expectedEnchantID][scanTime] = listings[expectedEnchantID][scanTime] or {}
+        listings[expectedEnchantID][scanTime]["other"] = listings[expectedEnchantID][scanTime]["other"] or {}
         enchantFound = true
         table.insert(trinketFound and listings[enchantID][scanTime] or listings[enchantID][scanTime]["other"], buyoutPrice)
       end
