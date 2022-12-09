@@ -49,6 +49,21 @@ local defaultDB = {
       ttTENMed = false,
       ttTENMean = false,
       ttTENMax = false,
+    },
+    VIEWS = {
+      sort = 1,
+      filter = {
+        allQualities = true,
+        uncommon = false,
+        rare = false,
+        epic = false,
+        legendary = false,
+        allKnown = true,
+        known = false,
+        unknown = false,
+        favorites = false,
+        bags = false
+      }
     }
   }
 }
