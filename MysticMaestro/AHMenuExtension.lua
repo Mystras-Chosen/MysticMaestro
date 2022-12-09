@@ -390,8 +390,23 @@ local function undercut(auctionData)
   end
 end
 
-local listButton, buyCancelbutton
+local listButton, buyCancelbutton, scanButton
 local function setUpButtonWidgets()
+  scanButton = AceGUI:Create("Button")
+  scanButton.frame:SetParent(ahExtensionMenu)
+  scanButton:SetPoint("TOPLEFT", ahExtensionMenu, "TOPLEFT", 20, 28)
+  scanButton:SetWidth(82)
+  scanButton:SetHeight(22)
+  scanButton:SetText("Scan")
+  scanButton:SetCallback("OnClick",
+    function(self, event)
+      print("test")
+      MM:HandleScan("rare epic")
+    end
+  )
+  scanButton.frame:Show()
+
+
   listButton = AceGUI:Create("Button")
   listButton.frame:SetParent(ahExtensionMenu)
   listButton:SetPoint("BOTTOMLEFT", ahExtensionMenu, "BOTTOMLEFT", 0, 15)
@@ -440,6 +455,7 @@ local function setUpButtonWidgets()
 end
 
 local function tearDownButtonWidgets()
+  scanButton:Release()
   listButton:Release()
   buyCancelbutton:Release()
 end
