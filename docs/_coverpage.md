@@ -2,7 +2,7 @@
   Mystic Maestro  <!-- TODO: Update title -->
 </h1>
 
-[![GitHub tags](https://img.shields.io/github/tag/poli-and-bandit/MysticMaestro.svg)](https://github.com/poli-and-bandit/MysticMaestro/tags/) <!-- TODO: Update username and repo name -->
+ <!-- [![GitHub tags](https://img.shields.io/github/tag/poli-and-bandit/MysticMaestro.svg)](https://github.com/poli-and-bandit/MysticMaestro/tags/) TODO: Update username and repo name -->
 
 >  ~~Mischief~~Mystic Managed   <!-- TODO: Replace with your description -->
 
