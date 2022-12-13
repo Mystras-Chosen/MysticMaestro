@@ -2,7 +2,7 @@
   Mystic Maestro  <!-- TODO: Update title -->
 </h1>
 
-[![GitHub tags](https://img.shields.io/github/tag/BanditTech/testbench.svg)](https://github.com/BanditTech/testbench/tags/) <!-- TODO: Update username and repo name -->
+ <!-- [![GitHub tags](https://img.shields.io/github/tag/BanditTech/testbench.svg)](https://github.com/BanditTech/testbench/tags/) TODO: Update username and repo name -->
 
 >  ~~Mischief~~Mystic Managed   <!-- TODO: Replace with your description -->
 
