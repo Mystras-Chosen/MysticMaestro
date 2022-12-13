@@ -21,4 +21,4 @@
 [Get Started](#demystify-the-altar) <!-- TODO: Use ID of your homepage heading -->
 
 <!-- TODO: Set your background color or image. -->
-![image](https://static.wikia.nocookie.net/mtgsalvation_gamepedia/images/d/dc/Zaffai.jpg)
+![image](Zaffai-Thunder-Conductor-Commander-2021-MtG-Art.jpg)
