@@ -103,7 +103,7 @@ local myOptionsTable = {
 				notificationLearned = {
 					order = 31,
 					name = "Enchant Learned",
-					desc = "Enable chat output when you learn an enchant, or if you use a epic or legendary mystic scroll.",
+					desc = "Enable chat output when you learn an enchant, or if you use an epic or legendary mystic scroll.",
 					type = "toggle"
 				},
       }
