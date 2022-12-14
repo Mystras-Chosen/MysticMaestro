@@ -25,17 +25,18 @@ local function isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
 end
 
 function MM:CollectSpecificREData(scanTime, expectedEnchantID)
-  local listings = self.data.RE_AH_LISTINGS
+  local listings = self.db.realm.RE_AH_LISTINGS
   local enchantFound = false
   local numBatchAuctions = GetNumAuctionItems("list")
-  local temp = ":"
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
-        listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+        listings[expectedEnchantID][scanTime] = listings[expectedEnchantID][scanTime] or {}
+        listings[expectedEnchantID][scanTime]["other"] = listings[expectedEnchantID][scanTime]["other"] or {}
         enchantFound = true
+        table.insert(trinketFound and listings[enchantID][scanTime] or listings[enchantID][scanTime]["other"], buyoutPrice)
       end
     end
   end
@@ -43,16 +44,16 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
 end
 
 function MM:CollectAllREData(scanTime)
-  local listings = self.data.RE_AH_LISTINGS
+  local listings = self.db.realm.RE_AH_LISTINGS
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound then
-        local temp = listings[enchantID][scanTime] or ":"
-        listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
-        
+        listings[enchantID][scanTime] = listings[enchantID][scanTime] or {}
+        listings[enchantID][scanTime]["other"] = listings[enchantID][scanTime]["other"] or {}
+        table.insert(trinketFound and listings[enchantID][scanTime] or listings[enchantID][scanTime]["other"], buyoutPrice)
       end
     end
   end
@@ -78,11 +79,12 @@ local results = {}
 function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
     self.lastSelectScanTime = GetTime()
-    local listings, reID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
+    local listings, reID, sTime = self.db.realm.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
     local listingData = listings[reID]
+    listingData[sTime] = {}
+    listingData[sTime]["other"] = {}
     awaitingResults = false
     wipe(results)
-    local temp = ":"
     for i=1, GetNumAuctionItems("list") do
       local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
       if seller == nil then
@@ -100,7 +102,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           link = link,
           duration = duration
         })
-        listings[reID][sTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+        table.insert(trinketFound and listingData[sTime] or listingData[sTime]["other"], buyoutPrice)
       end
     end
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
@@ -282,18 +284,6 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 --   Auction Stats functions   --
 ---------------------------------
 
-function MM:AuctionListStringToList(listString)
-  local left, right = string.split(":", listString)
-  local list = { ["other"] = {}}
-  for buyout in left:gmatch("%d+") do
-    table.insert(list, tonumber(buyout))
-  end
-  for buyout in right:gmatch("%d+") do
-    table.insert(list.other, tonumber(buyout))
-  end
-  return list
-end
-
 function MM:CalculateStatsFromList(list)
   local min, max, count, tally = 0, 0, 0, 0
   for _, v in pairs(list) do
@@ -352,8 +342,8 @@ function MM:CalculateMarketValues(list,dev)
 end
 
 function MM:CalculateStatsFromTime(reID,sTime)
-  local listing = self:AuctionListStringToList(self.data.RE_AH_LISTINGS[reID][sTime])
-  local stats = self.data.RE_AH_STATISTICS[reID]
+  local listing = self.db.realm.RE_AH_LISTINGS[reID][sTime]
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
   local r = MM:CalculateMarketValues(listing,true)
   if r then
     stats["daily"], stats["current"] = stats["daily"] or {}, stats["current"] or {}
@@ -373,7 +363,7 @@ end
 local valueList = { "Min", "Med", "Mean", "Max", "Count", "Dev", "Total", "Trinkets" }
 
 function MM:CalculateDailyAverages(reID)
-  local stats = self.data.RE_AH_STATISTICS[reID]
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
   if stats then
     local daily = stats["daily"]
     if daily then
@@ -408,7 +398,7 @@ function MM:CalculateDailyAverages(reID)
 end
 
 function MM:CalculateAllStats()
-  local listings = self.data.RE_AH_LISTINGS
+  local listings = self.db.realm.RE_AH_LISTINGS
   for reID, listingData in pairs(listings) do
     self:CalculateREStats(reID, listingData)
   end
@@ -422,7 +412,7 @@ function MM:CalculateREStats(reID, listingData)
 end
 
 function MM:LowestListed(reID,keytype)
-  local current = self.data.RE_AH_STATISTICS[reID].current
+  local current = self.db.realm.RE_AH_STATISTICS[reID].current
   if not current then return nil end
   local price = current[keytype or "Min"]
   return price

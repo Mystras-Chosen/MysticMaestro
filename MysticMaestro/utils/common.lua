@@ -289,7 +289,7 @@ function MM:Lowest(a,b)
 end
 
 function MM:StatObj(reID)
-  local stats = self.data.RE_AH_STATISTICS[reID]
+  local stats = self.db.realm.RE_AH_STATISTICS[reID]
   return stats and stats.current
 end
 

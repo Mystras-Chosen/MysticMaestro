@@ -5,11 +5,10 @@ local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
 
 local function createMysticEnchantData(enchantListingData, correction)
   local averageData, minimumData, maxData = {}, {}, {}
-  for timeStamp, auctionListString in pairs(enchantListingData) do
+  for timeStamp, buyouts in pairs(enchantListingData) do
     timeStamp = timeStamp - correction
-    local auctionList = MM:AuctionListStringToList(auctionListString)
-    local r = MM:CalculateMarketValues(auctionList)
-    if #auctionList ~= 0 then
+    local r = MM:CalculateMarketValues(buyouts)
+    if #buyouts ~= 0 then
       table.insert(
         averageData,
         {
@@ -112,10 +111,9 @@ function MM:InitializeGraph(name, parent, relative, relativeTo, offsetX, offsetY
 end
 
 local function getOldListing(listingData, leftBoundMidnightTime)
-  for timeKey, auctionListString in pairs(listingData) do
-    local auctionList = MM:AuctionListStringToList(auctionListString)
-    if timeKey < leftBoundMidnightTime and #auctionList > 0 then
-      return timeKey, auctionList
+  for timeKey, buyouts in pairs(listingData) do
+    if timeKey < leftBoundMidnightTime and #buyouts > 0 then
+      return timeKey, buyouts
     end
   end
 end
@@ -157,9 +155,8 @@ end
 
 local function auctionDataExists(enchantListingData)
   local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
-  for timeKey, auctionListString in pairs(enchantListingData) do
-    local auctionList = MM:AuctionListStringToList(auctionListString)
-    if timeKey >= leftBoundMidnightTime and #auctionList > 0 then
+  for timeKey, buyouts in pairs(enchantListingData) do
+    if timeKey >= leftBoundMidnightTime and #buyouts > 0 then
       return true
     end
   end
@@ -168,7 +165,7 @@ end
 
 function MM:PopulateGraph(enchantID)
   g:ResetData()
-  local enchantListingData = self:DeepClone(self.data.RE_AH_LISTINGS[enchantID])
+  local enchantListingData = self:DeepClone(self.db.realm.RE_AH_LISTINGS[enchantID])
   if not auctionDataExists(enchantListingData) then
     return
   end
