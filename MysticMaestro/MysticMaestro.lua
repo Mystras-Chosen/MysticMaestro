@@ -30,6 +30,7 @@ local defaultDB = {
       myTimeout = 20,
       mySortAlpha = false,
 
+      useGetall = true,
       rarityMagic = true,
       rarityRare = true,
       rarityEpic = true,

@@ -13,13 +13,14 @@ local function getNameAndID(input)
 end
 
 local function addLinesTooltip(tt, input)
+  if not MM.db.realm.OPTIONS.ttEnable then return end
   local name, reID = getNameAndID(input)
   if name == nil or reID == nil then return end
-  local stats = MM.db.realm.RE_AH_STATISTICS[reID]["current"]
+  local stats = MM:StatObj(reID)
   local known = IsReforgeEnchantmentKnown(reID)
   local dataRE = MYSTIC_ENCHANTS[reID]
-  local indicator
-  if dataRE then
+  if self.db.realm.OPTIONS.ttKnownIndicator and dataRE then
+    local indicator
     if known then
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_green", 64, 64, 16, 16, 0, 1, 0, 1)
     else
@@ -28,14 +29,47 @@ local function addLinesTooltip(tt, input)
     tt:AppendText("   "..indicator)
   end
   tt:AddDoubleLine(dataRE and MM:cTxt(name, tostring(dataRE.quality)) or "Mystic Maestro:",MM:DaysAgoString(stats and stats.Last or 0),1,1,0,1,1,1)
-  if stats ~= nil then
-    if stats.Last ~= nil then
-      local ttMin = GetCoinTextureString(MM:round(stats.Min or 0.0))
-      tt:AddDoubleLine("Last Scan Value", ttMin,1,1,0,1,1,1)
-      ttMin = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0))
-      tt:AddDoubleLine("10-Day Value", MM:cTxt(ttMin,"min"),1,1,0)
-      local orbval = MM:OrbValue(reID)
-      tt:AddDoubleLine("Gold Per Mystic Orb", MM:cTxt(GetCoinTextureString(orbval), orbval > 10000 and "gold" or "red"),1,1,0)
+  if stats ~= nil and stats.Last ~= nil then
+    local temp
+    if self.db.realm.OPTIONS.ttMin then
+      temp = GetCoinTextureString(MM:round(stats.Min or 0.0))
+      tt:AddDoubleLine("Current Min", temp,1,1,0,1,1,1)
+    end
+    if self.db.realm.OPTIONS.ttMed then
+      temp = GetCoinTextureString(MM:round(stats.Med or 0.0))
+      tt:AddDoubleLine("Current Median", temp,1,1,0,1,1,1)
+    end
+    if self.db.realm.OPTIONS.ttMean then
+      temp = GetCoinTextureString(MM:round(stats.Mean or 0.0))
+      tt:AddDoubleLine("Current Mean", temp,1,1,0,1,1,1)
+    end
+    if self.db.realm.OPTIONS.ttMax then
+      temp = GetCoinTextureString(MM:round(stats.Max or 0.0))
+      tt:AddDoubleLine("Current Max", temp,1,1,0,1,1,1)
+    end
+    if self.db.realm.OPTIONS.ttGPO then
+      temp = MM:OrbValue(reID)
+      tt:AddDoubleLine("Current GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
+    end
+    if self.db.realm.OPTIONS.ttTENMin then
+      temp = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0))
+      tt:AddDoubleLine("10-Day Min", MM:cTxt(temp,"min"),1,1,0)
+    end
+    if self.db.realm.OPTIONS.ttTENMed then
+      temp = GetCoinTextureString(MM:round(stats["10d_Med"] or 0.0))
+      tt:AddDoubleLine("10-Day Median", MM:cTxt(temp,"min"),1,1,0)
+    end
+    if self.db.realm.OPTIONS.ttTENMean then
+      temp = GetCoinTextureString(MM:round(stats["10d_Mean"] or 0.0))
+      tt:AddDoubleLine("10-Day Mean", MM:cTxt(temp,"min"),1,1,0)
+    end
+    if self.db.realm.OPTIONS.ttTENMax then
+      temp = GetCoinTextureString(MM:round(stats["10d_Max"] or 0.0))
+      tt:AddDoubleLine("10-Day Max", MM:cTxt(temp,"min"),1,1,0)
+    end
+    if self.db.realm.OPTIONS.ttTENGPO then
+      temp = MM:OrbValue(reID,"10d_Min")
+      tt:AddDoubleLine("10-Day GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
     end
   end
   tt:AddLine(" ")
