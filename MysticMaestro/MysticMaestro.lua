@@ -22,6 +22,7 @@ local defaultDB = {
       confirmList = true,
       confirmBuyout = true,
       confirmCancel = true,
+      confirmCraft = true,
 
       allowEpic = false,
       limitIlvl = 71,

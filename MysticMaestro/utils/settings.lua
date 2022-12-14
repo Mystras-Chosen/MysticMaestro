@@ -34,6 +34,12 @@ local myOptionsTable = {
 					desc = "Enables a confirmation before canceling your auction.",
 					type = "toggle"
 				},
+				confirmCraft = {
+					order = 5,
+					name = "Confirm Craft",
+					desc = "Enables a confirmation before crafting an enchant onto a trinket.",
+					type = "toggle"
+				},
 				limitsHeader = {
 					order = 10,
 					name = "Item Limits",
@@ -97,7 +103,7 @@ local myOptionsTable = {
       args={
 				rarityHeader = {
 					order = 1,
-					name = "Included rarities in scan",
+					name = "Included rarities in normal scan",
 					type = "header"
 				},
 				rarityMagic = {
@@ -123,6 +129,22 @@ local myOptionsTable = {
 					name = "Legendary",
 					desc = "Include Legendary enchants during scan.",
 					type = "toggle"
+				},
+				getallHeader = {
+					order = 10,
+					name = "Scan type",
+					type = "header"
+				},
+				useGetall = {
+					order = 11,
+					name = "Enable GetAll mode",
+					desc = "Enable to get all auctions in one quick batch scan.",
+					type = "toggle"
+				},
+				useGetallDescription = {
+					order = 12,
+					name = "Typical GetAll scan will take 10-15 seconds, but can last 10 - 15 minutes after any server update or patch. This has a 15 minute cooldown, and does not work on the seasonal server. This is known to sometimes cause disconnects for those with poor internet connection.",
+					type = "description"
 				},
       }
     },
