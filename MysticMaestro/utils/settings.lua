@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local myOptionsTable = {
   name = "Mystic Maestro Options",
@@ -143,7 +143,7 @@ local myOptionsTable = {
 				},
 				useGetallDescription = {
 					order = 12,
-					name = "Typical GetAll scan will take 10-15 seconds, but can last 10 - 15 minutes after any server update or patch. This has a 15 minute cooldown, and does not work on the seasonal server. This is known to sometimes cause disconnects for those with poor internet connection.",
+					name = "Typical GetAll scan will take 10-15 seconds, but can last 10 - 15 minutes after any server update or patch.\n\nThis has a 15 minute cooldown.\n\nDisabled on the seasonal server.",
 					type = "description"
 				},
       }
