@@ -90,6 +90,7 @@ function MM:HandleScan(scanParams)
 	if scanQualityNames and not CanSendAuctionQuery() then
 		MM:Print("Scan not ready. Wait a moment and try again.")
 	elseif scanQualityNames then
+		MM:Print("Initiating Scan")
 		initializeScan(scanQualityNames)
 		performScan(currentIndex)
 	end

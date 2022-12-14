@@ -400,8 +400,16 @@ local function setUpButtonWidgets()
   scanButton:SetText("Scan")
   scanButton:SetCallback("OnClick",
     function(self, event)
-      print("test")
-      MM:HandleScan("rare epic")
+      if self.db.realm.OPTIONS.useGetall then
+        MM:HandleGetAllScan()
+      else
+        local str = ""
+        if self.db.realm.OPTIONS.rarityMagic then str = "uncommon" end
+        if self.db.realm.OPTIONS.rarityRare then str = str .. (str ~= "" and " ") .. "rare" end
+        if self.db.realm.OPTIONS.rarityEpic then str = str .. (str ~= "" and " ") .. "epic" end
+        if self.db.realm.OPTIONS.rarityLegendary then str = str .. (str ~= "" and " ") .. "legendary" end
+        MM:HandleScan(str)
+      end
     end
   )
   scanButton.frame:Show()

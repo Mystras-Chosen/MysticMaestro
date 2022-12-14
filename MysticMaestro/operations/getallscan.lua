@@ -15,6 +15,7 @@ function MM:HandleGetAllScan()
     return
   end
   if select(2, CanSendAuctionQuery()) then
+    MM:Print("Initiating GetAll Scan")
     scanInProgress = true
     lastScanTime = time()
     QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
