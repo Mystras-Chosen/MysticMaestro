@@ -316,6 +316,7 @@ end
 
 
 function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry)
+  if not self.db.realm.OPTIONS.notificationLearned then return end
   if event == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
     RE = GetREData(entry)
     if RE and RE.enchantID > 0 then

@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local myOptionsTable = {
   name = "Mystic Maestro Options",
@@ -93,6 +93,17 @@ local myOptionsTable = {
 					order = 22,
 					name = "Sort Alphabetically",
 					desc = "Enable to sort alphabetically, disable to sort based on the number of listed enchants.",
+					type = "toggle"
+				},
+				notificationHeader = {
+					order = 30,
+					name = "Notifications",
+					type = "header"
+				},
+				notificationLearned = {
+					order = 31,
+					name = "Enchant Learned",
+					desc = "Enable chat output when you learn an enchant, or if you use a epic or legendary mystic scroll.",
 					type = "toggle"
 				},
       }

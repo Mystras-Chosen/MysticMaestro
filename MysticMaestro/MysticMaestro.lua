@@ -31,6 +31,8 @@ local defaultDB = {
       myTimeout = 20,
       mySortAlpha = false,
 
+      notificationLearned = true,
+
       useGetall = true,
       rarityMagic = true,
       rarityRare = true,
