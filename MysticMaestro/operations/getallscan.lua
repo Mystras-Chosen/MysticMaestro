@@ -29,5 +29,6 @@ function MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
     scanInProgress = false
     self:CollectAllREData(lastScanTime)
     self:CalculateAllStats()
+    MM:Print("GetAll scan Complete!")
   end
 end
