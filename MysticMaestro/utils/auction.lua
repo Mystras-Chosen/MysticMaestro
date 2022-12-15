@@ -34,10 +34,11 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
       local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
-        listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+        temp = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
         enchantFound = true
       end
     end
+    listings[enchantID][scanTime] = temp
   end
   return enchantFound
 end
