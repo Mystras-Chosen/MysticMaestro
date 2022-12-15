@@ -647,16 +647,16 @@ do -- show and hide MysticMaestroMenu
 
   local function itemsToFilter(items)
     MM.db.realm.VIEWS.filter = {
-      allQualities = items[1]:GetValue(),
-      uncommon = items[2]:GetValue(),
-      rare = items[3]:GetValue(),
-      epic = items[4]:GetValue(),
-      legendary = items[5]:GetValue(),
-      allKnown = items[7]:GetValue(),
-      known = items[8]:GetValue(),
-      unknown = items[9]:GetValue(),
-      favorites = items[11]:GetValue(),
-      bags = items[13]:GetValue()
+      allQualities = items[1]:GetValue() or false,
+      uncommon = items[2]:GetValue() or false,
+      rare = items[3]:GetValue() or false,
+      epic = items[4]:GetValue() or false,
+      legendary = items[5]:GetValue() or false,
+      allKnown = items[7]:GetValue() or false,
+      known = items[8]:GetValue() or false,
+      unknown = items[9]:GetValue() or false,
+      favorites = items[11]:GetValue() or false,
+      bags = items[13]:GetValue() or false
     }
     return MM.db.realm.VIEWS.filter
   end
