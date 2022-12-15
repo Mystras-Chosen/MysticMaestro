@@ -74,6 +74,21 @@ local defaultDB = {
 
 local realmName = GetRealmName()
 
+local function convertListingData(listingData)
+  local results = {}
+  for scanTime, auctionList in pairs(listingData) do
+    local temp = ":"
+    for _, buyoutPrice in ipairs(auctionList) do
+      temp = buyoutPrice .. "," .. temp
+    end
+    for _, buyoutPrice in ipairs(auctionList.other) do
+      temp = temp .. buyoutPrice .. ","
+    end
+    results[scanTime] = temp
+  end
+  return results
+end
+
 function MM:OnInitialize()
   if MysticMaestroDB and not MysticMaestroData then
     MysticMaestroData = {}
@@ -84,6 +99,11 @@ function MM:OnInitialize()
       }
       realmTable.RE_AH_LISTINGS = nil
       realmTable.RE_AH_STATISTICS = nil
+      local temp = {}
+      for enchantID, listingData in pairs(MysticMaestroData[realmName].RE_AH_LISTINGS) do
+        temp[enchantID] = convertListingData(listingData)
+      end
+      MysticMaestroData[realmName].RE_AH_LISTINGS = temp
     end
   elseif not MysticMaestroData then
     MysticMaestroData = MysticMaestroData or {}
