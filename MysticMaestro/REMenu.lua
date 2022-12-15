@@ -1181,11 +1181,6 @@ function MM:PruneOldListings(enchantID)
   local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
   local removeList = {}
   for timeKey, auctionListString in pairs(listingData) do
-    if type(auctionListString) == "table" then
-      for as, df in pairs(auctionListString) do
-        print(as, df)
-      end
-    end
     if timeKey < leftBoundMidnightTime then
       table.insert(removeList, {timeKey, auctionListString})
     end
