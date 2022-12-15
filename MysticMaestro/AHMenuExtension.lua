@@ -405,9 +405,9 @@ local function setUpButtonWidgets()
       else
         local str = ""
         if MM.db.realm.OPTIONS.rarityMagic then str = "uncommon" end
-        if MM.db.realm.OPTIONS.rarityRare then str = str .. (str ~= "" and " ") .. "rare" end
-        if MM.db.realm.OPTIONS.rarityEpic then str = str .. (str ~= "" and " ") .. "epic" end
-        if MM.db.realm.OPTIONS.rarityLegendary then str = str .. (str ~= "" and " ") .. "legendary" end
+        if MM.db.realm.OPTIONS.rarityRare then str = str .. (str ~= "" and " " or "") .. "rare" end
+        if MM.db.realm.OPTIONS.rarityEpic then str = str .. (str ~= "" and " " or "") .. "epic" end
+        if MM.db.realm.OPTIONS.rarityLegendary then str = str .. (str ~= "" and " " or "") .. "legendary" end
         MM:HandleScan(str)
       end
     end
