@@ -101,9 +101,10 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
           link = link,
           duration = duration
         })
-        listings[reID][sTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+        temp = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
       end
     end
+    listings[reID][sTime] = temp
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
