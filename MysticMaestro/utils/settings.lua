@@ -154,7 +154,10 @@ local myOptionsTable = {
 				},
 				useGetallDescription = {
 					order = 12,
-					name = "Typical GetAll scan will take 10-15 seconds, but can last 10 - 15 minutes after any server update or patch.\n\nThis has a 15 minute cooldown.\n\nDisabled on the seasonal server.",
+					name = "Typical GetAll scan will take 10-15 seconds, "
+					.. "but can last 10 - 15 minutes after any server update or patch."
+					.. "\n\nThis has a 15 minute cooldown."
+					.. "\n\nDisabled on the seasonal server.",
 					type = "description"
 				},
       }
