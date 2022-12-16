@@ -85,12 +85,23 @@ local myOptionsTable = {
 					type = "range",
 					step = 1,
 					min = 1,
-					max = 60,
+					max = 15,
 					softMin = 5,
-					softMax = 30
+					softMax = 15
+				},
+				myCutoff = {
+					order = 22,
+					name = "Recent Scan Cutoff",
+					desc = "Set the duration the addon will wait before considering the last scan completely stale, this will turn the color from yellow to red.",
+					type = "range",
+					step = 1,
+					min = 16,
+					max = 60,
+					softMin = 20,
+					softMax = 40
 				},
 				mySortAlpha = {
-					order = 22,
+					order = 23,
 					name = "Sort Alphabetically",
 					desc = "Enable to sort alphabetically, disable to sort based on the number of listed enchants.",
 					type = "toggle"

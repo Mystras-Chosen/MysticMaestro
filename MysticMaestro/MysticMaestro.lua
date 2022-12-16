@@ -28,7 +28,8 @@ local defaultDB = {
       limitIlvl = 71,
       limitGold = 2,
 
-      myTimeout = 20,
+      myTimeout = 15,
+      myCutoff = 30,
       mySortAlpha = false,
 
       notificationLearned = true,

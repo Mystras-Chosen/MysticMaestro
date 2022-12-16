@@ -235,9 +235,6 @@ local function updateColorCallback(self)
   end
 end
 
-local waitTimePeriod = 180 -- 3 minutes
-local veryLongTimePeriod = 1200  -- 20 minutes
-
 function MM:SetMyAuctionLastScanTime(myAuctionEnchantID)
   local result = self:GetMyAuctionResults()[myAuctionEnchantID]
   if result then
@@ -248,12 +245,15 @@ function MM:SetMyAuctionLastScanTime(myAuctionEnchantID)
         handle:Cancel()
       end
     end
+    local waitTimePeriod = self.db.realm.OPTIONS.myTimeout * 60
     lastScanTimerHandles[Timer.NewTimer(waitTimePeriod, updateColorCallback)] = myAuctionEnchantID
   end
 end
 
 function MM:GetLastScanTimeColor(result)
   if #result.auctions > 0 then
+    local waitTimePeriod = self.db.realm.OPTIONS.myTimeout * 60
+    local veryLongTimePeriod = self.db.realm.OPTIONS.myCutoff * 60
     local cheapestAuction = self:GetSelectedEnchantAuctionsResults()[1]
     -- subtract 1 because callback is called too early for some reason
     if not result.lowestBuyout or (result.lastScanTime or 0) + veryLongTimePeriod - 1 < GetTime() then
