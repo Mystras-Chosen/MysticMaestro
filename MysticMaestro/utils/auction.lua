@@ -59,11 +59,12 @@ function MM:CollectAllREData(scanTime)
   end
 end
 
-local pendingQuery, awaitingResults, enchantToQuery, selectedScanTime
+local pendingQuery, awaitingResults, timeoutTime, enchantToQuery, selectedScanTime
 
 function MM:AsyncDisplayEnchantAuctions(enchantID)
   pendingQuery = true
   awaitingResults = false
+  timeoutTime = nil
   enchantToQuery = enchantID
   selectedScanTime = time()
 end
@@ -71,6 +72,7 @@ end
 function MM:CancelDisplayEnchantAuctions()
   pendingQuery = false
   awaitingResults = false
+  timeoutTime = nil
   enchantToQuery = nil
   selectedScanTime = nil
 end
@@ -86,8 +88,8 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     local temp = ":"
     for i=1, GetNumAuctionItems("list") do
       local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
-      if seller == nil then
-        awaitingResults = true  -- TODO: timeout awaitingResults
+      if seller == nil and GetTime() < timeoutTime then
+        awaitingResults = true
       end
       local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and reID == enchantID then
@@ -105,6 +107,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       end
     end
     listings[reID][sTime] = temp
+    self:CalculateREStats(reID, listingData)
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
     if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
       self:PopulateSelectedEnchantAuctions(results)
@@ -113,7 +116,6 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       self:RefreshMyAuctionsScrollFrame()
       self:EnableListButton()
       self:EnableAuctionRefreshButton()
-      self:CalculateREStats(reID, listingData)
       self:PopulateGraph(reID)
       self:ShowStatistics(reID)
     end
@@ -276,6 +278,10 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
       pendingQuery = false
       awaitingResults = true
+      timeoutTime = GetTime() + 1
+    end
+    if timeoutTime and GetTime() >= timeoutTime then
+      MM.SelectScan_AUCTION_ITEM_LIST_UPDATE()
     end
   end
 )
