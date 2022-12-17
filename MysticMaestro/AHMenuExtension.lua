@@ -4,10 +4,6 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 local ahExtensionMenu
 
-function MM:IsAHEmbeddedMenuOpen()
-  return MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible()
-end
-
 local function createContainerFrame()
   ahExtensionMenu = CreateFrame("Frame", "MysticMaestroMenuAHExtension", UIParent)
   ahExtensionMenu:SetSize(212, 378)
@@ -495,6 +491,7 @@ function MM:ShowAHExtension()
   MysticMaestroMenuAHExtension:ClearAllPoints()
   MysticMaestroMenuAHExtension:SetPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", 0, 0)
   MysticMaestroMenuAHExtension:SetParent(AuctionFrame)
+  self.menuState = "AUCTION"
   MM:toggleAHExtensionHelpPlates(true)
 end
 
@@ -559,7 +556,7 @@ function MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
   self:CacheMyAuctionResults(self.listedAuctionEnchantID)
   self.listedAuctionEnchantID = nil
   self.listedAuctionBuyoutPrice = nil
-  if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+  if self.menuState == "AUCTION" then
     self:RefreshMyAuctionsScrollFrame()
   end
 end

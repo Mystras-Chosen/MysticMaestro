@@ -61,7 +61,7 @@ end
 
 local pendingQuery, awaitingResults, timeoutTime, enchantToQuery, selectedScanTime
 
-function MM:AsyncDisplayEnchantAuctions(enchantID)
+function MM:InitializeSingleScan(enchantID)
   pendingQuery = true
   awaitingResults = false
   timeoutTime = nil
@@ -78,14 +78,14 @@ function MM:CancelDisplayEnchantAuctions()
 end
 
 local results = {}
-function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
+function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
     self.lastSelectScanTime = GetTime()
     local listings, reID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
     local listingData = listings[reID]
-    awaitingResults = false
     wipe(results)
     local temp = ":"
+    awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
       local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
       if seller == nil and GetTime() < timeoutTime then
@@ -109,7 +109,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
     listings[reID][sTime] = temp
     self:CalculateREStats(reID, listingData)
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
-    if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+    if self.menuState == "AUCTION" then
       self:PopulateSelectedEnchantAuctions(results)
       self:SetMyAuctionLastScanTime(reID)
       self:SetMyAuctionBuyoutStatus(reID)
@@ -119,6 +119,7 @@ function MM:SelectScan_AUCTION_ITEM_LIST_UPDATE()
       self:PopulateGraph(reID)
       self:ShowStatistics(reID)
     end
+    timeoutTime = (awaitingResults and GetTime() < timeoutTime) and timeoutTime or nil
   end
 end
 
@@ -231,7 +232,7 @@ end
 local lastScanTimerHandles = {} -- store handles in case enchant is scanned again to reset callback function timer
 
 local function updateColorCallback(self)
-  if MysticMaestroMenuAHExtension and MysticMaestroMenuAHExtension:IsVisible() then
+  if MM.menuState == "AUCTION" then
     MM:RefreshMyAuctionsScrollFrame()
     lastScanTimerHandles[self] = nil
   end
@@ -281,7 +282,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       timeoutTime = GetTime() + 1
     end
     if timeoutTime and GetTime() >= timeoutTime then
-      MM.SelectScan_AUCTION_ITEM_LIST_UPDATE()
+      MM.SingleScan_AUCTION_ITEM_LIST_UPDATE()
     end
   end
 )
@@ -726,7 +727,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
     end
     if restoreList and CanSendAuctionQuery() then
       if enchantToRestoreIsStillSelected() then
-        MM:AsyncDisplayEnchantAuctions(enchantToRestore)
+        MM:InitializeSingleScan(enchantToRestore)
         QueryAuctionItems(MM.RE_NAMES[enchantToRestore], nil, nil, 0, 0, 3, false, true, nil)
         local results = MM:GetSortedMyAuctionResults()
         for _, result in ipairs(results) do

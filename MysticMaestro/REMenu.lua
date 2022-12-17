@@ -35,7 +35,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:SetResultSet({key})
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
-          if MM:IsAHEmbeddedMenuOpen() then
+          if self.menuState == "AUCTION" then
             MM:SelectMyAuctionByEnchantID(key)
             MM:ClearSelectedEnchantAuctions()
           end
@@ -47,7 +47,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:SetResultSet({key})
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
-            if MM:IsAHEmbeddedMenuOpen() then
+            if self.menuState == "AUCTION" then
               MM:SelectMyAuctionByEnchantID(key)
               MM:ClearSelectedEnchantAuctions()
             end
@@ -255,7 +255,7 @@ do -- functions to initialize menu and menu container
 
     local insert = MM.db.realm.FAVORITE_ENCHANTS[enchantID] and "w" or " longer"
     MM:Print(MM:ItemLinkRE(enchantID).." is no"..insert.." a favorite.")
-    if MM:IsAHEmbeddedMenuOpen() then
+    if self.menuState == "AUCTION" then
       MM:CacheMyAuctionResults()
       MM:RefreshMyAuctionsScrollFrame()
     end
@@ -458,7 +458,7 @@ do -- functions to initialize menu and menu container
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants()
       MM:GoToPage(1)
-      if MM:IsAHEmbeddedMenuOpen() then
+      if self.menuState == "AUCTION" then
         MM:ResetAHExtension()
       end
     end)
@@ -494,7 +494,7 @@ do -- functions to initialize menu and menu container
   end
 
   local function bagUpdateHandler(bagIDs)
-    if MysticMaestroMenu and MysticMaestroMenu:IsVisible() or awaitingRECraftResults then
+    if MM.menuState ~= "CLOSED" or awaitingRECraftResults then
       updateSellableREsCache(bagIDs)
     end
 
@@ -508,7 +508,7 @@ do -- functions to initialize menu and menu container
         MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantToCraft))
       end
     end
-    if MysticMaestroMenu and MysticMaestroMenu:IsVisible() then
+    if MM.menuState ~= "CLOSED" then
       MM:UpdateCurrencyDisplay()
       updateCraftIndicators()
     end
@@ -563,7 +563,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
     end
     if index ~= MM.AHTabIndex then
       AuctionPortraitTexture:Show()
-      if MysticMaestroMenu:GetParent() == AuctionFrame and MysticMaestroMenu:IsVisible() then
+      if MM.menuState == "AUCTION" then
         MM:HideMysticMaestroMenu()
         MM:HideAHExtension()
       end
@@ -578,7 +578,7 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
       MysticMaestroMenu:ClearAllPoints()
       MysticMaestroMenu:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 31)
       MysticMaestroMenu:SetParent(AuctionFrame)
-      if MysticMaestroMenuContainer and MysticMaestroMenuContainer:IsVisible() then
+      if MM.menuState == "STANDALONE" then
         MysticMaestroMenuContainer:Hide()
       end
       MM:ShowMysticMaestroMenu()
@@ -623,6 +623,7 @@ do  -- display MysticMaestroMenu in standalone container
     MysticMaestroMenu:SetParent(MysticMaestroMenuContainer)
     self:ShowMysticMaestroMenu()
     MysticMaestroMenuContainer:Show()
+    self.menuState = "STANDALONE"
   end
 end
 
@@ -710,7 +711,7 @@ do -- show and hide MysticMaestroMenu
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants(itemsToFilter(items))
       MM:GoToPage(1)
-      if MM:IsAHEmbeddedMenuOpen() then
+      if self.menuState == "AUCTION" then
         MM:ResetAHExtension()
       end
     end
@@ -931,14 +932,14 @@ do -- show and hide MysticMaestroMenu
     wipe(queryResults)
     StaticPopup_Hide("MM_CRAFT_RE")
     MysticMaestroMenu:Hide()
+    self.menuState = "CLOSED"
   end
 
   function MM:HandleMenuSlashCommand()
-    if MysticMaestroMenu and MysticMaestroMenu:IsVisible()
-    and MysticMaestroMenu:GetParent() == MysticMaestroMenuContainer then
+    if self.menuState == "STANDALONE" then
       HideUIPanel(MysticMaestroMenuContainer)
     else
-      if AuctionFrame and AuctionFrame:IsVisible() and AuctionFrame.selectedTab == self.AHTabIndex then
+      if self.menuState == "AUCTION" then
         self:HideMysticMaestroMenu()
         self:HideAHExtension()
         HideUIPanel(AuctionFrame)
@@ -1225,10 +1226,10 @@ end
     self:PruneOldListings(button.enchantID)
     self:PopulateGraph(button.enchantID)
     self:ShowStatistics(button.enchantID)
-    if self:IsAHEmbeddedMenuOpen() then
+    if self.menuState == "AUCTION" then
       self:CancelDisplayEnchantAuctions()
       self:ClearSelectedEnchantAuctions()
-      self:AsyncDisplayEnchantAuctions(button.enchantID) -- async populate scroll bars
+      self:InitializeSingleScan(button.enchantID) -- async populate scroll bars
       self:SelectMyAuctionByEnchantID(button.enchantID)
     end
     selectedEnchantButton = button
@@ -1241,7 +1242,7 @@ end
     end
     self:ClearGraph()
     self:HideStatistics()
-    if self:IsAHEmbeddedMenuOpen() then
+    if self.menuState == "AUCTION" then
       self:ResetAHExtension()
     end
     selectedEnchantButton = nil
