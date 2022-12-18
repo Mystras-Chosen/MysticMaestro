@@ -282,7 +282,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       timeoutTime = GetTime() + 1
     end
     if timeoutTime and GetTime() >= timeoutTime then
-      MM.SingleScan_AUCTION_ITEM_LIST_UPDATE()
+      MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     end
   end
 )
