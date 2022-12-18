@@ -17,3 +17,6 @@ utils\settings.lua
 operations\operations.xml
 REMenu.lua
 AHMenuExtension.lua
+automation\AutomationManager.lua
+automation\automationCommon.lua
+automation\functions\scan.lua
