@@ -38,7 +38,9 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
         enchantFound = true
       end
     end
-    listings[enchantID][scanTime] = temp
+    if enchantFound then
+      listings[expectedEnchantID][scanTime] = temp
+    end
   end
   return enchantFound
 end
