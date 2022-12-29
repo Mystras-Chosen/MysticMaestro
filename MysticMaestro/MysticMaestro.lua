@@ -49,6 +49,12 @@ local defaultDB = {
       ttMean = false,
       ttMax = false,
 
+      postMin = 1,
+      postMax = 400,
+      postDefault = 120,
+      postIfUnder = "IGNORE",
+      postIfOver = "MAX",
+
       ttTENMin = true,
       ttTENGPO = false,
       ttTENMed = false,

@@ -260,6 +260,74 @@ local myOptionsTable = {
 					type = "toggle"
 				},
 			}
+		},
+		posting={
+			name = "Posting",
+			type = "group",
+			args={
+				postHeader = {
+					order = 1,
+					name = "Post Values",
+					type = "header"
+				},
+				postMin = {
+					order = 2,
+					name = "Minimum Value",
+					desc = "Define the minimum value which will be considered a valid price.",
+					type = "range",
+					step = 1,
+					min = 0,
+					max = 30,
+					softMin = 1,
+					softMax = 20
+				},
+				postMax = {
+					order = 3,
+					name = "Maximum Value",
+					desc = "Define the maximum value which will be considered a valid price.",
+					type = "range",
+					step = 1,
+					min = 100,
+					max = 600,
+					softMin = 100,
+					softMax = 500
+				},
+				postDefault = {
+					order = 4,
+					name = "Default Value",
+					desc = "Define the default value which will be used for enchants without any listings.",
+					type = "range",
+					step = 1,
+					min = 30,
+					max = 600,
+					softMin = 100,
+					softMax = 300
+				},
+				postIfUnder = {
+					order = 5,
+					name = "When Under Min",
+					desc = "Decide how to post when the value is under your minimum.",
+					type = "select",
+					values = {
+						["UNDERCUT"] = "Undercut anyways",
+						["IGNORE"] = "Undercut next listing above min",
+						["DEFAULT"] = "Post at Default price",
+						["MAX"] = "Post at Maximum price",
+						["KEEP"] = "Do not post",
+					}
+				},
+				postIfOver = {
+					order = 6,
+					name = "When Over Max",
+					desc = "Decide how to post when the value is over your maximum.",
+					type = "select",
+					values = {
+						["UNDERCUT"] = "Undercut anyways",
+						["DEFAULT"] = "Post at Default price",
+						["MAX"] = "Post at Maximum price",
+					}
+				},
+			}
 		}
   }
 }
