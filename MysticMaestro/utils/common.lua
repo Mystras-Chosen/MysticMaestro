@@ -35,7 +35,7 @@ end
 local function findAboveMin(list)
   for _, v in pairs(list) do
     if v.buyoutPrice > MM.db.realm.OPTIONS.postMin * 10000 then
-      return v.buyoutPrice, v.yours
+      return MM:PriceCorrection(v,list)
     end
   end
   return MM.db.realm.OPTIONS.postDefault * 10000, true
