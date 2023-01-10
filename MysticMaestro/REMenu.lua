@@ -35,7 +35,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:SetResultSet({key})
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
-          if self.menuState == "AUCTION" then
+          if MM.menuState == "AUCTION" then
             MM:SelectMyAuctionByEnchantID(key)
             MM:ClearSelectedEnchantAuctions()
           end
@@ -47,7 +47,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:SetResultSet({key})
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
-            if self.menuState == "AUCTION" then
+            if MM.menuState == "AUCTION" then
               MM:SelectMyAuctionByEnchantID(key)
               MM:ClearSelectedEnchantAuctions()
             end
@@ -255,7 +255,7 @@ do -- functions to initialize menu and menu container
 
     local insert = MM.db.realm.FAVORITE_ENCHANTS[enchantID] and "w" or " longer"
     MM:Print(MM:ItemLinkRE(enchantID).." is no"..insert.." a favorite.")
-    if self.menuState == "AUCTION" then
+    if MM.menuState == "AUCTION" then
       MM:CacheMyAuctionResults()
       MM:RefreshMyAuctionsScrollFrame()
     end
@@ -424,9 +424,11 @@ do -- functions to initialize menu and menu container
     pageButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. prevOrNext .."Page-Down")
     pageButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-" .. prevOrNext .."Page-Disabled")
     pageButton:SetHighlightTexture("Interface\\Buttons\\UI-Common-MouseHilight", "ADD")
-    pageButton:SetScript("OnClick", function(self)
-      MM[prevOrNext.."Page"](MM)
-    end)
+    pageButton:SetScript("OnClick",
+      function(self)
+        MM[prevOrNext.."Page"](MM)
+      end
+    )
     return pageButton
   end
 
@@ -454,14 +456,16 @@ do -- functions to initialize menu and menu container
     refreshButton:SetNormalTexture("Interface\\BUTTONS\\UI-RefreshButton")
     refreshButton:SetPushedTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-RefreshButton-Down")
     refreshButton:SetScript("OnClick",
-    function(self)
-      MM:SetSearchBarDefaultText()
-      MM:FilterMysticEnchants()
-      MM:GoToPage(1)
-      if self.menuState == "AUCTION" then
-        MM:ResetAHExtension()
+      function(self)
+        if MM.menuState == "AUTOMATION" then return end
+        MM:SetSearchBarDefaultText()
+        MM:FilterMysticEnchants()
+        MM:GoToPage(1)
+        if MM.menuState == "AUCTION" then
+          MM:ResetAHExtension()
+        end
       end
-    end)
+    )
     MM_FRAMES_MENU_REFRESH = refreshButton
   end
 
@@ -473,6 +477,7 @@ do -- functions to initialize menu and menu container
     settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
     settingsButton:SetScript("OnClick",
       function()
+        if MM.menuState == "AUTOMATION" then return end
         InterfaceOptionsFrame_OpenToCategory("Mystic Maestro")
       end
     )
@@ -516,7 +521,7 @@ do -- functions to initialize menu and menu container
 
   function initializeMenu()
     createMenu()
-    enchantContainer = MM:CreateContainer(mmf, "BOTTOMLEFT", 202, 334, 8, 8)
+    enchantContainer = MM:CreateMenuContainer(mmf, "BOTTOMLEFT", 202, 334, 8, 8)
     enchantContainer:EnableMouseWheel()
     enchantContainer:SetScript("OnMouseWheel",
     function(self, delta)
@@ -526,8 +531,8 @@ do -- functions to initialize menu and menu container
         MM:NextPage()
       end
     end)
-    statsContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 134, -8, 8)
-    graphContainer = MM:CreateContainer(mmf, "BOTTOMRIGHT", 378, 170, -8, 144)
+    statsContainer = MM:CreateMenuContainer(mmf, "BOTTOMRIGHT", 378, 134, -8, 8)
+    graphContainer = MM:CreateMenuContainer(mmf, "BOTTOMRIGHT", 378, 170, -8, 144)
     MM:InitializeGraph("MysticEnchantStatsGraph", graphContainer, "BOTTOMLEFT", "BOTTOMLEFT", 0, 1, 378, 170)
     createCurrencyContainer(enchantContainer)
     createEnchantButtons(enchantContainer)
@@ -711,7 +716,7 @@ do -- show and hide MysticMaestroMenu
       MM:SetSearchBarDefaultText()
       MM:FilterMysticEnchants(itemsToFilter(items))
       MM:GoToPage(1)
-      if self.menuState == "AUCTION" then
+      if MM.menuState == "AUCTION" then
         MM:ResetAHExtension()
       end
     end
@@ -924,6 +929,13 @@ do -- show and hide MysticMaestroMenu
       statsContainerWidgets[i]:Release()
     end
     wipe(statsContainerWidgets)
+  end
+
+  function MM:SetMenuWidgetsLocked(isLocked)
+    automationDropdown:SetDisabled(isLocked)
+    sortDropdown:SetDisabled(isLocked)
+    filterDropdown:SetDisabled(isLocked)
+    searchBar:SetDisabled(isLocked)
   end
 
   function MM:HideMysticMaestroMenu()

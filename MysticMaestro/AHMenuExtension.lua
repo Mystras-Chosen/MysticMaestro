@@ -287,7 +287,7 @@ end
 local myAuctionsButtonCount = 12
 
 local function createMyAuctionsScrollFrame()
-  local myAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -20)
+  local myAuctionsScrollFrameContainer = MM:CreateMenuContainer(ahExtensionMenu, "TOPRIGHT", auctionScrollFrameWidth, buttonHeight * myAuctionsButtonCount, -11, -20)
   local scrollFrame = createAuctionsScrollFrame(
     "MysticMaestroMyAuctions",
     "My Auctions",
@@ -326,7 +326,7 @@ end
 local selectedEnchantAuctionsButtonCount = 6
 
 local function createSelectedEnchantAuctionsScrollFrame()
-  local selectedEnchantAuctionsScrollFrameContainer = MM:CreateContainer(ahExtensionMenu, "BOTTOMRIGHT", auctionScrollFrameWidth, buttonHeight * selectedEnchantAuctionsButtonCount, -11, 40)
+  local selectedEnchantAuctionsScrollFrameContainer = MM:CreateMenuContainer(ahExtensionMenu, "BOTTOMRIGHT", auctionScrollFrameWidth, buttonHeight * selectedEnchantAuctionsButtonCount, -11, 40)
   local scrollFrame = createAuctionsScrollFrame(
     "MysticMaestroSelectedEnchantAuctions",
     "Selected Enchant Auctions",
@@ -354,6 +354,7 @@ local function createRefreshButton()
   refreshButton:SetDisabledTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-RefreshButton-Disabled")
   refreshButton:SetScript("OnClick",
   function()
+    if MM.menuState == "AUTOMATION" then return end
     if MM:GetSelectedEnchantButton() then
       MM:ClearSelectedEnchantAuctions()
       MM:RefreshSelectedEnchantAuctions(false)
@@ -396,6 +397,7 @@ local function setUpButtonWidgets()
   scanButton:SetText("Scan")
   scanButton:SetCallback("OnClick",
     function(self, event)
+      if MM.menuState == "AUTOMATION" then return end
       if MM.db.realm.OPTIONS.useGetall then
         MM:HandleGetAllScan()
       else
@@ -419,6 +421,7 @@ local function setUpButtonWidgets()
   listButton:SetText("List")
   listButton:SetCallback("OnClick",
     function(self, event)
+      if MM.menuState == "AUTOMATION" then return end
       local auctionData = MM:GetSelectedSelectedEnchantAuctionData()
       if not auctionData then
         local results = MM:GetSelectedEnchantAuctionsResults()
@@ -445,6 +448,7 @@ local function setUpButtonWidgets()
   buyCancelbutton:SetText("Buyout/Cancel")
   buyCancelbutton:SetCallback("OnClick",
     function(self, event)
+      if MM.menuState == "AUTOMATION" then return end
       local selectedAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
       if not selectedAuctionData then return end
       if selectedAuctionData.yours then

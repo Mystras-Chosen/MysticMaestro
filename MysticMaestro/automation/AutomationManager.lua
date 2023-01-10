@@ -19,7 +19,8 @@ end
 local currentAutomation, currentTask -- init, running, postprocessing, paused
 
 local function setMenuLocked(isLocked)
-  -- TODO
+  MM:SetMenuContainersLocked(isLocked)
+  MM:SetMenuWidgetsLocked(isLocked)
 end
 
 function MM.AutomationManager:InitAutomation(automationName)
@@ -44,7 +45,8 @@ function MM.AutomationManager:StopAutomation()
     currentAutomation.Pause()
     setMenuLocked(false)
     MM:Print("Automation function paused")
-  else
+  elseif currentAutomation then
+    currentAutomation.Cancel()
     terminateAutomation()
     MM:Print("Automation function canceled")
   end
