@@ -425,7 +425,7 @@ local function setUpButtonWidgets()
         if #results > 0 then
           undercut(results[1])
         else
-          MM:ListAuction(MM:GetSelectedEnchantButton().enchantID, 1200000)
+          MM:ListAuction(MM:GetSelectedEnchantButton().enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
         end
       else
         undercut(auctionData)
