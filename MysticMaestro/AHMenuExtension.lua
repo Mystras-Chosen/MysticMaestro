@@ -378,11 +378,11 @@ local function initAHExtension()
   createRefreshButton()
 end
 
-local function undercut(auctionData)
-  if auctionData.yours then
-    MM:ListAuction(auctionData.enchantID, auctionData.buyoutPrice)
+local function undercut(enchantID, buyoutPrice, yours)
+  if yours then
+    MM:ListAuction(enchantID, buyoutPrice)
   else
-    MM:ListAuction(auctionData.enchantID, auctionData.buyoutPrice - 1)
+    MM:ListAuction(enchantID, buyoutPrice - 1)
   end
 end
 
@@ -423,12 +423,13 @@ local function setUpButtonWidgets()
       if not auctionData then
         local results = MM:GetSelectedEnchantAuctionsResults()
         if #results > 0 then
-          undercut(results[1])
+          local price, yours = MM:PriceCorrection(results[1],results)
+          undercut(MM:GetSelectedEnchantButton().enchantID, price, yours)
         else
           MM:ListAuction(MM:GetSelectedEnchantButton().enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
         end
       else
-        undercut(auctionData)
+        undercut(auctionData.enchantID, auctionData.buyoutPrice, auctionData.yours)
       end
     end
   )
