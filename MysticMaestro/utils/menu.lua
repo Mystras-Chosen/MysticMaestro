@@ -43,3 +43,37 @@ function MM:SetMenuContainersLocked(locked)
     end
   end
 end
+
+MM.FrameBackdrop = {
+  bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+  tile = true,
+  tileSize = 32,
+  edgeSize = 32,
+  insets = {left = 8, right = 8, top = 8, bottom = 8}
+}
+
+-- function from WeakAuras Options for pretty border
+function MM:CreateDecoration(frame, width)
+  local deco = CreateFrame("Frame", nil, frame)
+  deco:SetSize(width, 40)
+
+  local bg1 = deco:CreateTexture(nil, "MEDIUM")
+  bg1:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
+  bg1:SetTexCoord(0.31, 0.67, 0, 0.63)
+  bg1:SetAllPoints(deco)
+
+  local bg2 = deco:CreateTexture(nil, "MEDIUM")
+  bg2:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
+  bg2:SetTexCoord(0.235, 0.275, 0, 0.63)
+  bg2:SetPoint("RIGHT", bg1, "LEFT", 1, 0)
+  bg2:SetSize(10, 40)
+
+  local bg3 = deco:CreateTexture(nil, "MEDIUM")
+  bg3:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
+  bg3:SetTexCoord(0.72, 0.76, 0, 0.63)
+  bg3:SetPoint("LEFT", bg1, "RIGHT", -1, 0)
+  bg3:SetSize(10, 40)
+
+  return deco
+end
