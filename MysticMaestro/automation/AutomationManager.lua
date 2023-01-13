@@ -60,7 +60,7 @@ local currentAutomationName, currentAutomationTable, currentTask -- init, runnin
 local paused
 
 -- called when menu is opened
-function MM.AutomationManager:ResumeAutomationIfPaused()
+function MM.AutomationManager:ShowAutomationPromptIfPaused()
   if paused then
     self:StartAutomation(currentAutomationName)
   end
@@ -77,7 +77,7 @@ local function setMenuLocked(isLocked)
 end
 
   -- called by Scan button or automation function dropdown
-function MM.AutomationManager:StartAutomation(automationName)
+function MM.AutomationManager:ShowAutomationPrompt(automationName)
   if not currentAutomationName or paused then
     setCurrentAutomation(automationName)
     currentTask = "init"
@@ -97,6 +97,7 @@ end
 
 local paused
 
+-- called when menu is closed
 function MM.AutomationManager:StopAutomation()
   if currentAutomationName then
     if currentTask == "running" and currentAutomationTable.Pause then
