@@ -77,3 +77,15 @@ function MM:CreateDecoration(frame, width)
 
   return deco
 end
+
+function MM:IsEmbeddedMenuOpen()
+  return self:IsMenuOpen() and MysticMaestroMenu:GetParent() == AuctionFrame
+end
+
+function MM:IsMenuOpen()
+  return MysticMaestroMenu and MysticMaestroMenu:IsShown()
+end
+
+function MM:IsStandAloneMenuOpen()
+  return self:IsMenuOpen() and MysticMaestroMenu:GetParent() ~= AuctionFrame
+end

@@ -111,7 +111,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     listings[reID][sTime] = temp
     self:CalculateREStats(reID, listingData)
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
-    if self.menuState == "AUCTION" then
+    if self:IsEmbeddedMenuOpen() then
       self:PopulateSelectedEnchantAuctions(results)
       self:SetMyAuctionLastScanTime(reID)
       self:SetMyAuctionBuyoutStatus(reID)
@@ -234,7 +234,7 @@ end
 local lastScanTimerHandles = {} -- store handles in case enchant is scanned again to reset callback function timer
 
 local function updateColorCallback(self)
-  if MM.menuState == "AUCTION" then
+  if MM:IsEmbeddedMenuOpen() then
     MM:RefreshMyAuctionsScrollFrame()
     lastScanTimerHandles[self] = nil
   end

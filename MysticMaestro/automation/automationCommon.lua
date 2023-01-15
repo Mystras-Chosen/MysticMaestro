@@ -1,5 +1,7 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+local AceGUI = LibStub("AceGUI-3.0")
+
 local automationPromptFrame
 
 local function createAutomationPromptFrame()
@@ -11,35 +13,99 @@ local function createAutomationPromptFrame()
   automationPromptFrame:SetBackdropColor(0, 0, 0, 1)
   automationPromptFrame:SetToplevel(true)
   automationPromptFrame:SetPoint("CENTER")
-  automationPromptFrame:SetSize(256, 192)
   automationPromptFrame.Title = MM:CreateDecoration(automationPromptFrame, 40)
-  automationPromptFrame.Title:SetPoint("TOP", 0, 24)
+  automationPromptFrame.Title:SetPoint("TOP", 0, 8)
   automationPromptFrame.Title.Text = automationPromptFrame.Title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   automationPromptFrame.Title.Text:SetPoint("CENTER", automationPromptFrame.Title)
-  automationPromptFrame.Title.Text:SetText("test")
 end
 
-local function showAutomationPrompt(automationName, automationTable)
-  -- set title on automation prompt frame and adjust title decoration width
-  -- release all widgets if already existing
-  -- set up widget container for widget containers
-  -- set up widget container for options
-  -- set up widget container for estimated time
-  -- set up widget container for buttons
-  -- add checkbutton widget to options widget container for every relevant option
-  -- add text widget to estimated time widget container and set time based on automation and selected options
-  -- add button widgets to button widget container based on whether or not the current automation function is paused and set up appropriate scripts
-  -- add all widget containers to the main widget container
-  -- set prompt size based on the main widget container
-  -- anchor based on prompt size
+local function setPromptAutomation(automationName, automationTable)
+  automationPromptFrame.Title.Text:SetText(automationName)
+  automationPromptFrame.Title:SetSize(automationPromptFrame.Title.Text:GetWidth() + 8, 40)
+  automationPromptFrame.AutomationTable = automationTable
 end
+
+local promptWidgets = {}
+
+local function releasePromptWidgets()
+  for _, widget in ipairs(promptWidgets) do
+    widget:Release()
+  end
+  promptWidgets = {}
+end
+
+local promptButtonWidth = 90
+
+local function createPromptButton(automationTable, text, informStatus, xOffset)
+  local button = AceGUI:Create("Button")
+  button:SetWidth(promptButtonWidth)
+  button:SetText(text)
+  button:SetPoint("TOP", automationPromptFrame, "TOP", xOffset, -40)
+  button:SetCallback("OnClick",
+    function()
+      MM.AutomationUtil.HideAutomationPrompt()
+      MM.AutomationManager:Inform(automationTable, informStatus)
+    end
+  )
+  button.frame:SetParent(automationPromptFrame)
+  button.frame:Show()
+  table.insert(promptWidgets, button)
+  return button
+end
+
+local function createButtonWidgets(automationTable)
+  if automationTable:IsPaused() then
+    createPromptButton(automationTable, "Continue", "continueClicked", -promptButtonWidth)
+    createPromptButton(automationTable, "Stop", "stopClicked", 0)
+    createPromptButton(automationTable, "Cancel", "cancelClicked", promptButtonWidth)
+  else
+    createPromptButton(automationTable, "Start", "startClicked", -.5 * promptButtonWidth)
+    createPromptButton(automationTable, "Cancel", "cancelClicked", .5 * promptButtonWidth)
+  end
+end
+
+local function setPromptSize(automationTable)
+    automationPromptFrame:SetSize(automationTable:IsPaused() and 300 or 200, 100)
+end
+
+local function showAutomationPrompt()
+  local automationTable = automationPromptFrame.AutomationTable
+  releasePromptWidgets()
+  createButtonWidgets(automationTable)
+  setPromptSize(automationTable)
+  automationPromptFrame:Show()
+end
+
+local function hideAutomationPrompt()
+  releasePromptWidgets()
+  automationPromptFrame:Hide()
+end
+
+local pendingVisibilityStatus
 
 MM.AutomationUtil = {}
 
---LibStub("AceAddon-3.0"):GetAddon("MysticMaestro").AutomationUtil.ShowAutomationPrompt()   for testing
 function MM.AutomationUtil.ShowAutomationPrompt(automationName, automationTable)
   if not automationPromptFrame then
     createAutomationPromptFrame()
   end
-  showAutomationPrompt(automationName, automationTable)
+  setPromptAutomation(automationName, automationTable)
+  pendingVisibilityStatus = true
 end
+
+function MM.AutomationUtil.HideAutomationPrompt()
+  pendingVisibilityStatus = false
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    if pendingVisibilityStatus ~= nil then
+      if pendingVisibilityStatus then
+        showAutomationPrompt()
+      else
+        hideAutomationPrompt()
+      end
+      pendingVisibilityStatus = nil
+    end
+  end
+)
