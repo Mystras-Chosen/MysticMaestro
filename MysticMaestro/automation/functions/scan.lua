@@ -17,6 +17,7 @@ end
 
 function automationTable.Start()
   print("start called")
+  isPaused = false
 end
 
 function automationTable.Pause()
