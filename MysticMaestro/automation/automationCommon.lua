@@ -54,7 +54,7 @@ local function createPromptButton(automationTable, text, informStatus, xOffset)
 end
 
 local function createButtonWidgets(automationTable)
-  if automationTable:IsPaused() then
+  if automationTable.Pause and automationTable:IsPaused() then
     createPromptButton(automationTable, "Continue", "continueClicked", -promptButtonWidth)
     createPromptButton(automationTable, "Stop", "stopClicked", 0)
     createPromptButton(automationTable, "Cancel", "cancelClicked", promptButtonWidth)
@@ -65,7 +65,7 @@ local function createButtonWidgets(automationTable)
 end
 
 local function setPromptSize(automationTable)
-    automationPromptFrame:SetSize(automationTable:IsPaused() and 300 or 200, 100)
+    automationPromptFrame:SetSize(automationTable.Pause and automationTable:IsPaused() and 300 or 200, 100)
 end
 
 local function showAutomationPrompt()
