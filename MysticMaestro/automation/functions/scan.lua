@@ -15,7 +15,8 @@ function automationTable.ShowInitPrompt()
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
 end
 
-
+local currentIndex
+local running
 
 function automationTable.Start()
   print("start called")
@@ -24,7 +25,21 @@ function automationTable.Start()
   -- update progress bar
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
   isPaused = false
+  currentIndex = currentIndex or 1
+  MM.AutomationUtil.SetProgressBarValues(currentIndex-1, 100)
+  lastUpdate = GetTime()
+  running = true
 end
+
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    if running and not isPaused and lastUpdate < GetTime() - 1 then
+      MM.AutomationUtil.SetProgressBarValues(currentIndex, 100)
+      currentIndex = currentIndex + 1
+      lastUpdate = GetTime()
+    end
+  end
+)
 
 function automationTable.Pause()
   print("pause called")
@@ -39,6 +54,9 @@ function automationTable.Stop()
   print("stop called")
   MM.AutomationUtil.HideAutomationPopup()
   isPaused = false
+  running = false
+  lastUpdate = nil
+  currentIndex = nil
 end
 
 MM.AutomationManager:RegisterAutomation(automationName, automationTable)

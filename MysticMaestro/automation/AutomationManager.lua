@@ -150,8 +150,13 @@ local function handleRunningStatus(status)
     else
       terminateAutomation()
     end
-  elseif status == "cancelClicked" then
+  elseif status == "stopClicked" then
     terminateAutomation()
+  elseif status == "pauseClicked" then
+    paused = true
+    currentAutomationTable.Pause()
+    MM:Print("Automation function paused")
+    setMenuLocked(false)
   else
     logStatusError(status)
   end

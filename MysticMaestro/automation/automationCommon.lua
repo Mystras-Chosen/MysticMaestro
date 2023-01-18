@@ -17,6 +17,28 @@ local function createAutomationPopupFrame()
   automationPopupFrame.Title:SetPoint("TOP", 0, 8)
   automationPopupFrame.Title.Text = automationPopupFrame.Title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   automationPopupFrame.Title.Text:SetPoint("CENTER", automationPopupFrame.Title)
+  automationPopupFrame.ProgressBar = CreateFrame("Frame", nil, automationPopupFrame, "BetterStatusBarTemplate")
+  automationPopupFrame.ProgressBar:SetPoint("CENTER", automationPopupFrame, "TOP", 0, -53)
+  automationPopupFrame.ProgressBar:SetSize(230, 16)
+  automationPopupFrame.ProgressBar:SetBackdrop({
+    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    tile = true,
+    tileSize = 12
+  })
+  automationPopupFrame.ProgressBar:SetBackdropColor(0, 0, 0, .8)
+  automationPopupFrame.ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
+  automationPopupFrame.ProgressBar:SetStatusBarAtlas("skillbar_fill_flipbook_alchemy")
+  automationPopupFrame.ProgressBar.Edge = CreateFrame("Frame", nil, automationPopupFrame.ProgressBar)
+  automationPopupFrame.ProgressBar.Edge:SetPoint("TOPLEFT", automationPopupFrame.ProgressBar, "TOPLEFT", -5, 5)
+  automationPopupFrame.ProgressBar.Edge:SetPoint("BOTTOMRIGHT", automationPopupFrame.ProgressBar, "BOTTOMRIGHT", 5, -5)
+  automationPopupFrame.ProgressBar.Edge:SetBackdrop({
+    edgeFile = "Interface\\FriendsFrame\\UI-Toast-Border",
+    tile = true,
+    tileSize = 12,
+    edgeSize = 12,
+  })
+
+  automationPopupFrame.ProgressBar:Hide()
 end
 
 local function setPopupAutomation(automationName, automationTable)
@@ -32,15 +54,16 @@ local function releasePopupWidgets()
     widget:Release()
   end
   popupWidgets = {}
+  automationPopupFrame.ProgressBar:Hide()
 end
 
 local promptButtonWidth = 90
 
-local function createPromptButton(automationTable, text, informStatus, xOffset)
+local function createPromptButton(automationTable, text, informStatus, xOffset, yOffset)
   local button = AceGUI:Create("Button")
   button:SetWidth(promptButtonWidth)
   button:SetText(text)
-  button:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, -40)
+  button:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
   button:SetCallback("OnClick",
     function()
       MM.AutomationUtil.HideAutomationPopup()
@@ -53,25 +76,45 @@ local function createPromptButton(automationTable, text, informStatus, xOffset)
   return button
 end
 
-local function createButtonWidgets(automationTable)
+local function createPromptButtonWidgets(automationTable)
   if automationTable.Pause and automationTable:IsPaused() then
-    createPromptButton(automationTable, "Continue", "continueClicked", -promptButtonWidth)
-    createPromptButton(automationTable, "Stop", "stopClicked", 0)
-    createPromptButton(automationTable, "Cancel", "cancelClicked", promptButtonWidth)
+    createPromptButton(automationTable, "Continue", "continueClicked", -promptButtonWidth, -40)
+    createPromptButton(automationTable, "Stop", "stopClicked", 0, -40)
+    createPromptButton(automationTable, "Cancel", "cancelClicked", promptButtonWidth, -40)
   else
-    createPromptButton(automationTable, "Start", "startClicked", -.5 * promptButtonWidth)
-    createPromptButton(automationTable, "Cancel", "cancelClicked", .5 * promptButtonWidth)
+    createPromptButton(automationTable, "Start", "startClicked", -.5 * promptButtonWidth, -40)
+    createPromptButton(automationTable, "Cancel", "cancelClicked", .5 * promptButtonWidth, -40)
   end
 end
 
 local function setPromptSize(automationTable)
-    automationPopupFrame:SetSize(automationTable.Pause and automationTable:IsPaused() and 300 or 200, 100)
+    automationPopupFrame:SetSize(automationTable.Pause and automationTable:IsPaused() and 320 or 230, 100)
 end
 
 local function showAutomationPrompt()
   local automationTable = automationPopupFrame.AutomationTable
-  createButtonWidgets(automationTable)
+  createPromptButtonWidgets(automationTable)
   setPromptSize(automationTable)
+  automationPopupFrame:Show()
+end
+
+
+local function createRunningWidgets(automationTable)
+  if automationTable.Pause then
+    createPromptButton(automationTable, "Pause", "pauseClicked", -45, -70)
+  end
+  createPromptButton(automationTable, "Stop", "stopClicked", automationTable.Pause and 45 or 0, -70)
+end
+
+local function setRunningSize(automationTable)
+  automationPopupFrame:SetSize(300, 120)
+end
+
+local function showAutomationRunning()
+  local automationTable = automationPopupFrame.AutomationTable
+  createRunningWidgets(automationTable)
+  setRunningSize(automationTable)
+  automationPopupFrame.ProgressBar:Show()
   automationPopupFrame:Show()
 end
 
@@ -105,6 +148,12 @@ function MM.AutomationUtil.HideAutomationPopup()
   pendingTemplate = false
 end
 
+function MM.AutomationUtil.SetProgressBarValues(current, max)
+  automationPopupFrame.ProgressBar:SetMinMaxValues(0, max)
+	automationPopupFrame.ProgressBar:SetValue(current)
+	automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
+end
+
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if pendingTemplate ~= nil then
@@ -113,7 +162,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         showAutomationPrompt()
       elseif pendingTemplate == "running" then
         print("showing running")
-        -- TODO showAutomationRunning()
+        showAutomationRunning()
       else
         hideAutomationPopup()
       end
