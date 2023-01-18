@@ -33,7 +33,7 @@ end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
-    if running and not isPaused and lastUpdate < GetTime() - .1 then
+    if running and not isPaused and lastUpdate < GetTime() - .05 then
       MM.AutomationUtil.SetProgressBarValues(currentIndex, 100)
       currentIndex = currentIndex + 1
       lastUpdate = GetTime()

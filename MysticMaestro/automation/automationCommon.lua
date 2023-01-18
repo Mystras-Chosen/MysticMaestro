@@ -17,6 +17,24 @@ local function createAutomationPopupFrame()
   automationPopupFrame.Title:SetPoint("TOP", 0, 8)
   automationPopupFrame.Title.Text = automationPopupFrame.Title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   automationPopupFrame.Title.Text:SetPoint("CENTER", automationPopupFrame.Title)
+  -- setup progress bar variables
+  local statusBarAtlas = "skillbar_fill_flipbook_alchemy"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_blacksmithing"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_enchanting"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_engineering"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_inscription"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_jewelcrafting"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_leatherworking"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_tailoring"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_herbalism"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_mining"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_skinning"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_cooking"
+  -- local statusBarAtlas = "skillbar_fill_flipbook_fishing"
+  local atlas = AtlasUtil:GetAtlasInfo(statusBarAtlas)
+  local frameWidth, frameHeight = 856, 34
+  local frames = (atlas.height / frameHeight) * 2
+  local fps = 26
   automationPopupFrame.ProgressBar = CreateFrame("Frame", nil, automationPopupFrame, "BetterStatusBarTemplate")
   automationPopupFrame.ProgressBar:SetPoint("CENTER", automationPopupFrame, "TOP", 0, -53)
   automationPopupFrame.ProgressBar:SetSize(230, 16)
@@ -27,7 +45,7 @@ local function createAutomationPopupFrame()
   })
   automationPopupFrame.ProgressBar:SetBackdropColor(0, 0, 0, .8)
   automationPopupFrame.ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
-  automationPopupFrame.ProgressBar:SetStatusBarAtlas("skillbar_fill_flipbook_alchemy")
+  automationPopupFrame.ProgressBar:SetStatusBarAtlas(statusBarAtlas)
   automationPopupFrame.ProgressBar.Edge = CreateFrame("Frame", nil, automationPopupFrame.ProgressBar)
   automationPopupFrame.ProgressBar.Edge:SetPoint("TOPLEFT", automationPopupFrame.ProgressBar, "TOPLEFT", -5, 5)
   automationPopupFrame.ProgressBar.Edge:SetPoint("BOTTOMRIGHT", automationPopupFrame.ProgressBar, "BOTTOMRIGHT", 5, -5)
@@ -37,11 +55,6 @@ local function createAutomationPopupFrame()
     tileSize = 12,
     edgeSize = 12,
   })
-  local statusBarAtlas = "skillbar_fill_flipbook_alchemy"
-  local atlas = AtlasUtil:GetAtlasInfo(statusBarAtlas)
-  local frameWidth, frameHeight = 856, 34
-  local frames = (atlas.height / frameHeight) * 2
-  local fps = 26
   automationPopupFrame.ProgressBar:SetStatusBarFlipbookAtlas(statusBarAtlas, frameWidth, frameHeight, frames, fps, false)
   automationPopupFrame.ProgressBar:Hide()
 end
@@ -119,6 +132,7 @@ local function showAutomationRunning()
   local automationTable = automationPopupFrame.AutomationTable
   createRunningWidgets(automationTable)
   setRunningSize(automationTable)
+  automationPopupFrame.ProgressBar:SetMinMaxValues(0, 100)
   automationPopupFrame.ProgressBar:Show()
   automationPopupFrame.ProgressBar.flipbook:Play()
   automationPopupFrame:Show()
@@ -164,7 +178,7 @@ local function calcBarColor(current, max)
 end
 
 function MM.AutomationUtil.SetProgressBarValues(current, max)
-  automationPopupFrame.ProgressBar:SetMinMaxValues(0, max)
+  -- automationPopupFrame.ProgressBar:SetMinMaxValues(0, max)
   automationPopupFrame.ProgressBar:SetValue(current)
   automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
   -- automationPopupFrame.ProgressBar:SetStatusBarColor(calcBarColor(current, max))
