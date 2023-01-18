@@ -27,7 +27,7 @@ local function createAutomationPopupFrame()
   })
   automationPopupFrame.ProgressBar:SetBackdropColor(0, 0, 0, .8)
   automationPopupFrame.ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
-  automationPopupFrame.ProgressBar:SetStatusBarAtlas("skillbar_fill_flipbook_alchemy")
+  --automationPopupFrame.ProgressBar:SetStatusBarAtlas("skillbar_fill_flipbook_alchemy")
   automationPopupFrame.ProgressBar.Edge = CreateFrame("Frame", nil, automationPopupFrame.ProgressBar)
   automationPopupFrame.ProgressBar.Edge:SetPoint("TOPLEFT", automationPopupFrame.ProgressBar, "TOPLEFT", -5, 5)
   automationPopupFrame.ProgressBar.Edge:SetPoint("BOTTOMRIGHT", automationPopupFrame.ProgressBar, "BOTTOMRIGHT", 5, -5)
@@ -148,10 +148,20 @@ function MM.AutomationUtil.HideAutomationPopup()
   pendingTemplate = false
 end
 
+local function calcBarColor(current, max)
+  local percent = current / max
+  if percent <= .5 then
+      return 1, 2 * percent, 0, 1
+  else
+    return (2 - 2 * percent), 1, 0, 1
+  end
+end
+
 function MM.AutomationUtil.SetProgressBarValues(current, max)
   automationPopupFrame.ProgressBar:SetMinMaxValues(0, max)
 	automationPopupFrame.ProgressBar:SetValue(current)
 	automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
+  automationPopupFrame.ProgressBar:SetStatusBarColor(calcBarColor(current, max))
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
