@@ -27,7 +27,7 @@ local function createAutomationPopupFrame()
   })
   automationPopupFrame.ProgressBar:SetBackdropColor(0, 0, 0, .8)
   automationPopupFrame.ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
-  --automationPopupFrame.ProgressBar:SetStatusBarAtlas("skillbar_fill_flipbook_alchemy")
+  automationPopupFrame.ProgressBar:SetStatusBarAtlas("skillbar_fill_flipbook_alchemy")
   automationPopupFrame.ProgressBar.Edge = CreateFrame("Frame", nil, automationPopupFrame.ProgressBar)
   automationPopupFrame.ProgressBar.Edge:SetPoint("TOPLEFT", automationPopupFrame.ProgressBar, "TOPLEFT", -5, 5)
   automationPopupFrame.ProgressBar.Edge:SetPoint("BOTTOMRIGHT", automationPopupFrame.ProgressBar, "BOTTOMRIGHT", 5, -5)
@@ -37,7 +37,12 @@ local function createAutomationPopupFrame()
     tileSize = 12,
     edgeSize = 12,
   })
-
+  local statusBarAtlas = "skillbar_fill_flipbook_alchemy"
+  local atlas = AtlasUtil:GetAtlasInfo(statusBarAtlas)
+  local frameWidth, frameHeight = 856, 34
+  local frames = (atlas.height / frameHeight) * 2
+  local fps = 26
+  automationPopupFrame.ProgressBar:SetStatusBarFlipbookAtlas(statusBarAtlas, frameWidth, frameHeight, frames, fps, false)
   automationPopupFrame.ProgressBar:Hide()
 end
 
@@ -115,6 +120,7 @@ local function showAutomationRunning()
   createRunningWidgets(automationTable)
   setRunningSize(automationTable)
   automationPopupFrame.ProgressBar:Show()
+  automationPopupFrame.ProgressBar.flipbook:Play()
   automationPopupFrame:Show()
 end
 
@@ -159,9 +165,9 @@ end
 
 function MM.AutomationUtil.SetProgressBarValues(current, max)
   automationPopupFrame.ProgressBar:SetMinMaxValues(0, max)
-	automationPopupFrame.ProgressBar:SetValue(current)
-	automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
-  automationPopupFrame.ProgressBar:SetStatusBarColor(calcBarColor(current, max))
+  automationPopupFrame.ProgressBar:SetValue(current)
+  automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
+  -- automationPopupFrame.ProgressBar:SetStatusBarColor(calcBarColor(current, max))
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
