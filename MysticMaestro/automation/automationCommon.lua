@@ -74,11 +74,11 @@ local function releasePopupWidgets()
   popupWidgets = {}
 end
 
-local promptButtonWidth = 90
+local popupButtonWidth = 90
 
 local function createButtonWidget(automationTable, text, informStatus, xOffset, yOffset)
   local button = AceGUI:Create("Button")
-  button:SetWidth(promptButtonWidth)
+  button:SetWidth(popupButtonWidth)
   button:SetText(text)
   button:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
   button:SetCallback("OnClick",
@@ -164,12 +164,12 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 
 local function createPromptButtonWidgets(automationTable)
   if automationTable.Pause and automationTable:IsPaused() then
-    createButtonWidget(automationTable, "Continue", "continueClicked", -promptButtonWidth, -40)
+    createButtonWidget(automationTable, "Continue", "continueClicked", -popupButtonWidth, -40)
     createButtonWidget(automationTable, "Stop", "stopClicked", 0, -40)
-    createButtonWidget(automationTable, "Cancel", "cancelClicked", promptButtonWidth, -40)
+    createButtonWidget(automationTable, "Cancel", "cancelClicked", popupButtonWidth, -40)
   else
-    createButtonWidget(automationTable, "Start", "startClicked", -.5 * promptButtonWidth, -40)
-    createButtonWidget(automationTable, "Cancel", "cancelClicked", .5 * promptButtonWidth, -40)
+    createButtonWidget(automationTable, "Start", "startClicked", -.5 * popupButtonWidth, -40)
+    createButtonWidget(automationTable, "Cancel", "cancelClicked", .5 * popupButtonWidth, -40)
   end
 end
 
