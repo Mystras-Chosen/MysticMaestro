@@ -54,6 +54,10 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
   end
 )
 
+function automationTable.PostProcessing()
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
+end
+
 function automationTable.Pause()
   print("pause called")
   if running then

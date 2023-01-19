@@ -44,6 +44,7 @@ local function validateInterface(automationTable)
   return automationTable.ShowInitPrompt and type(automationTable.ShowInitPrompt) == "function"
     and automationTable.Start and type(automationTable.Start) == "function"
     and automationTable.Stop and type(automationTable.Stop) == "function"
+    and automationTable.PostProcessing and type(automationTable.PostProcessing) == "function"
 end
 
 function MM.AutomationManager:RegisterAutomation(automationName, automationTable)
@@ -149,12 +150,8 @@ end
 local function handleRunningStatus(status)
   if status == "finished" then
     print("finished")
-    if currentAutomationTable.PostProcessing then
-      currentTask = "postprocessing"
-      currentAutomationTable.PostProcessing()
-    else
-      terminateAutomation()
-    end
+    currentTask = "postprocessing"
+    currentAutomationTable.PostProcessing()
   elseif status == "stopClicked" then
     terminateAutomation()
   elseif status == "pauseClicked" then
@@ -165,7 +162,7 @@ local function handleRunningStatus(status)
 end
 
 local function handlePostprocessingStatus(status)
-  if status == "finished" then
+  if status == "doneClicked" then
     terminateAutomation()
   else
     logStatusError(status)
@@ -187,6 +184,6 @@ function MM.AutomationManager:Inform(automationTable, status)
   if automationTable == currentAutomationTable then
     manageAutomationFunction(status)
   else
-    MM:Print("ERROR: Unmanaged automation function is running: " .. automationTable.GetName() .. " " .. status)
+    MM:Print("ERROR: Unmanaged automation function is running: " .. tostring(automationTable.GetName()) .. " " .. tostring(status))
   end
 end

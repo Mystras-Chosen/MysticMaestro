@@ -136,6 +136,11 @@ local function showAutomationRunning()
   automationPopupFrame:Show()
 end
 
+local function showAutomationDone()
+  local automationTable = automationPopupFrame.AutomationTable
+  createPromptButton(automationTable, "Done", "doneClicked", 0, -70)
+end
+
 local function hideAutomationPopup()
   automationPopupFrame:Hide()
   automationPopupFrame.ProgressBar:Hide()
@@ -148,7 +153,8 @@ local pendingTemplate
 
 local validTemplates = {
   ["prompt"] = true,
-  ["running"] = true
+  ["running"] = true,
+  ["noPostProcessing"] = true
 }
 
 -- schedules the popup to show or hide in the OnUpdate script since Show and Hide can be called on the same frame
@@ -193,8 +199,9 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       if pendingTemplate == "prompt" then
         showAutomationPrompt()
       elseif pendingTemplate == "running" then
-        print("showing running")
         showAutomationRunning()
+      elseif pendingTemplate == "noPostProcessing" then
+        showAutomationDone()
       else
         hideAutomationPopup()
       end
