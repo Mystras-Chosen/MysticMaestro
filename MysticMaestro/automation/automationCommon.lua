@@ -72,7 +72,6 @@ local function releasePopupWidgets()
     widget:Release()
   end
   popupWidgets = {}
-  automationPopupFrame.ProgressBar:Hide()
 end
 
 local promptButtonWidth = 90
@@ -132,7 +131,6 @@ local function showAutomationRunning()
   local automationTable = automationPopupFrame.AutomationTable
   createRunningWidgets(automationTable)
   setRunningSize(automationTable)
-  automationPopupFrame.ProgressBar:SetMinMaxValues(0, 100)
   automationPopupFrame.ProgressBar:Show()
   automationPopupFrame.ProgressBar.flipbook:Play()
   automationPopupFrame:Show()
@@ -140,6 +138,8 @@ end
 
 local function hideAutomationPopup()
   automationPopupFrame:Hide()
+  automationPopupFrame.ProgressBar:Hide()
+  releasePopupWidgets()
 end
 
 MM.AutomationUtil = {}
@@ -177,11 +177,13 @@ local function calcBarColor(current, max)
   end
 end
 
-function MM.AutomationUtil.SetProgressBarValues(current, max)
-  -- automationPopupFrame.ProgressBar:SetMinMaxValues(0, max)
+function MM.AutomationUtil.SetProgressBarValues(current, m)
   automationPopupFrame.ProgressBar:SetValue(current)
-  automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
-  -- automationPopupFrame.ProgressBar:SetStatusBarColor(calcBarColor(current, max))
+  automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, m)
+end
+
+function MM.AutomationUtil.SetProgressBarMinMax(min, max)
+  automationPopupFrame.ProgressBar:SetMinMaxValues(min, max)
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",

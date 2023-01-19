@@ -18,25 +18,35 @@ end
 local currentIndex
 local running
 
+local enchantQueue
+
+local function prepareEnchantQueue()
+  enchantQueue = MM:GetAlphabetizedEnchantList("legendary")
+end
+
+local currentIndex
 function automationTable.Start()
   print("start called")
-  -- collect list of enchants to search if not paused
-  -- show progress bar (set automation table, and make buttons visible based on whether or not automation is pausable, set progress current and max)
-  -- update progress bar
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
+  if not isPaused then
+    prepareEnchantQueue()
+    currentIndex = 1
+  end
   isPaused = false
-  currentIndex = currentIndex or 1
-  MM.AutomationUtil.SetProgressBarValues(currentIndex-1, 100)
-  lastUpdate = GetTime()
+  MM.AutomationUtil.SetProgressBarMinMax(0, #enchantQueue)
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
   running = true
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
-    if running and not isPaused and lastUpdate < GetTime() - .05 then
-      MM.AutomationUtil.SetProgressBarValues(currentIndex, 100)
-      currentIndex = currentIndex + 1
-      lastUpdate = GetTime()
+    if running and not isPaused then
+      if currentIndex <= #enchantQueue and CanSendAuctionQuery() then
+        MM:InitializeSingleScan(enchantQueue[currentIndex])
+        MM.AutomationUtil.SetProgressBarValues(currentIndex, #enchantQueue)
+        currentIndex = currentIndex + 1
+      elseif currentIndex > #enchantQueue then
+        MM.AutomationManager:Inform(automationTable, "finished")
+      end
     end
   end
 )
@@ -44,6 +54,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 function automationTable.Pause()
   print("pause called")
   isPaused = true
+  MM.AutomationUtil.HideAutomationPopup()
 end
 
 function automationTable.IsPaused()
@@ -53,6 +64,7 @@ end
 function automationTable.Stop()
   print("stop called")
   MM.AutomationUtil.HideAutomationPopup()
+  MM:CancelDisplayEnchantAuctions()
   isPaused = false
   running = false
   lastUpdate = nil

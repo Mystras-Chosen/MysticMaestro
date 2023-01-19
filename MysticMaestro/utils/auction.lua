@@ -111,7 +111,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     listings[reID][sTime] = temp
     self:CalculateREStats(reID, listingData)
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
-    if self:IsEmbeddedMenuOpen() then
+    if self:IsEmbeddedMenuOpen() and not self.AutomationManager:IsRunning() then
       self:PopulateSelectedEnchantAuctions(results)
       self:SetMyAuctionLastScanTime(reID)
       self:SetMyAuctionBuyoutStatus(reID)

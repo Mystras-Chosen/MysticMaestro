@@ -153,6 +153,7 @@ function MM:Scan_AUCTION_ITEM_LIST_UPDATE()
 end
 
 local function onUpdate()
+	--if scanPending and not CanSendAuctionQuery() then print("spam") end
 	if scanPending and CanSendAuctionQuery() then
 		scanPending = false
 		performScan(currentIndex)

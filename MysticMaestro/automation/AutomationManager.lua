@@ -99,14 +99,18 @@ local function terminateAutomation()
   setMenuLocked(false)
 end
 
+local function pauseAutomation()
+  paused = true
+  currentAutomationTable.Pause()
+  MM:Print("Automation function paused")
+  setMenuLocked(false)
+end
+
 -- called when menu is closed
 function MM.AutomationManager:StopAutomation()
   if currentAutomationName then
     if currentTask == "running" and currentAutomationTable.Pause then
-      paused = true
-      currentAutomationTable.Pause()
-      MM:Print("Automation function paused")
-      setMenuLocked(false)
+      pauseAutomation()
     elseif not paused then
       terminateAutomation()
     end
@@ -153,10 +157,7 @@ local function handleRunningStatus(status)
   elseif status == "stopClicked" then
     terminateAutomation()
   elseif status == "pauseClicked" then
-    paused = true
-    currentAutomationTable.Pause()
-    MM:Print("Automation function paused")
-    setMenuLocked(false)
+    pauseAutomation()
   else
     logStatusError(status)
   end
