@@ -148,6 +148,7 @@ end
 
 local function handleRunningStatus(status)
   if status == "finished" then
+    print("finished")
     if currentAutomationTable.PostProcessing then
       currentTask = "postprocessing"
       currentAutomationTable.PostProcessing()

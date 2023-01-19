@@ -29,7 +29,7 @@ function automationTable.Start()
   print("start called")
   if not isPaused then
     prepareEnchantQueue()
-    currentIndex = 1
+    currentIndex = 0
   end
   isPaused = false
   MM.AutomationUtil.SetProgressBarMinMax(0, #enchantQueue)
@@ -40,13 +40,13 @@ end
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if running and not isPaused then
-      if currentIndex <= #enchantQueue and CanSendAuctionQuery() and not MM:AwaitingSingleScanResults() then
+      if currentIndex < #enchantQueue and CanSendAuctionQuery() and not MM:AwaitingSingleScanResults() then
+        currentIndex = currentIndex + 1
         MM:InitializeSingleScan(enchantQueue[currentIndex])
         MM.AutomationUtil.SetProgressBarValues(currentIndex-1, #enchantQueue)
-        currentIndex = currentIndex + 1
-      elseif currentIndex > #enchantQueue and MM:AwaitingSingleScanResults() then
-        --MM.AutomationManager:Inform(automationTable, "finished")
-        MM.AutomationUtil.SetProgressBarValues(currentIndex-1, #enchantQueue)
+      elseif currentIndex == #enchantQueue and not MM:AwaitingSingleScanResults() then
+        MM.AutomationUtil.SetProgressBarValues(currentIndex, #enchantQueue)
+        MM.AutomationManager:Inform(automationTable, "finished")
         running = false
         isPaused = false
       end
@@ -56,8 +56,14 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 
 function automationTable.Pause()
   print("pause called")
-  isPaused = true
-  MM.AutomationUtil.HideAutomationPopup()
+  if running then
+    isPaused = true
+    MM.AutomationUtil.HideAutomationPopup()
+    MM:CancelDisplayEnchantAuctions()
+    currentIndex = currentIndex - 1
+  else
+    MM:Print("ERROR: Scan paused when not running")
+  end
 end
 
 function automationTable.IsPaused()
