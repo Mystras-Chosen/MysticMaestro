@@ -42,10 +42,13 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
     if running and not isPaused then
       if currentIndex <= #enchantQueue and CanSendAuctionQuery() and not MM:AwaitingSingleScanResults() then
         MM:InitializeSingleScan(enchantQueue[currentIndex])
-        MM.AutomationUtil.SetProgressBarValues(currentIndex, #enchantQueue)
+        MM.AutomationUtil.SetProgressBarValues(currentIndex-1, #enchantQueue)
         currentIndex = currentIndex + 1
-      elseif currentIndex > #enchantQueue then
-        MM.AutomationManager:Inform(automationTable, "finished")
+      elseif currentIndex > #enchantQueue and MM:AwaitingSingleScanResults() then
+        --MM.AutomationManager:Inform(automationTable, "finished")
+        MM.AutomationUtil.SetProgressBarValues(currentIndex-1, #enchantQueue)
+        running = false
+        isPaused = false
       end
     end
   end
