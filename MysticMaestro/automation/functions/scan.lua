@@ -40,7 +40,7 @@ end
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if running and not isPaused then
-      if currentIndex <= #enchantQueue and CanSendAuctionQuery() then
+      if currentIndex <= #enchantQueue and CanSendAuctionQuery() and not MM:AwaitingSingleScanResults() then
         MM:InitializeSingleScan(enchantQueue[currentIndex])
         MM.AutomationUtil.SetProgressBarValues(currentIndex, #enchantQueue)
         currentIndex = currentIndex + 1

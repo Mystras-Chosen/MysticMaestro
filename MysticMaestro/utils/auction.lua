@@ -79,6 +79,10 @@ function MM:CancelDisplayEnchantAuctions()
   selectedScanTime = nil
 end
 
+function MM:AwaitingSingleScanResults()
+  return awaitingResults
+end
+
 local results = {}
 function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
