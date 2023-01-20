@@ -129,27 +129,10 @@ function MM:HandleGetAllScan()
   end
 end
 
-function MM:CollectAllREData(scanTime)
-  local listings = self.data.RE_AH_LISTINGS
-  local numBatchAuctions = GetNumAuctionItems("list")
-  if numBatchAuctions > 0 then
-    for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(i)
-      local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
-      if itemFound then
-        local temp = listings[enchantID][scanTime] or ":"
-        listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
-      end
-    end
-  end
-end
-
 function MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
   if scanInProgress == true then
-    -- MM:CollectAllREData(lastScanTime)
     scanInProgress = false
     collectRE = true
-    -- MM:CalculateAllStats()
   end
 end
 
