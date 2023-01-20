@@ -45,22 +45,6 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   return enchantFound
 end
 
-function MM:CollectAllREData(scanTime)
-  local listings = self.data.RE_AH_LISTINGS
-  local numBatchAuctions = GetNumAuctionItems("list")
-  if numBatchAuctions > 0 then
-    for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
-      if itemFound then
-        local temp = listings[enchantID][scanTime] or ":"
-        listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
-        
-      end
-    end
-  end
-end
-
 local pendingQuery, awaitingResults, timeoutTime, enchantToQuery, selectedScanTime
 
 function MM:InitializeSingleScan(enchantID)
