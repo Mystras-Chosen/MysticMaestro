@@ -8,6 +8,7 @@
 ## SavedVariables: MysticMaestroDB, MysticMaestroData
 
 Libs\embeds.xml
+utils\database.lua
 MysticMaestro.lua
 utils\common.lua
 utils\auction.lua

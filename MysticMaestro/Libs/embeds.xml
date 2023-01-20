@@ -19,6 +19,7 @@
 	<Include file="AceTimer-3.0\AceTimer-3.0.xml" />
 
     <Script file="LG\LibGraph-2.0.lua" />
+    <Script file="init.lua" />
     <GameTooltip name="MysticMaestroTT" inherits="BasicTooltipTemplate">
     <Scripts>
         <Onload>

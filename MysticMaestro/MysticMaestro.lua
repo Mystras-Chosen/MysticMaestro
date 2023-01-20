@@ -1,7 +1,4 @@
-local addonName, addonTable = ...
-
-local AceAddon = LibStub("AceAddon-3.0")
-local MM = AceAddon:NewAddon("MysticMaestro", "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceBucket-3.0")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local AceGUI = LibStub("AceGUI-3.0")
 local Dialog = LibStub("AceConfigDialog-3.0")
 
