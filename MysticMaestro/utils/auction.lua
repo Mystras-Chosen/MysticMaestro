@@ -9,14 +9,14 @@ function MM:ValidateAHIsOpen()
   return true
 end
 
-local function getAuctionInfo(i)
+function MM:getAuctionInfo(i)
   local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
   local link = GetAuctionItemLink("list", i)
   local duration = GetAuctionItemTimeLeft("list", i)
   return itemName, level, buyoutPrice, quality, seller, icon, link, duration
 end
 
-local function isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
+function MM:isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
   local trinketFound = MM:IsTrinket(itemName,level)
   local enchantID, mysticScroll = GetAuctionItemMysticEnchant("list", i)
   enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
@@ -31,8 +31,8 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   local temp = ":"
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
+      local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(i)
+      local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
         temp = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
         enchantFound = true
@@ -77,11 +77,11 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     local temp = ":"
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
-      local itemName, level, buyoutPrice, quality, seller, icon, link, duration = getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality, seller, icon, link, duration = MM:getAuctionInfo(i)
       if seller == nil and GetTime() < timeoutTime then
         awaitingResults = true
       end
-      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
+      local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and reID == enchantID then
         table.insert(results, {
           id = i,

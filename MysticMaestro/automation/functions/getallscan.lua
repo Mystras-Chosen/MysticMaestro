@@ -36,9 +36,42 @@ end
 
 local fps = 20
 local spf = 1 / fps
-local calculateRunning, calculateFinished, lastBreak, currentIndex, REQueue
+local collectRE, collectFinished, calculateRunning, calculateFinished, numBatchAuctions, lastBreak, currentIndex, REQueue
 local function getAllScan_OnUpdate()
-  if calculateRunning then
+  if collectRE then
+    local listings = MM.data.RE_AH_LISTINGS
+    if not currentIndex then
+      MM:Print("Collecting GetAll results")
+      currentIndex = 1
+      numBatchAuctions = GetNumAuctionItems("list")
+      lastBreak = GetTime()
+    end
+    if currentIndex > numBatchAuctions then
+      collectFinished = true
+    elseif numBatchAuctions > 0 then
+      -- process as many as possible
+      while currentIndex <= numBatchAuctions and GetTime() - lastBreak < spf do
+        local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(currentIndex)
+        local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,currentIndex)
+        if itemFound then
+          local temp = listings[enchantID][lastScanTime] or ":"
+          listings[enchantID][lastScanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+        end
+        currentIndex = currentIndex + 1
+      end
+      lastBreak = GetTime()
+    else
+      collectFinished = true
+    end
+    -- if we have completed collecting we move to the next phase
+    if collectFinished then
+      collectFinished = nil
+      collectRE = nil
+      currentIndex = nil
+      numBatchAuctions = nil
+      calculateRunning = true
+    end
+  elseif calculateRunning then
     local listings = MM.data.RE_AH_LISTINGS
     -- Set up the queue of all enchants in listings
     if not REQueue then
@@ -47,7 +80,6 @@ local function getAllScan_OnUpdate()
       for reID, _ in pairs(listings) do
         table.insert(REQueue, reID)
       end
-      lastBreak = GetTime()
     end
     if not currentIndex then
       currentIndex = 1
@@ -71,6 +103,7 @@ local function getAllScan_OnUpdate()
     calculateFinished = nil
     currentIndex = nil
     lastBreak = nil
+    numBatchAuctions = nil
     MM.AutomationManager:Inform(automationTable, "finished")
   end
 end
@@ -101,12 +134,11 @@ function MM:CollectAllREData(scanTime)
   local numBatchAuctions = GetNumAuctionItems("list")
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice, quality = getAuctionInfo(i)
-      local itemFound, enchantID, trinketFound = isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
+      local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(i)
+      local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound then
         local temp = listings[enchantID][scanTime] or ":"
         listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
-        
       end
     end
   end
@@ -114,9 +146,9 @@ end
 
 function MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
   if scanInProgress == true then
-    MM:CollectAllREData(lastScanTime)
+    -- MM:CollectAllREData(lastScanTime)
     scanInProgress = false
-    calculateRunning = true
+    collectRE = true
     -- MM:CalculateAllStats()
   end
 end
