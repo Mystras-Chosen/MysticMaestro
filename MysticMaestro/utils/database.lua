@@ -1,5 +1,6 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+-- Options can be accessed in the table: MM.db.realm.OPTIONS
 local defaultDB = {
   realm = {
     OPTIONS = {
