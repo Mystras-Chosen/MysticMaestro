@@ -26,7 +26,7 @@ local function prepareEnchantQueue()
   if MM.db.realm.OPTIONS.rarityRare then str = str .. (str ~= "" and " " or "") .. "rare" end
   if MM.db.realm.OPTIONS.rarityEpic then str = str .. (str ~= "" and " " or "") .. "epic" end
   if MM.db.realm.OPTIONS.rarityLegendary then str = str .. (str ~= "" and " " or "") .. "legendary" end
-  enchantQueue = MM:GetAlphabetizedEnchantList(str)
+  enchantQueue = MM:GetAlphabetizedEnchantList("legendary")
 end
 
 local currentIndex

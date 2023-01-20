@@ -2,9 +2,9 @@ local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local AceGUI = LibStub("AceGUI-3.0")
 
-AtlasInfo["spinning_arrows"] = { "Interface\\MysticMaestro\\textures\\spinning_arrows", 1024, 1024, 0, 1, 0, 1, false, false}
-
 local automationPopupFrame
+
+local AnimateTexCoords = AnimateTexCoords
 
 local function createAutomationPopupFrame()
   -- set up widget container
@@ -60,13 +60,18 @@ local function createAutomationPopupFrame()
   automationPopupFrame.ProgressBar:SetStatusBarFlipbookAtlas(statusBarAtlas, frameWidth, frameHeight, frames, fps)
   automationPopupFrame.ProgressBar:Hide()
 
-  automationPopupFrame.WaitIndicator = CreateFrame("Frame", nil, automationPopupFrame, "BetterStatusBarTemplate")
-  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "TOP", -50, -53)
+  automationPopupFrame.WaitIndicator = CreateFrame("Frame", "MMWaitIndicator", automationPopupFrame)
+  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "CENTER", 0, 0)
   automationPopupFrame.WaitIndicator:SetSize(128, 128)
-  automationPopupFrame.WaitIndicator:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
-  automationPopupFrame.WaitIndicator:SetStatusBarFlipbookAtlas("spinning_arrows", 128, 128, 50, 60)
-  automationPopupFrame.WaitIndicator:SetValue(100)
-  automationPopupFrame.WaitIndicator:SetMinMaxValues(0, 100)
+  automationPopupFrame.WaitIndicator.T = automationPopupFrame.WaitIndicator:CreateTexture(nil, "ARTWORK")
+  automationPopupFrame.WaitIndicator.T:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\spinning_arrows")
+  automationPopupFrame.WaitIndicator.T:SetAllPoints()
+  automationPopupFrame.WaitIndicator:SetScript("OnUpdate",
+    function(self, elapsed)
+      AnimateTexCoords(self.T, 1024, 1024, 128, 128, 50, elapsed, .02)
+    end
+  )
+
   automationPopupFrame.WaitIndicator:Hide()
 
 end
@@ -223,7 +228,6 @@ MM.AutomationUtil.RegisterPopupTemplate("running",
       automationPopupFrame.ProgressBar:Show()
       automationPopupFrame.ProgressBar.flipbook:Play()
       automationPopupFrame.WaitIndicator:Show()
-      automationPopupFrame.WaitIndicator.flipbook:Play()
     end,
     Hide = function()
       automationPopupFrame.ProgressBar:Hide()
