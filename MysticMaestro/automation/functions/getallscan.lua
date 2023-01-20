@@ -25,6 +25,28 @@ local function remainingTime()
   end
 end
 
+-- local function handleGetAllScan()
+  -- MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
+  -- when the scan is complete, MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
+  -- set min max of progress bar to 0 and 100
+  -- set value of progress bar to 0
+  -- tell progress bar to show progress bar text as percent (new method required)
+  -- enable OnUpdate handler for getAll scan to calculate stats (specify throttle fps above getAll OnUpdate handler)
+-- end
+
+local fps = 20
+local spf = 1 / fps
+local function getAllScan_OnUpdate()
+
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    getAllScan_OnUpdate()
+  end
+)
+
+
 function MM:HandleGetAllScan()
   if not self:ValidateAHIsOpen() then
     return

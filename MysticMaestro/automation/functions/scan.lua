@@ -71,38 +71,16 @@ local function queueScan_OnUpdate()
   end
 end
 
-
-
-
 -- put get all scan "private" functions here
-
-local function handleGetAllScan()
-  -- MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
-  -- when the scan is complete, MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
-  -- set min max of progress bar to 0 and 100
-  -- set value of progress bar to 0
-  -- tell progress bar to show progress bar text as percent (new method required)
-  -- enable OnUpdate handler for getAll scan to calculate stats (specify throttle fps above getAll OnUpdate handler)
-end
-
-local fps = 20
-local function getAllScan_OnUpdate()
-
-end
 
 function automationTable.Start()
   print("start called")
-  if options.useGetall then
-    handleGetAllScan()
-  else
-    handleQueueScan()
-  end
+  handleQueueScan()
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     queueScan_OnUpdate()
-    getAllScan_OnUpdate()
   end
 )
 
