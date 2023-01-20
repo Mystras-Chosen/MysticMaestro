@@ -2,6 +2,8 @@ local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local AceGUI = LibStub("AceGUI-3.0")
 
+AtlasInfo["spinning_arrows"] = { "Interface\\MysticMaestro\\textures\\spinning_arrows", 1024, 1024, 0, 1, 0, 1, false, false}
+
 local automationPopupFrame
 
 local function createAutomationPopupFrame()
@@ -44,7 +46,7 @@ local function createAutomationPopupFrame()
     tileSize = 12
   })
   automationPopupFrame.ProgressBar:SetBackdropColor(0, 0, 0, .8)
-  automationPopupFrame.ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
+  automationPopupFrame.ProgressBar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
   automationPopupFrame.ProgressBar:SetStatusBarAtlas(statusBarAtlas)
   automationPopupFrame.ProgressBar.Edge = CreateFrame("Frame", nil, automationPopupFrame.ProgressBar)
   automationPopupFrame.ProgressBar.Edge:SetPoint("TOPLEFT", automationPopupFrame.ProgressBar, "TOPLEFT", -5, 5)
@@ -55,8 +57,18 @@ local function createAutomationPopupFrame()
     tileSize = 12,
     edgeSize = 12,
   })
-  automationPopupFrame.ProgressBar:SetStatusBarFlipbookAtlas(statusBarAtlas, frameWidth, frameHeight, frames, fps, false)
+  automationPopupFrame.ProgressBar:SetStatusBarFlipbookAtlas(statusBarAtlas, frameWidth, frameHeight, frames, fps)
   automationPopupFrame.ProgressBar:Hide()
+
+  automationPopupFrame.WaitIndicator = CreateFrame("Frame", nil, automationPopupFrame, "BetterStatusBarTemplate")
+  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "TOP", -50, -53)
+  automationPopupFrame.WaitIndicator:SetSize(128, 128)
+  automationPopupFrame.WaitIndicator:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar") 
+  automationPopupFrame.WaitIndicator:SetStatusBarFlipbookAtlas("spinning_arrows", 128, 128, 50, 60)
+  automationPopupFrame.WaitIndicator:SetValue(100)
+  automationPopupFrame.WaitIndicator:SetMinMaxValues(0, 100)
+  automationPopupFrame.WaitIndicator:Hide()
+
 end
 
 local function setPopupAutomation(automationName, automationTable)
@@ -210,9 +222,12 @@ MM.AutomationUtil.RegisterPopupTemplate("running",
       setRunningSize(automationTable)
       automationPopupFrame.ProgressBar:Show()
       automationPopupFrame.ProgressBar.flipbook:Play()
+      automationPopupFrame.WaitIndicator:Show()
+      automationPopupFrame.WaitIndicator.flipbook:Play()
     end,
     Hide = function()
       automationPopupFrame.ProgressBar:Hide()
+      automationPopupFrame.WaitIndicator:Hide()
     end
   }
 )
