@@ -36,8 +36,43 @@ end
 
 local fps = 20
 local spf = 1 / fps
+local calculateRunning, calculateFinished, lastBreak, currentIndex, REQueue
 local function getAllScan_OnUpdate()
-
+  if calculateRunning then
+    local listings = MM.data.RE_AH_LISTINGS
+    -- Set up the queue of all enchants in listings
+    if not REQueue then
+      MM:Print("GetAll results processing")
+      REQueue = {}
+      for reID, _ in pairs(listings) do
+        table.insert(REQueue, reID)
+      end
+      lastBreak = GetTime()
+    end
+    if not currentIndex then
+      currentIndex = 1
+    end
+    -- If we have finished the list, move to finished section
+    if currentIndex > #REQueue then
+      calculateRunning = nil
+      calculateFinished = true
+    else
+      -- Process as many as possible within the alloted time
+      while currentIndex <= #REQueue and GetTime() - lastBreak < spf do
+        MM:CalculateREStats(REQueue[currentIndex],listings[REQueue[currentIndex]])
+        currentIndex = currentIndex + 1
+      end
+      -- Mark the time when we break out from our loop
+      lastBreak = GetTime()
+    end
+  -- Clean up variables and inform finished
+  elseif calculateFinished then
+    REQueue = nil
+    calculateFinished = nil
+    currentIndex = nil
+    lastBreak = nil
+    MM.AutomationManager:Inform(automationTable, "finished")
+  end
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
@@ -63,7 +98,10 @@ end
 
 function MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
   if scanInProgress == true then
-    MM.AutomationManager:Inform(automationTable, "finished")
+    MM:CollectAllREData(lastScanTime)
+    scanInProgress = false
+    calculateRunning = true
+    -- MM:CalculateAllStats()
   end
 end
 
@@ -78,9 +116,6 @@ function automationTable.Start()
 end
 
 function automationTable.PostProcessing()
-  scanInProgress = false
-  MM:CollectAllREData(lastScanTime)
-  MM:CalculateAllStats()
   MM:Print("GetAll scan Complete!")
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
 end
