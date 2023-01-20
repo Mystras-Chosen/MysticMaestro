@@ -20,13 +20,24 @@ local running
 
 local enchantQueue
 
+local scanQualityFilters = {
+  { rarityLegendary = "legendary" },
+  { rarityEpic = "epic" },
+  { rarityRare = "rare" },
+  { rarityMagic = "uncommon" }
+}
+
 local function prepareEnchantQueue()
-  local str = ""
-  if MM.db.realm.OPTIONS.rarityMagic then str = "uncommon" end
-  if MM.db.realm.OPTIONS.rarityRare then str = str .. (str ~= "" and " " or "") .. "rare" end
-  if MM.db.realm.OPTIONS.rarityEpic then str = str .. (str ~= "" and " " or "") .. "epic" end
-  if MM.db.realm.OPTIONS.rarityLegendary then str = str .. (str ~= "" and " " or "") .. "legendary" end
-  enchantQueue = MM:GetAlphabetizedEnchantList("legendary")
+  enchantQueue = {}
+  for _, filter in ipairs(scanQualityFilters) do
+    local optionKey, quality = next(filter)
+    if MM.db.realm.OPTIONS[optionKey] then
+      local enchants = MM:GetAlphabetizedEnchantList(quality)
+      for _, enchant in ipairs(enchants) do
+        table.insert(enchantQueue, enchant)
+      end
+    end
+  end
 end
 
 local currentIndex
