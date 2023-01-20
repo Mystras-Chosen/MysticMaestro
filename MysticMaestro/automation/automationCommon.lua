@@ -165,6 +165,9 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
     if pendingTemplate ~= nil then
       releasePopupWidgets()
       if pendingTemplate then
+        if currentTemplate then
+          registeredTemplates[currentTemplate].Hide()
+        end
         currentTemplate = pendingTemplate
         registeredTemplates[currentTemplate].Show()
         automationPopupFrame:Show()
