@@ -153,7 +153,11 @@ end
 
 function MM.AutomationUtil.SetProgressBarValues(current, max)
   automationPopupFrame.ProgressBar:SetValue(current)
-  automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
+  if max then
+    automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
+  else
+    automationPopupFrame.ProgressBar:SetFormattedText(" ")
+  end
 end
 
 function MM.AutomationUtil.SetProgressBarMinMax(min, max)

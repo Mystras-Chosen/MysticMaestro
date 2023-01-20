@@ -20,3 +20,4 @@ AHMenuExtension.lua
 automation\AutomationManager.lua
 automation\automationCommon.lua
 automation\functions\scan.lua
+automation\functions\getallscan.lua

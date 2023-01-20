@@ -397,7 +397,11 @@ local function setUpButtonWidgets()
   scanButton:SetText("Scan")
   scanButton:SetCallback("OnClick",
     function(self, event)
-      MM.AutomationManager:ShowAutomationPrompt("Scan")
+      if MM.db.realm.OPTIONS.useGetall then
+        MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
+      else
+        MM.AutomationManager:ShowAutomationPrompt("Scan")
+      end
     end
   )
   scanButton.frame:Show()
