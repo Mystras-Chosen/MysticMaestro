@@ -16,7 +16,7 @@ local function createAutomationPopupFrame()
   automationPopupFrame:SetToplevel(true)
   automationPopupFrame:SetPoint("CENTER")
   automationPopupFrame.Title = MM:CreateDecoration(automationPopupFrame, 40)
-  automationPopupFrame.Title:SetPoint("TOP", 0, 8)
+  automationPopupFrame.Title:SetPoint("TOP", 0, 12)
   automationPopupFrame.Title.Text = automationPopupFrame.Title:CreateFontString(nil, "OVERLAY", "GameFontNormal")
   automationPopupFrame.Title.Text:SetPoint("CENTER", automationPopupFrame.Title)
   -- setup progress bar variables
@@ -58,11 +58,12 @@ local function createAutomationPopupFrame()
     edgeSize = 12,
   })
   automationPopupFrame.ProgressBar:SetStatusBarFlipbookAtlas(statusBarAtlas, frameWidth, frameHeight, frames, fps)
+  automationPopupFrame.ProgressBar.flipbook:Play()
   automationPopupFrame.ProgressBar:Hide()
 
-  automationPopupFrame.WaitIndicator = CreateFrame("Frame", "MMWaitIndicator", automationPopupFrame)
-  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "CENTER", 0, 0)
-  automationPopupFrame.WaitIndicator:SetSize(128, 128)
+  automationPopupFrame.WaitIndicator = CreateFrame("Frame", nil, automationPopupFrame)
+  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "BOTTOMLEFT", 54, 48)
+  automationPopupFrame.WaitIndicator:SetSize(54, 54)
   automationPopupFrame.WaitIndicator.T = automationPopupFrame.WaitIndicator:CreateTexture(nil, "ARTWORK")
   automationPopupFrame.WaitIndicator.T:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\spinning_arrows")
   automationPopupFrame.WaitIndicator.T:SetAllPoints()
@@ -71,9 +72,15 @@ local function createAutomationPopupFrame()
       AnimateTexCoords(self.T, 1024, 1024, 128, 128, 50, elapsed, .02)
     end
   )
-
   automationPopupFrame.WaitIndicator:Hide()
 
+  automationPopupFrame.AlertIndicator = CreateFrame("Frame", nil, automationPopupFrame)
+  automationPopupFrame.AlertIndicator:SetPoint("CENTER", automationPopupFrame, "TOPLEFT", 54, -66)
+  automationPopupFrame.AlertIndicator:SetSize(48, 48)
+  automationPopupFrame.AlertIndicator.T = automationPopupFrame.AlertIndicator:CreateTexture(nil, "ARTWORK")
+  automationPopupFrame.AlertIndicator.T:SetTexture(STATICPOPUP_TEXTURE_ALERT)
+  automationPopupFrame.AlertIndicator.T:SetAllPoints()
+  automationPopupFrame.AlertIndicator:Hide()
 end
 
 local function setPopupAutomation(automationName, automationTable)
@@ -108,6 +115,20 @@ local function createButtonWidget(automationTable, text, informStatus, xOffset, 
   button.frame:Show()
   table.insert(popupWidgets, button)
   return button
+end
+
+local function createLabelWidget(text, textHeight, width, height, xOffset, yOffset)
+  local label = AceGUI:Create("Label")
+  label:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
+  label:SetWidth(width)
+  label:SetHeight(height)
+  label:SetText(text)
+  label:SetFont(GameFontHighlightSmall:GetFont(), textHeight)
+  label.frame:SetParent(automationPopupFrame)
+  label.frame:Show()
+  table.insert(popupWidgets, label)
+  return label
+
 end
 
 local function hideAutomationPopup()
@@ -222,7 +243,7 @@ local function createRunningWidgets(automationTable)
   createButtonWidget(automationTable, "Stop", "stopClicked", automationTable.Pause and 45 or 0, -70)
 end
 
-local function setRunningSize(automationTable)
+local function setRunningSize()
   automationPopupFrame:SetSize(300, 120)
 end
 
@@ -231,28 +252,17 @@ MM.AutomationUtil.RegisterPopupTemplate("running",
     Show = function()
       local automationTable = automationPopupFrame.AutomationTable
       createRunningWidgets(automationTable)
-      setRunningSize(automationTable)
+      setRunningSize()
       automationPopupFrame.ProgressBar:Show()
-      automationPopupFrame.ProgressBar.flipbook:Play()
-      automationPopupFrame.WaitIndicator:Show()
     end,
     Hide = function()
       automationPopupFrame.ProgressBar:Hide()
-      automationPopupFrame.WaitIndicator:Hide()
     end
   }
 )
 
-
-local function showAutomationDone()
-  local automationTable = automationPopupFrame.AutomationTable
-  createButtonWidget(automationTable, "Done", "doneClicked", 0, -70)
-end
-
-local function hideAutomationPopup()
-  automationPopupFrame:Hide()
-  automationPopupFrame.ProgressBar:Hide()
-  releasePopupWidgets()
+local function setNoPostProcessingSize()
+  setRunningSize()
 end
 
 MM.AutomationUtil.RegisterPopupTemplate("noPostProcessing",
@@ -260,10 +270,32 @@ MM.AutomationUtil.RegisterPopupTemplate("noPostProcessing",
     Show = function()
       local automationTable = automationPopupFrame.AutomationTable
       createButtonWidget(automationTable, "Done", "doneClicked", 0, -70)
+      setNoPostProcessingSize()
       automationPopupFrame.ProgressBar:Show() -- progress bar should already be sized and playing
     end,
     Hide = function()
       automationPopupFrame.ProgressBar:Hide()
+    end
+  }
+)
+
+local function setGetAllScanSize()
+  automationPopupFrame:SetSize(380, 180)
+end
+
+MM.AutomationUtil.RegisterPopupTemplate("getAllScan",
+  {
+    Show = function()
+      local automationTable = automationPopupFrame.AutomationTable
+      createButtonWidget(automationTable, "Stop", "stopClicked", 0, -122)
+      createLabelWidget("First GetAll scan after server restart may take up to 12 minutes.\n\nDO NOT CLOSE AUCTION HOUSE", 14, 240, 80, 32, -34)
+      setGetAllScanSize()
+      automationPopupFrame.WaitIndicator:Show()
+      automationPopupFrame.AlertIndicator:Show()
+    end,
+    Hide = function()
+      automationPopupFrame.WaitIndicator:Hide()
+      automationPopupFrame.AlertIndicator:Hide()
     end
   }
 )

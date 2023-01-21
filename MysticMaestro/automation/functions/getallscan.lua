@@ -139,9 +139,7 @@ end
 
 function automationTable.Start()
   print("start called")
-  MM.AutomationUtil.SetProgressBarMinMax(0, 100)
-  MM.AutomationUtil.SetProgressBarValues(100)
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
   running = true
   MM:HandleGetAllScan()
 end
