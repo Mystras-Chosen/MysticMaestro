@@ -241,16 +241,20 @@ do -- functions to initialize menu and menu container
   MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
 
   local enchantToCraft, insigniaBagID, insigniaContainerIndex
+  local function attemptCraftingRE()
+    awaitingRECraftResults = true
+    craftTime = GetTime()
+    pendingCraftedEnchantID = enchantToCraft
+    pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
+    RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
+  end
+  
   StaticPopupDialogs["MM_CRAFT_RE"] = {
     text = "Craft mystic enchant?\n\n%s\n\n|cffffff00Cost:|r %s " .. CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1),
     button1 = ACCEPT,
     button2 = CANCEL,
     OnAccept = function(self)
-      awaitingRECraftResults = true
-      craftTime = GetTime()
-      pendingCraftedEnchantID = enchantToCraft
-      pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
-      RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
+      attemptCraftingRE()
     end,
     showAlert = 1,
     timeout = 0,
@@ -259,6 +263,7 @@ do -- functions to initialize menu and menu container
     enterClicksFirstButton = 1
   }
 
+  
   local function craftButton_OnClick(self, button, down)
     enchantToCraft = nil
     
@@ -285,7 +290,11 @@ do -- functions to initialize menu and menu container
     end
 
     enchantToCraft = enchantID
-    StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
+    if MM.db.realm.OPTIONS.confirmCraft then
+      StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
+    else
+      attemptCraftingRE()
+    end
   end
 
   local function craftButton_OnEnter(self)
