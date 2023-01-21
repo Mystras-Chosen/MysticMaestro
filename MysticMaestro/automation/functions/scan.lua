@@ -13,7 +13,6 @@ end
 local options
 
 function automationTable.ShowInitPrompt()
-  print("showinitprompt called")
   options = options or MM.db.realm.OPTIONS
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
 end
@@ -51,6 +50,7 @@ local function handleQueueScan()
     currentIndex = 0
   end
   isPaused = false
+  MM.AutomationUtil.SetProgressBarDisplayMode("value")
   MM.AutomationUtil.SetProgressBarMinMax(0, #enchantQueue)
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
   running = true
@@ -71,25 +71,17 @@ local function queueScan_OnUpdate()
   end
 end
 
--- put get all scan "private" functions here
-
 function automationTable.Start()
-  print("start called")
   handleQueueScan()
 end
 
-MM.OnUpdateFrame:HookScript("OnUpdate",
-  function()
-    queueScan_OnUpdate()
-  end
-)
+MM.OnUpdateFrame:HookScript("OnUpdate", queueScan_OnUpdate)
 
 function automationTable.PostProcessing()
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
 end
 
 function automationTable.Pause()
-  print("pause called")
   if running then
     isPaused = true
     MM.AutomationUtil.HideAutomationPopup()
@@ -105,7 +97,6 @@ function automationTable.IsPaused()
 end
 
 function automationTable.Stop()
-  print("stop called")
   MM.AutomationUtil.HideAutomationPopup()
   MM:CancelDisplayEnchantAuctions()
   isPaused = false

@@ -172,17 +172,32 @@ function MM.AutomationUtil.HideAutomationPopup()
   pendingTemplate = false
 end
 
+local displayMode
+
+function MM.AutomationUtil.SetProgressBarDisplayMode(mode)
+  displayMode = mode
+end
+
 function MM.AutomationUtil.SetProgressBarValues(current, max)
   automationPopupFrame.ProgressBar:SetValue(current)
-  if max then
+  if displayMode == "value" then
     automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
+  elseif displayMode == "percent" then
+    automationPopupFrame.ProgressBar:SetFormattedText("%d %%", math.floor(current/max * 100))
+  elseif display ~= nil then
+    MM:Print("ERROR: Automation popup progress bar has invalid display mode")
   else
-    automationPopupFrame.ProgressBar:SetFormattedText(" ")
+    MM:Print("ERROR: Automation popup progress bar display mode not set")
   end
 end
 
 function MM.AutomationUtil.SetProgressBarMinMax(min, max)
   automationPopupFrame.ProgressBar:SetMinMaxValues(min, max)
+end
+
+function MM.AutomationUtil.AppendProgressBarText(appendText, appendBefore)
+  local existingText = automationPopupFrame.ProgressBar.Text:GetText() or ""
+  automationPopupFrame.ProgressBar:SetText(appendBefore and appendText .. existingText or existingText .. appendText)
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
