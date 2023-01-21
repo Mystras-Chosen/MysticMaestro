@@ -10,11 +10,15 @@ function MM:round(num, numDecimalPlaces, alwaysDown)
   return math.floor(num * mult + (alwaysDown and 0 or 0.5)) / mult
 end
 
-function MM:Compare(a,b,comparitor)
+function MM:Compare(a,b,comparitor,bigger)
   a = a or math.huge
   b = b or math.huge
   if a == math.huge or b == math.huge then
-    return a < b
+    if bigger then
+      return a > b
+    else
+      return a < b
+    end
   end
   
   if comparitor == ">" then
