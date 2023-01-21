@@ -699,7 +699,8 @@ do -- show and hide MysticMaestroMenu
   local sortOptions = {
     "A - Z",
     "Z - A",
-    "Unseen",
+    "Oldest Seen",
+    "Newest Seen",
     "Min",
     "Med",
     "Mean",
@@ -994,7 +995,8 @@ do -- sort functions
   local itemKeyToSortFunctionKey = {
     "alphabetical_asc",
     "alphabetical_des",
-    "unseen",
+    "oldest",
+    "newest",
     "min",
     "med",
     "mean",
@@ -1012,7 +1014,8 @@ do -- sort functions
   local sortFunctions = {
     alphabetical_asc = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],"<") end,
     alphabetical_des = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],">") end,
-    unseen = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Last"), MM:LowestListed(k2,"Last"), "<", true) end,
+    oldest = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Last"), MM:LowestListed(k2,"Last"), "<", true) end,
+    newest = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Last"), MM:LowestListed(k2,"Last"), ">") end,
     min = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Min"), MM:LowestListed(k2,"Min"), ">") end,
     med = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Med"), MM:LowestListed(k2,"Med"), ">") end,
     mean = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Mean"), MM:LowestListed(k2,"Mean"), ">") end,
