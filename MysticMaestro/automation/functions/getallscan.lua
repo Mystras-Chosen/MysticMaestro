@@ -148,7 +148,6 @@ end
 function automationTable.Stop()
   nilGetAllScanVariables()
   MM.AutomationUtil.HideAutomationPopup()
-  MM:CancelDisplayEnchantAuctions()
 end
 
 MM.AutomationManager:RegisterAutomation(automationName, automationTable)
