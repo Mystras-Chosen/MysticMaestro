@@ -1,5 +1,7 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+local GetTime = GetTime
+
 local automationName = "GetAll Scan"
 
 local automationTable = {}
@@ -8,153 +10,145 @@ function automationTable.GetName()
   return automationName
 end
 
+local listings
+
 function automationTable.ShowInitPrompt()
-  print("showinitprompt called")
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+  listings = MM.data.RE_AH_LISTINGS
 end
 
-local running
-
-local scanInProgress, lastScanTime
-local function remainingTime()
-  if lastScanTime then
-    local secondsRemaining = lastScanTime + 900 - time()
-    return math.floor(secondsRemaining / 60) .. ":" .. string.format("%02d", secondsRemaining % 60)
-  else
-    return "Unknown"
-  end
-end
-
--- local function handleGetAllScan()
-  -- MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
-  -- when the scan is complete, MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
-  -- set min max of progress bar to 0 and 100
-  -- set value of progress bar to 0
-  -- tell progress bar to show progress bar text as percent (new method required)
-  -- enable OnUpdate handler for getAll scan to calculate stats (specify throttle fps above getAll OnUpdate handler)
--- end
-
-local fps = 20
-local spf = 1 / fps
-local collectRE, collectFinished, calculateRunning, calculateFinished, numBatchAuctions, lastBreak, currentIndex, REQueue
-local function getAllScan_OnUpdate()
-  if collectRE then
-    local listings = MM.data.RE_AH_LISTINGS
-    if not currentIndex then
-      MM:Print("Collecting GetAll results")
-      currentIndex = 1
-      numBatchAuctions = GetNumAuctionItems("list")
-      lastBreak = GetTime()
-    end
-    if currentIndex > numBatchAuctions then
-      collectFinished = true
-    elseif numBatchAuctions > 0 then
-      -- process as many as possible
-      while currentIndex <= numBatchAuctions and GetTime() - lastBreak < spf do
-        local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(currentIndex)
-        local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,currentIndex)
-        if itemFound then
-          local temp = listings[enchantID][lastScanTime] or ":"
-          listings[enchantID][lastScanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
-        end
-        currentIndex = currentIndex + 1
-      end
-      lastBreak = GetTime()
-    else
-      collectFinished = true
-    end
-    -- if we have completed collecting we move to the next phase
-    if collectFinished then
-      collectFinished = nil
-      collectRE = nil
-      currentIndex = nil
-      numBatchAuctions = nil
-      calculateRunning = true
-    end
-  elseif calculateRunning then
-    local listings = MM.data.RE_AH_LISTINGS
-    -- Set up the queue of all enchants in listings
-    if not REQueue then
-      MM:Print("GetAll results processing")
-      REQueue = {}
-      for reID, _ in pairs(listings) do
-        table.insert(REQueue, reID)
-      end
-    end
-    if not currentIndex then
-      currentIndex = 1
-    end
-    -- If we have finished the list, move to finished section
-    if currentIndex > #REQueue then
-      calculateRunning = nil
-      calculateFinished = true
-    else
-      -- Process as many as possible within the alloted time
-      while currentIndex <= #REQueue and GetTime() - lastBreak < spf do
-        MM:CalculateREStats(REQueue[currentIndex],listings[REQueue[currentIndex]])
-        currentIndex = currentIndex + 1
-      end
-      -- Mark the time when we break out from our loop
-      lastBreak = GetTime()
-    end
-  -- Clean up variables and inform finished
-  elseif calculateFinished then
-    REQueue = nil
-    calculateFinished = nil
-    currentIndex = nil
-    lastBreak = nil
-    numBatchAuctions = nil
-    MM.AutomationManager:Inform(automationTable, "finished")
-  end
-end
-
-MM.OnUpdateFrame:HookScript("OnUpdate",
-  function()
-    getAllScan_OnUpdate()
-  end
-)
-
-
-function MM:HandleGetAllScan()
-  if not self:ValidateAHIsOpen() then
-    return
-  end
-  if select(2, CanSendAuctionQuery()) then
-    MM:Print("Initiating GetAll Scan")
-    scanInProgress = true
-    lastScanTime = time()
-    QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
-  else
-    MM:Print("Get All scan not available. Time remaining: " .. remainingTime())
-  end
-end
+local awaitingResults, scanTime, collectTime
 
 function MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
-  if scanInProgress == true then
-    scanInProgress = false
-    collectRE = true
+  if awaitingResults then
+    awaitingResults = nil
+    scanTime = time()
+    collectTime = GetTime() + 2
   end
 end
 
-
-function automationTable.Start()
-  print("start called")
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
-  running = true
-  MM:HandleGetAllScan()
+local function startGetAllScan()
+  QueryAuctionItems("", nil, nil, 0, 0, 0, 0, 0, 0, true)
+  awaitingResults = true
 end
 
+local scannedEnchantIDs
+local function collectScannedEnchantIDs()
+  scannedEnchantIDs = {}
+  for _, quality in ipairs({"legendary", "epic", "rare", "uncommon"}) do
+    local enchants = MM:GetAlphabetizedEnchantList(quality)
+    for _, enchant in ipairs(enchants) do
+      table.insert(scannedEnchantIDs, enchant)
+    end
+  end
+end
+
+function automationTable.Start()
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
+  startGetAllScan()
+  collectScannedEnchantIDs() -- collect enchant IDs in table while we wait
+end
+
+local function recordListingData(index)
+  local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(index)
+  local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName, quality, level, buyoutPrice, index)
+  if itemFound then
+    local temp = listings[enchantID][scanTime] or ":"
+    listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+  end
+end
+
+local function calculateStatistics(index)
+  local enchantID = scannedEnchantIDs[index]
+  MM:CalculateREStats(enchantID, listings[enchantID])
+end
+
+local recordingStartTime, calcStartTime
+local fps = 20
+local currentIndex, numAuctions, numEnchants
+
+local function nilGetAllScanVariables()
+  awaitingResults = nil
+  scanTime = nil
+  collectTime = nil
+  scannedEnchantIDs = nil
+  recordingStartTime = nil
+  calcStartTime = nil
+  currentIndex = nil
+  numAuctions = nil
+  numEnchants = nil
+end
+
+local function initRecording()
+  collectTime = nil
+  recordingStartTime = GetTime()
+  currentIndex = 1
+  numAuctions = GetNumAuctionItems("list")
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
+  MM.AutomationUtil.SetProgressBarDisplayMode("percent")
+  MM.AutomationUtil.SetProgressBarMinMax(0, numAuctions)
+  MM.AutomationUtil.SetProgressBarValues(0, numAuctions)
+  MM.AutomationUtil.AppendProgressBarText("Archiving: ", true)
+end
+
+local function throttledRecording()
+  while GetTime() - recordingStartTime < 1 / fps and currentIndex <= numAuctions do
+    recordListingData(currentIndex)
+    currentIndex = currentIndex + 1
+  end
+  if currentIndex > numAuctions then
+    calcStartTime = recordingStartTime
+    recordingStartTime = nil
+    currentIndex = 1
+    numEnchants = #scannedEnchantIDs
+    MM.AutomationUtil.SetProgressBarMinMax(0, numEnchants)
+    MM.AutomationUtil.SetProgressBarValues(0, numEnchants)
+    MM.AutomationUtil.AppendProgressBarText("Calculating: ", true)
+  else
+    recordingStartTime = recordingStartTime + 1 / fps
+    MM.AutomationUtil.SetProgressBarValues(currentIndex, numAuctions)
+    MM.AutomationUtil.AppendProgressBarText("Archiving: ", true)
+  end
+end
+
+local function throttledCalculating()
+  while GetTime() - calcStartTime < 1 / fps and currentIndex <= numEnchants do
+    calculateStatistics(currentIndex)
+    currentIndex = currentIndex + 1
+  end
+  if currentIndex > numEnchants then
+    MM.AutomationUtil.SetProgressBarValues(numEnchants, numEnchants)
+    MM.AutomationUtil.AppendProgressBarText("Calculating: ", true)
+    nilGetAllScanVariables()
+    MM.AutomationManager:Inform(automationTable, "finished")
+  else
+    calcStartTime = calcStartTime + 1 / fps
+    MM.AutomationUtil.SetProgressBarValues(currentIndex, numEnchants)
+    MM.AutomationUtil.AppendProgressBarText("Calculating: ", true)
+  end
+end
+
+local function getAllScan_OnUpdate()
+  if collectTime and GetTime() >= collectTime then
+    initRecording()
+  elseif recordingStartTime then
+    throttledRecording()
+  end
+  if calcStartTime then
+    throttledCalculating()
+  end
+end
+
+MM.OnUpdateFrame:HookScript("OnUpdate", getAllScan_OnUpdate)
+
 function automationTable.PostProcessing()
-  MM:Print("GetAll scan Complete!")
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
 end
 
 function automationTable.Stop()
-  print("stop called")
+  nilGetAllScanVariables()
   MM.AutomationUtil.HideAutomationPopup()
   MM:CancelDisplayEnchantAuctions()
-  running = false
-  lastUpdate = nil
 end
 
 MM.AutomationManager:RegisterAutomation(automationName, automationTable)
