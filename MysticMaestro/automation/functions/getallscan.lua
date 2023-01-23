@@ -64,7 +64,7 @@ local function calculateStatistics(index)
 end
 
 local recordingStartTime, calcStartTime
-local fps = 20
+local secondsPerFrame = 1/20
 local currentIndex, numAuctions, numEnchants
 
 local function nilGetAllScanVariables()
@@ -92,7 +92,7 @@ local function initRecording()
 end
 
 local function throttledRecording()
-  while GetTime() - recordingStartTime < 1 / fps and currentIndex <= numAuctions do
+  while GetTime() - recordingStartTime < secondsPerFrame and currentIndex <= numAuctions do
     recordListingData(currentIndex)
     currentIndex = currentIndex + 1
   end
@@ -105,14 +105,14 @@ local function throttledRecording()
     MM.AutomationUtil.SetProgressBarValues(0, numEnchants)
     MM.AutomationUtil.AppendProgressBarText("Calculating: ", true)
   else
-    recordingStartTime = recordingStartTime + 1 / fps
+    recordingStartTime = recordingStartTime + secondsPerFrame
     MM.AutomationUtil.SetProgressBarValues(currentIndex, numAuctions)
     MM.AutomationUtil.AppendProgressBarText("Archiving: ", true)
   end
 end
 
 local function throttledCalculating()
-  while GetTime() - calcStartTime < 1 / fps and currentIndex <= numEnchants do
+  while GetTime() - calcStartTime < secondsPerFrame and currentIndex <= numEnchants do
     calculateStatistics(currentIndex)
     currentIndex = currentIndex + 1
   end
@@ -122,7 +122,7 @@ local function throttledCalculating()
     nilGetAllScanVariables()
     MM.AutomationManager:Inform(automationTable, "finished")
   else
-    calcStartTime = calcStartTime + 1 / fps
+    calcStartTime = calcStartTime + secondsPerFrame
     MM.AutomationUtil.SetProgressBarValues(currentIndex, numEnchants)
     MM.AutomationUtil.AppendProgressBarText("Calculating: ", true)
   end

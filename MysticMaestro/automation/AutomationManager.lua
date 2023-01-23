@@ -149,7 +149,6 @@ end
 
 local function handleRunningStatus(status)
   if status == "finished" then
-    print("finished")
     currentTask = "postprocessing"
     currentAutomationTable.PostProcessing()
   elseif status == "stopClicked" then
