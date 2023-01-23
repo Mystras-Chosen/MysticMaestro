@@ -628,9 +628,9 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         isFetching = nil
         fetchBag = nil
         fetchSlot = nil
-
-        if (MM.db.realm.OPTIONS.confirmList and not IsModifierKeyDown())
-        or (not MM.db.realm.OPTIONS.confirmList and IsModifierKeyDown()) then
+        local modKey = IsModifierKeyDown()
+        if (MM.db.realm.OPTIONS.confirmList and not modKey)
+        or (not MM.db.realm.OPTIONS.confirmList and modKey) then
           StaticPopup_Show("MM_LIST_AUCTION")
         else
           if MM:StartAuction(enchantToList, startingPrice) then
