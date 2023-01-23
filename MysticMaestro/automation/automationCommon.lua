@@ -260,8 +260,12 @@ local function createRunningWidgets(automationTable)
   createButtonWidget(automationTable, "Stop", "stopClicked", automationTable.Pause and 45 or 0, -70)
 end
 
-local function setRunningSize()
-  automationPopupFrame:SetSize(300, 120)
+local function setRunningSize(w, h)
+  if w and h then
+    automationPopupFrame:SetSize(w, h)
+  else
+    automationPopupFrame:SetSize(300, 120)
+  end
 end
 
 MM.AutomationUtil.RegisterPopupTemplate("running",
