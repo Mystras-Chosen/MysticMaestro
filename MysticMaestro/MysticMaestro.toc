@@ -22,3 +22,6 @@ automation\AutomationManager.lua
 automation\automationCommon.lua
 automation\functions\scan.lua
 automation\functions\getallscan.lua
+automation\functions\post.lua
+automation\functions\cancel.lua
+automation\functions\undercut.lua
