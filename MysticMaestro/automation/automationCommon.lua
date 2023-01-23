@@ -184,6 +184,8 @@ function MM.AutomationUtil.SetProgressBarValues(current, max)
     automationPopupFrame.ProgressBar:SetFormattedText("%d / %d", current, max)
   elseif displayMode == "percent" then
     automationPopupFrame.ProgressBar:SetFormattedText("%d %%", math.floor(current/max * 100))
+  elseif displayMode == "none" then
+    automationPopupFrame.ProgressBar:SetText("")
   elseif display ~= nil then
     MM:Print("ERROR: Automation popup progress bar has invalid display mode")
   else

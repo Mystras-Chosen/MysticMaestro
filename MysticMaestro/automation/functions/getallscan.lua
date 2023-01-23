@@ -117,8 +117,8 @@ local function throttledCalculating()
     currentIndex = currentIndex + 1
   end
   if currentIndex > numEnchants then
-    MM.AutomationUtil.SetProgressBarValues(numEnchants, numEnchants)
-    MM.AutomationUtil.AppendProgressBarText("Calculating: ", true)
+    MM.AutomationUtil.SetProgressBarDisplayMode("none")
+    MM.AutomationUtil.SetProgressBarValues(numEnchants,numEnchants)
     nilGetAllScanVariables()
     MM.AutomationManager:Inform(automationTable, "finished")
   else
