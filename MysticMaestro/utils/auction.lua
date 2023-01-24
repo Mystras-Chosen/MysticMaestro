@@ -70,7 +70,8 @@ end
 local results = {}
 function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
-    self.lastSelectScanTime = GetTime()
+    local currentTime = GetTime()
+    self.lastSelectScanTime = currentTime
     local listings, reID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
     local listingData = listings[reID]
     wipe(results)
@@ -78,7 +79,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
       local itemName, level, buyoutPrice, quality, seller, icon, link, duration = MM:getAuctionInfo(i)
-      if seller == nil and GetTime() < timeoutTime then
+      if seller == nil and currentTime < timeoutTime then
         awaitingResults = true
       end
       local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
@@ -109,7 +110,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
       self:PopulateGraph(reID)
       self:ShowStatistics(reID)
     end
-    timeoutTime = (awaitingResults and GetTime() < timeoutTime) and timeoutTime or nil
+    timeoutTime = (awaitingResults and currentTime < timeoutTime) and timeoutTime or nil
   end
 end
 
