@@ -58,12 +58,12 @@ end
 
 local currentAutomationName, currentAutomationTable, currentTask -- init, running, postprocessing, paused
 
-local paused
+local pausedAutomationName
 
 -- called when menu is opened
 function MM.AutomationManager:ShowAutomationPromptIfPaused()
-  if paused then
-    self:ShowAutomationPrompt(currentAutomationName)
+  if pausedAutomationName then
+    self:ShowAutomationPrompt(pausedAutomationName)
   end
 end
 
@@ -82,13 +82,15 @@ end
 
   -- called by Scan button or automation function dropdown
 function MM.AutomationManager:ShowAutomationPrompt(automationName)
-  if not self:IsRunning() then
+  if not self:IsRunning() and (not pausedAutomationName or automationName == pausedAutomationName or not automationTables[automationName].Pause) then
     setCurrentAutomation(automationName)
     currentTask = "init"
     setMenuLocked(true)
     currentAutomationTable.ShowInitPrompt()
-  else
+  elseif self:IsRunning() then
     MM:Print("ERROR: Attempt to initialize automation function while another is running")
+  else
+    MM:Print("ERROR: Attempt to initialize pausable automation function while another is paused")
   end
 end
 
@@ -101,8 +103,10 @@ local function terminateAutomation()
 end
 
 local function pauseAutomation()
-  paused = true
+  pausedAutomationName = currentAutomationName
   currentAutomationTable.Pause()
+  currentAutomationName = nil
+  currentAutomationTable = nil
   MM:Print("Automation function paused")
   setMenuLocked(false)
 end
@@ -110,9 +114,9 @@ end
 -- called when menu is closed
 function MM.AutomationManager:StopAutomation()
   if currentAutomationName then
-    if currentTask == "running" and currentAutomationTable.Pause then
+    if currentTask == "running" and currentAutomationTable.Pause or currentAutomationName == pausedAutomationName then
       pauseAutomation()
-    elseif not paused then
+    elseif not pausedAutomationName then
       terminateAutomation()
     end
   end
@@ -128,16 +132,20 @@ end
 
 local function handleInitStatus(status)
   if status == "startClicked" or status == "continueClicked" then
-    paused = false
+    if currentAutomationName == pausedAutomationName then
+      pausedAutomationName = nil
+    end
     currentTask = "running"
     currentAutomationTable.Start()
   elseif status == "stopClicked" then
-    paused = false
+    if currentAutomationName == pausedAutomationName then
+      pausedAutomationName = nil
+    end
     currentTask = "init"
     currentAutomationTable.Stop()
     currentAutomationTable.ShowInitPrompt()
   elseif status == "cancelClicked" then
-    if not paused then
+    if not pausedAutomationName then
       terminateAutomation()
     else
       setMenuLocked(false)

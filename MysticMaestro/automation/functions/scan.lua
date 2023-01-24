@@ -87,6 +87,8 @@ function automationTable.Pause()
     MM.AutomationUtil.HideAutomationPopup()
     MM:CancelDisplayEnchantAuctions()
     currentIndex = currentIndex - 1
+  elseif isPaused then -- can be called when already paused and init prompt showing
+    MM.AutomationUtil.HideAutomationPopup()
   else
     MM:Print("ERROR: Scan paused when not running")
   end
