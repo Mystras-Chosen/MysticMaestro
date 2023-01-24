@@ -25,3 +25,4 @@ automation\functions\getallscan.lua
 automation\functions\post.lua
 automation\functions\cancel.lua
 automation\functions\undercut.lua
+automation\functions\craft.lua
