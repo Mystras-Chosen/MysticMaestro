@@ -495,6 +495,7 @@ function MM:ShowAHExtension()
   MysticMaestroMenuAHExtension:SetPoint("BOTTOMRIGHT", AuctionFrame, "BOTTOMRIGHT", 0, 0)
   MysticMaestroMenuAHExtension:SetParent(AuctionFrame)
   MM:toggleAHExtensionHelpPlates(true)
+  self.AutomationManager:ShowAutomationPromptIfPaused()
 end
 
 function MM:HideAHExtension()

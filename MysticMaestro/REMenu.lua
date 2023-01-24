@@ -898,7 +898,6 @@ do -- show and hide MysticMaestroMenu
     self:GoToPage(1)
     MysticMaestroMenu:SetFrameStrata("HIGH")
     MysticMaestroMenu:Show()
-    self.AutomationManager:ShowAutomationPromptIfPaused()
   end
 
   local function tearDownWidgets()
