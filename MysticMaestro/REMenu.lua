@@ -1320,7 +1320,7 @@ do -- show/hide statistics functions
       statsContainerWidgets[ 6]:SetText(coinStr.min)
       statsContainerWidgets[ 7]:SetText(gpoStr.min)
       statsContainerWidgets[ 8]:SetText(info.Count .. " (" .. info.Trinkets .. " Trinkets)")
-      statsContainerWidgets[ 9]:SetText(MM:cTxt("10-Day Average:","yellow").."\n"..MM:cTxt("Calculate This","min"))
+      statsContainerWidgets[ 9]:SetText(MM:cTxt("10-Day Average:","yellow").."\n")
       statsContainerWidgets[10]:SetText(coinStr.d_min)
       statsContainerWidgets[11]:SetText(gpoStr.d_min)
       statsContainerWidgets[12]:SetText(MM:cTxt(info["10d_Count"] .. " (" .. info["10d_Trinkets"] .. " Trinkets)","min"))
