@@ -40,7 +40,7 @@ MM.RE_KNOWN = {}
 MM.RE_NAMES = {}
 MM.RE_ID = {}
 for k, v in pairs(MYSTIC_ENCHANTS) do
-  if v.spellID ~= 0 then
+  if v.spellID ~= 0 and v.flags ~= 1 then
     local enchantName = GetSpellInfo(v.spellID)
     MM.RE_LOOKUP[enchantName] = v.enchantID
     MM.RE_NAMES[v.enchantID] = enchantName

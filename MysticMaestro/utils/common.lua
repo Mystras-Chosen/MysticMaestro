@@ -260,7 +260,7 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	if not enchants then
 		enchants = {}
 		for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-			if enchantData.quality == qualityValue[qualityName] then
+			if enchantData.quality == qualityValue[qualityName] and enchantData.flags ~= 1 then
 				table.insert(enchants, enchantID)
 				enchants[enchantID] = true
 			end

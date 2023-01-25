@@ -15,7 +15,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         wipe(queryResults)
         text = text:lower()
         for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-          if enchantID ~= 0 then
+          if enchantID ~= 0 and enchantData.flags ~= 1 then
             local enchantName = MM.RE_NAMES[enchantID]
             if enchantName and enchantName:lower():find(text) then
               queryResults[enchantID] = MM:cTxt(enchantName, tostring(enchantData.quality))
@@ -998,7 +998,7 @@ do -- filter functions
     MM.db.realm.VIEWS.filter = filter
     resultSet = {}
     for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-      if enchantID ~= 0 and qualityCheckMet(enchantID, filter)
+      if enchantID ~= 0 and enchantData.flags ~= 1 and qualityCheckMet(enchantID, filter)
       and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter)
       and bagsCheckMet(enchantID, filter) then
         table.insert(resultSet, enchantID)
