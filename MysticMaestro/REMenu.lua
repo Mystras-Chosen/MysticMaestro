@@ -608,6 +608,12 @@ end
 
 local statsContainerWidgets = {}
 do -- show and hide MysticMaestroMenu
+
+  local automationFunctionNames = {
+    "Scan",
+    "GetAll Scan"
+  }
+  
   local filterOptions = {
     "All Qualities",
     "Uncommon", 
@@ -742,7 +748,19 @@ do -- show and hide MysticMaestroMenu
     automationDropdown:SetPoint("TOPLEFT", MysticMaestroMenu, "TOPLEFT", 8, 0)
     automationDropdown:SetHeight(27)
     automationDropdown:SetWidth(200)
-    automationDropdown:SetList({"Automation1", "Automation2"})
+    automationDropdown:SetList(automationFunctionNames)
+    automationDropdown:SetCallback("OnValueChanged",
+      function(self, event, key)
+        self.pullout.items[key]:SetValue(nil)
+        MM.AutomationManager:ShowAutomationPrompt(automationFunctionNames[key])
+        self.pullout:Close()
+      end
+    )
+    local items = automationDropdown.pullout.items
+    for _, item in ipairs(items) do
+      item:SetCallback("OnValueChanged", item_OnValueChanged)
+    end
+    automationDropdown:SetText("Automation")
     automationDropdown.frame:Show()
 
     sortDropdown = AceGUI:Create("Dropdown")
@@ -773,7 +791,7 @@ do -- show and hide MysticMaestroMenu
       filterToItems(filterDropdown, MM.db.realm.VIEWS.filter)
     end
     filterDropdown:SetCallback("OnValueChanged", filterDropdown_OnValueChanged)
-    local items = filterDropdown.pullout.items
+    items = filterDropdown.pullout.items
     for _, item in ipairs(items) do
       item:SetCallback("OnValueChanged", item_OnValueChanged)
     end
