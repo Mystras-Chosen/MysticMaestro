@@ -90,7 +90,7 @@ function automationTable.Pause()
   elseif isPaused then -- can be called when already paused and init prompt showing
     MM.AutomationUtil.HideAutomationPopup()
   else
-    MM:Print("ERROR: Scan paused when not running")
+    MM:Print("ERROR: " .. automationName .." paused when not running")
   end
 end
 
