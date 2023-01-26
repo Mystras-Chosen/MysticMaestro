@@ -471,7 +471,7 @@ local function setUpButtonWidgets()
 end
 
 
-local time = time
+local time, CanSendAuctionQuery = time, CanSendAuctionQuery
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if getAllScanButton then
