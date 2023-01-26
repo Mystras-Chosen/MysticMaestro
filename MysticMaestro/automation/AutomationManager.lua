@@ -80,8 +80,7 @@ local function setMenuLocked(isLocked)
   end
 end
 
-  -- called by Scan button or automation function dropdown
-function MM.AutomationManager:ShowAutomationPrompt(automationName)
+local function canStartAutomation(automationName)
   if not automationTables[automationName] then
     MM:Print("ERROR: Attempt to initialize unregistered automation function")
   elseif self:IsRunning() then
@@ -89,6 +88,14 @@ function MM.AutomationManager:ShowAutomationPrompt(automationName)
   elseif pausedAutomationName and automationName ~= pausedAutomationName and automationTables[automationName].Pause then
     MM:Print("ERROR: Attempt to initialize pausable automation function while another is paused")
   else
+    return true
+  end
+  return false
+end
+
+  -- called by Scan button or automation function dropdown
+function MM.AutomationManager:ShowAutomationPrompt(automationName)
+  if canStartAutomation(automationName) then
     setCurrentAutomation(automationName)
     currentTask = "init"
     setMenuLocked(true)
