@@ -14,6 +14,35 @@ local options
 
 function automationTable.ShowInitPrompt()
   options = options or MM.db.realm.OPTIONS
+	options.stopIfNoRunes = true
+	options.stopForShop = {}
+	options.stopForShop.enabled = false
+	options.stopForShop.unknown = false
+	options.shoppingLists = {}
+	options.stopSeasonal = {}
+	options.stopSeasonal.enabled = true
+	options.stopSeasonal.extract = true
+	options.stopQuality = {}
+	options.stopQuality.enabled = true
+	options.stopQuality["2"] = false
+	options.stopQuality["3"] = true
+	options.stopQuality["4"] = true
+	options.stopQuality["5"] = true
+	options.stopUnknown = {}
+	options.stopUnknown.enabled = true
+	options.stopUnknown.extract = true
+	options.stopUnknown["2"] = false
+	options.stopUnknown["3"] = true
+	options.stopUnknown["4"] = true
+	options.stopUnknown["5"] = true
+	options.stopPrice = {}
+	options.stopPrice.enabled = true
+	options.stopPrice.value = 3.5
+	options.stopPrice["2"] = false
+	options.stopPrice["3"] = true
+	options.stopPrice["4"] = true
+	options.stopPrice["5"] = true
+	BuildWorkingShopList()
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
 end
 
@@ -66,7 +95,7 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	button:SetWidth(80)
 	button:SetHeight(22)
 	button:SetPoint("BOTTOMLEFT", 300, 36)
-	button:Disable()
+	-- button:Disable()
 	button:RegisterForClicks("AnyUp")
 	button:SetScript("OnClick", function(self)
 		if itemLoaded then
@@ -101,11 +130,6 @@ local function BuildWorkingShopList()
 	end
 	enchantsOfInterest = shopList
 end
-
-if options.stopForShop.enabled then
-	BuildWorkingShopList()
-end
-
 
 local colorHex = {
     ["green"] = "|cff00ff00",
@@ -179,8 +203,7 @@ local function extract(enchantID)
     end
 end
 
--- Trigger 1 : COMMENTATOR_SKIRMISH_QUEUE_REQUEST
-local function COMMENTATOR_SKIRMISH_QUEUE_REQUEST(event, subEvent, sourceGUID, enchantID)
+function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
 	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
 	
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
@@ -222,14 +245,14 @@ local function COMMENTATOR_SKIRMISH_QUEUE_REQUEST(event, subEvent, sourceGUID, e
 	end
 end
 
--- Trigger 2 : POLI_REFORGE_REQUESTED, POLI_REFORGE_REQUEST_TERMINATED, UNIT_SPELLCAST_START, UNIT_SPELLCAST_STOP
-local function UNIT_SPELLCAST_START(event, unitID, spell)\
-	if event ~= "UNIT_SPELLCAST_START" then return end
+local function UNIT_SPELLCAST_START(event, unitID, spell)
+	if event ~= "UNIT_SPELLCAST_START" then print("issue with spell start params") return end
 	-- if cast has started, then stop trying to cast
 	if unitID == "player" and spell == "Enchanting" then
 		StopCraftingAttemptTimer()
 	end
 end
+MM:RegisterEvent("UNIT_SPELLCAST_START",UNIT_SPELLCAST_START)
 
 local function RequestReforge()
 	-- attempt to roll every .05 seconds
@@ -275,8 +298,6 @@ local function StopAutoReforge()
 	end
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
-
-
 
 -- Trigger 4 : POLI_AUTO_AUTO_ON, POLI_AUTO_AUTO_OFF
 local function StartAutoAutoReforge()

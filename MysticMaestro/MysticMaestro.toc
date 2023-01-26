@@ -26,3 +26,4 @@ automation\functions\post.lua
 automation\functions\cancel.lua
 automation\functions\undercut.lua
 automation\functions\craft.lua
+automation\functions\reforge.lua
