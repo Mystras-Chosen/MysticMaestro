@@ -83,7 +83,7 @@ end
 local function canStartAutomation(automationName)
   if not automationTables[automationName] then
     MM:Print("ERROR: Attempt to initialize unregistered automation function")
-  elseif self:IsRunning() then
+  elseif MM.AutomationManager:IsRunning() then
     MM:Print("ERROR: Attempt to initialize automation function while another is running")
   elseif pausedAutomationName and automationName ~= pausedAutomationName and automationTables[automationName].Pause then
     MM:Print("ERROR: Attempt to initialize pausable automation function while another is paused")
