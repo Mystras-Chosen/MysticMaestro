@@ -479,7 +479,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         getAllScanButton:SetText("GetAll Scan")
         getAllScanButton:SetDisabled(false)
       else
-        local secondsRemaining = math.floor(900 - (time() - MM.db.char.lastGetAllScanTime))
+        local secondsRemaining = math.floor(900 - (time() - (MM.db.char.lastGetAllScanTime or 0)))
         secondsRemaining = secondsRemaining >= 0 and secondsRemaining or 0
         getAllScanButton.text:SetFormattedText("%d:%02d", math.floor(secondsRemaining/60), secondsRemaining%60)
         getAllScanButton:SetDisabled(true)
