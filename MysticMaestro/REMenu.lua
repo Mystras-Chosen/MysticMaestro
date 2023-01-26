@@ -1198,28 +1198,28 @@ do -- show/hide and select/deselect mystic enchant button functions
     self:ShowEnchantButtons()
   end
 
-  -- prunes all old listings except for the most recent one that also has buyouts
-function MM:PruneOldListings(enchantID)
-  local listingData = MM.data.RE_AH_LISTINGS[enchantID]
-  local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
-  local removeList = {}
-  for timeKey, auctionListString in pairs(listingData) do
-    if timeKey < leftBoundMidnightTime then
-      table.insert(removeList, {timeKey, auctionListString})
+    -- prunes all old listings except for the most recent one that also has buyouts
+  function MM:PruneOldListings(enchantID)
+    local listingData = MM.data.RE_AH_LISTINGS[enchantID]
+    local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+    local removeList = {}
+    for timeKey, auctionListString in pairs(listingData) do
+      if timeKey < leftBoundMidnightTime then
+        table.insert(removeList, {timeKey, auctionListString})
+      end
+    end
+    local mostRecentOldListingTime, mostRecentOldListingData
+    for _, data in ipairs(removeList) do
+      if data[2]:find(":") ~= 1 and (not mostRecentOldListingTime or mostRecentOldListingTime < data[1]) then
+        mostRecentOldListingTime = data[1]
+        mostRecentOldListingData = data[2]
+      end
+      listingData[data[1]] = nil
+    end
+    if mostRecentOldListingTime and next(listingData) then
+      listingData[mostRecentOldListingTime] = mostRecentOldListingData
     end
   end
-  local mostRecentOldListingTime, mostRecentOldListingData
-  for _, data in ipairs(removeList) do
-    if data[2]:find(":") ~= 1 and (not mostRecentOldListingTime or mostRecentOldListingTime < data[1]) then
-      mostRecentOldListingTime = data[1]
-      mostRecentOldListingData = data[2]
-    end
-    listingData[data[1]] = nil
-  end
-  if mostRecentOldListingTime and next(listingData) then
-    listingData[mostRecentOldListingTime] = mostRecentOldListingData
-  end
-end
 
   function MM:GetEnchantButtonByEnchantID(enchantID)
     for _, button in ipairs(enchantButtons) do
@@ -1249,7 +1249,7 @@ end
     self:PopulateGraph(button.enchantID)
     self:ShowStatistics(button.enchantID)
     if self:IsEmbeddedMenuOpen() then
-      self:CancelDisplayEnchantAuctions()
+      self:CancelSingleScan()
       self:ClearSelectedEnchantAuctions()
       self:InitializeSingleScan(button.enchantID) -- async populate scroll bars
       self:SelectMyAuctionByEnchantID(button.enchantID)

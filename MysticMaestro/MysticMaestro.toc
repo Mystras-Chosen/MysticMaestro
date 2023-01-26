@@ -15,7 +15,7 @@ utils\auction.lua
 utils\tooltip.lua
 utils\menu.lua
 utils\settings.lua
-operations\operations.xml
+utils\graph.lua
 REMenu.lua
 AHMenuExtension.lua
 automation\AutomationManager.lua

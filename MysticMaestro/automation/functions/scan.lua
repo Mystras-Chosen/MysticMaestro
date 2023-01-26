@@ -85,7 +85,7 @@ function automationTable.Pause()
   if running then
     isPaused = true
     MM.AutomationUtil.HideAutomationPopup()
-    MM:CancelDisplayEnchantAuctions()
+    MM:CancelSingleScan()
     currentIndex = currentIndex - 1
   elseif isPaused then -- can be called when already paused and init prompt showing
     MM.AutomationUtil.HideAutomationPopup()
@@ -100,7 +100,7 @@ end
 
 function automationTable.Stop()
   MM.AutomationUtil.HideAutomationPopup()
-  MM:CancelDisplayEnchantAuctions()
+  MM:CancelSingleScan()
   isPaused = false
   running = false
   lastUpdate = nil

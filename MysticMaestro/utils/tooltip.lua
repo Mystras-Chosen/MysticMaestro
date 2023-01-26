@@ -32,19 +32,19 @@ local function addLinesTooltip(tt, input)
   if stats ~= nil and stats.Last ~= nil then
     local temp
     if MM.db.realm.OPTIONS.ttMin then
-      temp = GetCoinTextureString(MM:round(stats.Min or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats.Min or 0.0))
       tt:AddDoubleLine("Current Min", temp,1,1,0,1,1,1)
     end
     if MM.db.realm.OPTIONS.ttMed then
-      temp = GetCoinTextureString(MM:round(stats.Med or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats.Med or 0.0))
       tt:AddDoubleLine("Current Median", temp,1,1,0,1,1,1)
     end
     if MM.db.realm.OPTIONS.ttMean then
-      temp = GetCoinTextureString(MM:round(stats.Mean or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats.Mean or 0.0))
       tt:AddDoubleLine("Current Mean", temp,1,1,0,1,1,1)
     end
     if MM.db.realm.OPTIONS.ttMax then
-      temp = GetCoinTextureString(MM:round(stats.Max or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats.Max or 0.0))
       tt:AddDoubleLine("Current Max", temp,1,1,0,1,1,1)
     end
     if MM.db.realm.OPTIONS.ttGPO then
@@ -52,19 +52,19 @@ local function addLinesTooltip(tt, input)
       tt:AddDoubleLine("Current GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENMin then
-      temp = GetCoinTextureString(MM:round(stats["10d_Min"] or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats["10d_Min"] or 0.0))
       tt:AddDoubleLine("10-Day Min", MM:cTxt(temp,"min"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENMed then
-      temp = GetCoinTextureString(MM:round(stats["10d_Med"] or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats["10d_Med"] or 0.0))
       tt:AddDoubleLine("10-Day Median", MM:cTxt(temp,"min"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENMean then
-      temp = GetCoinTextureString(MM:round(stats["10d_Mean"] or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats["10d_Mean"] or 0.0))
       tt:AddDoubleLine("10-Day Mean", MM:cTxt(temp,"min"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENMax then
-      temp = GetCoinTextureString(MM:round(stats["10d_Max"] or 0.0))
+      temp = GetCoinTextureString(MM:Round(stats["10d_Max"] or 0.0))
       tt:AddDoubleLine("10-Day Max", MM:cTxt(temp,"min"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENGPO then

@@ -50,8 +50,8 @@ function automationTable.Start()
 end
 
 local function recordListingData(index)
-  local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(index)
-  local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName, quality, level, buyoutPrice, index)
+  local itemName, level, buyoutPrice, quality = MM:GetAuctionInfo(index)
+  local itemFound, enchantID, trinketFound = MM:IsEnchantItemFound(itemName, quality, level, buyoutPrice, index)
   if itemFound then
     local temp = listings[enchantID][scanTime] or ":"
     listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","

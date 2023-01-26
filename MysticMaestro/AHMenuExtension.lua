@@ -539,7 +539,7 @@ function MM:ResetAHExtension()
   self:CloseAuctionPopups()
   self:DisableListButton()
   self:DisableAuctionRefreshButton()
-  self:CancelDisplayEnchantAuctions()
+  self:CancelSingleScan()
 end
 
 function MM:PopulateSelectedEnchantAuctions(results)

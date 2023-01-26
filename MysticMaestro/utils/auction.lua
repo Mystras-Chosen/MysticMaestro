@@ -1,23 +1,14 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-function MM:ValidateAHIsOpen()
-  local AuctionFrame = _G["AuctionFrame"]
-  if not AuctionFrame or not AuctionFrame:IsShown() then
-    MM:Print("Auction house window must be open to perform scan")
-    return false
-  end
-  return true
-end
-
-function MM:getAuctionInfo(i)
+function MM:GetAuctionInfo(i)
   local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
   local link = GetAuctionItemLink("list", i)
   local duration = GetAuctionItemTimeLeft("list", i)
   return itemName, level, buyoutPrice, quality, seller, icon, link, duration
 end
 
-function MM:isEnchantItemFound(itemName, quality, level, buyoutPrice, i)
-  local trinketFound = MM:IsTrinket(itemName,level)
+function MM:IsEnchantItemFound(itemName, quality, level, buyoutPrice, i)
+  local trinketFound = MM:IsTrinket(itemName, level)
   local enchantID, mysticScroll = GetAuctionItemMysticEnchant("list", i)
   enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
   local properItem = buyoutPrice and buyoutPrice > 0 and ((quality and quality >= 3) or mysticScroll) 
@@ -31,8 +22,8 @@ function MM:CollectSpecificREData(scanTime, expectedEnchantID)
   local temp = ":"
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice, quality = MM:getAuctionInfo(i)
-      local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
+      local itemName, level, buyoutPrice, quality = MM:GetAuctionInfo(i)
+      local itemFound, enchantID, trinketFound = MM:IsEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and enchantID == expectedEnchantID then
         temp = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
         enchantFound = true
@@ -55,7 +46,7 @@ function MM:InitializeSingleScan(enchantID)
   selectedScanTime = time()
 end
 
-function MM:CancelDisplayEnchantAuctions()
+function MM:CancelSingleScan()
   pendingQuery = false
   awaitingResults = false
   timeoutTime = nil
@@ -78,11 +69,11 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     local temp = ":"
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
-      local itemName, level, buyoutPrice, quality, seller, icon, link, duration = MM:getAuctionInfo(i)
+      local itemName, level, buyoutPrice, quality, seller, icon, link, duration = MM:GetAuctionInfo(i)
       if seller == nil and currentTime < timeoutTime then
         awaitingResults = true
       end
-      local itemFound, enchantID, trinketFound = MM:isEnchantItemFound(itemName,quality,level,buyoutPrice,i)
+      local itemFound, enchantID, trinketFound = MM:IsEnchantItemFound(itemName,quality,level,buyoutPrice,i)
       if itemFound and reID == enchantID then
         table.insert(results, {
           id = i,
@@ -311,10 +302,10 @@ function MM:CalculateStatsFromList(list)
     end
   end
   if count > 0 then
-    local midKey = count > 1 and MM:round(count/2) or 1
+    local midKey = count > 1 and MM:Round(count/2) or 1
     sort(list)
     local med = list[midKey]
-    local mean = MM:round(tally/count)
+    local mean = MM:Round(tally/count)
     -- local dev = MM:StdDev(list,mean)
     return min, med, mean, max, count
   end
@@ -399,7 +390,7 @@ function MM:CalculateDailyAverages(reID)
       for _, val in pairs(valueList) do
         -- set total average of each data point
         rAvg[val] = rAvg[val] / rCount
-        stats["current"]["10d_"..val] = MM:round( rAvg[val] , 1 , true  )
+        stats["current"]["10d_"..val] = MM:Round( rAvg[val] , 1 , true  )
       end
       -- We have finished with the Daily data and can remove it
       stats.daily = nil
@@ -431,7 +422,7 @@ end
 function MM:OrbValue(reID, keytype)
   local cost = MM:OrbCost(reID)
   local value = MM:LowestListed(reID,keytype)
-  return value and MM:round(value / cost,2,true) or nil
+  return value and MM:Round(value / cost,2,true) or nil
 end
 
 ---------------------------------------
@@ -643,8 +634,6 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
   end
 )
 
-
-
 function MM:ListAuction(enchantID, price)
   local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
   if bagID then
@@ -657,8 +646,6 @@ function MM:ListAuction(enchantID, price)
     print("No item found")
   end
 end
-
-
 
 function MM:CloseAuctionPopups()
   StaticPopup_Hide("MM_BUYOUT_AUCTION")

@@ -5,7 +5,7 @@ function Maestro(reID)
   return MM:DeepClone(MM:StatObj(reID))
 end
 
-function MM:round(num, numDecimalPlaces, alwaysDown)
+function MM:Round(num, numDecimalPlaces, alwaysDown)
   local mult = 10^(numDecimalPlaces or 0)
   return math.floor(num * mult + (alwaysDown and 0 or 0.5)) / mult
 end
@@ -218,7 +218,7 @@ function MM:Dump(orig, depth)
   end
 end
 
-function MM:variance(tbl,mean)
+function MM:Variance(tbl,mean)
   local dif
   local sum, count = 0, 0
   for k, v in pairs(tbl) do
@@ -232,7 +232,7 @@ function MM:variance(tbl,mean)
 end
 
 function MM:StdDev(tbl,mean)
-  local variance = MM:variance(tbl,mean)
+  local variance = MM:Variance(tbl,mean)
   return math.sqrt(variance)
 end
 
