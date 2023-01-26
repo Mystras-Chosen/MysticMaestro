@@ -732,3 +732,19 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
     end
   end
 )
+
+local function getAllScanExecuted(...)
+  return select(10, ...) and select(2, CanSendAuctionQuery())
+end
+
+local function queryPrehook(...)
+  if getAllScanExecuted(...) then
+    MM.db.char.lastGetAllScanTime = time()
+  end
+end
+
+local oldQueryFunc = QueryAuctionItems
+function QueryAuctionItems(...)
+  pcall(queryPrehook, ...)
+  return oldQueryFunc(...)
+end

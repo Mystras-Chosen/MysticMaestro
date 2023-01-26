@@ -387,24 +387,33 @@ local function undercut(enchantID, buyoutPrice, yours)
   end
 end
 
-local listButton, buyCancelbutton, scanButton
+local listButton, buyCancelbutton, scanButton, getAllScanButton
 local function setUpButtonWidgets()
   scanButton = AceGUI:Create("Button")
   scanButton.frame:SetParent(ahExtensionMenu)
-  scanButton:SetPoint("TOPLEFT", ahExtensionMenu, "TOPLEFT", 20, 28)
+  scanButton:SetPoint("TOPLEFT", ahExtensionMenu, "TOPLEFT", 4, 28)
   scanButton:SetWidth(82)
   scanButton:SetHeight(22)
   scanButton:SetText("Scan")
   scanButton:SetCallback("OnClick",
     function(self, event)
-      if MM.db.realm.OPTIONS.useGetall then
-        MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
-      else
-        MM.AutomationManager:ShowAutomationPrompt("Scan")
-      end
+      MM.AutomationManager:ShowAutomationPrompt("Scan")
     end
   )
   scanButton.frame:Show()
+
+  getAllScanButton = AceGUI:Create("Button")
+  getAllScanButton.frame:SetParent(ahExtensionMenu)
+  getAllScanButton:SetPoint("TOPRIGHT", ahExtensionMenu, "TOPRIGHT", -12, 28)
+  getAllScanButton:SetWidth(106)
+  getAllScanButton:SetHeight(22)
+  getAllScanButton:SetCallback("OnClick",
+    function(self, event)
+      MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
+    end
+  )
+  getAllScanButton.frame:Show()
+
 
 
   listButton = AceGUI:Create("Button")
@@ -461,8 +470,27 @@ local function setUpButtonWidgets()
   MM_FRAMES_MENU_BUYOUTCANCEL = buyCancelbutton.frame
 end
 
+
+local time = time
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    if getAllScanButton then
+      if select(2, CanSendAuctionQuery()) then
+        getAllScanButton:SetText("GetAll Scan")
+        getAllScanButton:SetDisabled(false)
+      else
+        local secondsRemaining = math.floor(900 - (time() - MM.db.char.lastGetAllScanTime))
+        secondsRemaining = secondsRemaining >= 0 and secondsRemaining or 0
+        getAllScanButton.text:SetFormattedText("%d:%02d", math.floor(secondsRemaining/60), secondsRemaining%60)
+        getAllScanButton:SetDisabled(true)
+      end
+    end
+  end
+)
+
 local function tearDownButtonWidgets()
   scanButton:Release()
+  getAllScanButton:Release()
   listButton:Release()
   buyCancelbutton:Release()
 end
