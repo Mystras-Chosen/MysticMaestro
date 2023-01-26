@@ -49,6 +49,20 @@ end
 local running
 
 function automationTable.Start()
+	if itemLoaded then
+		if self:GetText() == "Auto Reforge" then
+			StartAutoReforge()
+			RequestReforge()
+		else
+			StopAutoReforge()
+		end
+	else
+		if self:GetText() == "Auto Reforge" then
+			StartAutoAutoReforge()
+		else
+			StopAutoAutoReforge()
+		end
+	end
 end
 
 function automationTable.Pause()
@@ -98,20 +112,7 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	-- button:Disable()
 	button:RegisterForClicks("AnyUp")
 	button:SetScript("OnClick", function(self)
-		if itemLoaded then
-			if self:GetText() == "Auto Reforge" then
-				StartAutoReforge()
-				RequestReforge()
-			else
-				StopAutoReforge()
-			end
-		else
-			if self:GetText() == "Auto Reforge" then
-				StartAutoAutoReforge()
-			else
-				StopAutoAutoReforge()
-			end
-		end
+		MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
 	end)
 	button:SetText("Auto Reforge")
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnEnable", function() itemLoaded = true end )
