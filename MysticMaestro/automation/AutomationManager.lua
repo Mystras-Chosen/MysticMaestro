@@ -82,15 +82,17 @@ end
 
   -- called by Scan button or automation function dropdown
 function MM.AutomationManager:ShowAutomationPrompt(automationName)
-  if not self:IsRunning() and (not pausedAutomationName or automationName == pausedAutomationName or not automationTables[automationName].Pause) then
+  if not automationTables[automationName] then
+    MM:Print("ERROR: Attempt to initialize unregistered automation function")
+  elseif self:IsRunning() then
+    MM:Print("ERROR: Attempt to initialize automation function while another is running")
+  elseif pausedAutomationName and automationName ~= pausedAutomationName and automationTables[automationName].Pause then
+    MM:Print("ERROR: Attempt to initialize pausable automation function while another is paused")
+  else
     setCurrentAutomation(automationName)
     currentTask = "init"
     setMenuLocked(true)
     currentAutomationTable.ShowInitPrompt()
-  elseif self:IsRunning() then
-    MM:Print("ERROR: Attempt to initialize automation function while another is running")
-  else
-    MM:Print("ERROR: Attempt to initialize pausable automation function while another is paused")
   end
 end
 
