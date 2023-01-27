@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local config = LibStub("AceConfig-3.0")
 local dialog = LibStub("AceConfigDialog-3.0")
 local registered = false
@@ -362,24 +362,24 @@ local function createConfig()
 				desc = "Stop reforging when you have run out of Mystic Runes",
 				type = "toggle"
 			},
-			shopHeader = {
+			stopForNothing = {
 				order = 2,
+				name = "Spam Reforge",
+				desc = "When you load an item into the reforge slot, continue to spam reforge until you run out of runes. This will ignore all the options below for the reforge slot.",
+				type = "toggle"
+			},
+			shopHeader = {
+				order = 3,
 				name = "Stop for shopping list items",
 				type = "header"
 			},
 			shopEnabled = {
-				order = 3,
+				order = 4,
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant on your shopping lists",
 				type = "toggle",
 				get = function(info) return MM.db.realm.OPTIONS.stopForShop.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.enabled = val end
-			},
-			reserveShoppingList = {
-				order = 4,
-				name = "Reserve List Items",
-				desc = "Items places on a shopping list will not be reforged over when looking for insignia to roll on",
-				type = "toggle"
 			},
 			shoppingListsDropdown = {
 				order = 5,
@@ -387,6 +387,7 @@ local function createConfig()
 				desc = "This is where you can find all of your shopping lists",
 				type = "select",
 				style = "dropdown",
+				width = "full",
 				values = function() 
 					local returnList = {}
 					for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists) do
@@ -395,26 +396,8 @@ local function createConfig()
 					return returnList
 				end,
 			},
-			shoppingSubList = {
-				order = 6,
-				name = "Enchant Entries",
-				desc = "This is where you input entries to the list",
-				type = "select",
-				style = "dropdown",
-				values = function() 
-					local returnList = {}
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown]) do
-							table.insert(returnList,v)
-						end
-					else
-						returnList = {}
-					end
-					return returnList
-				end,
-			},
 			shopEnabledList = {
-				order = 7,
+				order = 6,
 				name = "Enabled",
 				desc = "Enables or disables this shopping list",
 				type = "toggle",
@@ -431,7 +414,7 @@ local function createConfig()
 				end
 			},
 			shopUnknown = {
-				order = 8,
+				order = 7,
 				name = "Unknown",
 				desc = "This shopping list will only stop reforging for enchants which are unknown",
 				type = "toggle",
@@ -448,7 +431,7 @@ local function createConfig()
 				end
 			},
 			shopExtract = {
-				order = 9,
+				order = 8,
 				name = "Extract",
 				desc = "This shopping list will extract unknown entries automatically",
 				type = "toggle",
@@ -463,6 +446,42 @@ local function createConfig()
 						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
 					end
 				end
+			},
+			reserveShoppingList = {
+				order = 9,
+				name = "Reserve List Items",
+				desc = "Items places on this shopping list will not be reforged over when looking for insignia to roll on",
+				type = "toggle",
+				get = function(info)
+					local o = MM.db.realm.OPTIONS
+					if o.shoppingLists[o.shoppingListsDropdown] then
+						return o.shoppingLists[o.shoppingListsDropdown].reserve
+					end
+				end,
+				set = function(info,val)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].reserve = val
+					end
+				end
+			},
+			shoppingSubList = {
+				order = 10,
+				name = "Enchant Entries",
+				desc = "This is where you input entries to the list",
+				type = "select",
+				style = "dropdown",
+				width = "full",
+				values = function() 
+					local returnList = {}
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown]) do
+							table.insert(returnList,v)
+						end
+					else
+						returnList = {}
+					end
+					return returnList
+				end,
 			},
 			seasonalHeader = {
 				order = 20,

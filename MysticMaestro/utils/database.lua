@@ -47,7 +47,7 @@ local defaultDB = {
       ttTENMax = false,
 
       stopIfNoRunes = true,
-      reserveShoppingList = true,
+      stopForNothing = true,
       shoppingListsDropdown = 1,
       shoppingSubList = 1,
       stopForShop = {
