@@ -391,15 +391,63 @@ local function createConfig()
 				values = function() 
 					local returnList = {}
 					for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists) do
-						table.insert(returnList,v.Name)
+						table.insert(returnList,v.name)
 					end
 					return returnList
 				end,
 			},
-			shopEnabledList = {
+			shoppingListName = {
 				order = 6,
+				name = "List Name",
+				desc = "Rename the currently selected Shopping List",
+				type = "input",
+				width = 1.2,
+				get = function(info)
+					local o = MM.db.realm.OPTIONS
+					if o.shoppingLists[o.shoppingListsDropdown] then
+						return o.shoppingLists[o.shoppingListsDropdown].name
+					end
+				end,
+				set = function(info,val)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].name = val
+					end
+				end
+			},
+			shoppingListAdd = {
+				order = 7,
+				name = "Add",
+				desc = "Add a new Shopping List",
+				type = "execute",
+				width = 0.4,
+				func = function()
+					local newList = {}
+					newList.name = "New List"
+					newList.enabled = true
+					newList.unknown = false
+					newList.extract = false
+					newList.reserve = true
+					table.insert(MM.db.realm.OPTIONS.shoppingLists,newList)
+					MM.db.realm.OPTIONS.shoppingListsDropdown = #MM.db.realm.OPTIONS.shoppingLists
+				end,
+			},
+			shoppingListRemove = {
+				order = 8,
+				name = "Remove",
+				desc = "Remove the selected Shopping List",
+				type = "execute",
+				width = 0.4,
+				confirm = true,
+				func = function()
+					table.remove(MM.db.realm.OPTIONS.shoppingLists,MM.db.realm.OPTIONS.shoppingListsDropdown)
+					local newDigit = MM.db.realm.OPTIONS.shoppingListsDropdown - 1
+					MM.db.realm.OPTIONS.shoppingListsDropdown = newDigit > 0 and newDigit or 1
+				end,
+			},
+			shopEnabledList = {
+				order = 9,
 				name = "Enabled",
-				desc = "Enables or disables this shopping list",
+				desc = "Enables or disables this Shopping List",
 				type = "toggle",
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
@@ -414,7 +462,7 @@ local function createConfig()
 				end
 			},
 			shopUnknown = {
-				order = 7,
+				order = 10,
 				name = "Unknown",
 				desc = "This shopping list will only stop reforging for enchants which are unknown",
 				type = "toggle",
@@ -431,7 +479,7 @@ local function createConfig()
 				end
 			},
 			shopExtract = {
-				order = 8,
+				order = 11,
 				name = "Extract",
 				desc = "This shopping list will extract unknown entries automatically",
 				type = "toggle",
@@ -448,8 +496,8 @@ local function createConfig()
 				end
 			},
 			reserveShoppingList = {
-				order = 9,
-				name = "Reserve List Items",
+				order = 12,
+				name = "Reserve",
 				desc = "Items places on this shopping list will not be reforged over when looking for insignia to roll on",
 				type = "toggle",
 				get = function(info)
@@ -465,7 +513,7 @@ local function createConfig()
 				end
 			},
 			shoppingSubList = {
-				order = 10,
+				order = 13,
 				name = "Enchant Entries",
 				desc = "This is where you input entries to the list",
 				type = "select",
