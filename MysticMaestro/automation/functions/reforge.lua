@@ -23,6 +23,17 @@ local function RequestReforge()
 	end
 end
 
+local function StopAutoReforge()
+	autoReforgeEnabled = false
+	autoAutoEnabled = false
+	if dynamicButtonTextHandle then
+		dynamicButtonTextHandle:Cancel()
+		dynamicButtonTextHandle = nil
+	end
+	MM:Print("Reforge has been stopped")
+	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
+end
+
 local function configShoppingMatch(currentEnchant)
 	return options.stopForShop.enabled and enchantsOfInterest[currentEnchant.spellName:lower()] 
 	and (not options.stopForShop.unknown or (options.stopForShop.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
@@ -241,17 +252,6 @@ local function StartAutoReforge()
 	local button = MysticMaestroEnchantingFrameAutoReforgeButton
 	button:SetText("Reforging"..dots())
 	dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
-end
-
-local function StopAutoReforge()
-	autoReforgeEnabled = false
-	autoAutoEnabled = false
-	if dynamicButtonTextHandle then
-		dynamicButtonTextHandle:Cancel()
-		dynamicButtonTextHandle = nil
-	end
-	MM:Print("Reforge has been stopped")
-	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
 
 local function UNIT_SPELLCAST_INTERRUPTED()
