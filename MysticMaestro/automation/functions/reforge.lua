@@ -88,6 +88,14 @@ local function initOptions()
 	init = true
 end
 
+local function extract(enchantID)
+	if not IsReforgeEnchantmentKnown(enchantID) 
+	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
+			print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
+			RequestSlotReforgeExtraction(bagID, slotIndex)
+	end
+end
+
 local function configNoRunes(currentEnchant)
 	return options.stopIfNoRunes and GetItemCount(98462) <= 0
 end
@@ -138,14 +146,6 @@ local function isSeasonal(spellID)
     local enchant = GetMysticEnchantInfo(spellID)
     if enchant then
         return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
-    end
-end
-
-local function extract(enchantID)
-    if not IsReforgeEnchantmentKnown(enchantID) 
-    and GetItemCount(98463) and (GetItemCount(98463) > 0) then
-        print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
-        RequestSlotReforgeExtraction(bagID, slotIndex)
     end
 end
 
