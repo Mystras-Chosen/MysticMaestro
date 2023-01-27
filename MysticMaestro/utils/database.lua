@@ -45,6 +45,42 @@ local defaultDB = {
       ttTENMed = false,
       ttTENMean = false,
       ttTENMax = false,
+
+      stopIfNoRunes = true,
+      reserveShoppingList = true,
+      stopForShop = {
+        enabled = false,
+        unknown = false
+      },
+      shoppingLists = {
+      },
+      stopSeasonal = {
+        enabled = true,
+        extract = true
+      },
+      stopQuality = {
+        enabled = true,
+        [2] = false,
+        [3] = true,
+        [4] = true,
+        [5] = true
+      },
+      stopUnknown = {
+        enabled = true,
+        extract = true,
+        [2] = false,
+        [3] = true,
+        [4] = true,
+        [5] = true
+      },
+      stopPrice = {
+        enabled = true,
+        value = 3.5,
+        [2] = false,
+        [3] = true,
+        [4] = true,
+        [5] = true
+      },
     },
     VIEWS = {
       sort = 1,
@@ -129,4 +165,5 @@ function MM:SetupDatabase()
 	MM.db.realm.FAVORITE_ENCHANTS = MM.db.realm.FAVORITE_ENCHANTS or {}
 	MM.db.realm.VIEWS = MM.db.realm.VIEWS or {}
 	MM.db.realm.OPTIONS = MM.db.realm.OPTIONS or {}
+	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
 end
