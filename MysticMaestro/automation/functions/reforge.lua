@@ -8,18 +8,10 @@ local enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
 local bagID, slotIndex
 local AltarReforgesText
 
-local function RequestReforge()
-	-- attempt to roll every .05 seconds
-	if autoReforgeEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
-			MysticEnchantingFrameControlFrameRollButton:GetScript("OnClick")(MysticEnchantingFrameControlFrameRollButton)
-		end)
-	elseif autoAutoEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
-			RequestSlotReforgeEnchantment(bagID, slotIndex)
-		end)
-	else
-			print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
+local function StopCraftingAttemptTimer()
+	if reforgeHandle then
+		reforgeHandle:Cancel()
+		reforgeHandle = nil
 	end
 end
 
@@ -32,6 +24,31 @@ local function StopAutoReforge()
 	end
 	MM:Print("Reforge has been stopped")
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
+end
+
+local function RequestReforge()
+	-- attempt to roll every .05 seconds
+	if autoReforgeEnabled then
+		reforgeHandle = Timer.NewTicker(.05, function()
+			if GetUnitSpeed("player") ~= 0 then 
+				StopCraftingAttemptTimer()
+				StopAutoReforge()
+				return
+			end
+			MysticEnchantingFrameControlFrameRollButton:GetScript("OnClick")(MysticEnchantingFrameControlFrameRollButton)
+		end)
+	elseif autoAutoEnabled then
+		reforgeHandle = Timer.NewTicker(.05, function()
+			if GetUnitSpeed("player") ~= 0 then
+				StopCraftingAttemptTimer()
+				StopAutoReforge()
+				return
+			end
+			RequestSlotReforgeEnchantment(bagID, slotIndex)
+		end)
+	else
+			print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
+	end
 end
 
 local function configShoppingMatch(currentEnchant)
@@ -139,12 +156,12 @@ local function configPriceMatch(currentEnchant)
 end
 
 local function configConditionMet(currentEnchant)
-    return configNoRunes(currentEnchant)
-    or configQualityMatch(currentEnchant)
-    or configShoppingMatch(currentEnchant)
-    or configUnknownMatch(currentEnchant)
-    or configSeasonalMatch(currentEnchant)
-    or configPriceMatch(currentEnchant)
+	return configNoRunes(currentEnchant)
+	or configQualityMatch(currentEnchant)
+	or configShoppingMatch(currentEnchant)
+	or configUnknownMatch(currentEnchant)
+	or configSeasonalMatch(currentEnchant)
+	or configPriceMatch(currentEnchant)
 end
 
 function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
@@ -157,19 +174,17 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			return
 		end
 		if autoAutoEnabled then
-			local knownStr, seasonal = "known", ""
+			local knownStr, seasonal = "", ""
 			if not IsReforgeEnchantmentKnown(enchantID) then
-				knownStr = red .. "un" .. knownStr .. "|r"
+				knownStr = red .. "unknown" .. "|r"
 			else
-				knownStr = green .. knownStr .. "|r"
+				knownStr = green .. "known" .. "|r"
 			end
 			if isSeasonal(enchantID) then
 				seasonal = green .. " seasonal" .. "|r"
 			end
-			
 			if configConditionMet(currentEnchant) then
 				print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
-
 				if not FindNextInsignia() or GetItemCount(98462) <= 0 then
 					if GetItemCount(98462) <= 0 then
 						print("Out of runes")
@@ -209,13 +224,6 @@ function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
 	local levelUP = math.floor(remaining / gained) + 1
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
 	MM.db.realm.AltarXP = xp
-end
-
-local function StopCraftingAttemptTimer()
-	if reforgeHandle then
-		reforgeHandle:Cancel()
-		reforgeHandle = nil
-	end
 end
 
 local function UNIT_SPELLCAST_START(event, unitID, spell)
