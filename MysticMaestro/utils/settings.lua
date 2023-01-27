@@ -401,7 +401,7 @@ local function createConfig()
 				name = "List Name",
 				desc = "Rename the currently selected Shopping List",
 				type = "input",
-				width = 1.2,
+				width = 1.3,
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
 					if o.shoppingLists[o.shoppingListsDropdown] then
@@ -427,6 +427,7 @@ local function createConfig()
 					newList.unknown = false
 					newList.extract = false
 					newList.reserve = true
+					newList[1] = ""
 					table.insert(MM.db.realm.OPTIONS.shoppingLists,newList)
 					MM.db.realm.OPTIONS.shoppingListsDropdown = #MM.db.realm.OPTIONS.shoppingLists
 				end,
@@ -529,6 +530,51 @@ local function createConfig()
 						returnList = {}
 					end
 					return returnList
+				end,
+			},
+			shoppingSubListName = {
+				order = 14,
+				name = "Selected Entry",
+				desc = "Input or modify the selected entry in the Shopping List",
+				type = "input",
+				width = 1.3,
+				get = function(info)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						return MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown][MM.db.realm.OPTIONS.shoppingSubList]
+					end
+				end,
+				set = function(info,val)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown][MM.db.realm.OPTIONS.shoppingSubList] = val
+					end
+				end
+			},
+			shoppingSubListAdd = {
+				order = 15,
+				name = "Add",
+				desc = "Add a new entry to the current Shopping List",
+				type = "execute",
+				width = 0.4,
+				func = function()
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						table.insert(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown],"")
+						MM.db.realm.OPTIONS.shoppingSubList = #MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown]
+					end
+				end,
+			},
+			shoppingSubListRemove = {
+				order = 16,
+				name = "Remove",
+				desc = "Remove the selected entry of the current Shopping List",
+				type = "execute",
+				width = 0.4,
+				confirm = true,
+				func = function()
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						table.remove(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown],MM.db.realm.OPTIONS.shoppingSubList)
+						local newDigit = MM.db.realm.OPTIONS.shoppingSubList - 1
+						MM.db.realm.OPTIONS.shoppingSubList = newDigit > 0 and newDigit or 1
+					end
 				end,
 			},
 			seasonalHeader = {
