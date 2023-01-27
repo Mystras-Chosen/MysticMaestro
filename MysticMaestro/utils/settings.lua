@@ -439,6 +439,7 @@ local function createConfig()
 				type = "execute",
 				width = 0.4,
 				confirm = true,
+				confirmText = "Are you sure you want to remove this Shopping List?",
 				func = function()
 					table.remove(MM.db.realm.OPTIONS.shoppingLists,MM.db.realm.OPTIONS.shoppingListsDropdown)
 					local newDigit = MM.db.realm.OPTIONS.shoppingListsDropdown - 1
@@ -518,7 +519,7 @@ local function createConfig()
 			shoppingSubList = {
 				order = 13,
 				name = "Enchant Entries",
-				desc = "This is where you input entries to the list",
+				desc = "Select an entry within the Shopping List to modify or remove",
 				type = "select",
 				style = "dropdown",
 				width = "full",
@@ -572,6 +573,7 @@ local function createConfig()
 				type = "execute",
 				width = 0.4,
 				confirm = true,
+				confirmText = "Are you sure you want to remove this Shopping List Entry?",
 				func = function()
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
 						table.remove(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown],MM.db.realm.OPTIONS.shoppingSubList)
