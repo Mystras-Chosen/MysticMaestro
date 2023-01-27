@@ -3,9 +3,8 @@
 local green = "|cff00ff00"
 local red = "|cffff0000"
 local itemLoaded = false
-local options, autoAutoEnabled, autoReforgeEnabled, enchantsOfInterest, reforgeHandle
-local bagID, slotIndex = 0, 0
-local init
+local options, autoAutoEnabled, autoReforgeEnabled, enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
+local bagID, slotIndex, init
 
 local function FindNextInsignia()
 	for i=bagID, 4 do
@@ -187,7 +186,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 					else
 						print("Out of Insignia")
 					end
-					StopAutoAutoReforge()
+					StopAutoReforge()
 					return
 				end
 			else
@@ -230,48 +229,38 @@ local function RequestReforge()
 end
 
 
-local function ThreeDotsString()
+local function dots()
 	local floorTime = math.floor(GetTime())
 	return floorTime % 3 == 0 and "." or (floorTime % 3 == 1 and ".." or "...")
 end
 
 local function StartAutoReforge()
-	autoReforgeEnabled = true
-	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Reforging" .. ThreeDotsString())
-	dynamicButtonTextHandle = Timer.NewTicker(1, function()
-		MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Reforging" .. ThreeDotsString())
-	end)
+	if itemLoaded then
+		autoReforgeEnabled = true
+		RequestReforge()
+	else
+		if bagID == nil then
+			bagID = 0
+			slotIndex = 0
+		end
+		if FindNextInsignia() then
+			autoAutoEnabled = true
+			RequestReforge()
+		else
+			return
+		end
+	end
+	local button = MysticMaestroEnchantingFrameAutoReforgeButton
+	button:SetText("Reforging"..dots())
+	dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
 end
 
 local function StopAutoReforge()
 	autoReforgeEnabled = false
+	autoAutoEnabled = false
 	if dynamicButtonTextHandle then
 		dynamicButtonTextHandle:Cancel()
 		dynamicButtonTextHandle = nil
-	end
-	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
-end
-
-local function StartAutoAutoReforge()
-	if bagID == nil then
-		bagID = 0
-		slotIndex = 0
-	end
-	if FindNextInsignia() then
-		autoAutoEnabled = true
-		RequestReforge()
-	end
-	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Reforging" .. ThreeDotsString())
-	dynamicAutoButtonTextHandle = Timer.NewTicker(1, function()
-		MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Reforging" .. ThreeDotsString())
-	end)
-end
-
-local function StopAutoAutoReforge()
-	autoAutoEnabled = false
-	if dynamicAutoButtonTextHandle then
-		dynamicAutoButtonTextHandle:Cancel()
-		dynamicAutoButtonTextHandle = nil
 	end
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
@@ -281,27 +270,15 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	button:SetWidth(80)
 	button:SetHeight(22)
 	button:SetPoint("BOTTOMLEFT", 300, 36)
-	-- button:Disable()
 	button:RegisterForClicks("AnyUp")
 	button:SetScript("OnClick", function(self)
-		if not init then
-			initOptions()
-		end
-		if itemLoaded then
-			if self:GetText() == "Auto Reforge" then
-				StartAutoReforge()
-				RequestReforge()
-			else
-				StopAutoReforge()
-			end
+		if not init then initOptions() end
+		if self:GetText() == "Auto Reforge" then
+			StartAutoReforge()
 		else
-			if self:GetText() == "Auto Reforge" then
-				StartAutoAutoReforge()
-			else
-				StopAutoAutoReforge()
-			end
+			StopAutoReforge()
 		end
-		end)
+	end)
 	button:SetText("Auto Reforge")
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnEnable", function() itemLoaded = true end )
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
