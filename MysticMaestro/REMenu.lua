@@ -453,7 +453,7 @@ do -- functions to initialize menu and menu container
     settingsButton:SetScript("OnClick",
       function()
         if MM.AutomationManager:IsRunning() then return end
-        InterfaceOptionsFrame_OpenToCategory("Mystic Maestro")
+        MM:OpenConfig("Mystic Maestro")
       end
     )
     MM_FRAMES_MENU_SETTINGS = settingsButton

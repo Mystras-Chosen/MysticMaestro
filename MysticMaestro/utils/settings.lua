@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local config = LibStub("AceConfig-3.0")
 local dialog = LibStub("AceConfigDialog-3.0")
 local registered = false
@@ -680,6 +680,16 @@ local function createBlizzOptions()
 	dialog:AddToBlizOptions("MysticMaestro-Reforge", options.args.reforge.name, "Mystic Maestro")
 end
 
+function MM:OpenConfig(panel)
+	if MM.AutomationManager:IsRunning() then return end
+	if not registered then
+		createBlizzOptions()
+		registered = true
+	end
+	InterfaceAddOnsList_Update()
+	InterfaceOptionsFrame_OpenToCategory(panel)
+end
+
 function MM:ProcessSlashCommand(input)
   local lowerInput = input:lower()
   if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
@@ -689,11 +699,7 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^calc") then
     MM:CalculateAllStats()
   elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
-		if not registered then
-			createBlizzOptions()
-			registered = true
-		end
-		InterfaceOptionsFrame_OpenToCategory("Mystic Maestro")
+		MM:OpenConfig("Mystic Maestro")
   elseif input == "" then
     MM:HandleMenuSlashCommand()
   else
