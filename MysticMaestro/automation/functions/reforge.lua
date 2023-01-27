@@ -6,7 +6,7 @@ local itemLoaded = false
 local options, autoAutoEnabled, autoReforgeEnabled
 local enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
 local bagID, slotIndex
-local AltarReforgesText
+local AltarReforgesText, settingsButton
 
 local function StopCraftingAttemptTimer()
 	if reforgeHandle then
@@ -272,7 +272,7 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	local button = CreateFrame("Button", "MysticMaestroEnchantingFrameAutoReforgeButton", MysticEnchantingFrame, "UIPanelButtonTemplate")
 	button:SetWidth(80)
 	button:SetHeight(22)
-	button:SetPoint("BOTTOMLEFT", 300, 36)
+	button:SetPoint("BOTTOMLEFT", 300, 37)
 	button:RegisterForClicks("AnyUp")
 	button:SetScript("OnClick", function(self)
 		if not options then initOptions() end
@@ -288,5 +288,13 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	AltarReforgesText = MysticEnchantingFrameProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	AltarReforgesText:SetPoint("TOP", MysticEnchantingFrameProgressBar, "BOTTOM")
 	AltarReforgesText:SetText("Start reforging to get estimate")
-
+	settingsButton = CreateFrame("BUTTON", nil, MysticEnchantingFrame)
+	settingsButton:SetSize(27, 27)
+	settingsButton:SetPoint("LEFT", MysticMaestroEnchantingFrameAutoReforgeButton, "RIGHT")
+	settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
+	settingsButton:SetScript("OnClick",
+		function()
+			MM:OpenConfig("Reforge")
+		end
+	)
 end
