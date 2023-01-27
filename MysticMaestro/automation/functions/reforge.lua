@@ -238,7 +238,6 @@ local function StartAutoReforge()
 	if itemLoaded then
 		MM:Print("Reforging the loaded item!")
 		autoReforgeEnabled = true
-		RequestReforge()
 	else
 		if bagID == nil then
 			bagID = 0
@@ -247,12 +246,12 @@ local function StartAutoReforge()
 		if FindNextInsignia() then
 			MM:Print("Trinkets found, lets roll!")
 			autoAutoEnabled = true
-			RequestReforge()
 		else
 			MM:Print("There are no trinkets to roll on!")
 			return
 		end
 	end
+	RequestReforge()
 	local button = MysticMaestroEnchantingFrameAutoReforgeButton
 	button:SetText("Reforging"..dots())
 	dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
