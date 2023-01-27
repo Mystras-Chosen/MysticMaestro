@@ -193,7 +193,11 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 				print("Skipping " .. knownStr .. seasonal .. " enchant:" .. getLinkRE(enchantID))
 			end
 		end
-		RequestReforge()
+		if GetUnitSpeed("player") == 0 then
+			RequestReforge()
+		else
+			StopAutoReforge()
+		end
 	end
 end
 
@@ -264,8 +268,16 @@ local function StopAutoReforge()
 		dynamicButtonTextHandle:Cancel()
 		dynamicButtonTextHandle = nil
 	end
+	MM:Print("Reforge has been stopped")
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
+
+local function UNIT_SPELLCAST_INTERRUPTED()
+	if GetUnitSpeed("player") ~= 0 then
+		StopAutoReforge()
+	end
+end
+MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED",UNIT_SPELLCAST_INTERRUPTED)
 
 if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	local button = CreateFrame("Button", "MysticMaestroEnchantingFrameAutoReforgeButton", MysticEnchantingFrame, "UIPanelButtonTemplate")
