@@ -261,7 +261,8 @@ local function StartAutoReforge()
 end
 
 local function UNIT_SPELLCAST_INTERRUPTED()
-	if GetUnitSpeed("player") ~= 0 then
+	if (autoAutoEnabled or autoReforgeEnabled)
+	and GetUnitSpeed("player") ~= 0 then
 		StopAutoReforge()
 	end
 end
