@@ -16,25 +16,6 @@ function MM:OnEnable()
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
 end
 
-function MM:ProcessSlashCommand(input)
-  local lowerInput = input:lower()
-  if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
-    MM:HandleGetAllScan()
-  elseif lowerInput:match("^scan") then
-    MM:HandleScan(input:match("^%w+%s+(.+)"))
-  elseif lowerInput:match("^calc") then
-    MM:CalculateAllStats()
-  elseif input == "" then
-    MM:HandleMenuSlashCommand()
-  else
-    MM:Print("Command not recognized")
-    MM:Print("Valid input is scan, getall, calc")
-    MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
-  end
-end
-
-MM:RegisterChatCommand("mm", "ProcessSlashCommand")
-
 MM.RE_LOOKUP = {}
 MM.RE_KNOWN = {}
 MM.RE_NAMES = {}
