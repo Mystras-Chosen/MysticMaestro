@@ -203,7 +203,6 @@ local function StopCraftingAttemptTimer()
 end
 
 local function UNIT_SPELLCAST_START(event, unitID, spell)
-	if event ~= "UNIT_SPELLCAST_START" then print("issue with spell start params") return end
 	-- if cast has started, then stop trying to cast
 	if unitID == "player" and spell == "Enchanting" then
 		StopCraftingAttemptTimer()
@@ -225,7 +224,6 @@ local function RequestReforge()
 			print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
 	end
 end
-
 
 local function dots()
 	local floorTime = math.floor(GetTime())
