@@ -365,8 +365,11 @@ end
 
 
 function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
-  if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
+  if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
+    and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
+    and event ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
   MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
+  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(this, event, entry, data)
   if not self.db.realm.OPTIONS.notificationLearned then return end
   if event == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
     RE = GetREData(entry)

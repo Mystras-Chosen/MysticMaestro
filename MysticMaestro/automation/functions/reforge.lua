@@ -3,8 +3,10 @@
 local green = "|cff00ff00"
 local red = "|cffff0000"
 local itemLoaded = false
-local options, autoAutoEnabled, autoReforgeEnabled, enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
-local bagID, slotIndex, init
+local options, autoAutoEnabled, autoReforgeEnabled
+local enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
+local bagID, slotIndex
+local AltarReforgesText
 
 local function RequestReforge()
 	-- attempt to roll every .05 seconds
@@ -81,38 +83,8 @@ local function BuildWorkingShopList()
 end
 
 local function initOptions()
-	options = options or MM.db.realm.OPTIONS
-	options.stopIfNoRunes = true
-	options.stopForShop = {}
-	options.stopForShop.enabled = false
-	options.stopForShop.unknown = false
-	options.shoppingLists = {}
-	options.stopSeasonal = {}
-	options.stopSeasonal.enabled = true
-	options.stopSeasonal.extract = true
-	options.stopQuality = {}
-	options.stopQuality.enabled = true
-	options.stopQuality["2"] = false
-	options.stopQuality["3"] = true
-	options.stopQuality["4"] = true
-	options.stopQuality["5"] = true
-	options.stopUnknown = {}
-	options.stopUnknown.enabled = true
-	options.stopUnknown.extract = true
-	options.stopUnknown["2"] = false
-	options.stopUnknown["3"] = true
-	options.stopUnknown["4"] = true
-	options.stopUnknown["5"] = true
-	options.stopPrice = {}
-	options.stopPrice.enabled = true
-	options.stopPrice.value = 3.5
-	options.stopPrice["2"] = false
-	options.stopPrice["3"] = true
-	options.stopPrice["4"] = true
-	options.stopPrice["5"] = true
-	options.reserveShoppingList = true
+	options = MM.db.realm.OPTIONS
 	BuildWorkingShopList()
-	init = true
 end
 
 local function extract(enchantID)
@@ -137,11 +109,11 @@ local function configSeasonalMatch(currentEnchant)
 end
 
 local function configQualityMatch(currentEnchant)
-    return options.stopQuality.enabled and options.stopQuality[tostring(currentEnchant.quality)]
+    return options.stopQuality.enabled and options.stopQuality[currentEnchant.quality]
 end
 
 local function configUnknownMatch(currentEnchant)
-    local eval = options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[tostring(currentEnchant.quality)]
+    local eval = options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
     if eval and options.stopUnknown.extract then
         -- Code for extraction
         extract(currentEnchant.enchantID)
@@ -151,8 +123,8 @@ end
 
 local function configPriceMatch(currentEnchant)
     local priceObj = Maestro(currentEnchant.enchantID)
-    if not priceObj then return options.stopPrice[tostring(currentEnchant.quality)] end
-    return options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[tostring(currentEnchant.quality)]
+    if not priceObj then return options.stopPrice[currentEnchant.quality] end
+    return options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
 end
 
 local function configConditionMet(currentEnchant)
@@ -165,6 +137,7 @@ local function configConditionMet(currentEnchant)
 end
 
 function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
+	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
 		local currentEnchant = MYSTIC_ENCHANTS[enchantID]
 		if not autoAutoEnabled and (not autoReforgeEnabled or configConditionMet(currentEnchant)) then
@@ -172,7 +145,6 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			StopAutoReforge()
 			return
 		end
-		
 		if autoAutoEnabled then
 			local knownStr, seasonal = "known", ""
 			if not IsReforgeEnchantmentKnown(enchantID) then
@@ -206,6 +178,26 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			StopAutoReforge()
 		end
 	end
+end
+
+local function AltarLevelRequireXP(level)
+	if level == 0 then
+			return 1
+	end
+	if level >= 250 and not C_Realm:IsRealmMask(Enum.RealmMask.Area52) then
+			return 557250 + (level - 250) * 4097
+	end
+	return floor(354 * level + 7.5 * level * level)
+end
+
+function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
+	if subEvent ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
+	if not MM.db.realm.AltarXP then MM.db.realm.AltarXP = 0 end
+	local gained = xp - MM.db.realm.AltarXP
+	local remaining = AltarLevelRequireXP(level) - xp
+	local levelUP = math.floor(remaining / gained) + 1
+	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
+	MM.db.realm.AltarXP = xp
 end
 
 local function StopCraftingAttemptTimer()
@@ -276,7 +268,7 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	button:SetPoint("BOTTOMLEFT", 300, 36)
 	button:RegisterForClicks("AnyUp")
 	button:SetScript("OnClick", function(self)
-		if not init then initOptions() end
+		if not options then initOptions() end
 		if self:GetText() == "Auto Reforge" then
 			StartAutoReforge()
 		else
@@ -286,4 +278,8 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	button:SetText("Auto Reforge")
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnEnable", function() itemLoaded = true end )
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
+	AltarReforgesText = MysticEnchantingFrameProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	AltarReforgesText:SetPoint("TOP", MysticEnchantingFrameProgressBar, "BOTTOM")
+	AltarReforgesText:SetText("Start reforging to get estimate")
+
 end
