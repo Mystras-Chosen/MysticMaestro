@@ -443,6 +443,7 @@ local function createConfig()
 					table.remove(MM.db.realm.OPTIONS.shoppingLists,MM.db.realm.OPTIONS.shoppingListsDropdown)
 					local newDigit = MM.db.realm.OPTIONS.shoppingListsDropdown - 1
 					MM.db.realm.OPTIONS.shoppingListsDropdown = newDigit > 0 and newDigit or 1
+					MM:BuildWorkingShopList()
 				end,
 			},
 			shopEnabledList = {
@@ -546,6 +547,7 @@ local function createConfig()
 				set = function(info,val)
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
 						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown][MM.db.realm.OPTIONS.shoppingSubList] = val
+						MM:BuildWorkingShopList()
 					end
 				end
 			},
@@ -574,6 +576,7 @@ local function createConfig()
 						table.remove(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown],MM.db.realm.OPTIONS.shoppingSubList)
 						local newDigit = MM.db.realm.OPTIONS.shoppingSubList - 1
 						MM.db.realm.OPTIONS.shoppingSubList = newDigit > 0 and newDigit or 1
+						MM:BuildWorkingShopList()
 					end
 				end,
 			},

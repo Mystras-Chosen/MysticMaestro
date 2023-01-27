@@ -97,13 +97,15 @@ local function FindNextInsignia()
 	slotIndex = 0
 end
 
-local function BuildWorkingShopList()
+function MM:BuildWorkingShopList()
 	local shopList = {}
 	for _, list in ipairs(options.shoppingLists) do
-		for _, enchantName in ipairs(list) do
-			if enchantName ~= "" then
-				local n = enchantName:lower()
-				shopList[select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))] = true
+		if list.enabled then
+			for _, enchantName in ipairs(list) do
+				if enchantName ~= "" then
+					local n = enchantName:lower()
+					shopList[select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))] = true
+				end
 			end
 		end
 	end
