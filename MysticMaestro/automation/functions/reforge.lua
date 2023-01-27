@@ -236,6 +236,7 @@ end
 
 local function StartAutoReforge()
 	if itemLoaded then
+		MM:Print("Reforging the loaded item!")
 		autoReforgeEnabled = true
 		RequestReforge()
 	else
@@ -244,9 +245,11 @@ local function StartAutoReforge()
 			slotIndex = 0
 		end
 		if FindNextInsignia() then
+			MM:Print("Trinkets found, lets roll!")
 			autoAutoEnabled = true
 			RequestReforge()
 		else
+			MM:Print("There are no trinkets to roll on!")
 			return
 		end
 	end
