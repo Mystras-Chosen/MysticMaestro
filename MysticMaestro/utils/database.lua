@@ -56,28 +56,28 @@ local defaultDB = {
       shoppingLists = {
       },
       stopSeasonal = {
-        enabled = true,
-        extract = true
+        enabled = false,
+        extract = false
       },
       stopQuality = {
-        enabled = true,
-        [2] = false,
+        enabled = false,
+        [2] = true,
         [3] = true,
         [4] = true,
         [5] = true
       },
       stopUnknown = {
-        enabled = true,
-        extract = true,
-        [2] = false,
+        enabled = false,
+        extract = false,
+        [2] = true,
         [3] = true,
         [4] = true,
         [5] = true
       },
       stopPrice = {
-        enabled = true,
+        enabled = false,
         value = 3.5,
-        [2] = false,
+        [2] = true,
         [3] = true,
         [4] = true,
         [5] = true
