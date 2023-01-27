@@ -21,7 +21,7 @@ local function FindNextInsignia()
 						knownStr = aura_env.color.green .. knownStr .. "|r"
 					end
 					if options.reserveShoppingList and configShoppingMatch(reObj) then
-						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. getLinkRE(re))
+						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
 					else
 						bagID = i
 						slotIndex = j
@@ -88,6 +88,10 @@ local function initOptions()
 	init = true
 end
 
+local function configNoRunes(currentEnchant)
+	return options.stopIfNoRunes and GetItemCount(98462) <= 0
+end
+
 local function configShoppingMatch(currentEnchant)
     return options.stopForShop.enabled and enchantsOfInterest[currentEnchant.spellName:lower()] 
     and (not options.stopForShop.unknown or (options.stopForShop.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
@@ -115,10 +119,6 @@ local function configUnknownMatch(currentEnchant)
     return eval
 end
 
-local function configNoRunes(currentEnchant)
-    return options.stopIfNoRunes and GetItemCount(98462) <= 0
-end
-
 local function configPriceMatch(currentEnchant)
     local priceObj = Maestro(currentEnchant.enchantID)
     if not priceObj then return options.stopPrice[tostring(currentEnchant.quality)] end
@@ -134,12 +134,6 @@ local function configConditionMet(currentEnchant)
     or configPriceMatch(currentEnchant)
 end
 
-local function getLinkRE(ID)
-    local RE = MYSTIC_ENCHANTS[ID]
-    local color = AscensionUI.MysticEnchant.EnchantQualitySettings[RE.quality][1]
-    return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
-end
-
 local function isSeasonal(spellID)
     local enchant = GetMysticEnchantInfo(spellID)
     if enchant then
@@ -150,7 +144,7 @@ end
 local function extract(enchantID)
     if not IsReforgeEnchantmentKnown(enchantID) 
     and GetItemCount(98463) and (GetItemCount(98463) > 0) then
-        print("Extracting enchant:" .. getLinkRE(enchantID))
+        print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
         RequestSlotReforgeExtraction(bagID, slotIndex)
     end
 end
@@ -178,7 +172,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			end
 			
 			if configConditionMet(currentEnchant) then
-				print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. getLinkRE(enchantID))
+				print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
 
 				if not FindNextInsignia() or GetItemCount(98462) <= 0 then
 					if GetItemCount(98462) <= 0 then
@@ -190,7 +184,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 					return
 				end
 			else
-				print("Skipping " .. knownStr .. seasonal .. " enchant:" .. getLinkRE(enchantID))
+				print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
 			end
 		end
 		if GetUnitSpeed("player") == 0 then
