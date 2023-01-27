@@ -129,10 +129,6 @@ end
 
 local function configSeasonalMatch(currentEnchant)
     local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant.enchantID)
-    if eval and options.stopSeasonal.extract then
-        -- Code for extraction
-        extract(currentEnchant.enchantID)
-    end
     return eval
 end
 
@@ -141,12 +137,7 @@ local function configQualityMatch(currentEnchant)
 end
 
 local function configUnknownMatch(currentEnchant)
-    local eval = options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
-    if eval and options.stopUnknown.extract then
-        -- Code for extraction
-        extract(currentEnchant.enchantID)
-    end
-    return eval
+    return options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
 end
 
 local function configPriceMatch(currentEnchant)
@@ -156,11 +147,18 @@ local function configPriceMatch(currentEnchant)
 end
 
 local function configConditionMet(currentEnchant)
+	local unknown = configUnknownMatch(currentEnchant)
+	local seasonal = configSeasonalMatch(currentEnchant)
+	if autoAutoEnabled
+	and (unknown and options.stopUnknown.extract)
+	or (seasonal and options.stopSeasonal.extract) then
+		extract(currentEnchant.enchantID)
+	end
 	return configNoRunes(currentEnchant)
 	or configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
-	or configUnknownMatch(currentEnchant)
-	or configSeasonalMatch(currentEnchant)
+	or unknown
+	or seasonal
 	or configPriceMatch(currentEnchant)
 end
 
