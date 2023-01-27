@@ -10,7 +10,7 @@ local function createConfig()
 	options.args = {}
 	local function get(info) return MM.db.realm.OPTIONS[info[#info]] end
 	local function set(info,val) MM.db.realm.OPTIONS[info[#info]] = val end
-
+	-- General
 	options.args.general = {
 		name = "General",
 		type = "group",
@@ -126,7 +126,7 @@ local function createConfig()
 			},
 		}
 	}
-
+	-- Scan
 	options.args.scan = {
 		name = "Scan",
 		type = "group",
@@ -184,7 +184,7 @@ local function createConfig()
 			},
 		}
 	}
-	
+	-- Posting
 	options.args.posting = {
 		name = "Posting",
 		type = "group",
@@ -256,7 +256,7 @@ local function createConfig()
 			},
 		}
 	}
-	
+	-- Tooltip
 	options.args.tooltip = {
 		name = "Tooltip",
 		type = "group",
@@ -348,7 +348,7 @@ local function createConfig()
 			},
 		}
 	}
-	
+	-- Reforge
 	options.args.reforge = {
 		name = "Reforge",
 		type = "group",
@@ -356,13 +356,219 @@ local function createConfig()
 		get = get,
 		set = set,
 		args = {
-			help = {
-				type = "description",
-				name = "Mystic Maestro is a multifunctional addon which handles several aspects of the enchanting altar.",
-			}
+			stopIfNoRunes = {
+				order = 1,
+				name = "Stop Without Runes",
+				desc = "Stop reforging when you have run out of Mystic Runes",
+				type = "toggle"
+			},
+			reserveShoppingList = {
+				order = 2,
+				name = "Reserve List Items",
+				desc = "Items places on a shopping list will not be reforged over when looking for insignia to roll on",
+				type = "toggle"
+			},
+			shopHeader = {
+				order = 3,
+				name = "Stop for shopping list items",
+				type = "header"
+			},
+			shopEnabled = {
+				order = 4,
+				name = "Enabled",
+				desc = "Stop reforging items with an enchant on your shopping lists",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopForShop.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.enabled = val end
+			},
+			shopUnknown = {
+				order = 5,
+				name = "Unknown",
+				desc = "Shopping lists will stop reforging for enchants which are unknown",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopForShop.unknown end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.unknown = val end
+			},
+			seasonalHeader = {
+				order = 6,
+				name = "Stop for seasonal enchants",
+				type = "header"
+			},
+			seasonalEnabled = {
+				order = 7,
+				name = "Enabled",
+				desc = "Stop reforging items with any seasonal enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.enabled = val end
+			},
+			seasonalExtract = {
+				order = 8,
+				name = "Extract",
+				desc = "Automatically extract any unknown seasonal enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.extract end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.extract = val end
+			},
+			qualityHeader = {
+				order = 9,
+				name = "Stop for specific qualities of enchants",
+				type = "header"
+			},
+			qualityEnabled = {
+				order = 10,
+				name = "Enabled",
+				desc = "Stop reforging items with an enchant of any enabled quality",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopQuality.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
+			},
+			qualityUncommon = {
+				order = 11,
+				name = "Uncommon",
+				desc = "Stop reforging items with any uncommon quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopQuality[2] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[2] = val end
+			},
+			qualityRare = {
+				order = 12,
+				name = "Rare",
+				desc = "Stop reforging items with any rare quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopQuality[3] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[3] = val end
+			},
+			qualityEpic = {
+				order = 13,
+				name = "Epic",
+				desc = "Stop reforging items with any epic quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopQuality[4] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[4] = val end
+			},
+			qualityLegendary = {
+				order = 14,
+				name = "Legendary",
+				desc = "Stop reforging items with any legendary quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopQuality[5] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[5] = val end
+			},
+			unknownHeader = {
+				order = 15,
+				name = "Stop for specific qualities of unknown enchants",
+				type = "header"
+			},
+			unknownEnabled = {
+				order = 16,
+				name = "Enabled",
+				desc = "Stop reforging items with an unknown enchant of any enabled quality",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopUnknown.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown.enabled = val end
+			},
+			unknownExtract = {
+				order = 17,
+				name = "Extract",
+				desc = "Automatically extract any unknown enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopUnknown.extract end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown.extract = val end
+			},
+			unknownUncommon = {
+				order = 18,
+				name = "Uncommon",
+				desc = "Stop reforging items with any unknown uncommon quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[2] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[2] = val end
+			},
+			unknownRare = {
+				order = 19,
+				name = "Rare",
+				desc = "Stop reforging items with any unknown rare quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[3] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[3] = val end
+			},
+			unknownEpic = {
+				order = 20,
+				name = "Epic",
+				desc = "Stop reforging items with any unknown epic quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[4] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[4] = val end
+			},
+			unknownLegendary = {
+				order = 21,
+				name = "Legendary",
+				desc = "Stop reforging items with any unknown legendary quality enchant",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[5] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[5] = val end
+			},
+			priceHeader = {
+				order = 22,
+				name = "Stop for enchants above a price",
+				type = "header"
+			},
+			priceEnabled = {
+				order = 23,
+				name = "Enabled",
+				desc = "Stop reforging items with an enchant above the set value",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopPrice.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopPrice.enabled = val end
+			},
+			priceValue = {
+				order = 24,
+				name = "Value",
+				desc = "Set the minimum price to stop for",
+				type = "range",
+				step = 0.1,
+				min = 0,
+				max = 30,
+				softMin = 1,
+				softMax = 20,
+				get = function(info) return MM.db.realm.OPTIONS.stopPrice.value end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopPrice.value = val end
+			},
+			priceUncommon = {
+				order = 25,
+				name = "Uncommon",
+				desc = "Stop reforging items with an uncommon quality enchant above the price value",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopPrice[2] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[2] = val end
+			},
+			priceRare = {
+				order = 26,
+				name = "Rare",
+				desc = "Stop reforging items with a rare quality enchant above the price value",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopPrice[3] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[3] = val end
+			},
+			priceEpic = {
+				order = 27,
+				name = "Epic",
+				desc = "Stop reforging items with an epic quality enchant above the price value",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopPrice[4] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[4] = val end
+			},
+			priceLegendary = {
+				order = 28,
+				name = "Legendary",
+				desc = "Stop reforging items with a legendary quality enchant above the price value",
+				type = "toggle",
+				get = function(info) return MM.db.realm.OPTIONS.stopPrice[5] end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[5] = val end
+			},
 		}
 	}
-	
+
 	return options
 end
 
@@ -400,11 +606,6 @@ local function createBlizzOptions()
 end
 
 function MM:ProcessSlashCommand(input)
-	if not registered then
-		createBlizzOptions()
-		registered = true
-	end
-
   local lowerInput = input:lower()
   if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
     MM:HandleGetAllScan()
@@ -413,6 +614,10 @@ function MM:ProcessSlashCommand(input)
   elseif lowerInput:match("^calc") then
     MM:CalculateAllStats()
   elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
+		if not registered then
+			createBlizzOptions()
+			registered = true
+		end
 		InterfaceOptionsFrame_OpenToCategory("Mystic Maestro")
   elseif input == "" then
     MM:HandleMenuSlashCommand()
@@ -431,6 +636,5 @@ hijackFrame:SetScript("OnShow", function(self)
 		createBlizzOptions()
 		registered = true
 	end
-
 	self:SetScript("OnShow", nil)
 end)
