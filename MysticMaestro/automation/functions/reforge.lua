@@ -100,8 +100,8 @@ end
 local function BuildWorkingShopList()
 	local shopList = {}
 	for _, list in ipairs(options.shoppingLists) do
-		for _, enchantName in pairs(list) do
-			if _ ~= "name" and enchantName ~= "" then
+		for _, enchantName in ipairs(list) do
+			if enchantName ~= "" then
 				local n = enchantName:lower()
 				shopList[select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))] = true
 			end
