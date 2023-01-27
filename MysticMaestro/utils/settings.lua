@@ -362,40 +362,115 @@ local function createConfig()
 				desc = "Stop reforging when you have run out of Mystic Runes",
 				type = "toggle"
 			},
-			reserveShoppingList = {
-				order = 2,
-				name = "Reserve List Items",
-				desc = "Items places on a shopping list will not be reforged over when looking for insignia to roll on",
-				type = "toggle"
-			},
 			shopHeader = {
-				order = 3,
+				order = 2,
 				name = "Stop for shopping list items",
 				type = "header"
 			},
 			shopEnabled = {
-				order = 4,
+				order = 3,
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant on your shopping lists",
 				type = "toggle",
 				get = function(info) return MM.db.realm.OPTIONS.stopForShop.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.enabled = val end
 			},
-			shopUnknown = {
+			reserveShoppingList = {
+				order = 4,
+				name = "Reserve List Items",
+				desc = "Items places on a shopping list will not be reforged over when looking for insignia to roll on",
+				type = "toggle"
+			},
+			shoppingListsDropdown = {
 				order = 5,
-				name = "Unknown",
-				desc = "Shopping lists will stop reforging for enchants which are unknown",
+				name = "Select a List",
+				desc = "This is where you can find all of your shopping lists",
+				type = "select",
+				style = "dropdown",
+				values = function() 
+					local returnList = {}
+					for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists) do
+						table.insert(returnList,v.Name)
+					end
+					return returnList
+				end,
+			},
+			shoppingSubList = {
+				order = 6,
+				name = "Enchant Entries",
+				desc = "This is where you input entries to the list",
+				type = "select",
+				style = "dropdown",
+				values = function() 
+					local returnList = {}
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown]) do
+							table.insert(returnList,v)
+						end
+					else
+						returnList = {}
+					end
+					return returnList
+				end,
+			},
+			shopEnabledList = {
+				order = 7,
+				name = "Enabled",
+				desc = "Enables or disables this shopping list",
 				type = "toggle",
-				get = function(info) return MM.db.realm.OPTIONS.stopForShop.unknown end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.unknown = val end
+				get = function(info)
+					local o = MM.db.realm.OPTIONS
+					if o.shoppingLists[o.shoppingListsDropdown] then
+						return o.shoppingLists[o.shoppingListsDropdown].enabled
+					end
+				end,
+				set = function(info,val)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].enabled = val
+					end
+				end
+			},
+			shopUnknown = {
+				order = 8,
+				name = "Unknown",
+				desc = "This shopping list will only stop reforging for enchants which are unknown",
+				type = "toggle",
+				get = function(info)
+					local o = MM.db.realm.OPTIONS
+					if o.shoppingLists[o.shoppingListsDropdown] then
+						return o.shoppingLists[o.shoppingListsDropdown].unknown
+					end
+				end,
+				set = function(info,val)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
+					end
+				end
+			},
+			shopExtract = {
+				order = 9,
+				name = "Extract",
+				desc = "This shopping list will extract unknown entries automatically",
+				type = "toggle",
+				get = function(info)
+					local o = MM.db.realm.OPTIONS
+					if o.shoppingLists[o.shoppingListsDropdown] then
+						return o.shoppingLists[o.shoppingListsDropdown].unknown
+					end
+				end,
+				set = function(info,val)
+					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
+					end
+				end
 			},
 			seasonalHeader = {
-				order = 6,
+				order = 20,
 				name = "Stop for seasonal enchants",
 				type = "header"
 			},
 			seasonalEnabled = {
-				order = 7,
+				order = 21,
 				name = "Enabled",
 				desc = "Stop reforging items with any seasonal enchant",
 				type = "toggle",
@@ -403,7 +478,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.enabled = val end
 			},
 			seasonalExtract = {
-				order = 8,
+				order = 22,
 				name = "Extract",
 				desc = "Automatically extract any unknown seasonal enchant",
 				type = "toggle",
@@ -411,12 +486,12 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.extract = val end
 			},
 			qualityHeader = {
-				order = 9,
+				order = 30,
 				name = "Stop for specific qualities of enchants",
 				type = "header"
 			},
 			qualityEnabled = {
-				order = 10,
+				order = 31,
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant of any enabled quality",
 				type = "toggle",
@@ -424,7 +499,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
 			},
 			qualityUncommon = {
-				order = 11,
+				order = 32,
 				name = "Uncommon",
 				desc = "Stop reforging items with any uncommon quality enchant",
 				type = "toggle",
@@ -432,7 +507,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[2] = val end
 			},
 			qualityRare = {
-				order = 12,
+				order = 33,
 				name = "Rare",
 				desc = "Stop reforging items with any rare quality enchant",
 				type = "toggle",
@@ -440,7 +515,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[3] = val end
 			},
 			qualityEpic = {
-				order = 13,
+				order = 34,
 				name = "Epic",
 				desc = "Stop reforging items with any epic quality enchant",
 				type = "toggle",
@@ -448,7 +523,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[4] = val end
 			},
 			qualityLegendary = {
-				order = 14,
+				order = 35,
 				name = "Legendary",
 				desc = "Stop reforging items with any legendary quality enchant",
 				type = "toggle",
@@ -456,12 +531,12 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[5] = val end
 			},
 			unknownHeader = {
-				order = 15,
+				order = 40,
 				name = "Stop for specific qualities of unknown enchants",
 				type = "header"
 			},
 			unknownEnabled = {
-				order = 16,
+				order = 41,
 				name = "Enabled",
 				desc = "Stop reforging items with an unknown enchant of any enabled quality",
 				type = "toggle",
@@ -469,7 +544,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown.enabled = val end
 			},
 			unknownExtract = {
-				order = 17,
+				order = 42,
 				name = "Extract",
 				desc = "Automatically extract any unknown enchant",
 				type = "toggle",
@@ -477,7 +552,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown.extract = val end
 			},
 			unknownUncommon = {
-				order = 18,
+				order = 43,
 				name = "Uncommon",
 				desc = "Stop reforging items with any unknown uncommon quality enchant",
 				type = "toggle",
@@ -485,7 +560,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[2] = val end
 			},
 			unknownRare = {
-				order = 19,
+				order = 44,
 				name = "Rare",
 				desc = "Stop reforging items with any unknown rare quality enchant",
 				type = "toggle",
@@ -493,7 +568,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[3] = val end
 			},
 			unknownEpic = {
-				order = 20,
+				order = 45,
 				name = "Epic",
 				desc = "Stop reforging items with any unknown epic quality enchant",
 				type = "toggle",
@@ -501,7 +576,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[4] = val end
 			},
 			unknownLegendary = {
-				order = 21,
+				order = 46,
 				name = "Legendary",
 				desc = "Stop reforging items with any unknown legendary quality enchant",
 				type = "toggle",
@@ -509,12 +584,12 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[5] = val end
 			},
 			priceHeader = {
-				order = 22,
+				order = 50,
 				name = "Stop for enchants above a price",
 				type = "header"
 			},
 			priceEnabled = {
-				order = 23,
+				order = 51,
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant above the set value",
 				type = "toggle",
@@ -522,7 +597,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice.enabled = val end
 			},
 			priceValue = {
-				order = 24,
+				order = 52,
 				name = "Value",
 				desc = "Set the minimum price to stop for",
 				type = "range",
@@ -535,7 +610,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice.value = val end
 			},
 			priceUncommon = {
-				order = 25,
+				order = 53,
 				name = "Uncommon",
 				desc = "Stop reforging items with an uncommon quality enchant above the price value",
 				type = "toggle",
@@ -543,7 +618,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[2] = val end
 			},
 			priceRare = {
-				order = 26,
+				order = 54,
 				name = "Rare",
 				desc = "Stop reforging items with a rare quality enchant above the price value",
 				type = "toggle",
@@ -551,7 +626,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[3] = val end
 			},
 			priceEpic = {
-				order = 27,
+				order = 55,
 				name = "Epic",
 				desc = "Stop reforging items with an epic quality enchant above the price value",
 				type = "toggle",
@@ -559,7 +634,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[4] = val end
 			},
 			priceLegendary = {
-				order = 28,
+				order = 56,
 				name = "Legendary",
 				desc = "Stop reforging items with a legendary quality enchant above the price value",
 				type = "toggle",

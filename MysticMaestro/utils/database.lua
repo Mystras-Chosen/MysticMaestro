@@ -48,6 +48,8 @@ local defaultDB = {
 
       stopIfNoRunes = true,
       reserveShoppingList = true,
+      shoppingListsDropdown = 1,
+      shoppingSubList = 1,
       stopForShop = {
         enabled = false,
         unknown = false
