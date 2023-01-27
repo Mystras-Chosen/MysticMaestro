@@ -53,10 +53,8 @@ local function RequestReforge()
 end
 
 local function configShoppingMatch(currentEnchant)
-	local enchantName = GetSpellInfo(currentEnchant.spellID)
-	enchantName = enchantName:lower()
-	return options.stopForShop.enabled and shopEnabledList[enchantName] 
-	and (not shopUnknownList[enchantName] or (shopUnknownList[enchantName] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
+	return options.stopForShop.enabled and shopEnabledList[currentEnchant.enchantID] 
+	and (not shopUnknownList[currentEnchant.enchantID] or (shopUnknownList[currentEnchant.enchantID] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
 end
 
 local function isSeasonal(spellID)
@@ -80,9 +78,7 @@ local function FindNextInsignia()
 					else
 						knownStr = green .. knownStr .. "|r"
 					end
-					local enchantName = GetSpellInfo(reObj.spellID)
-					enchantName = enchantName:lower()
-					if shopReserveList[enchantName] then
+					if shopReserveList[re] then
 						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
 					else
 						bagID = i
@@ -113,15 +109,18 @@ function MM:BuildWorkingShopList()
 				if enchantName ~= "" then
 					local n = enchantName:lower()
 					local standardStr = select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))
-					enabledList[standardStr] = true
-					if list.extract then
-						extractList[standardStr] = true
-					end
-					if list.reserve then
-						reserveList[standardStr] = true
-					end
-					if list.unknown then
-						unknownList[standardStr] = true
+					local ID = MM.RE_LOOKUP[standardStr]
+					if ID then
+						enabledList[ID] = true
+						if list.extract then
+							extractList[ID] = true
+						end
+						if list.reserve then
+							reserveList[ID] = true
+						end
+						if list.unknown then
+							unknownList[ID] = true
+						end
 					end
 				end
 			end
@@ -172,13 +171,11 @@ end
 local function configConditionMet(currentEnchant)
 	local unknown = configUnknownMatch(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
-	local enchantName = GetSpellInfo(currentEnchant.spellID)
-	enchantName = enchantName:lower()
 	-- Determine if we should extract this enchant
 	if autoAutoEnabled
 	and ((unknown and options.stopUnknown.extract)
 	or (seasonal and options.stopSeasonal.extract)
-	or shopExtractList[enchantName]) then
+	or shopExtractList[currentEnchant.enchantID]) then
 		extract(currentEnchant.enchantID)
 	end
 	-- check for spam reforge settings
