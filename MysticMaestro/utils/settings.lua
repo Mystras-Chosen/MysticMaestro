@@ -460,6 +460,7 @@ local function createConfig()
 				set = function(info,val)
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
 						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].enabled = val
+						MM:BuildWorkingShopList()
 					end
 				end
 			},
