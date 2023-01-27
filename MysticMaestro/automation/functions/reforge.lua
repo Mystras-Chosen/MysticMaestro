@@ -1,19 +1,61 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local automationName = "Reforge"
+local green = "|cff00ff00"
+local red = "|cffff0000"
+local itemLoaded = false
+local options, autoAutoEnabled, autoReforgeEnabled, enchantsOfInterest, reforgeHandle
+local bagID, slotIndex = 0, 0
+local init
 
-local isPaused
-
-local automationTable = {}
-
-function automationTable.GetName()
-  return automationName
+local function FindNextInsignia()
+	for i=bagID, 4 do
+		for j=slotIndex + 1, GetContainerNumSlots(i) do
+			local item = select(7, GetContainerItemInfo(i, j))
+			if item and (item:find("Insignia of the Alliance") or item:find("Insignia of the Horde") or item:find("Bloodforged Untarnished Mystic Scroll")) then
+				local re = GetREInSlot(i, j)
+				local reObj = MYSTIC_ENCHANTS[re]
+				if reObj ~= nil then
+					local knownStr = "known"
+					if not IsReforgeEnchantmentKnown(re) then
+						knownStr = aura_env.color.red .. "un" .. knownStr .. "|r"
+					else
+						knownStr = aura_env.color.green .. knownStr .. "|r"
+					end
+					if options.reserveShoppingList and configShoppingMatch(reObj) then
+						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. getLinkRE(re))
+					else
+						bagID = i
+						slotIndex = j
+						return true
+					end
+				else
+					bagID = i
+					slotIndex = j
+					return true
+				end
+			end
+		end
+		slotIndex = 0
+	end
+	bagID = 0
+	slotIndex = 0
 end
 
-local options
+local function BuildWorkingShopList()
+	local shopList = {}
+	for _, list in ipairs(options.shoppingLists) do
+		for _, enchantName in pairs(list) do
+			if _ ~= "name" and enchantName ~= "" then
+				local n = enchantName:lower()
+				shopList[select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))] = true
+			end
+		end
+	end
+	enchantsOfInterest = shopList
+end
 
-function automationTable.ShowInitPrompt()
-  options = options or MM.db.realm.OPTIONS
+local function initOptions()
+	options = options or MM.db.realm.OPTIONS
 	options.stopIfNoRunes = true
 	options.stopForShop = {}
 	options.stopForShop.enabled = false
@@ -42,103 +84,10 @@ function automationTable.ShowInitPrompt()
 	options.stopPrice["3"] = true
 	options.stopPrice["4"] = true
 	options.stopPrice["5"] = true
+	options.reserveShoppingList = true
 	BuildWorkingShopList()
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+	init = true
 end
-
-local running
-
-function automationTable.Start()
-	if itemLoaded then
-		if self:GetText() == "Auto Reforge" then
-			StartAutoReforge()
-			RequestReforge()
-		else
-			StopAutoReforge()
-		end
-	else
-		if self:GetText() == "Auto Reforge" then
-			StartAutoAutoReforge()
-		else
-			StopAutoAutoReforge()
-		end
-	end
-end
-
-function automationTable.Pause()
-  if running then
-    isPaused = true
-    MM.AutomationUtil.HideAutomationPopup()
-  elseif isPaused then -- can be called when already paused and init prompt showing
-    MM.AutomationUtil.HideAutomationPopup()
-  else
-    MM:Print("ERROR: " .. automationName .." paused when not running")
-  end
-end
-
-function automationTable.IsPaused()
-  return isPaused
-end
-
-function automationTable.Stop()
-  MM.AutomationUtil.HideAutomationPopup()
-  isPaused = false
-  running = false
-end
-
-function automationTable.PostProcessing()
-end
-
-MM.AutomationManager:RegisterAutomation(automationName, automationTable)
-
--- Refactored code below
-
-local itemLoaded = false
-local bagID, slotIndex, autoAutoEnabled, autoReforgeEnabled
-local enchantsOfInterest
-local reforgeHandle
-
--- Options to configure:
--- stopForShop.enabled, stopForShop.unknown, shoppingLists
--- stopSeasonal.enabled, stopSeasonal.extract
--- stopSeasonal.enabled, stopSeasonal.extract
--- stopQuality.enabled, options.stopQuality[tostring(currentEnchant.quality)]
--- stopUnknown.enabled, stopUnknown.extract, stopUnknown[tostring(currentEnchant.quality)]
--- stopIfNoRunes
--- stopPrice.enabled, stopPrice.value, stopPrice[tostring(currentEnchant.quality)]
-
-if not MysticMaestroEnchantingFrameAutoReforgeButton then
-	local button = CreateFrame("Button", "MysticMaestroEnchantingFrameAutoReforgeButton", MysticEnchantingFrame, "UIPanelButtonTemplate")
-	button:SetWidth(80)
-	button:SetHeight(22)
-	button:SetPoint("BOTTOMLEFT", 300, 36)
-	-- button:Disable()
-	button:RegisterForClicks("AnyUp")
-	button:SetScript("OnClick", function(self)
-		MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
-	end)
-	button:SetText("Auto Reforge")
-	MysticEnchantingFrameControlFrameRollButton:HookScript("OnEnable", function() itemLoaded = true end )
-	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
-end
-
-local function BuildWorkingShopList()
-	local shopList = {}
-	for _, list in ipairs(options.shoppingLists) do
-		for _, enchantName in pairs(list) do
-			if _ ~= "name" and enchantName ~= "" then
-				local n = enchantName:lower()
-				shopList[select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))] = true
-			end
-		end
-	end
-	enchantsOfInterest = shopList
-end
-
-local colorHex = {
-    ["green"] = "|cff00ff00",
-    ["red"] = "|cffff0000"
-}
 
 local function configShoppingMatch(currentEnchant)
     return options.stopForShop.enabled and enchantsOfInterest[currentEnchant.spellName:lower()] 
@@ -221,24 +170,24 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 		if autoAutoEnabled then
 			local knownStr, seasonal = "known", ""
 			if not IsReforgeEnchantmentKnown(enchantID) then
-				knownStr = colorHex.red .. "un" .. knownStr .. "|r"
+				knownStr = red .. "un" .. knownStr .. "|r"
 			else
-				knownStr = colorHex.green .. knownStr .. "|r"
+				knownStr = green .. knownStr .. "|r"
 			end
 			if isSeasonal(enchantID) then
-				seasonal = colorHex.green .. " seasonal" .. "|r"
+				seasonal = green .. " seasonal" .. "|r"
 			end
 			
 			if configConditionMet(currentEnchant) then
 				print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. getLinkRE(enchantID))
 
-				if not findNextInsignia() or GetItemCount(98462) <= 0 then
+				if not FindNextInsignia() or GetItemCount(98462) <= 0 then
 					if GetItemCount(98462) <= 0 then
 						print("Out of runes")
 					else
 						print("Out of Insignia")
 					end
-					WeakAuras.ScanEvents("POLI_AUTO_AUTO_OFF")
+					StopAutoAutoReforge()
 					return
 				end
 			else
@@ -246,6 +195,13 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			end
 		end
 		RequestReforge()
+	end
+end
+
+local function StopCraftingAttemptTimer()
+	if reforgeHandle then
+		reforgeHandle:Cancel()
+		reforgeHandle = nil
 	end
 end
 
@@ -273,19 +229,12 @@ local function RequestReforge()
 	end
 end
 
-local function StopCraftingAttemptTimer()
-	if reforgeHandle then
-		reforgeHandle:Cancel()
-		reforgeHandle = nil
-	end
-end
 
 local function ThreeDotsString()
 	local floorTime = math.floor(GetTime())
 	return floorTime % 3 == 0 and "." or (floorTime % 3 == 1 and ".." or "...")
 end
 
--- Trigger 3 : POLI_AUTO_REFORGE_ON, POLI_AUTO_REFORGE_OFF
 local function StartAutoReforge()
 	autoReforgeEnabled = true
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Reforging" .. ThreeDotsString())
@@ -303,13 +252,12 @@ local function StopAutoReforge()
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
 
--- Trigger 4 : POLI_AUTO_AUTO_ON, POLI_AUTO_AUTO_OFF
 local function StartAutoAutoReforge()
 	if bagID == nil then
 		bagID = 0
 		slotIndex = 0
 	end
-	if findNextInsignia() then
+	if FindNextInsignia() then
 		autoAutoEnabled = true
 		RequestReforge()
 	end
@@ -326,4 +274,35 @@ local function StopAutoAutoReforge()
 		dynamicAutoButtonTextHandle = nil
 	end
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
+end
+
+if not MysticMaestroEnchantingFrameAutoReforgeButton then
+	local button = CreateFrame("Button", "MysticMaestroEnchantingFrameAutoReforgeButton", MysticEnchantingFrame, "UIPanelButtonTemplate")
+	button:SetWidth(80)
+	button:SetHeight(22)
+	button:SetPoint("BOTTOMLEFT", 300, 36)
+	-- button:Disable()
+	button:RegisterForClicks("AnyUp")
+	button:SetScript("OnClick", function(self)
+		if not init then
+			initOptions()
+		end
+		if itemLoaded then
+			if self:GetText() == "Auto Reforge" then
+				StartAutoReforge()
+				RequestReforge()
+			else
+				StopAutoReforge()
+			end
+		else
+			if self:GetText() == "Auto Reforge" then
+				StartAutoAutoReforge()
+			else
+				StopAutoAutoReforge()
+			end
+		end
+		end)
+	button:SetText("Auto Reforge")
+	MysticEnchantingFrameControlFrameRollButton:HookScript("OnEnable", function() itemLoaded = true end )
+	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
 end

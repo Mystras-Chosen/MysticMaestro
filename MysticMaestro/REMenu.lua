@@ -611,8 +611,7 @@ do -- show and hide MysticMaestroMenu
 
   local automationFunctionNames = {
     "Scan",
-    "GetAll Scan",
-    "Reforge"
+    "GetAll Scan"
   }
   
   local filterOptions = {
@@ -931,10 +930,10 @@ do -- show and hide MysticMaestroMenu
   end
 
   function MM:SetMenuWidgetsLocked(isLocked)
-    automationDropdown:SetDisabled(isLocked)
-    sortDropdown:SetDisabled(isLocked)
-    filterDropdown:SetDisabled(isLocked)
-    searchBar:SetDisabled(isLocked)
+    if automationDropdown then automationDropdown:SetDisabled(isLocked) end
+    if sortDropdown then sortDropdown:SetDisabled(isLocked) end
+    if filterDropdown then filterDropdown:SetDisabled(isLocked) end
+    if searchBar then searchBar:SetDisabled(isLocked) end
   end
 
   function MM:HideMysticMaestroMenu()
