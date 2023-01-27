@@ -6,6 +6,33 @@ local itemLoaded = false
 local options, autoAutoEnabled, autoReforgeEnabled, enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
 local bagID, slotIndex, init
 
+local function RequestReforge()
+	-- attempt to roll every .05 seconds
+	if autoReforgeEnabled then
+		reforgeHandle = Timer.NewTicker(.05, function()
+			MysticEnchantingFrameControlFrameRollButton:GetScript("OnClick")(MysticEnchantingFrameControlFrameRollButton)
+		end)
+	elseif autoAutoEnabled then
+		reforgeHandle = Timer.NewTicker(.05, function()
+			RequestSlotReforgeEnchantment(bagID, slotIndex)
+		end)
+	else
+			print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
+	end
+end
+
+local function configShoppingMatch(currentEnchant)
+	return options.stopForShop.enabled and enchantsOfInterest[currentEnchant.spellName:lower()] 
+	and (not options.stopForShop.unknown or (options.stopForShop.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
+end
+
+local function isSeasonal(spellID)
+	local enchant = GetMysticEnchantInfo(spellID)
+	if enchant then
+		return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
+	end
+end
+
 local function FindNextInsignia()
 	for i=bagID, 4 do
 		for j=slotIndex + 1, GetContainerNumSlots(i) do
@@ -16,9 +43,9 @@ local function FindNextInsignia()
 				if reObj ~= nil then
 					local knownStr = "known"
 					if not IsReforgeEnchantmentKnown(re) then
-						knownStr = aura_env.color.red .. "un" .. knownStr .. "|r"
+						knownStr = red .. "un" .. knownStr .. "|r"
 					else
-						knownStr = aura_env.color.green .. knownStr .. "|r"
+						knownStr = green .. knownStr .. "|r"
 					end
 					if options.reserveShoppingList and configShoppingMatch(reObj) then
 						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
@@ -100,11 +127,6 @@ local function configNoRunes(currentEnchant)
 	return options.stopIfNoRunes and GetItemCount(98462) <= 0
 end
 
-local function configShoppingMatch(currentEnchant)
-    return options.stopForShop.enabled and enchantsOfInterest[currentEnchant.spellName:lower()] 
-    and (not options.stopForShop.unknown or (options.stopForShop.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
-end
-
 local function configSeasonalMatch(currentEnchant)
     local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant.enchantID)
     if eval and options.stopSeasonal.extract then
@@ -142,16 +164,7 @@ local function configConditionMet(currentEnchant)
     or configPriceMatch(currentEnchant)
 end
 
-local function isSeasonal(spellID)
-    local enchant = GetMysticEnchantInfo(spellID)
-    if enchant then
-        return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
-    end
-end
-
 function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
-	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
-	
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
 		local currentEnchant = MYSTIC_ENCHANTS[enchantID]
 		if not autoAutoEnabled and (not autoReforgeEnabled or configConditionMet(currentEnchant)) then
@@ -209,21 +222,6 @@ local function UNIT_SPELLCAST_START(event, unitID, spell)
 	end
 end
 MM:RegisterEvent("UNIT_SPELLCAST_START",UNIT_SPELLCAST_START)
-
-local function RequestReforge()
-	-- attempt to roll every .05 seconds
-	if autoReforgeEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
-			MysticEnchantingFrameControlFrameRollButton:GetScript("OnClick")(MysticEnchantingFrameControlFrameRollButton)
-		end)
-	elseif autoAutoEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
-			RequestSlotReforgeEnchantment(bagID, slotIndex)
-		end)
-	else
-			print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
-	end
-end
 
 local function dots()
 	local floorTime = math.floor(GetTime())

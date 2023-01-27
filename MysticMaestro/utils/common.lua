@@ -364,8 +364,9 @@ function MM:cTxt(text, color)
 end
 
 
-function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data1, data2)
-  MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, entry, data1, data2)
+function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
+  if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
+  MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
   if not self.db.realm.OPTIONS.notificationLearned then return end
   if event == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
     RE = GetREData(entry)
