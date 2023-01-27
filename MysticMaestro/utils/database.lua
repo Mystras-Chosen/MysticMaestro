@@ -52,7 +52,6 @@ local defaultDB = {
       shoppingSubList = 1,
       stopForShop = {
         enabled = false,
-        unknown = false
       },
       shoppingLists = {
       },

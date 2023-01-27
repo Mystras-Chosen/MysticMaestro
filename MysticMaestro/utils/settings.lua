@@ -479,6 +479,7 @@ local function createConfig()
 				set = function(info,val)
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
 						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
+						MM:BuildWorkingShopList()
 					end
 				end
 			},
@@ -496,6 +497,7 @@ local function createConfig()
 				set = function(info,val)
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
 						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
+						MM:BuildWorkingShopList()
 					end
 				end
 			},
@@ -513,6 +515,7 @@ local function createConfig()
 				set = function(info,val)
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
 						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].reserve = val
+						MM:BuildWorkingShopList()
 					end
 				end
 			},

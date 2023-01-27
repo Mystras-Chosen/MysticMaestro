@@ -4,7 +4,8 @@ local green = "|cff00ff00"
 local red = "|cffff0000"
 local itemLoaded = false
 local options, autoAutoEnabled, autoReforgeEnabled
-local enchantsOfInterest, reforgeHandle, dynamicButtonTextHandle
+local shopEnabledList, shopExtractList, shopReserveList, shopUnknownList
+local reforgeHandle, dynamicButtonTextHandle
 local bagID, slotIndex
 local AltarReforgesText, settingsButton
 
@@ -52,8 +53,10 @@ local function RequestReforge()
 end
 
 local function configShoppingMatch(currentEnchant)
-	return options.stopForShop.enabled and enchantsOfInterest[currentEnchant.spellName:lower()] 
-	and (not options.stopForShop.unknown or (options.stopForShop.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
+	local enchantName = GetSpellInfo(currentEnchant.spellID)
+	enchantName = enchantName:lower()
+	return options.stopForShop.enabled and shopEnabledList[enchantName] 
+	and (not shopUnknownList[enchantName] or (shopUnknownList[enchantName] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
 end
 
 local function isSeasonal(spellID)
@@ -77,7 +80,9 @@ local function FindNextInsignia()
 					else
 						knownStr = green .. knownStr .. "|r"
 					end
-					if options.reserveShoppingList and configShoppingMatch(reObj) then
+					local enchantName = GetSpellInfo(reObj.spellID)
+					enchantName = enchantName:lower()
+					if shopReserveList[enchantName] then
 						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
 					else
 						bagID = i
@@ -98,18 +103,34 @@ local function FindNextInsignia()
 end
 
 function MM:BuildWorkingShopList()
-	local shopList = {}
+	local enabledList = {}
+	local extractList = {}
+	local reserveList = {}
+	local unknownList = {}
 	for _, list in ipairs(options.shoppingLists) do
 		if list.enabled then
 			for _, enchantName in ipairs(list) do
 				if enchantName ~= "" then
 					local n = enchantName:lower()
-					shopList[select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))] = true
+					local standardStr = select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))
+					enabledList[standardStr] = true
+					if list.extract then
+						extractList[standardStr] = true
+					end
+					if list.reserve then
+						reserveList[standardStr] = true
+					end
+					if list.unknown then
+						unknownList[standardStr] = true
+					end
 				end
 			end
 		end
 	end
-	enchantsOfInterest = shopList
+	shopEnabledList = enabledList
+	shopExtractList = extractList
+	shopReserveList = reserveList
+	shopUnknownList = unknownList
 end
 
 local function initOptions()
@@ -151,11 +172,20 @@ end
 local function configConditionMet(currentEnchant)
 	local unknown = configUnknownMatch(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
+	local enchantName = GetSpellInfo(currentEnchant.spellID)
+	enchantName = enchantName:lower()
+	-- Determine if we should extract this enchant
 	if autoAutoEnabled
-	and (unknown and options.stopUnknown.extract)
-	or (seasonal and options.stopSeasonal.extract) then
+	and ((unknown and options.stopUnknown.extract)
+	or (seasonal and options.stopSeasonal.extract)
+	or shopExtractList[enchantName]) then
 		extract(currentEnchant.enchantID)
 	end
+	-- check for spam reforge settings
+	if autoReforgeEnabled and options.stopForNothing then
+		return configNoRunes(currentEnchant)
+	end
+	-- Evaluate the enchant against our options
 	return configNoRunes(currentEnchant)
 	or configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
