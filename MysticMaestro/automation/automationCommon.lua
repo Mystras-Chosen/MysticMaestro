@@ -301,7 +301,7 @@ MM.AutomationUtil.RegisterPopupTemplate("noPostProcessing",
 )
 
 local function setGetAllScanPromptSize()
-  automationPopupFrame:SetSize(360, 180)
+  automationPopupFrame:SetSize(400, 180)
 end
 
 MM.AutomationUtil.RegisterPopupTemplate("getAllScanPrompt",
@@ -309,7 +309,7 @@ MM.AutomationUtil.RegisterPopupTemplate("getAllScanPrompt",
     Show = function()
       local automationTable = automationPopupFrame.AutomationTable
       createPromptButtonWidgets(automationTable, -122)
-      createLabelWidget("GetAll Scan can be run once every 15 minutes and generally executes quickly.\n\nThe first scan after a patch or server restart can take up to 15 minutes.", 14, "LEFT", 240, 80, 32, -34)
+      createLabelWidget("GetAll Scan can be run once every 15 minutes and generally executes quickly.\n\nThe first scan after a patch or server restart can take up to 15 minutes.", 14, "LEFT", 280, 80, 42, -34)
       setPromptSize(automationTable)
       setGetAllScanPromptSize()
       automationPopupFrame.AlertIndicator:Show()
