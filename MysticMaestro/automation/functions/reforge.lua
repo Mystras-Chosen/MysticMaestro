@@ -134,7 +134,7 @@ end
 
 local function initOptions()
 	options = MM.db.realm.OPTIONS
-	BuildWorkingShopList()
+	MM:BuildWorkingShopList()
 end
 
 local function extract(enchantID)
