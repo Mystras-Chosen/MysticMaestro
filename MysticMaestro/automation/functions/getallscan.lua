@@ -13,7 +13,7 @@ end
 local listings
 
 function automationTable.ShowInitPrompt()
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScanPrompt")
   listings = MM.data.RE_AH_LISTINGS
 end
 
@@ -44,7 +44,7 @@ local function collectScannedEnchantIDs()
 end
 
 function automationTable.Start()
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScan")
+  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "getAllScanRunning")
   startGetAllScan()
   collectScannedEnchantIDs() -- collect enchant IDs in table while we wait
 end

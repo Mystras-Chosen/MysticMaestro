@@ -62,7 +62,7 @@ local function createAutomationPopupFrame()
   automationPopupFrame.ProgressBar:Hide()
 
   automationPopupFrame.WaitIndicator = CreateFrame("Frame", nil, automationPopupFrame)
-  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "BOTTOMLEFT", 54, 48)
+  automationPopupFrame.WaitIndicator:SetPoint("CENTER", automationPopupFrame, "TOPRIGHT", -54, -69)
   automationPopupFrame.WaitIndicator:SetSize(54, 54)
   automationPopupFrame.WaitIndicator.T = automationPopupFrame.WaitIndicator:CreateTexture(nil, "ARTWORK")
   automationPopupFrame.WaitIndicator.T:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\spinning_arrows")
@@ -117,12 +117,13 @@ local function createButtonWidget(automationTable, text, informStatus, xOffset, 
   return button
 end
 
-local function createLabelWidget(text, textHeight, width, height, xOffset, yOffset)
+local function createLabelWidget(text, textHeight, alignment, width, height, xOffset, yOffset)
   local label = AceGUI:Create("Label")
   label:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
   label:SetWidth(width)
   label:SetHeight(height)
   label:SetText(text)
+  label:SetJustifyH(alignment)
   label:SetFont(GameFontHighlightSmall:GetFont(), textHeight)
   label.frame:SetParent(automationPopupFrame)
   label.frame:Show()
@@ -224,14 +225,14 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 )
 
 
-local function createPromptButtonWidgets(automationTable)
+local function createPromptButtonWidgets(automationTable, verticalPosition)
   if automationTable.Pause and automationTable:IsPaused() then
-    createButtonWidget(automationTable, "Continue", "continueClicked", -popupButtonWidth, -40)
-    createButtonWidget(automationTable, "Stop", "stopClicked", 0, -40)
-    createButtonWidget(automationTable, "Cancel", "cancelClicked", popupButtonWidth, -40)
+    createButtonWidget(automationTable, "Continue", "continueClicked", -popupButtonWidth, verticalPosition)
+    createButtonWidget(automationTable, "Stop", "stopClicked", 0, verticalPosition)
+    createButtonWidget(automationTable, "Cancel", "cancelClicked", popupButtonWidth, verticalPosition)
   else
-    createButtonWidget(automationTable, "Start", "startClicked", -.5 * popupButtonWidth, -40)
-    createButtonWidget(automationTable, "Cancel", "cancelClicked", .5 * popupButtonWidth, -40)
+    createButtonWidget(automationTable, "Start", "startClicked", -.5 * popupButtonWidth, verticalPosition)
+    createButtonWidget(automationTable, "Cancel", "cancelClicked", .5 * popupButtonWidth, verticalPosition)
   end
 end
 
@@ -243,7 +244,7 @@ MM.AutomationUtil.RegisterPopupTemplate("prompt",
   {
     Show = function()
       local automationTable = automationPopupFrame.AutomationTable
-      createPromptButtonWidgets(automationTable)
+      createPromptButtonWidgets(automationTable, -40)
       setPromptSize(automationTable)
     end,
     Hide = function()
@@ -251,7 +252,6 @@ MM.AutomationUtil.RegisterPopupTemplate("prompt",
     end
   }
 )
-
 
 local function createRunningWidgets(automationTable)
   if automationTable.Pause then
@@ -300,17 +300,37 @@ MM.AutomationUtil.RegisterPopupTemplate("noPostProcessing",
   }
 )
 
-local function setGetAllScanSize()
-  automationPopupFrame:SetSize(380, 180)
+local function setGetAllScanPromptSize()
+  automationPopupFrame:SetSize(360, 180)
 end
 
-MM.AutomationUtil.RegisterPopupTemplate("getAllScan",
+MM.AutomationUtil.RegisterPopupTemplate("getAllScanPrompt",
   {
     Show = function()
       local automationTable = automationPopupFrame.AutomationTable
-      createButtonWidget(automationTable, "Stop", "stopClicked", 0, -122)
-      createLabelWidget("First GetAll scan after server restart may take up to 12 minutes.\n\nDO NOT CLOSE AUCTION HOUSE", 14, 240, 80, 32, -34)
-      setGetAllScanSize()
+      createPromptButtonWidgets(automationTable, -122)
+      createLabelWidget("GetAll Scan can be run once every 15 minutes and generally executes quickly.\n\nThe first scan after a patch or server restart can take up to 15 minutes.", 14, "LEFT", 240, 80, 32, -34)
+      setPromptSize(automationTable)
+      setGetAllScanPromptSize()
+      automationPopupFrame.AlertIndicator:Show()
+    end,
+    Hide = function()
+      automationPopupFrame.AlertIndicator:Hide()
+    end
+  }
+)
+
+local function setGetAllScanRunningSize()
+  automationPopupFrame:SetSize(380, 154)
+end
+
+MM.AutomationUtil.RegisterPopupTemplate("getAllScanRunning",
+  {
+    Show = function()
+      local automationTable = automationPopupFrame.AutomationTable
+      createButtonWidget(automationTable, "Stop", "stopClicked", 0, -106)
+      createLabelWidget("Waiting for payload from server\n\nLEAVING THIS WINDOW WILL CANCEL DATA COLLECTION", 14, "CENTER", 220, 80, 0, -34)
+      setGetAllScanRunningSize()
       automationPopupFrame.WaitIndicator:Show()
       automationPopupFrame.AlertIndicator:Show()
     end,

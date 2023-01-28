@@ -19,7 +19,7 @@ function MM:CreateContainer(parent, anchorPoint, width, height, xOffset, yOffset
   return container
 end
 
-local containerPool = {}
+local menuContainers = {}
 
 function MM:CreateMenuContainer(parent, anchorPoint, width, height, xOffset, yOffset)
   local container = self:CreateContainer(parent, anchorPoint, width, height, xOffset, yOffset)
@@ -30,12 +30,12 @@ function MM:CreateMenuContainer(parent, anchorPoint, width, height, xOffset, yOf
   container.LockFrame:EnableMouseWheel(true)
   container.LockFrame:SetScript("OnMouseWheel", function() end) -- needed to prevent mousewheel from passing through
   container.LockFrame:Hide()
-  table.insert(containerPool, container)
+  table.insert(menuContainers, container)
   return container
 end
 
 function MM:SetMenuContainersLocked(locked)
-  for _, container in ipairs(containerPool) do
+  for _, container in ipairs(menuContainers) do
     if locked then
       container.LockFrame:Show()
     else
