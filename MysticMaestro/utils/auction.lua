@@ -1,5 +1,8 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
+-- Upvalue global functions called on every frame
+local GetTime, CanSendAuctionQuery = GetTime, CanSendAuctionQuery
+
 function MM:GetAuctionInfo(i)
   local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
   local link = GetAuctionItemLink("list", i)
@@ -720,18 +723,25 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
   end
 )
 
-local function getAllScanExecuted(...)
-  return select(10, ...) and select(2, CanSendAuctionQuery())
+local getAllLastAvailableTime = 0
+MM.OnUpdateFrame:HookScript("OnUpdate",
+  function()
+    getAllLastAvailableTime = select(2, CanSendAuctionQuery()) and GetTime() or getAllLastAvailableTime
+  end
+)
+
+local function getAllScanInvoked(...)
+  return select(10, ...)
 end
 
-local function queryPrehook(...)
-  if getAllScanExecuted(...) then
+local function getAllAvailableRightBeforeQuery()
+  return GetTime() < getAllLastAvailableTime + .1
+end
+
+local function queryPosthook(...)
+  if getAllScanInvoked(...) and getAllAvailableRightBeforeQuery() then
     MM.db.char.lastGetAllScanTime = time()
   end
 end
 
-local oldQueryFunc = QueryAuctionItems
-function QueryAuctionItems(...)
-  pcall(queryPrehook, ...)
-  return oldQueryFunc(...)
-end
+hooksecurefunc("QueryAuctionItems", queryPosthook)
