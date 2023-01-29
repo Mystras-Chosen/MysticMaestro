@@ -497,6 +497,10 @@ local function tearDownButtonWidgets()
   getAllScanButton:Release()
   listButton:Release()
   buyCancelbutton:Release()
+  scanButton = nil
+  getAllScanButton = nil
+  listButton = nil
+  buyCancelbutton = nil
 end
 
 function MM:DisableListButton()
@@ -531,8 +535,8 @@ function MM:ShowAHExtension()
 end
 
 function MM:HideAHExtension()
-  tearDownButtonWidgets()
   self:ResetAHExtension()
+  tearDownButtonWidgets()
   MysticMaestroMenuAHExtension:Hide()
   MM:toggleAHExtensionHelpPlates(false)
 end

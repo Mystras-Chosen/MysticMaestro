@@ -923,6 +923,10 @@ do -- show and hide MysticMaestroMenu
     sortDropdown:Release()
     filterDropdown:Release()
     searchBar:Release()
+    automationDropdown = nil
+    sortDropdown = nil
+    filterDropdown = nil
+    searchBar = nil
     for i=1, #statsContainerWidgets do
       statsContainerWidgets[i]:Release()
     end
