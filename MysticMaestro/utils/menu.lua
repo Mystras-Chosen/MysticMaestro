@@ -53,6 +53,15 @@ MM.FrameBackdrop = {
   insets = {left = 8, right = 8, top = 8, bottom = 8}
 }
 
+MM.DarkFrameBackdrop = {
+  bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+  tile = true,
+  tileSize = 32,
+  edgeSize = 32,
+  insets = {left = 8, right = 8, top = 8, bottom = 8}
+}
+
 -- function from WeakAuras Options for pretty border
 function MM:CreateDecoration(frame, width)
   local deco = CreateFrame("Frame", nil, frame)

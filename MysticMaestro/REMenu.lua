@@ -95,7 +95,7 @@ do -- functions to initialize menu and menu container
     standaloneMenuContainer:SetMovable(true)
     standaloneMenuContainer:SetResizable(false)
     standaloneMenuContainer:SetFrameStrata("MEDIUM")
-    standaloneMenuContainer:SetBackdrop(MM.FrameBackdrop)
+    standaloneMenuContainer:SetBackdrop(MM.DarkFrameBackdrop)
     standaloneMenuContainer:SetBackdropColor(0, 0, 0, 1)
     standaloneMenuContainer:SetToplevel(true)
     standaloneMenuContainer:SetPoint("CENTER")
