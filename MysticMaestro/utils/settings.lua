@@ -437,7 +437,7 @@ local function createConfig()
 				name = "Remove",
 				desc = "Remove the selected Shopping List",
 				type = "execute",
-				width = 0.4,
+				width = 0.45,
 				confirm = true,
 				confirmText = "Are you sure you want to remove this Shopping List?",
 				func = function()
@@ -574,7 +574,7 @@ local function createConfig()
 				name = "Remove",
 				desc = "Remove the selected entry of the current Shopping List",
 				type = "execute",
-				width = 0.4,
+				width = 0.45,
 				confirm = true,
 				confirmText = "Are you sure you want to remove this Shopping List Entry?",
 				func = function()

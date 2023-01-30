@@ -98,7 +98,13 @@ local function FindNextInsignia()
 	slotIndex = 0
 end
 
+local function initOptions()
+	options = MM.db.realm.OPTIONS
+	MM:BuildWorkingShopList()
+end
+
 function MM:BuildWorkingShopList()
+	if not options then initOptions() end
 	local enabledList = {}
 	local extractList = {}
 	local reserveList = {}
@@ -130,11 +136,6 @@ function MM:BuildWorkingShopList()
 	shopExtractList = extractList
 	shopReserveList = reserveList
 	shopUnknownList = unknownList
-end
-
-local function initOptions()
-	options = MM.db.realm.OPTIONS
-	MM:BuildWorkingShopList()
 end
 
 local function extract(enchantID)
