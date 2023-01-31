@@ -136,7 +136,7 @@ function MM:UpdateSellableREsCache(bagID)
   local newContainerCache = {}
   local itemName, iLevel, reqLevel, vendorPrice, mysticScroll
   for containerIndex=1, GetContainerNumSlots(bagID) do
-    local quality, _, _, itemLink = select(4, GetContainerItemInfo(bagID, containerIndex))
+    local _,count,_,quality, _, _, itemLink = GetContainerItemInfo(bagID, containerIndex)
     local enchantID = GetREInSlot(bagID, containerIndex)
     if itemLink then
       itemName, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
@@ -144,7 +144,7 @@ function MM:UpdateSellableREsCache(bagID)
     end
     if itemLink and (MM:AllowedItem(quality, iLevel, vendorPrice) or mysticScroll) then
       if enchantID then
-        newContainerCache[enchantID] = (newContainerCache[enchantID] or 0) + 1
+        newContainerCache[enchantID] = (newContainerCache[enchantID] or 0) + (count or 1)
       elseif MM:IsTrinket(itemName,reqLevel) then
         newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
