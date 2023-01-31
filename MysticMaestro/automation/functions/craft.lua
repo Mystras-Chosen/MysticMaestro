@@ -25,4 +25,7 @@ function automationTable.Stop()
   running = false
 end
 
+function automationTable.PostProcessing()
+end
+
 MM.AutomationManager:RegisterAutomation(automationName, automationTable)
