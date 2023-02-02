@@ -17,6 +17,14 @@ local function StopCraftingAttemptTimer()
 end
 
 local function StopAutoReforge()
+	if autoAutoEnabled then
+		if slotIndex - 1 >= 0 then
+			slotIndex = slotIndex - 1
+		elseif bagID - 1 >= 0 then
+			bagID = bagID - 1
+			slotIndex = GetContainerNumSlots(bagID)
+		end
+	end
 	autoReforgeEnabled = false
 	autoAutoEnabled = false
 	if dynamicButtonTextHandle then
@@ -217,7 +225,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 					if GetItemCount(98462) <= 0 then
 						MM:Print("Out of runes")
 					else
-						MM:Print("Out of Insignia")
+						MM:Print("Out of Insignia, inventory position reset to first bag")
 					end
 					StopAutoReforge()
 					return
