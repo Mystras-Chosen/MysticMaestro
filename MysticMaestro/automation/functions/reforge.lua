@@ -249,6 +249,7 @@ function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
 	if not MM.db.realm.AltarXP then MM.db.realm.AltarXP = 0 end
 	if xp == 0 or level == 0 then return end
 	local gained = xp - MM.db.realm.AltarXP
+	if gained == 0 then return end
 	local remaining = AltarLevelRequireXP(level) - xp
 	local levelUP = math.floor(remaining / gained) + 1
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
