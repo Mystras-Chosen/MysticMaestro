@@ -329,7 +329,7 @@ MM.AutomationUtil.RegisterPopupTemplate("getAllScanRunning",
     Show = function()
       local automationTable = automationPopupFrame.AutomationTable
       createButtonWidget(automationTable, "Stop", "stopClicked", 0, -106)
-      createLabelWidget("Waiting for payload from server\n\nLEAVING THIS WINDOW WILL CANCEL DATA COLLECTION", 14, "CENTER", 220, 80, 0, -34)
+      createLabelWidget("Waiting for payload from server\n\nLEAVING THIS WINDOW WILL\nCANCEL DATA COLLECTION", 14, "CENTER", 220, 80, 0, -34)
       setGetAllScanRunningSize()
       automationPopupFrame.WaitIndicator:Show()
       automationPopupFrame.AlertIndicator:Show()
