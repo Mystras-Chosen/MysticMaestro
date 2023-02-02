@@ -16,6 +16,7 @@ utils\tooltip.lua
 utils\menu.lua
 utils\settings.lua
 utils\graph.lua
+utils\reforge.lua
 REMenu.lua
 AHMenuExtension.lua
 automation\AutomationManager.lua
@@ -26,4 +27,3 @@ automation\functions\post.lua
 automation\functions\cancel.lua
 automation\functions\undercut.lua
 automation\functions\craft.lua
-automation\functions\reforge.lua
