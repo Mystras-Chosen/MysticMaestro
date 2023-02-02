@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local green = "|cff00ff00"
 local red = "|cffff0000"
@@ -247,6 +247,7 @@ end
 function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
 	if subEvent ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
 	if not MM.db.realm.AltarXP then MM.db.realm.AltarXP = 0 end
+	if xp == 0 or level == 0 then return end
 	local gained = xp - MM.db.realm.AltarXP
 	local remaining = AltarLevelRequireXP(level) - xp
 	local levelUP = math.floor(remaining / gained) + 1
