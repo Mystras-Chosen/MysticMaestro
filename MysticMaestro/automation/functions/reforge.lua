@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
 local green = "|cff00ff00"
 local red = "|cffff0000"
@@ -48,7 +48,7 @@ local function RequestReforge()
 			RequestSlotReforgeEnchantment(bagID, slotIndex)
 		end)
 	else
-			print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
+			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
 	end
 end
 
@@ -141,7 +141,7 @@ end
 local function extract(enchantID)
 	if not IsReforgeEnchantmentKnown(enchantID) 
 	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
-			print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
+			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
 			RequestSlotReforgeExtraction(bagID, slotIndex)
 	end
 end
@@ -212,18 +212,18 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 				seasonal = green .. " seasonal" .. "|r"
 			end
 			if configConditionMet(currentEnchant) then
-				print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
+				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
 				if not FindNextInsignia() or GetItemCount(98462) <= 0 then
 					if GetItemCount(98462) <= 0 then
-						print("Out of runes")
+						MM:Print("Out of runes")
 					else
-						print("Out of Insignia")
+						MM:Print("Out of Insignia")
 					end
 					StopAutoReforge()
 					return
 				end
 			else
-				print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
+				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
 			end
 		end
 		if GetUnitSpeed("player") == 0 then
