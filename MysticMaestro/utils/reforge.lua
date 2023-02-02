@@ -345,4 +345,8 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 			MM:OpenConfig("Reforge")
 		end
 	)
+	-- Put the collections frame at a lower strata
+	-- the collections frame includes all Character Advancement, vanity, Enchants etc
+	Collections:SetFrameStrata("HIGH")
+	Collections:SetFrameLevel(2)
 end
