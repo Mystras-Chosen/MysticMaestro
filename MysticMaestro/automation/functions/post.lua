@@ -53,16 +53,6 @@ local function postScan_OnUpdate()
   if running and not MM:AwaitingSingleScanResults() then
     if currentIndex ~= 0 then
       scanResultSet[enchantScanList[currentIndex]] = MM:GetSingleScanResults()
-      if #scanResultSet[enchantScanList[currentIndex]] > 0 then
-        local price, yours = MM:PriceCorrection(scanResultSet[enchantScanList[currentIndex]][1],scanResultSet[enchantScanList[currentIndex]])
-        if not price then
-          MM:Print("Price is below Minimum, leaving in inventory.")
-          return
-        end
-        undercut(enchantScanList[currentIndex], price, yours)
-      else
-        MM:ListAuctionQueue(enchantScanList[currentIndex], MM.db.realm.OPTIONS.postDefault * 10000)
-      end
     end
     if currentIndex < #enchantScanList and CanSendAuctionQuery() then
       currentIndex = currentIndex + 1
@@ -84,6 +74,19 @@ function automationTable.Stop()
 end
 
 function automationTable.PostProcessing()
+  for enchantID, results in pairs(scanResultSet) do
+    if #results > 0 then
+      local price, yours = MM:PriceCorrection(results[1],results)
+      if not price then
+        MM:Print("Price is below Minimum, leaving in inventory.")
+        return
+      end
+      undercut(enchantID, price, yours)
+    else
+      MM:ListAuctionQueue(enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
+    end
+  end
+  scanResultSet = nil
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
 end
 
