@@ -62,13 +62,18 @@ function MM:AwaitingSingleScanResults()
 end
 
 local results = {}
+
+function MM:GetSingleScanResults()
+  return results
+end
+
 function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
     local currentTime = GetTime()
     self.lastSelectScanTime = currentTime
     local listings, reID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
     local listingData = listings[reID]
-    wipe(results)
+    results = {}
     local temp = ":"
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do

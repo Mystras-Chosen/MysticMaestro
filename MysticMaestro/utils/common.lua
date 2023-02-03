@@ -159,6 +159,18 @@ function MM:ResetSellableREsCache()
   end
 end
 
+function MM:GetSellableREs()
+  local sellableREs = {}
+  for bagID=0, 4 do
+    for enchantID, count in pairs(sellableREsInBagsCache[bagID]) do
+      if enchantID ~= "blanks" then
+        sellableREs[enchantID] = count
+      end
+    end
+  end
+  return sellableREs
+end
+
 function MM:CompareTime(a,b)
   local time = difftime(a,b)
   local yDif = floor(time / 31536000)

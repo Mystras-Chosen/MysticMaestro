@@ -611,7 +611,8 @@ do -- show and hide MysticMaestroMenu
 
   local automationFunctionNames = {
     "Scan",
-    "GetAll Scan"
+    "GetAll Scan",
+    "Post"
   }
   
   local filterOptions = {
