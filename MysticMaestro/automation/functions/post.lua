@@ -41,10 +41,28 @@ function automationTable.Start()
   scanResultSet = {}
 end
 
+local function undercut(enchantID, buyoutPrice, yours)
+  if yours then
+    MM:ListAuctionQueue(enchantID, buyoutPrice)
+  else
+    MM:ListAuctionQueue(enchantID, buyoutPrice - 1)
+  end
+end
+
 local function postScan_OnUpdate()
   if running and not MM:AwaitingSingleScanResults() then
     if currentIndex ~= 0 then
       scanResultSet[enchantScanList[currentIndex]] = MM:GetSingleScanResults()
+      if #scanResultSet[enchantScanList[currentIndex]] > 0 then
+        local price, yours = MM:PriceCorrection(scanResultSet[enchantScanList[currentIndex]][1],scanResultSet[enchantScanList[currentIndex]])
+        if not price then
+          MM:Print("Price is below Minimum, leaving in inventory.")
+          return
+        end
+        undercut(enchantScanList[currentIndex], price, yours)
+      else
+        MM:ListAuctionQueue(enchantScanList[currentIndex], MM.db.realm.OPTIONS.postDefault * 10000)
+      end
     end
     if currentIndex < #enchantScanList and CanSendAuctionQuery() then
       currentIndex = currentIndex + 1

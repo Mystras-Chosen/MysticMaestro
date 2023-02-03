@@ -556,7 +556,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local function findSellableItemWithEnchantID(enchantID)
+local function findSellableItemWithEnchantID(enchantID,listMode)
   local items = {trinket = {},other = {}}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
@@ -587,7 +587,16 @@ local function findSellableItemWithEnchantID(enchantID)
       end
     end
   end
-  if #items.trinket > 0 then
+  if listMode then
+    local itemList = {}
+    for _, entry in pairs(items.trinket) do
+      table.insert(itemList,entry)
+    end
+    for _, entry in pairs(items.other) do
+      table.insert(itemList,entry)
+    end
+    return itemList ~= {} and itemList or false
+  elseif #items.trinket > 0 then
     return unpack(items.trinket[1])
   elseif #items.other > 0 then
     table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
@@ -597,7 +606,9 @@ local function findSellableItemWithEnchantID(enchantID)
   end
 end
 
-local bagClear, isFetching, fetchBag, fetchSlot
+local bagClear, isFetching, fetchBag, fetchSlot, noRefresh, noRefreshTimer
+local auctionQueue = {}
+local auctionQueueAdded = {}
 function MM:ClearAuctionItem()
   ClearCursor()
   if GetAuctionSellItemInfo() then
@@ -614,9 +625,29 @@ function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
   ClearCursor()
 end
 
+local function clearQueueObjects()
+  noRefresh = nil
+  auctionQueueAdded = {}
+end
+
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
-    if bagClear then
+    if noRefresh and not bagClear and not isFetching then
+      if #auctionQueue <= 0 then
+        if not noRefreshTimer then
+          noRefreshTimer = Timer.NewTimer(5, clearQueueObjects)
+        end
+        return
+      elseif noRefreshTimer then
+        noRefreshTimer:Cancel()
+        noRefreshTimer = nil
+      end
+      local nextItem = table.remove(auctionQueue)
+      bagClear = true
+      fetchBag, fetchSlot = nextItem[1], nextItem[2]
+      startingPrice = nextItem.price
+      enchantToList = nextItem.enchantID
+    elseif bagClear then
       if MM:ClearAuctionItem() then
         bagClear = nil
         isFetching = true
@@ -633,8 +664,10 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         or (not MM.db.realm.OPTIONS.confirmList and modKey) then
           StaticPopup_Show("MM_LIST_AUCTION")
         else
-          if MM:StartAuction(enchantToList, startingPrice) then
+          if not noRefresh and MM:StartAuction(enchantToList, startingPrice) then
             MM:RefreshSelectedEnchantAuctions(true)
+          elseif noRefresh then
+            MM:StartAuction(enchantToList, startingPrice)
           end
         end
       end
@@ -652,6 +685,19 @@ function MM:ListAuction(enchantID, price)
     enchantToList = enchantID
   else
     print("No item found")
+  end
+end
+
+function MM:ListAuctionQueue(enchantID,price)
+  if not auctionQueueAdded[enchantID] then
+    local itemList = findSellableItemWithEnchantID(enchantID,true)
+    for _, entry in ipairs(itemList) do
+      entry.price = price
+      entry.enchantID = enchantID
+      table.insert(auctionQueue,entry)
+    end
+    noRefresh = true
+    auctionQueueAdded[enchantID] = true
   end
 end
 
