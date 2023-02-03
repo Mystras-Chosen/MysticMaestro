@@ -117,12 +117,12 @@ local function createMyAuctionsButton(parent, listingName)
   return listingButton
 end
 
-local durationKey = {}
-durationKey[1] = "Short"
-durationKey[2] = "Medium"
-durationKey[3] = "Long"
-durationKey[4] = "Very Long"
-
+local durationKey = {
+  "Short",
+  "Medium",
+  "Long",
+  "Very Long"
+}
 
 local function createSelectedAuctionsButton(parent, listingName)
   local listingButton = CreateFrame("Button", listingName, parent)
@@ -202,7 +202,6 @@ local function createAuctionsScrollFrame(name, title, parent, numRows, buttonCre
   return scrollFrame
 end
 
-
 local function myAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
   local results = MM:GetSortedMyAuctionResults()
@@ -236,7 +235,6 @@ local function myAuctionsScrollFrame_Update(self)
     end
   end
 end
-
 
 local function selectEnchantAuctionsScrollFrame_Update(self)
   local buttons = self.buttons
@@ -413,8 +411,6 @@ local function setUpButtonWidgets()
     end
   )
   getAllScanButton.frame:Show()
-
-
 
   listButton = AceGUI:Create("Button")
   listButton.frame:SetParent(ahExtensionMenu)

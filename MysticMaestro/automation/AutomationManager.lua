@@ -41,10 +41,11 @@ MM.AutomationManager = {}
 local automationTables = {}
 
 local function validateInterface(automationTable)
-  return automationTable.ShowInitPrompt and type(automationTable.ShowInitPrompt) == "function"
-    and automationTable.Start and type(automationTable.Start) == "function"
-    and automationTable.Stop and type(automationTable.Stop) == "function"
-    and automationTable.PostProcessing and type(automationTable.PostProcessing) == "function"
+  return type(automationTable.GetName) == "function"
+    and type(automationTable.ShowInitPrompt) == "function"
+    and type(automationTable.Start) == "function"
+    and type(automationTable.Stop) == "function"
+    and type(automationTable.PostProcessing) == "function"
 end
 
 function MM.AutomationManager:RegisterAutomation(automationName, automationTable)
