@@ -14,7 +14,8 @@ local options
 
 function automationTable.ShowInitPrompt()
   options = options or MM.db.realm.OPTIONS
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+  MM.AutomationUtil.SetPopupTitle(automationTable, automationName)
+  MM.AutomationUtil.ShowAutomationPopup(automationTable, "prompt")
 end
 
 local currentIndex
@@ -44,26 +45,14 @@ end
 
 local currentIndex
 
-local function handleQueueScan()
-  if not isPaused then
-    prepareEnchantQueue()
-    currentIndex = 0
-  end
-  isPaused = false
-  MM.AutomationUtil.SetProgressBarDisplayMode("value")
-  MM.AutomationUtil.SetProgressBarMinMax(0, #enchantQueue)
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
-  running = true
-end
-
 local function queueScan_OnUpdate()
   if running and not isPaused then
     if currentIndex < #enchantQueue and CanSendAuctionQuery() and not MM:AwaitingSingleScanResults() then
       currentIndex = currentIndex + 1
       MM:InitializeSingleScan(enchantQueue[currentIndex])
-      MM.AutomationUtil.SetProgressBarValues(currentIndex-1, #enchantQueue)
+      MM.AutomationUtil.SetProgressBarValues(automationTable, currentIndex-1, #enchantQueue)
     elseif currentIndex == #enchantQueue and not MM:AwaitingSingleScanResults() then
-      MM.AutomationUtil.SetProgressBarValues(currentIndex, #enchantQueue)
+      MM.AutomationUtil.SetProgressBarValues(automationTable, currentIndex, #enchantQueue)
       MM.AutomationManager:Inform(automationTable, "finished")
       running = false
       isPaused = false
@@ -72,23 +61,31 @@ local function queueScan_OnUpdate()
 end
 
 function automationTable.Start()
-  handleQueueScan()
+  if not isPaused then
+    prepareEnchantQueue()
+    currentIndex = 0
+  end
+  isPaused = false
+  MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "value")
+  MM.AutomationUtil.SetProgressBarMinMax(automationTable, 0, #enchantQueue)
+  MM.AutomationUtil.ShowAutomationPopup(automationTable, "running")
+  running = true
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate", queueScan_OnUpdate)
 
 function automationTable.PostProcessing()
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
+  MM.AutomationUtil.ShowAutomationPopup(automationTable, "noPostProcessing")
 end
 
 function automationTable.Pause()
   if running then
     isPaused = true
-    MM.AutomationUtil.HideAutomationPopup()
+    MM.AutomationUtil.HideAutomationPopup(automationTable)
     MM:CancelSingleScan()
     currentIndex = currentIndex - 1
   elseif isPaused then -- can be called when already paused and init prompt showing
-    MM.AutomationUtil.HideAutomationPopup()
+    MM.AutomationUtil.HideAutomationPopup(automationTable)
   else
     MM:Print("ERROR: " .. automationName .." paused when not running")
   end
@@ -99,7 +96,7 @@ function automationTable.IsPaused()
 end
 
 function automationTable.Stop()
-  MM.AutomationUtil.HideAutomationPopup()
+  MM.AutomationUtil.HideAutomationPopup(automationTable)
   MM:CancelSingleScan()
   isPaused = false
   running = false

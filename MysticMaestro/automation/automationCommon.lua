@@ -6,6 +6,8 @@ local automationPopupFrame
 
 local AnimateTexCoords = AnimateTexCoords
 
+MM.AutomationUtil = {}
+
 local function createAutomationPopupFrame()
   -- set up widget container
   automationPopupFrame = CreateFrame("Frame", nil, MysticMaestroMenu)
@@ -83,10 +85,33 @@ local function createAutomationPopupFrame()
   automationPopupFrame.AlertIndicator:Hide()
 end
 
-local function setPopupAutomation(automationName, automationTable)
-  automationPopupFrame.Title.Text:SetText(automationName)
+local function setPopupComponentVisibility(componentKey, isVisible)
+  if isVisible then
+    automationPopupFrame[componentKey]:Show()
+  else
+    automationPopupFrame[componentKey]:Hide()
+  end
+end
+
+function MM.AutomationUtil.SetPopupSize(width, height)
+  automationPopupFrame:SetSize(width, height)
+end
+
+function MM.AutomationUtil.SetPopupTitle(title)
+  automationPopupFrame.Title.Text:SetText(title)
   automationPopupFrame.Title:SetSize(automationPopupFrame.Title.Text:GetWidth() + 8, 40)
-  automationPopupFrame.AutomationTable = automationTable
+end
+
+function MM.AutomationUtil.SetProgressBarVisible(isVisible)
+  setPopupComponentVisibility("ProgressBar", isVisible)
+end
+
+function MM.AutomationUtil.SetWaitIndicatorVisible(isVisible)
+  setPopupComponentVisibility("WaitIndicator", isVisible)
+end
+
+function MM.AutomationUtil.SetAlertIndicatorVisible(isVisible)
+  setPopupComponentVisibility("AlertIndicator", isVisible)
 end
 
 local popupWidgets = {}
@@ -98,16 +123,17 @@ local function releasePopupWidgets()
   popupWidgets = {}
 end
 
-local popupButtonWidth = 90
+local currentAutomationTable
 
-local function createButtonWidget(automationTable, text, informStatus, xOffset, yOffset)
+local popupButtonWidth = 90
+function MM.AutomationUtil.CreateButtonWidget(automationTable, text, informStatus, xOffset, yOffset)
   local button = AceGUI:Create("Button")
   button:SetWidth(popupButtonWidth)
   button:SetText(text)
   button:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
   button:SetCallback("OnClick",
     function()
-      MM.AutomationUtil.HideAutomationPopup()
+      MM.AutomationUtil.HideAutomationPopup(currentAutomationTable)
       MM.AutomationManager:Inform(automationTable, informStatus)
     end
   )
@@ -117,7 +143,7 @@ local function createButtonWidget(automationTable, text, informStatus, xOffset, 
   return button
 end
 
-local function createLabelWidget(text, textHeight, alignment, width, height, xOffset, yOffset)
+function MM.AutomationUtil.CreateLabelWidget(text, textHeight, alignment, width, height, xOffset, yOffset)
   local label = AceGUI:Create("Label")
   label:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
   label:SetWidth(width)
@@ -129,39 +155,18 @@ local function createLabelWidget(text, textHeight, alignment, width, height, xOf
   label.frame:Show()
   table.insert(popupWidgets, label)
   return label
-
 end
-
-local function hideAutomationPopup()
-  automationPopupFrame:Hide()
-  automationPopupFrame.ProgressBar:Hide()
-  releasePopupWidgets()
-end
-
-MM.AutomationUtil = {}
 
 local function validateInterface(template)
-  return template.Show and type(template.Show) == "function"
-    and template.Hide and type(template.Hide) == "function"
+  return type(template.Show) == "function" and type(template.Hide) == "function"
 end
 
 local registeredTemplates = {}
-function MM.AutomationUtil.RegisterPopupTemplate(name, template)
-  if validateInterface(template) then
-    registeredTemplates[name] = template
-  else
-    MM:Print("ERROR: Automation popup template \"".. tostring(name) .. "\" has an invalid interface")
-  end
-end
 
 local pendingTemplate, currentTemplate
 
 -- schedules the popup to show or hide in the OnUpdate script since Show and Hide can be called on the same frame
-function MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, templateName)
-  if not automationPopupFrame then
-    createAutomationPopupFrame()
-  end
-  setPopupAutomation(automationName, automationTable)
+function MM.AutomationUtil.ShowAutomationPopup(templateName)
   if registeredTemplates[templateName] then
     pendingTemplate = templateName
   else
@@ -209,13 +214,13 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       releasePopupWidgets()
       if pendingTemplate then
         if currentTemplate then
-          registeredTemplates[currentTemplate].Hide()
+          registeredTemplates[currentTemplate]:Hide()
         end
         currentTemplate = pendingTemplate
-        registeredTemplates[currentTemplate].Show()
+        registeredTemplates[currentTemplate]:Show()
         automationPopupFrame:Show()
       else
-        registeredTemplates[currentTemplate].Hide()
+        registeredTemplates[currentTemplate]:Hide()
         currentTemplate = nil
         automationPopupFrame:Hide()
       end
@@ -225,118 +230,104 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 )
 
 
-local function createPromptButtonWidgets(automationTable, verticalPosition)
+function MM.AutomationUtil.CreatePromptButtonWidgets(automationTable, verticalPosition)
   if automationTable.Pause and automationTable:IsPaused() then
-    createButtonWidget(automationTable, "Continue", "continueClicked", -popupButtonWidth, verticalPosition)
-    createButtonWidget(automationTable, "Stop", "stopClicked", 0, verticalPosition)
-    createButtonWidget(automationTable, "Cancel", "cancelClicked", popupButtonWidth, verticalPosition)
+    MM.AutomationUtil.CreateButtonWidget(automationTable, automationTable, "Continue", "continueClicked", -popupButtonWidth, verticalPosition)
+    MM.AutomationUtil.CreateButtonWidget(automationTable, automationTable, "Stop", "stopClicked", 0, verticalPosition)
+    MM.AutomationUtil.CreateButtonWidget(automationTable, automationTable, "Cancel", "cancelClicked", popupButtonWidth, verticalPosition)
   else
-    createButtonWidget(automationTable, "Start", "startClicked", -.5 * popupButtonWidth, verticalPosition)
-    createButtonWidget(automationTable, "Cancel", "cancelClicked", .5 * popupButtonWidth, verticalPosition)
+    MM.AutomationUtil.CreateButtonWidget(automationTable, automationTable, "Start", "startClicked", -.5 * popupButtonWidth, verticalPosition)
+    MM.AutomationUtil.CreateButtonWidget(automationTable, automationTable, "Cancel", "cancelClicked", .5 * popupButtonWidth, verticalPosition)
   end
 end
 
-local function setPromptSize(automationTable)
-    automationPopupFrame:SetSize(automationTable.Pause and automationTable:IsPaused() and 320 or 230, 100)
+local function isRegisteredTemplate(caller)
+  for name, template in pairs(registeredTemplates) do
+    if template == caller then
+      return true
+    end
+  end
+  return false
+end
+
+-- prehook util functions with authentication function
+local function authenticateCurrentAutomation(caller)
+  return caller ~= nil and caller == currentAutomationTable or isRegisteredTemplate(caller)
+end
+
+-- All calls to AutomationUtil funcions will check that the caller is the current automation
+local newAutomationUtil = {}
+for funcName, func in pairs(MM.AutomationUtil) do
+  newAutomationUtil[funcName] = function(caller, ...)
+    if authenticateCurrentAutomation(caller) then
+      return func(...)
+    else
+      MM:Print("ERROR: Unauthorized requestor attempting to call AutomationUtil." .. funcName)
+    end
+  end
+end
+
+MM.AutomationUtil = newAutomationUtil
+
+-- All AutomationUtil functions after this point don't authenticate
+
+-- Should only be called by AutomationManager
+function MM.AutomationUtil.SetCurrentAutomation(automationTable)
+  if not automationPopupFrame then
+    createAutomationPopupFrame()
+  end
+  currentAutomationTable = automationTable
+end
+
+function MM.AutomationUtil.RegisterPopupTemplate(name, template)
+  if validateInterface(template) then
+    registeredTemplates[name] = template
+  else
+    MM:Print("ERROR: Automation popup template \"".. tostring(name) .. "\" has an invalid interface")
+  end
 end
 
 MM.AutomationUtil.RegisterPopupTemplate("prompt",
   {
-    Show = function()
-      local automationTable = automationPopupFrame.AutomationTable
-      createPromptButtonWidgets(automationTable, -40)
-      setPromptSize(automationTable)
+    Show = function(self)
+      MM.AutomationUtil.CreatePromptButtonWidgets(self, currentAutomationTable, -40)
+      MM.AutomationUtil.SetPopupSize(self, currentAutomationTable.Pause and currentAutomationTable:IsPaused() and 320 or 230, 100)
     end,
-    Hide = function()
+    Hide = function(self)
       -- no special handling
     end
   }
 )
 
-local function createRunningWidgets(automationTable)
-  if automationTable.Pause then
-    createButtonWidget(automationTable, "Pause", "pauseClicked", -45, -70)
+local function createRunningWidgets(self)
+  if currentAutomationTable.Pause then
+    MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Pause", "pauseClicked", -45, -70)
   end
-  createButtonWidget(automationTable, "Stop", "stopClicked", automationTable.Pause and 45 or 0, -70)
-end
-
-local function setRunningSize(w, h)
-  if w and h then
-    automationPopupFrame:SetSize(w, h)
-  else
-    automationPopupFrame:SetSize(300, 120)
-  end
+  MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Stop", "stopClicked", currentAutomationTable.Pause and 45 or 0, -70)
 end
 
 MM.AutomationUtil.RegisterPopupTemplate("running",
   {
-    Show = function()
-      local automationTable = automationPopupFrame.AutomationTable
-      createRunningWidgets(automationTable)
-      setRunningSize()
-      automationPopupFrame.ProgressBar:Show()
+    Show = function(self)
+      createRunningWidgets(self)
+      MM.AutomationUtil.SetPopupSize(self, 300, 120)
+      MM.AutomationUtil.SetProgressBarVisible(self, true)
     end,
-    Hide = function()
-      automationPopupFrame.ProgressBar:Hide()
+    Hide = function(self)
+      MM.AutomationUtil.SetProgressBarVisible(self, false)
     end
   }
 )
-
-local function setNoPostProcessingSize()
-  setRunningSize()
-end
 
 MM.AutomationUtil.RegisterPopupTemplate("noPostProcessing",
   {
-    Show = function()
-      local automationTable = automationPopupFrame.AutomationTable
-      createButtonWidget(automationTable, "Done", "doneClicked", 0, -70)
-      setNoPostProcessingSize()
-      automationPopupFrame.ProgressBar:Show() -- progress bar should already be sized and playing
+    Show = function(self)
+      MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Done", "doneClicked", 0, -70)
+      MM.AutomationUtil.SetPopupSize(self, 300, 120)
+      MM.AutomationUtil.SetProgressBarVisible(self, true)
     end,
-    Hide = function()
-      automationPopupFrame.ProgressBar:Hide()
-    end
-  }
-)
-
-local function setGetAllScanPromptSize()
-  automationPopupFrame:SetSize(400, 180)
-end
-
-MM.AutomationUtil.RegisterPopupTemplate("getAllScanPrompt",
-  {
-    Show = function()
-      local automationTable = automationPopupFrame.AutomationTable
-      createPromptButtonWidgets(automationTable, -122)
-      createLabelWidget("GetAll Scan can be run once every 15 minutes and generally executes quickly.\n\nThe first scan after a patch or server restart can take up to 15 minutes.", 14, "LEFT", 280, 80, 42, -34)
-      setPromptSize(automationTable)
-      setGetAllScanPromptSize()
-      automationPopupFrame.AlertIndicator:Show()
-    end,
-    Hide = function()
-      automationPopupFrame.AlertIndicator:Hide()
-    end
-  }
-)
-
-local function setGetAllScanRunningSize()
-  automationPopupFrame:SetSize(380, 154)
-end
-
-MM.AutomationUtil.RegisterPopupTemplate("getAllScanRunning",
-  {
-    Show = function()
-      local automationTable = automationPopupFrame.AutomationTable
-      createButtonWidget(automationTable, "Stop", "stopClicked", 0, -106)
-      createLabelWidget("Waiting for payload from server\n\nLEAVING THIS WINDOW WILL\nCANCEL DATA COLLECTION", 14, "CENTER", 220, 80, 0, -34)
-      setGetAllScanRunningSize()
-      automationPopupFrame.WaitIndicator:Show()
-      automationPopupFrame.AlertIndicator:Show()
-    end,
-    Hide = function()
-      automationPopupFrame.WaitIndicator:Hide()
-      automationPopupFrame.AlertIndicator:Hide()
+    Hide = function(self)
+      MM.AutomationUtil.SetProgressBarVisible(self, false)
     end
   }
 )

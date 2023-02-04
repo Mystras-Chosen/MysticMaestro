@@ -14,7 +14,8 @@ local options
 
 function automationTable.ShowInitPrompt()
   options = options or MM.db.realm.OPTIONS
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+  MM.AutomationUtil.SetPopupTitle(automationTable, automationName)
+  MM.AutomationUtil.ShowAutomationPopup(automationTable, "prompt")
 end
 
 local running
@@ -33,9 +34,9 @@ local running, currentIndex, scanResultSet
 
 function automationTable.Start()
   collectSellableEnchantItems()
-  MM.AutomationUtil.SetProgressBarDisplayMode("value")
-  MM.AutomationUtil.SetProgressBarMinMax(0, #enchantScanList)
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "running")
+  MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "value")
+  MM.AutomationUtil.SetProgressBarMinMax(automationTable, 0, #enchantScanList)
+  MM.AutomationUtil.ShowAutomationPopup(automationTable, "running")
   running = true
   currentIndex = 0
   scanResultSet = {}
@@ -57,9 +58,9 @@ local function postScan_OnUpdate()
     if currentIndex < #enchantScanList and CanSendAuctionQuery() then
       currentIndex = currentIndex + 1
       MM:InitializeSingleScan(enchantScanList[currentIndex])
-      MM.AutomationUtil.SetProgressBarValues(currentIndex-1, #enchantScanList)
+      MM.AutomationUtil.SetProgressBarValues(automationTable, currentIndex-1, #enchantScanList)
     elseif currentIndex == #enchantScanList then
-      MM.AutomationUtil.SetProgressBarValues(currentIndex, #enchantScanList)
+      MM.AutomationUtil.SetProgressBarValues(automationTable, currentIndex, #enchantScanList)
       MM.AutomationManager:Inform(automationTable, "finished")
       running = false
     end
@@ -69,7 +70,7 @@ end
 MM.OnUpdateFrame:HookScript("OnUpdate", postScan_OnUpdate)
 
 function automationTable.Stop()
-  MM.AutomationUtil.HideAutomationPopup()
+  MM.AutomationUtil.HideAutomationPopup(automationTable)
   running = false
 end
 
@@ -91,7 +92,7 @@ end
 
 function automationTable.PostProcessing()
   assembleQueFromResults()
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
+  MM.AutomationUtil.ShowAutomationPopup(automationTable, "noPostProcessing")
 end
 
 MM.AutomationManager:RegisterAutomation(automationName, automationTable)

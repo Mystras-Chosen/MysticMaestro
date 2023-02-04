@@ -71,6 +71,7 @@ end
 local function setCurrentAutomation(automationName)
   currentAutomationName = automationName
   currentAutomationTable = automationTables[currentAutomationName]
+  MM.AutomationUtil.SetCurrentAutomation(currentAutomationTable)
 end
 
 local function setMenuLocked(isLocked)
@@ -108,6 +109,7 @@ local function terminateAutomation()
   currentAutomationTable.Stop()
   currentAutomationName = nil
   currentAutomationTable = nil
+  MM.AutomationUtil.SetCurrentAutomation(nil)
   currentTask = nil
   setMenuLocked(false)
 end
@@ -117,6 +119,7 @@ local function pauseAutomation()
   currentAutomationTable.Pause()
   currentAutomationName = nil
   currentAutomationTable = nil
+  MM.AutomationUtil.SetCurrentAutomation(nil)
   MM:Print("Automation function paused")
   setMenuLocked(false)
 end
