@@ -46,6 +46,7 @@ local function findAboveMin(list)
 end
 
 local function ifUnder(obj,list)
+  local fetched
   if MM.db.realm.OPTIONS.postIfUnder == "UNDERCUT" then
     return obj.buyoutPrice, obj.yours
   elseif MM.db.realm.OPTIONS.postIfUnder == "IGNORE" then
@@ -56,16 +57,29 @@ local function ifUnder(obj,list)
     return MM.db.realm.OPTIONS.postMax * 10000, true
   elseif MM.db.realm.OPTIONS.postIfUnder == "KEEP" then
     return false
+  elseif MM.db.realm.OPTIONS.postIfUnder == "MEDIAN10" then
+    fetched = MM:StatObj(obj.enchantID)
+    return fetched and fetched["10d_Med"] or MM.db.realm.OPTIONS.postDefault * 10000, true
+  elseif MM.db.realm.OPTIONS.postIfUnder == "MAX10" then
+    fetched = MM:StatObj(obj.enchantID)
+    return fetched and fetched["10d_Max"] or (MM.db.realm.OPTIONS.postMax * 10000), true
   end
 end
 
 local function ifOver(obj)
+  local fetched
   if MM.db.realm.OPTIONS.postIfOver == "UNDERCUT" then
     return obj.buyoutPrice, obj.yours
   elseif MM.db.realm.OPTIONS.postIfOver == "DEFAULT" then
     return MM.db.realm.OPTIONS.postDefault * 10000, true
   elseif MM.db.realm.OPTIONS.postIfOver == "MAX" then
     return MM.db.realm.OPTIONS.postMax * 10000, true
+  elseif MM.db.realm.OPTIONS.postIfOver == "MEDIAN10" then
+    fetched = MM:StatObj(obj.enchantID)
+    return fetched and fetched["10d_Med"] or (MM.db.realm.OPTIONS.postDefault * 10000), true
+  elseif MM.db.realm.OPTIONS.postIfOver == "MAX10" then
+    fetched = MM:StatObj(obj.enchantID)
+    return fetched and fetched["10d_Max"] or (MM.db.realm.OPTIONS.postMax * 10000), true
   end
 end
 

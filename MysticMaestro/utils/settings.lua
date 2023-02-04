@@ -230,21 +230,30 @@ local function createConfig()
 				softMin = 100,
 				softMax = 300
 			},
-			postIfUnder = {
+			postUnderOverDesc = {
 				order = 5,
+				type = "description",
+				name = "Determine posting behavior when competition is outside your set price bounds. Options calling for unavailable data will fall back to one of the above settings.",
+				width = "full",
+			},
+			postIfUnder = {
+				order = 6,
 				name = "When Under Min",
 				desc = "Decide how to post when the value is under your minimum.",
 				type = "select",
 				values = {
 					["UNDERCUT"] = "Undercut anyways",
-					["IGNORE"] = "Undercut next listing above min",
+					["IGNORE"] = "Undercut listing above min",
 					["DEFAULT"] = "Post at Default price",
 					["MAX"] = "Post at Maximum price",
 					["KEEP"] = "Do not post",
-				}
+					["MEDIAN10"] = "Post at 10 day Median",
+					["MAX10"] = "Post at 10 day Maximum",
+				},
+				sorting = {"UNDERCUT","IGNORE","DEFAULT","MAX","KEEP","MEDIAN10","MAX10"},
 			},
 			postIfOver = {
-				order = 6,
+				order = 7,
 				name = "When Over Max",
 				desc = "Decide how to post when the value is over your maximum.",
 				type = "select",
@@ -252,7 +261,10 @@ local function createConfig()
 					["UNDERCUT"] = "Undercut anyways",
 					["DEFAULT"] = "Post at Default price",
 					["MAX"] = "Post at Maximum price",
-				}
+					["MEDIAN10"] = "Post at 10 day Median",
+					["MAX10"] = "Post at 10 day Maximum",
+				},
+				sorting = {"UNDERCUT","DEFAULT","MAX","MEDIAN10","MAX10"},
 			},
 		}
 	}
