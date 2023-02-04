@@ -560,7 +560,7 @@ local function findSellableItemWithEnchantID(enchantID,listMode)
   local items = {trinket = {},other = {}}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
-      local _,_,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
+      local _,count,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
       local name, reqLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
       if item then
         name, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(item)
@@ -582,7 +582,9 @@ local function findSellableItemWithEnchantID(enchantID,listMode)
         if re == enchantID then
           local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
           local istrinket = MM:IsTrinket(name,reqLevel)
-          table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, (vendorPrice or 0)})
+          for i=1, count do
+            table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, (vendorPrice or 0)})
+          end
         end
       end
     end
