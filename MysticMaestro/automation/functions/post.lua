@@ -73,7 +73,7 @@ function automationTable.Stop()
   running = false
 end
 
-function automationTable.PostProcessing()
+local function assembleQueFromResults()
   for enchantID, results in pairs(scanResultSet) do
     if #results > 0 then
       local price, yours = MM:PriceCorrection(results[1],results)
@@ -87,6 +87,10 @@ function automationTable.PostProcessing()
     end
   end
   scanResultSet = nil
+end
+
+function automationTable.PostProcessing()
+  assembleQueFromResults()
   MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "noPostProcessing")
 end
 
