@@ -57,6 +57,9 @@ local function ifUnder(obj,list)
     return MM.db.realm.OPTIONS.postMax * 10000, true
   elseif MM.db.realm.OPTIONS.postIfUnder == "KEEP" then
     return false
+  elseif MM.db.realm.OPTIONS.postIfUnder == "MEAN10" then
+    fetched = MM:StatObj(obj.enchantID)
+    return fetched and fetched["10d_Mean"] or MM.db.realm.OPTIONS.postDefault * 10000, true
   elseif MM.db.realm.OPTIONS.postIfUnder == "MEDIAN10" then
     fetched = MM:StatObj(obj.enchantID)
     return fetched and fetched["10d_Med"] or MM.db.realm.OPTIONS.postDefault * 10000, true
@@ -74,6 +77,9 @@ local function ifOver(obj)
     return MM.db.realm.OPTIONS.postDefault * 10000, true
   elseif MM.db.realm.OPTIONS.postIfOver == "MAX" then
     return MM.db.realm.OPTIONS.postMax * 10000, true
+  elseif MM.db.realm.OPTIONS.postIfOver == "MEAN10" then
+    fetched = MM:StatObj(obj.enchantID)
+    return fetched and fetched["10d_Mean"] or (MM.db.realm.OPTIONS.postDefault * 10000), true
   elseif MM.db.realm.OPTIONS.postIfOver == "MEDIAN10" then
     fetched = MM:StatObj(obj.enchantID)
     return fetched and fetched["10d_Med"] or (MM.db.realm.OPTIONS.postDefault * 10000), true

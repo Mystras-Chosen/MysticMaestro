@@ -247,10 +247,11 @@ local function createConfig()
 					["DEFAULT"] = "Post at Default price",
 					["MAX"] = "Post at Maximum price",
 					["KEEP"] = "Do not post",
+					["MEAN10"] = "Post at 10 day Mean",
 					["MEDIAN10"] = "Post at 10 day Median",
 					["MAX10"] = "Post at 10 day Maximum",
 				},
-				sorting = {"UNDERCUT","IGNORE","DEFAULT","MAX","KEEP","MEDIAN10","MAX10"},
+				sorting = {"UNDERCUT","IGNORE","DEFAULT","MAX","KEEP","MEAN10","MEDIAN10","MAX10"},
 			},
 			postIfOver = {
 				order = 7,
@@ -261,10 +262,11 @@ local function createConfig()
 					["UNDERCUT"] = "Undercut anyways",
 					["DEFAULT"] = "Post at Default price",
 					["MAX"] = "Post at Maximum price",
+					["MEAN10"] = "Post at 10 day Mean",
 					["MEDIAN10"] = "Post at 10 day Median",
 					["MAX10"] = "Post at 10 day Maximum",
 				},
-				sorting = {"UNDERCUT","DEFAULT","MAX","MEDIAN10","MAX10"},
+				sorting = {"UNDERCUT","DEFAULT","MAX","MEAN10","MEDIAN10","MAX10"},
 			},
 		}
 	}
