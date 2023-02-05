@@ -252,11 +252,15 @@ local function AltarLevelRequireXP(level)
 	return floor(354 * level + 7.5 * level * level)
 end
 
-function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
-	if subEvent ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
-	if not MM.db.realm.AltarXP then MM.db.realm.AltarXP = 0 end
-	if xp == 0 or level == 0 then return end
-	local gained = xp - MM.db.realm.AltarXP
+function MM:SetAltarLevelUPText(xp, level)
+	if not MM.db then return end
+	if xp == 0 or xp == nil or level == 0 or level == nil then
+		if MM.db.realm.AltarLevelUp then
+			AltarReforgesText:SetText("Next level in " .. MM.db.realm.AltarLevelUp .. " reforges")
+		end
+		return 
+	end
+	local gained = xp - (MM.db.realm.AltarXP or 0)
 	if gained == 0 then
 		if MM.db.realm.prevAltarGained then
 			gained = MM.db.realm.prevAltarGained
@@ -271,6 +275,11 @@ function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
 	MM.db.realm.AltarXP = xp
 	MM.db.realm.AltarLevelUp = levelUP
+end
+
+function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
+	if subEvent ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
+	MM:SetAltarLevelUPText(xp, level)
 end
 
 local function UNIT_SPELLCAST_START(event, unitID, spell)
@@ -336,11 +345,8 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
 	AltarReforgesText = MysticEnchantingFrameProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	AltarReforgesText:SetPoint("TOP", MysticEnchantingFrameProgressBar, "BOTTOM")
-	if MM.db.realm.AltarLevelUp then
-		AltarReforgesText:SetText("Next level in " .. MM.db.realm.AltarLevelUp .. " reforges")
-	else
-		AltarReforgesText:SetText("Start reforging to get estimate")
-	end
+	AltarReforgesText:SetText("Start reforging to get estimate")
+	MM:SetAltarLevelUPText()
 	settingsButton = CreateFrame("BUTTON", nil, MysticEnchantingFrame)
 	settingsButton:SetSize(27, 27)
 	settingsButton:SetPoint("LEFT", MysticMaestroEnchantingFrameAutoReforgeButton, "RIGHT")
