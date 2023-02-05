@@ -270,6 +270,7 @@ function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
 	local levelUP = math.floor(remaining / gained) + 1
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
 	MM.db.realm.AltarXP = xp
+	MM.db.realm.AltarLevelUp = levelUP
 end
 
 local function UNIT_SPELLCAST_START(event, unitID, spell)
@@ -335,7 +336,11 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
 	AltarReforgesText = MysticEnchantingFrameProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	AltarReforgesText:SetPoint("TOP", MysticEnchantingFrameProgressBar, "BOTTOM")
-	AltarReforgesText:SetText("Start reforging to get estimate")
+	if MM.db.realm.AltarLevelUp then
+		AltarReforgesText:SetText("Next level in " .. MM.db.realm.AltarLevelUp .. " reforges")
+	else
+		AltarReforgesText:SetText("Start reforging to get estimate")
+	end
 	settingsButton = CreateFrame("BUTTON", nil, MysticEnchantingFrame)
 	settingsButton:SetSize(27, 27)
 	settingsButton:SetPoint("LEFT", MysticMaestroEnchantingFrameAutoReforgeButton, "RIGHT")
