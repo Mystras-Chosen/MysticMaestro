@@ -219,7 +219,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         currentTemplate = pendingTemplate
         registeredTemplates[currentTemplate]:Show()
         automationPopupFrame:Show()
-      else
+      elseif currentTemplate then
         registeredTemplates[currentTemplate]:Hide()
         currentTemplate = nil
         automationPopupFrame:Hide()
