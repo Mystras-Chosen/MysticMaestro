@@ -1,4 +1,4 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local config = LibStub("AceConfig-3.0")
 local dialog = LibStub("AceConfigDialog-3.0")
 local registered = false
@@ -10,6 +10,8 @@ local function createConfig()
 	options.args = {}
 	local function get(info) return MM.db.realm.OPTIONS[info[#info]] end
 	local function set(info,val) MM.db.realm.OPTIONS[info[#info]] = val end
+	local function greenG(info) return MM.db.realm.OPTIONS.green[info[#info]] end
+	local function greenS(info,val) MM.db.realm.OPTIONS.green[info[#info]] = val end
 	-- General
 	options.args.general = {
 		name = "General",
@@ -631,6 +633,7 @@ local function createConfig()
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant of any enabled quality",
 				type = "toggle",
+				width = 2.0,
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
 			},
@@ -777,9 +780,175 @@ local function createConfig()
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice[5] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[5] = val end
 			},
+			greenHeader = {
+				order = 57,
+				name = "Stop for Green enchants of a Catagory",
+				type = "header"
+			},
+			greenEnabled = {
+				order = 58,
+				name = "Enabled",
+				desc = "Stop reforging items when you match a selected catagory of green",
+				type = "toggle",
+				width = 0.7,
+				get = function(info) return MM.db.realm.OPTIONS.green.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.green.enabled = val end
+			},
+			greenUnknown = {
+				order = 59,
+				name = "Unknown",
+				desc = "Only Stop when matched enchant of the selected catagory of green is unknown",
+				type = "toggle",
+				width = 0.7,
+				get = function(info) return MM.db.realm.OPTIONS.green.unknown end,
+				set = function(info,val) MM.db.realm.OPTIONS.green.unknown = val end
+			},
+			greenExtract = {
+				order = 60,
+				name = "Extract",
+				desc = "Automatically extract unknown enchants of the selected green catagories",
+				type = "toggle",
+				width = 0.7,
+				get = function(info) return MM.db.realm.OPTIONS.green.extract end,
+				set = function(info,val) MM.db.realm.OPTIONS.green.extract = val end
+			},
+			Focused = {
+				order = 62,
+				name = "Focused",
+				desc = "Stop for Green enchants with the Focused Prefix. These increase the bonus scaling of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Concentrated = {
+				order = 63,
+				name = "Concentrated",
+				desc = "Stop for Green enchants with the Concentrated Prefix. These reduce the mana cost of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Taunting = {
+				order = 64,
+				name = "Taunting",
+				desc = "Stop for Green enchants with the Taunting Prefix. These increase the threat of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Accurate = {
+				order = 65,
+				name = "Accurate",
+				desc = "Stop for Green enchants with the Accurate Prefix. These increase the hit chance of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Subtle = {
+				order = 66,
+				name = "Subtle",
+				desc = "Stop for Green enchants with the Subtle Prefix. These reduce the threat of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Quick = {
+				order = 67,
+				name = "Quick",
+				desc = "Stop for Green enchants with the Quick Prefix. These reduce the casting time of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Accrual = {
+				order = 68,
+				name = "Accrual",
+				desc = "Stop for Green enchants with the Accrual Prefix. These increase the damage over time of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Brutal = {
+				order = 69,
+				name = "Brutal",
+				desc = "Stop for Green enchants with the Brutal Prefix. These increase the critical strike damage of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Critical = {
+				order = 70,
+				name = "Critical",
+				desc = "Stop for Green enchants with the Critical Prefix. These increase the critical strike chance of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Lengthy = {
+				order = 71,
+				name = "Lengthy",
+				desc = "Stop for Green enchants with the Lengthy Prefix. These increase the duration of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Hardy = {
+				order = 72,
+				name = "Hardy",
+				desc = "Stop for Green enchants with the Hardy Prefix. These increase the dispel resistance of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Steady = {
+				order = 73,
+				name = "Steady",
+				desc = "Stop for Green enchants with the Steady Prefix. These reduces the pushback of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Powerful = {
+				order = 74,
+				name = "Powerful",
+				desc = "Stop for Green enchants with the Powerful Prefix. These increase the damage of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Hasty = {
+				order = 75,
+				name = "Hasty",
+				desc = "Stop for Green enchants with the Hasty Prefix. These reduces the cooldown of an ability.",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
+			Other = {
+				order = 76,
+				name = "Other",
+				desc = "Stop for the 12 remaining assorted greens: Speedy, Improved, Defensive, Energizing, Camouflage, Debbie, Meating, Dispersing",
+				type = "toggle",
+				width = 0.7,
+				get = greenG,
+				set = greenS
+			},
 		}
 	}
-
 	return options
 end
 

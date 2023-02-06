@@ -8,6 +8,16 @@ local shopEnabledList, shopExtractList, shopReserveList, shopUnknownList
 local reforgeHandle, dynamicButtonTextHandle
 local bagID, slotIndex
 local AltarReforgesText, settingsButton
+local otherGreens = {
+	Speedy = true,
+	Improved = true,
+	Defensive = true,
+	Energizing = true,
+	Camouflage = true,
+	Debbie = true,
+	Meating = true,
+	Dispersing = true,
+}
 
 local function StopCraftingAttemptTimer()
 	if reforgeHandle then
@@ -177,13 +187,25 @@ local function configPriceMatch(currentEnchant)
     return options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
 end
 
+local function configGreenMatch(currentEnchant)
+	local matchGreen, rxMatch, unknownLogic
+	if currentEnchant.quality == 2 then
+		rxMatch = string.match(currentEnchant.spellName,"^[a-zA-Z]+")
+		unknownLogic = not options.green.unknown or (options.green.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
+		matchGreen = options.green[rxMatch] or options.green.Other and otherGreens[rxMatch]
+	end
+	return unknownLogic and matchGreen
+end
+
 local function configConditionMet(currentEnchant)
 	local unknown = configUnknownMatch(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
+	local green = configGreenMatch(currentEnchant)
 	-- Determine if we should extract this enchant
 	if autoAutoEnabled
 	and ((unknown and options.stopUnknown.extract)
 	or (seasonal and options.stopSeasonal.extract)
+	or (green and options.green.extract)
 	or shopExtractList[currentEnchant.enchantID]) then
 		extract(currentEnchant.enchantID)
 	end
@@ -197,6 +219,7 @@ local function configConditionMet(currentEnchant)
 	or configShoppingMatch(currentEnchant)
 	or unknown
 	or seasonal
+	or green
 	or configPriceMatch(currentEnchant)
 end
 
