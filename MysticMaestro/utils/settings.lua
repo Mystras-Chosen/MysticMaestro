@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local config = LibStub("AceConfig-3.0")
 local dialog = LibStub("AceConfigDialog-3.0")
 local registered = false
@@ -505,12 +505,12 @@ local function createConfig()
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
 					if o.shoppingLists[o.shoppingListsDropdown] then
-						return o.shoppingLists[o.shoppingListsDropdown].unknown
+						return o.shoppingLists[o.shoppingListsDropdown].extract
 					end
 				end,
 				set = function(info,val)
 					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
+						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].extract = val
 						MM:BuildWorkingShopList()
 					end
 				end
