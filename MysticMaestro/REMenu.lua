@@ -1354,8 +1354,6 @@ end
 
 
 HelpPlate["MysticMaestro"] = {
-  cvar = "C_CVAR_HELP_PLATE_MYSTIC_MAESTRO",
-  cvarValue = true,
   MainTip = "MM_MAIN",
   {
     helpTip = "MM_TIP_ENCHANT",
