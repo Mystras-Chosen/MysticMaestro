@@ -26,7 +26,7 @@ local function StopCraftingAttemptTimer()
 	end
 end
 
-local function StopAutoReforge()
+local function StopAutoReforge(result)
 	if autoAutoEnabled then
 		if slotIndex - 1 >= 0 then
 			slotIndex = slotIndex - 1
@@ -41,7 +41,11 @@ local function StopAutoReforge()
 		dynamicButtonTextHandle:Cancel()
 		dynamicButtonTextHandle = nil
 	end
-	MM:Print("Reforge has been stopped")
+	if result then
+		MM:Print("Reforge stopped for " .. result)
+	else
+		MM:Print("Reforge has been stopped")
+	end
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
 
@@ -51,7 +55,7 @@ local function RequestReforge()
 		reforgeHandle = Timer.NewTicker(.05, function()
 			if GetUnitSpeed("player") ~= 0 then 
 				StopCraftingAttemptTimer()
-				StopAutoReforge()
+				StopAutoReforge("Player Moving")
 				return
 			end
 			MysticEnchantingFrameControlFrameRollButton:GetScript("OnClick")(MysticEnchantingFrameControlFrameRollButton)
@@ -60,7 +64,7 @@ local function RequestReforge()
 		reforgeHandle = Timer.NewTicker(.05, function()
 			if GetUnitSpeed("player") ~= 0 then
 				StopCraftingAttemptTimer()
-				StopAutoReforge()
+				StopAutoReforge("Player Moving")
 				return
 			end
 			RequestSlotReforgeEnchantment(bagID, slotIndex)
@@ -71,8 +75,10 @@ local function RequestReforge()
 end
 
 local function configShoppingMatch(currentEnchant)
-	return options.stopForShop.enabled and shopEnabledList[currentEnchant.enchantID] 
-	and (not shopUnknownList[currentEnchant.enchantID] or (shopUnknownList[currentEnchant.enchantID] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID)))
+	local enabled = options.stopForShop.enabled and shopEnabledList[currentEnchant.enchantID]
+	local unknownMatch = not shopUnknownList[currentEnchant.enchantID] or (shopUnknownList[currentEnchant.enchantID] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
+	local eval = enabled and unknownMatch 
+	return eval and "Shopping Match" or nil
 end
 
 local function isSeasonal(spellID)
@@ -165,26 +171,30 @@ local function extract(enchantID)
 end
 
 local function configNoRunes(currentEnchant)
-	return options.stopIfNoRunes and GetItemCount(98462) <= 0
+	local eval = options.stopIfNoRunes and GetItemCount(98462) <= 0
+	return eval and "No Runes" or nil
 end
 
 local function configSeasonalMatch(currentEnchant)
-    local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant.enchantID)
-    return eval
+	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant.enchantID)
+	return eval and "Seasonal Enchant" or nil
 end
 
 local function configQualityMatch(currentEnchant)
-    return options.stopQuality.enabled and options.stopQuality[currentEnchant.quality]
+	local eval = options.stopQuality.enabled and options.stopQuality[currentEnchant.quality]
+	return eval and "Quality Match" or nil
 end
 
 local function configUnknownMatch(currentEnchant)
-    return options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
+	local eval = options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
+	return eval and "Unknown Match" or nil
 end
 
 local function configPriceMatch(currentEnchant)
     local priceObj = Maestro(currentEnchant.enchantID)
-    if not priceObj then return options.stopPrice[currentEnchant.quality] end
-    return options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
+    if not priceObj then return options.stopPrice[currentEnchant.quality] and "Unknown Priced" end
+		local eval = options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
+    return eval and "Price Match" or nil
 end
 
 local function configGreenMatch(currentEnchant)
@@ -194,7 +204,8 @@ local function configGreenMatch(currentEnchant)
 		unknownLogic = not options.green.unknown or (options.green.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
 		matchGreen = options.green[rxMatch] or options.green.Other and otherGreens[rxMatch]
 	end
-	return unknownLogic and matchGreen
+	local eval = unknownLogic and matchGreen
+	return eval and "Green Match" or nil
 end
 
 local function configConditionMet(currentEnchant)
@@ -227,9 +238,10 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
 		local currentEnchant = MYSTIC_ENCHANTS[enchantID]
-		if not autoAutoEnabled and (not autoReforgeEnabled or configConditionMet(currentEnchant)) then
+		local result = configConditionMet(currentEnchant)
+		if not autoAutoEnabled and (not autoReforgeEnabled or result) then
 			-- End reforge
-			StopAutoReforge()
+			StopAutoReforge(result)
 			return
 		end
 		if autoAutoEnabled then
@@ -242,15 +254,15 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			if isSeasonal(enchantID) then
 				seasonal = green .. " seasonal" .. "|r"
 			end
-			if configConditionMet(currentEnchant) then
-				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
+			if result then
+				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID) .. " because of " .. result)
 				if not FindNextInsignia() or GetItemCount(98462) <= 0 then
 					if GetItemCount(98462) <= 0 then
 						MM:Print("Out of runes")
 					else
 						MM:Print("Out of Insignia, inventory position reset to first bag")
 					end
-					StopAutoReforge()
+					StopAutoReforge(result)
 					return
 				end
 			else
@@ -260,7 +272,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 		if GetUnitSpeed("player") == 0 then
 			RequestReforge()
 		else
-			StopAutoReforge()
+			StopAutoReforge("Player Moving")
 		end
 	end
 end
@@ -344,7 +356,7 @@ end
 local function UNIT_SPELLCAST_INTERRUPTED()
 	if (autoAutoEnabled or autoReforgeEnabled)
 	and GetUnitSpeed("player") ~= 0 then
-		StopAutoReforge()
+		StopAutoReforge("Player Moving")
 	end
 end
 MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED",UNIT_SPELLCAST_INTERRUPTED)
@@ -360,7 +372,7 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 		if self:GetText() == "Auto Reforge" then
 			StartAutoReforge()
 		else
-			StopAutoReforge()
+			StopAutoReforge("Button Clicked")
 		end
 	end)
 	button:SetText("Auto Reforge")
