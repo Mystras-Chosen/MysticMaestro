@@ -225,8 +225,7 @@ local function configConditionMet(currentEnchant)
 		return configNoRunes(currentEnchant)
 	end
 	-- Evaluate the enchant against our options
-	return configNoRunes(currentEnchant)
-	or configQualityMatch(currentEnchant)
+	return configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
 	or unknown
 	or seasonal
@@ -239,9 +238,10 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
 		local currentEnchant = MYSTIC_ENCHANTS[enchantID]
 		local result = configConditionMet(currentEnchant)
-		if not autoAutoEnabled and (not autoReforgeEnabled or result) then
+		local norunes = configNoRunes(currentEnchant)
+		if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
 			-- End reforge
-			StopAutoReforge(result)
+			StopAutoReforge(result or norunes)
 			return
 		end
 		if autoAutoEnabled then
@@ -256,17 +256,18 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			end
 			if result then
 				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID) .. " because of " .. result)
-				if not FindNextInsignia() or GetItemCount(98462) <= 0 then
-					if GetItemCount(98462) <= 0 then
-						MM:Print("Out of runes")
-					else
-						MM:Print("Out of Insignia, inventory position reset to first bag")
-					end
-					StopAutoReforge(result)
-					return
-				end
 			else
 				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
+			end
+		end
+		if result then
+			local cantFind = not FindNextInsignia()
+			if cantFind or norunes then
+				if cantFind then
+					MM:Print("Out of Insignia, inventory position reset to first bag")
+				end
+				StopAutoReforge(norunes)
+				return
 			end
 		end
 		if GetUnitSpeed("player") == 0 then
