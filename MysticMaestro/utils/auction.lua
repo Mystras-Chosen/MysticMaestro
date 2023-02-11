@@ -344,66 +344,84 @@ function MM:CalculateMarketValues(list,dev)
     local limitor = calculateLimitor(tMed,oMed,tMax)
     local adjustedList = MM:CombineListsLimited(list,list.other,limitor)
     local aMin, aMed, aMean, aMax, aCount = MM:CalculateStatsFromList(adjustedList)
-    local aDev = dev and MM:StdDev(adjustedList,aMean) or 0
+    local aDev = dev and MM:Round(MM:StdDev(adjustedList,aMean),2) or 0
     local total = ( tCount or 0 ) + ( oCount or 0 )
-    return {Min=aMin, Med=aMed, Mean=aMean, Max=aMax, Dev=aDev, Count=aCount, Trinkets=(tCount or 0), Total=total}
+    return {Min=aMin, Med=aMed, Mean=aMean, Max=aMax, Count=aCount, Trinkets=(tCount or 0), Total=total, Dev=aDev}
   end
+end
+
+local function serializeScanAvg(scanObj)
+  local string = scanObj.Min .. ";" .. scanObj.Med .. ";" .. scanObj.Mean .. ";" .. scanObj.Max .. ";" .. scanObj.Count .. ";" .. scanObj.Trinkets .. ";" .. scanObj.Total .. ";" .. scanObj.Dev or ""
+  return string
+end
+
+function MM:DeserializeScanAvg(scanStr)
+  local Min, Med, Mean, Max, Count, Trinkets, Total, Dev = string.split(";",scanStr)
+  return {Min=Min, Med=Med, Mean=Mean, Max=Max, Count=Count, Trinkets=Trinkets, Total=Total, Dev=Dev}
 end
 
 function MM:CalculateStatsFromTime(reID,sTime)
   local listing = self:AuctionListStringToList(self.data.RE_AH_LISTINGS[reID][sTime])
   local stats = self.data.RE_AH_STATISTICS[reID]
   local r = MM:CalculateMarketValues(listing,true)
-  if r then
-    stats["daily"], stats["current"] = stats["daily"] or {}, stats["current"] or {}
-    local d = stats["daily"]
-    local t = {}
-    local c = stats["current"]
-    local dCode = MM:TimeToDate(sTime)
-    t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = r.Min,r.Med,r.Mean,r.Max,r.Count,r.Dev,r.Total,r.Trinkets
-    d[dCode] = d[dCode] or {}
-    table.insert(d[dCode],t)
-    if c.Last == nil or c.Last <= sTime then
-      c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = r.Min,r.Med,r.Mean,r.Max,r.Count,sTime,r.Dev,r.Total,r.Trinkets
-    end
+  if not r then return end
+  stats["dailyTemp"], stats["current"] = stats["dailyTemp"] or {}, stats["current"] or {}
+  local d = stats["dailyTemp"]
+  local t = {}
+  local c = stats["current"]
+  local dCode = MM:TimeToDate(sTime)
+  t.Min,t.Med,t.Mean,t.Max,t.Count,t.Dev,t.Total,t.Trinkets = r.Min,r.Med,r.Mean,r.Max,r.Count,r.Dev,r.Total,r.Trinkets
+  d[dCode] = d[dCode] or {}
+  table.insert(d[dCode],t)
+  if c.Last == nil or c.Last <= sTime then
+    c.Min,c.Med,c.Mean,c.Max,c.Count,c.Last,c.Dev,c.Total,c.Trinkets = r.Min,r.Med,r.Mean,r.Max,r.Count,sTime,r.Dev,r.Total,r.Trinkets
   end
 end
 
 local valueList = { "Min", "Med", "Mean", "Max", "Count", "Dev", "Total", "Trinkets" }
 
+local function calcDayStats(scans)
+  local avg, count = {}, 0
+  for _, val in pairs(valueList) do avg[val] = 0 end
+  for k, scan in ipairs(scans) do
+    for _, val in pairs(valueList) do avg[val] = avg[val] + scan[val] end
+    count = count + 1
+  end
+  for _, val in pairs(valueList) do
+    avg[val] = avg[val] / count
+  end
+  return avg
+end
+
 function MM:CalculateDailyAverages(reID)
   local stats = self.data.RE_AH_STATISTICS[reID]
-  if stats then
-    local daily = stats["daily"]
-    if daily then
-      local rAvg, rCount = {}, 0
-      -- setup rolling average obj
-      for _, val in pairs(valueList) do rAvg[val] = 0 end
-      for dCode, scans in pairs(daily) do
-        local avg, count, remove = {}, 0, {}
-        rCount = rCount + 1
-        for _, val in pairs(valueList) do avg[val] = 0 end
-        for k, scan in ipairs(scans) do
-          -- setup daily average
-          for _, val in pairs(valueList) do avg[val] = avg[val] + scan[val] end
-          count = count + 1
-          table.insert(remove,k)
-        end
-        for _, val in pairs(valueList) do
-          -- set each day average value
-          avg[val] = avg[val] / count
-          rAvg[val] = rAvg[val] + avg[val]
-        end
-      end
-      for _, val in pairs(valueList) do
-        -- set total average of each data point
-        rAvg[val] = rAvg[val] / rCount
-        stats["current"]["10d_"..val] = MM:Round( rAvg[val] , 1 , true  )
-      end
-      -- We have finished with the Daily data and can remove it
-      stats.daily = nil
-    end
+  if not stats then return end
+  local dailyTemp = stats["dailyTemp"]
+  if not dailyTemp then return end
+  stats["daily"] = stats["daily"] or {}
+  local daily = stats["daily"]
+  -- Serialize the temporary listing data into the daily tally
+  for dCode, scans in pairs(dailyTemp) do
+    local avg = calcDayStats(scans)
+    stats["daily"][dCode] = serializeScanAvg(avg)
   end
+  -- initialize the rolling average
+  local rAvg, rCount = {}, 0
+  for _, val in pairs(valueList) do rAvg[val] = 0 end
+  -- take values from each day and average together
+  for dCode, data in pairs(daily) do
+    local avg = MM:DeserializeScanAvg(data)
+    for _, val in pairs(valueList) do
+      rAvg[val] = rAvg[val] + avg[val]
+    end
+    rCount = rCount + 1
+  end
+  -- take the totals and set as the current 10 day values
+  for _, val in pairs(valueList) do
+    rAvg[val] = rAvg[val] / rCount
+    stats["current"]["10d_"..val] = MM:Round( rAvg[val] , 1 , true  )
+  end
+  stats.dailyTemp = nil
 end
 
 function MM:CalculateAllStats()
@@ -414,8 +432,16 @@ function MM:CalculateAllStats()
 end
 
 function MM:CalculateREStats(reID, listingData)
+  local remove = {}
+  local today = MM:TimeToDate(time())
   for timeKey in pairs(listingData) do
     self:CalculateStatsFromTime(reID, timeKey)
+    -- if the key isnt today, we add to remove list
+    local compare = MM:TimeToDate(timeKey)
+    if today ~= compare then table.insert(remove,timeKey) end
+  end
+  for _, timeKey in pairs(remove) do
+    listingData[timeKey] = nil
   end
   self:CalculateDailyAverages(reID)
 end
