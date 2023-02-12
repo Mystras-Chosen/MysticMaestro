@@ -7,8 +7,13 @@ local function createMysticEnchantData(enchantListingData, correction)
   local averageData, minimumData, maxData = {}, {}, {}
   for timeStamp, auctionList in pairs(enchantListingData) do
     timeStamp = timeStamp - correction
-    local r = MM:CalculateMarketValues(auctionList)
-    if #auctionList ~= 0 then
+    local r
+    if auctionList.Min then
+      r = auctionList
+    else
+      r = MM:CalculateMarketValues(auctionList)
+    end
+    if #auctionList ~= 0 or auctionList.Min then
       table.insert(
         averageData,
         {
@@ -156,7 +161,7 @@ end
 local function auctionDataExists(enchantListingData)
   local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
   for timeKey, auctionList in pairs(enchantListingData) do
-    if timeKey >= leftBoundMidnightTime and #auctionList > 0 then
+    if timeKey >= leftBoundMidnightTime and (#auctionList > 0 or auctionList.Min) then
       return true
     end
   end
@@ -168,6 +173,9 @@ function MM:PopulateGraph(enchantID)
   local enchantListingData = {}
   for scanTime, auctionListString in pairs(self.data.RE_AH_LISTINGS[enchantID]) do
     enchantListingData[scanTime] = self:AuctionListStringToList(auctionListString)
+  end
+  for scanDate, auctionAvgString in pairs(self.data.RE_AH_STATISTICS[enchantID]["daily"] or {}) do
+    enchantListingData[scanDate] = self:DeserializeScanAvg(auctionAvgString)
   end
 
   if not auctionDataExists(enchantListingData) then
