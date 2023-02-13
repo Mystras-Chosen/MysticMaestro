@@ -29,25 +29,29 @@ local function createConfig()
 				order = 2,
 				name = "Confirm Listing",
 				desc = "Enables a confirmation before making a listing.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			confirmBuyout = {
 				order = 3,
 				name = "Confirm Buyout",
 				desc = "Enables a confirmation before buying an auction.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			confirmCancel = {
 				order = 4,
 				name = "Confirm Cancel",
 				desc = "Enables a confirmation before canceling your auction.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			confirmCraft = {
 				order = 5,
 				name = "Confirm Craft",
 				desc = "Enables a confirmation before crafting an enchant onto a trinket.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			limitsHeader = {
 				order = 10,
@@ -145,25 +149,29 @@ local function createConfig()
 				order = 2,
 				name = "Uncommon",
 				desc = "Include Uncommon enchants during scan.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			rarityRare = {
 				order = 3,
 				name = "Rare",
 				desc = "Include Rare enchants during scan.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			rarityEpic = {
 				order = 4,
 				name = "Epic",
 				desc = "Include Epic enchants during scan.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			rarityLegendary = {
 				order = 5,
 				name = "Legendary",
 				desc = "Include Legendary enchants during scan.",
-				type = "toggle"
+				type = "toggle",
+				width = 0.7,
 			},
 			getallHeader = {
 				order = 10,
@@ -463,11 +471,17 @@ local function createConfig()
 					MM:BuildWorkingShopList()
 				end,
 			},
-			shopEnabledList = {
+			spacer1 = {
 				order = 9,
+				type = "description",
+				name = " "
+			},
+			shopEnabledList = {
+				order = 10,
 				name = "Enabled",
 				desc = "Enables or disables this Shopping List",
 				type = "toggle",
+				width = "half",
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
 					if o.shoppingLists[o.shoppingListsDropdown] then
@@ -482,10 +496,11 @@ local function createConfig()
 				end
 			},
 			shopUnknown = {
-				order = 10,
+				order = 11,
 				name = "Unknown",
 				desc = "This shopping list will only stop reforging for enchants which are unknown",
 				type = "toggle",
+				width = "half",
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
 					if o.shoppingLists[o.shoppingListsDropdown] then
@@ -500,10 +515,11 @@ local function createConfig()
 				end
 			},
 			shopExtract = {
-				order = 11,
+				order = 12,
 				name = "Extract",
 				desc = "This shopping list will extract unknown entries automatically",
 				type = "toggle",
+				width = "half",
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
 					if o.shoppingLists[o.shoppingListsDropdown] then
@@ -518,10 +534,11 @@ local function createConfig()
 				end
 			},
 			reserveShoppingList = {
-				order = 12,
+				order = 13,
 				name = "Reserve",
 				desc = "Items places on this shopping list will not be reforged over when looking for insignia to roll on",
 				type = "toggle",
+				width = "half",
 				get = function(info)
 					local o = MM.db.realm.OPTIONS
 					if o.shoppingLists[o.shoppingListsDropdown] then
@@ -536,7 +553,7 @@ local function createConfig()
 				end
 			},
 			shoppingSubList = {
-				order = 13,
+				order = 14,
 				name = "Enchant Entries",
 				desc = "Select an entry within the Shopping List to modify or remove",
 				type = "select",
@@ -555,7 +572,7 @@ local function createConfig()
 				end,
 			},
 			shoppingSubListName = {
-				order = 14,
+				order = 15,
 				name = "Selected Entry",
 				desc = "Input or modify the selected entry in the Shopping List",
 				type = "input",
@@ -573,7 +590,7 @@ local function createConfig()
 				end
 			},
 			shoppingSubListAdd = {
-				order = 15,
+				order = 16,
 				name = "Add",
 				desc = "Add a new entry to the current Shopping List",
 				type = "execute",
@@ -586,7 +603,7 @@ local function createConfig()
 				end,
 			},
 			shoppingSubListRemove = {
-				order = 16,
+				order = 17,
 				name = "Remove",
 				desc = "Remove the selected entry of the current Shopping List",
 				type = "execute",
@@ -612,6 +629,7 @@ local function createConfig()
 				name = "Enabled",
 				desc = "Stop reforging items with any seasonal enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.enabled = val end
 			},
@@ -620,6 +638,7 @@ local function createConfig()
 				name = "Extract",
 				desc = "Automatically extract any unknown seasonal enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.extract end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.extract = val end
 			},
@@ -633,7 +652,7 @@ local function createConfig()
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant of any enabled quality",
 				type = "toggle",
-				width = 2.0,
+				width = "full",
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
 			},
@@ -642,6 +661,7 @@ local function createConfig()
 				name = "Uncommon",
 				desc = "Stop reforging items with any uncommon quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality[2] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[2] = val end
 			},
@@ -650,6 +670,7 @@ local function createConfig()
 				name = "Rare",
 				desc = "Stop reforging items with any rare quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality[3] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[3] = val end
 			},
@@ -658,6 +679,7 @@ local function createConfig()
 				name = "Epic",
 				desc = "Stop reforging items with any epic quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality[4] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[4] = val end
 			},
@@ -666,6 +688,7 @@ local function createConfig()
 				name = "Legendary",
 				desc = "Stop reforging items with any legendary quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality[5] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[5] = val end
 			},
@@ -679,6 +702,7 @@ local function createConfig()
 				name = "Enabled",
 				desc = "Stop reforging items with an unknown enchant of any enabled quality",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopUnknown.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown.enabled = val end
 			},
@@ -687,38 +711,48 @@ local function createConfig()
 				name = "Extract",
 				desc = "Automatically extract any unknown enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopUnknown.extract end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown.extract = val end
 			},
-			unknownUncommon = {
+			spacer2 = {
 				order = 43,
+				type = "description",
+				name = " "
+			},
+			unknownUncommon = {
+				order = 44,
 				name = "Uncommon",
 				desc = "Stop reforging items with any unknown uncommon quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[2] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[2] = val end
 			},
 			unknownRare = {
-				order = 44,
+				order = 45,
 				name = "Rare",
 				desc = "Stop reforging items with any unknown rare quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[3] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[3] = val end
 			},
 			unknownEpic = {
-				order = 45,
+				order = 46,
 				name = "Epic",
 				desc = "Stop reforging items with any unknown epic quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[4] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[4] = val end
 			},
 			unknownLegendary = {
-				order = 46,
+				order = 47,
 				name = "Legendary",
 				desc = "Stop reforging items with any unknown legendary quality enchant",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopUnknown[5] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopUnknown[5] = val end
 			},
@@ -732,6 +766,7 @@ local function createConfig()
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant above the set value",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice.enabled = val end
 			},
@@ -745,48 +780,58 @@ local function createConfig()
 				max = 30,
 				softMin = 1,
 				softMax = 20,
+				width = 1.5,
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice.value end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice.value = val end
 			},
-			priceUncommon = {
+			spacer3 = {
 				order = 53,
+				type = "description",
+				name = " "
+			},
+			priceUncommon = {
+				order = 54,
 				name = "Uncommon",
 				desc = "Stop reforging items with an uncommon quality enchant above the price value",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice[2] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[2] = val end
 			},
 			priceRare = {
-				order = 54,
+				order = 55,
 				name = "Rare",
 				desc = "Stop reforging items with a rare quality enchant above the price value",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice[3] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[3] = val end
 			},
 			priceEpic = {
-				order = 55,
+				order = 56,
 				name = "Epic",
 				desc = "Stop reforging items with an epic quality enchant above the price value",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice[4] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[4] = val end
 			},
 			priceLegendary = {
-				order = 56,
+				order = 57,
 				name = "Legendary",
 				desc = "Stop reforging items with a legendary quality enchant above the price value",
 				type = "toggle",
+				width = "half",
 				get = function(info) return MM.db.realm.OPTIONS.stopPrice[5] end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopPrice[5] = val end
 			},
 			greenHeader = {
-				order = 57,
+				order = 60,
 				name = "Stop for Green enchants of a Catagory",
 				type = "header"
 			},
 			greenEnabled = {
-				order = 58,
+				order = 61,
 				name = "Enabled",
 				desc = "Stop reforging items when you match a selected catagory of green",
 				type = "toggle",
@@ -795,7 +840,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.green.enabled = val end
 			},
 			greenUnknown = {
-				order = 59,
+				order = 62,
 				name = "Unknown",
 				desc = "Only Stop when matched enchant of the selected catagory of green is unknown",
 				type = "toggle",
@@ -804,7 +849,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.green.unknown = val end
 			},
 			greenExtract = {
-				order = 60,
+				order = 63,
 				name = "Extract",
 				desc = "Automatically extract unknown enchants of the selected green catagories",
 				type = "toggle",
@@ -812,8 +857,13 @@ local function createConfig()
 				get = function(info) return MM.db.realm.OPTIONS.green.extract end,
 				set = function(info,val) MM.db.realm.OPTIONS.green.extract = val end
 			},
+			spacer4 = {
+				order = 64,
+				type = "description",
+				name = "Enable Green catagories"
+			},
 			Focused = {
-				order = 62,
+				order = 65,
 				name = "Focused",
 				desc = "Stop for Green enchants with the Focused Prefix. These increase the bonus scaling of an ability.",
 				type = "toggle",
@@ -822,7 +872,7 @@ local function createConfig()
 				set = greenS
 			},
 			Concentrated = {
-				order = 63,
+				order = 66,
 				name = "Concentrated",
 				desc = "Stop for Green enchants with the Concentrated Prefix. These reduce the mana cost of an ability.",
 				type = "toggle",
@@ -831,7 +881,7 @@ local function createConfig()
 				set = greenS
 			},
 			Taunting = {
-				order = 64,
+				order = 67,
 				name = "Taunting",
 				desc = "Stop for Green enchants with the Taunting Prefix. These increase the threat of an ability.",
 				type = "toggle",
@@ -840,7 +890,7 @@ local function createConfig()
 				set = greenS
 			},
 			Accurate = {
-				order = 65,
+				order = 68,
 				name = "Accurate",
 				desc = "Stop for Green enchants with the Accurate Prefix. These increase the hit chance of an ability.",
 				type = "toggle",
@@ -849,7 +899,7 @@ local function createConfig()
 				set = greenS
 			},
 			Subtle = {
-				order = 66,
+				order = 69,
 				name = "Subtle",
 				desc = "Stop for Green enchants with the Subtle Prefix. These reduce the threat of an ability.",
 				type = "toggle",
@@ -858,7 +908,7 @@ local function createConfig()
 				set = greenS
 			},
 			Quick = {
-				order = 67,
+				order = 70,
 				name = "Quick",
 				desc = "Stop for Green enchants with the Quick Prefix. These reduce the casting time of an ability.",
 				type = "toggle",
@@ -867,7 +917,7 @@ local function createConfig()
 				set = greenS
 			},
 			Accrual = {
-				order = 68,
+				order = 71,
 				name = "Accrual",
 				desc = "Stop for Green enchants with the Accrual Prefix. These increase the damage over time of an ability.",
 				type = "toggle",
@@ -876,7 +926,7 @@ local function createConfig()
 				set = greenS
 			},
 			Brutal = {
-				order = 69,
+				order = 72,
 				name = "Brutal",
 				desc = "Stop for Green enchants with the Brutal Prefix. These increase the critical strike damage of an ability.",
 				type = "toggle",
@@ -885,7 +935,7 @@ local function createConfig()
 				set = greenS
 			},
 			Critical = {
-				order = 70,
+				order = 73,
 				name = "Critical",
 				desc = "Stop for Green enchants with the Critical Prefix. These increase the critical strike chance of an ability.",
 				type = "toggle",
@@ -894,7 +944,7 @@ local function createConfig()
 				set = greenS
 			},
 			Lengthy = {
-				order = 71,
+				order = 74,
 				name = "Lengthy",
 				desc = "Stop for Green enchants with the Lengthy Prefix. These increase the duration of an ability.",
 				type = "toggle",
@@ -903,7 +953,7 @@ local function createConfig()
 				set = greenS
 			},
 			Hardy = {
-				order = 72,
+				order = 75,
 				name = "Hardy",
 				desc = "Stop for Green enchants with the Hardy Prefix. These increase the dispel resistance of an ability.",
 				type = "toggle",
@@ -912,7 +962,7 @@ local function createConfig()
 				set = greenS
 			},
 			Steady = {
-				order = 73,
+				order = 76,
 				name = "Steady",
 				desc = "Stop for Green enchants with the Steady Prefix. These reduces the pushback of an ability.",
 				type = "toggle",
@@ -921,7 +971,7 @@ local function createConfig()
 				set = greenS
 			},
 			Powerful = {
-				order = 74,
+				order = 77,
 				name = "Powerful",
 				desc = "Stop for Green enchants with the Powerful Prefix. These increase the damage of an ability.",
 				type = "toggle",
@@ -930,7 +980,7 @@ local function createConfig()
 				set = greenS
 			},
 			Hasty = {
-				order = 75,
+				order = 78,
 				name = "Hasty",
 				desc = "Stop for Green enchants with the Hasty Prefix. These reduces the cooldown of an ability.",
 				type = "toggle",
@@ -939,7 +989,7 @@ local function createConfig()
 				set = greenS
 			},
 			Other = {
-				order = 76,
+				order = 79,
 				name = "Other",
 				desc = "Stop for the 12 remaining assorted greens: Speedy, Improved, Defensive, Energizing, Camouflage, Debbie, Meating, Dispersing",
 				type = "toggle",
