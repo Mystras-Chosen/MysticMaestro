@@ -34,6 +34,7 @@ local running, currentIndex, scanResultSet
 
 function automationTable.Start()
   collectSellableEnchantItems()
+  if #enchantScanList <= 0 then return end
   MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "value")
   MM.AutomationUtil.SetProgressBarMinMax(automationTable, 0, #enchantScanList)
   MM.AutomationUtil.ShowAutomationPopup(automationTable, "running")
