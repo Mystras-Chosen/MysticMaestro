@@ -209,6 +209,7 @@ local function configGreenMatch(currentEnchant)
 end
 
 local function configConditionMet(currentEnchant)
+	if not options then initOptions() end
 	local unknown = configUnknownMatch(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
 	local green = configGreenMatch(currentEnchant)
