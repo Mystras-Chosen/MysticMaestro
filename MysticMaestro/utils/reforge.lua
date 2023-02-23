@@ -199,7 +199,7 @@ end
 
 local function configGreenMatch(currentEnchant)
 	local matchGreen, rxMatch, unknownLogic
-	if currentEnchant.quality == 2 then
+	if options.green.enabled and currentEnchant.quality == 2 then
 		rxMatch = string.match(currentEnchant.spellName,"^[a-zA-Z]+")
 		unknownLogic = not options.green.unknown or (options.green.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
 		matchGreen = options.green[rxMatch] or options.green.Other and otherGreens[rxMatch]
