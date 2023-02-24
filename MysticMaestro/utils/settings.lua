@@ -130,6 +130,24 @@ local function createConfig()
 				desc = "Enable chat output when you learn an enchant, or if you use an epic or legendary mystic scroll.",
 				type = "toggle"
 			},
+			autojarHeader = {
+				order = 40,
+				name = "Auto Bloody Jar",
+				type = "header",
+			},
+			autojarDescription = {
+				order = 41,
+				name = "Use this option with care, items which are not Untarnished Mystic Scroll can be accidentally bloodforged if you are clicking the Bloody Jar quickly.\n"
+					.. "Best practice would be clearing your inventory of other items and place Bloody Jar on your mouse wheel up/down binding.",
+				type = "description"
+			},
+			autoBloodyUntarnished = {
+				order = 42,
+				name = "Bloodforge Untarnished Mystic Scroll",
+				desc = "Automatically bloodforge Untarnished Mystic Scroll when you interact with your Bloody Bar.",
+				type = "toggle",
+				width = "full"
+			},
 		}
 	}
 	-- Scan

@@ -327,6 +327,23 @@ local function UNIT_SPELLCAST_START(event, unitID, spell)
 end
 MM:RegisterEvent("UNIT_SPELLCAST_START",UNIT_SPELLCAST_START)
 
+local function GOSSIP_SHOW()
+	if not options then initOptions() end
+	if not options.autoBloodyUntarnished then return end
+	if GossipFrameNpcNameText:GetText() ~= "Bloody Jar" then return end
+	for i=1,10 do
+		local btn = _G["GossipTitleButton"..i]
+		if not btn then return end
+		local txt = btn:GetText()
+		if txt and txt:match("Untarnished Mystic Scroll") then
+			btn:Click()
+			_G["StaticPopup1Button1"]:Click()
+			return
+		end
+	end
+end
+MM:RegisterEvent("GOSSIP_SHOW",GOSSIP_SHOW)
+
 local function dots()
 	local floorTime = math.floor(GetTime())
 	return floorTime % 3 == 0 and "." or (floorTime % 3 == 1 and ".." or "...")
