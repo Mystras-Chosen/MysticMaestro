@@ -261,7 +261,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
 			end
 		end
-		if result then
+		if result or norunes then
 			local cantFind = not FindNextInsignia()
 			if cantFind or norunes then
 				if cantFind then
