@@ -176,7 +176,9 @@ function MM:PopulateGraph(enchantID)
     enchantListingData[scanTime] = self:AuctionListStringToList(auctionListString)
   end
   for scanDate, auctionAvgString in pairs(self.data.RE_AH_STATISTICS[enchantID]["daily"] or {}) do
-    enchantListingData[scanDate] = self:DeserializeScanAvg(auctionAvgString)
+    if scanDate >= cutoff then
+      enchantListingData[scanDate] = self:DeserializeScanAvg(auctionAvgString)
+    end
   end
 
   if not auctionDataExists(enchantListingData) then
