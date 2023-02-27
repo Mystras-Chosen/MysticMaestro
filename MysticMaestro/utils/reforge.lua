@@ -192,7 +192,7 @@ end
 
 local function configPriceMatch(currentEnchant)
     local priceObj = Maestro(currentEnchant.enchantID)
-    if not priceObj then return options.stopPrice[currentEnchant.quality] and "Unknown Priced" end
+    if not priceObj then return options.stopPrice.enabled and options.stopPrice[currentEnchant.quality] and "Unknown Priced" end
 		local eval = options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
     return eval and "Price Match" or nil
 end
