@@ -393,6 +393,25 @@ local function calcDayStats(scans)
   return avg
 end
 
+local function pruneDailyData(reID)
+  local stats = MM.data.RE_AH_STATISTICS[reID]
+  if not stats then return end
+  local daily = stats["daily"]
+  if not daily then return end
+  table.sort(daily, function(k1, k2) return k1 > k2 end)
+  local removeList = {}
+  local ind = 0
+  for k, _ in pairs(daily) do
+    ind = ind + 1
+    if ind > 10 then
+      table.insert(removeList,k)
+    end
+  end
+  for _, k in ipairs(removeList) do
+    daily[k] = nil
+  end
+end
+
 function MM:CalculateDailyAverages(reID)
   local stats = self.data.RE_AH_STATISTICS[reID]
   if not stats then return end
@@ -405,6 +424,7 @@ function MM:CalculateDailyAverages(reID)
     local avg = calcDayStats(scans)
     stats["daily"][dCode] = serializeScanAvg(avg)
   end
+  pruneDailyData(reID)
   -- initialize the rolling average
   local rAvg, rCount = {}, 0
   for _, val in pairs(valueList) do rAvg[val] = 0 end
