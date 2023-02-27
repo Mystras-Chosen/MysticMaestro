@@ -61,13 +61,13 @@ MM.daysDisplayedInGraph = 10
 local secondsPerDay, secondsPerHour, secondsPerMinute = 86400, 3600, 60
 
 local function calcGridLineCorrection()
-  return MM:GetMidnightTime(0) % secondsPerDay
+  return MM:DaysAgo(0) % secondsPerDay
 end
 
 local g
 
 local function updateXAxisRange(correction)
-  local rightBound = MM:GetMidnightTime(0) - correction
+  local rightBound = MM:DaysAgo(0) - correction
   local leftBound = rightBound - MM.daysDisplayedInGraph * secondsPerDay
   g:SetXAxis(leftBound, rightBound)
 end
@@ -140,7 +140,7 @@ local function interpolatePoints(x0, y2, y1, x2, x1)
 end
 
 local function collectAndTransformData(enchantListingData, correction)
-  local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+  local leftBoundMidnightTime = MM:DaysAgo(MM.daysDisplayedInGraph)
   local oldListingTime, oldListingBuyouts = getOldListing(enchantListingData, leftBoundMidnightTime)
   if oldListingTime then
     enchantListingData[oldListingTime] = nil
@@ -159,7 +159,7 @@ local function collectAndTransformData(enchantListingData, correction)
 end
 
 local function auctionDataExists(enchantListingData)
-  local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+  local leftBoundMidnightTime = MM:DaysAgo(MM.daysDisplayedInGraph)
   for timeKey, auctionList in pairs(enchantListingData) do
     if timeKey >= leftBoundMidnightTime and (#auctionList > 0 or auctionList.Min) then
       return true
@@ -170,6 +170,7 @@ end
 
 function MM:PopulateGraph(enchantID)
   g:ResetData()
+  local cutoff = MM:DaysAgo(MM.daysDisplayedInGraph)
   local enchantListingData = {}
   for scanTime, auctionListString in pairs(self.data.RE_AH_LISTINGS[enchantID]) do
     enchantListingData[scanTime] = self:AuctionListStringToList(auctionListString)

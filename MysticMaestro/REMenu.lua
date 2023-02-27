@@ -1206,7 +1206,7 @@ do -- show/hide and select/deselect mystic enchant button functions
     -- prunes all old listings except for the most recent one that also has buyouts
   function MM:PruneOldListings(enchantID)
     local listingData = MM.data.RE_AH_LISTINGS[enchantID]
-    local leftBoundMidnightTime = MM:GetMidnightTime(MM.daysDisplayedInGraph)
+    local leftBoundMidnightTime = MM:DaysAgo(MM.daysDisplayedInGraph)
     local removeList = {}
     for timeKey, auctionListString in pairs(listingData) do
       if timeKey < leftBoundMidnightTime then

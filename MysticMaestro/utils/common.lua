@@ -227,15 +227,11 @@ function MM:TimeToDate(stamp)
   return time({year=d.year, month=d.month, day=d.day})
 end
 
-local secondsPerDay, secondsPerHour, secondsPerMinute = 86400, 3600, 60
-
--- if daysAgo is 0, get next midnight time
-function MM:GetMidnightTime(daysAgo)
-  local currentTime = time()
-  local currentDateTime = date("%H %M %S", currentTime)
-  local hours, minutes, seconds = currentDateTime:match("(%d+) (%d+) (%d+)")
-  local lastMidnightTime = currentTime - hours * secondsPerHour - minutes * secondsPerMinute - seconds
-  return lastMidnightTime - secondsPerDay * (daysAgo - 1)
+function MM:DaysAgo(days)
+  local stamp = MM:TimeToDate(time())
+  local t = date("*t",stamp)
+  t.day = t.day - days
+  return time(t)
 end
 
 function MM:Dump(orig, depth)
