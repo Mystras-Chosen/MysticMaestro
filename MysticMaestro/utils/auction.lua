@@ -654,7 +654,7 @@ local function findSellableItemWithEnchantID(enchantID,listMode)
   end
 end
 
-local bagClear, isFetching, fetchBag, fetchSlot, noRefresh, noRefreshTimer
+local bagClear, isFetching, fetchBag, fetchSlot, autoPosting, autoPostingTimer
 local auctionQueue = {}
 local auctionQueueAdded = {}
 function MM:ClearAuctionItem()
@@ -674,21 +674,21 @@ function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
 end
 
 local function clearQueueObjects()
-  noRefresh = nil
+  autoPosting = nil
   auctionQueueAdded = {}
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
-    if noRefresh and not bagClear and not isFetching then
+    if autoPosting and not bagClear and not isFetching then
       if #auctionQueue <= 0 then
-        if not noRefreshTimer then
-          noRefreshTimer = Timer.NewTimer(5, clearQueueObjects)
+        if not autoPostingTimer then
+          autoPostingTimer = Timer.NewTimer(5, clearQueueObjects)
         end
         return
-      elseif noRefreshTimer then
-        noRefreshTimer:Cancel()
-        noRefreshTimer = nil
+      elseif autoPostingTimer then
+        autoPostingTimer:Cancel()
+        autoPostingTimer = nil
       end
       local nextItem = table.remove(auctionQueue)
       bagClear = true
@@ -707,15 +707,15 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         isFetching = nil
         fetchBag = nil
         fetchSlot = nil
-        local modKey = IsModifierKeyDown()
-        if (MM.db.realm.OPTIONS.confirmList and not modKey)
-        or (not MM.db.realm.OPTIONS.confirmList and modKey) then
-          StaticPopup_Show("MM_LIST_AUCTION")
-        else
-          if not noRefresh and MM:StartAuction(enchantToList, startingPrice) then
-            MM:RefreshSelectedEnchantAuctions(true)
-          elseif noRefresh then
+        if autoPosting then
             MM:StartAuction(enchantToList, startingPrice)
+        else
+          local modKey = IsModifierKeyDown()
+          if (MM.db.realm.OPTIONS.confirmList and not modKey)
+          or (not MM.db.realm.OPTIONS.confirmList and modKey) then
+            StaticPopup_Show("MM_LIST_AUCTION")
+          elseif MM:StartAuction(enchantToList, startingPrice) then
+            MM:RefreshSelectedEnchantAuctions(true)
           end
         end
       end
@@ -744,7 +744,7 @@ function MM:ListAuctionQueue(enchantID,price)
       entry.enchantID = enchantID
       table.insert(auctionQueue,entry)
     end
-    noRefresh = true
+    autoPosting = true
     auctionQueueAdded[enchantID] = true
   end
 end
