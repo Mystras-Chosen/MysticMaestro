@@ -9,6 +9,8 @@ local defaultDB = {
       confirmCancel = true,
       confirmCraft = true,
 
+      listDuration = 1,
+      
       allowEpic = false,
       limitIlvl = 71,
       limitGold = 2,

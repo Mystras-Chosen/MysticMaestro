@@ -53,6 +53,15 @@ local function createConfig()
 				type = "toggle",
 				width = 0.7,
 			},
+			listDuration = {
+				order = 6,
+				name = "Listing Duration Index",
+				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
+				type = "range",
+				step = 1,
+				min = 1,
+				max = 3
+			},
 			limitsHeader = {
 				order = 10,
 				name = "Item Limits",

@@ -562,11 +562,12 @@ function MM:CancelAuction(enchantID, buyoutPrice)
 end
 
 function MM:StartAuction(enchantID, price)
-  if CalculateAuctionDeposit(1, 1) > GetMoney() then
+  local duration = MM.db.realm.OPTIONS.listDuration
+  if CalculateAuctionDeposit(duration, 1) > GetMoney() then
     UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
     return false
   else
-    StartAuction(price, price, 1, 1, 1)
+    StartAuction(price, price, duration, 1, 1)
     self.listedAuctionEnchantID = enchantID
     self.listedAuctionBuyoutPrice = price
     return true
