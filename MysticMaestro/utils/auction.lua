@@ -563,7 +563,7 @@ end
 
 function MM:StartAuction(enchantID, price)
   local duration = MM.db.realm.OPTIONS.listDuration
-  if CalculateAuctionDeposit(duration, 1) > GetMoney() then
+  if CalculateAuctionDeposit(duration) > GetMoney() then
     UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
     return false
   else
