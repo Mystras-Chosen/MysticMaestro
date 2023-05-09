@@ -25,42 +25,53 @@ local function createConfig()
 				name = "Confirmations",
 				type = "header"
 			},
-			confirmList = {
+			confirmDescription = {
 				order = 2,
-				name = "Confirm Listing",
+				name = "Check the box for each type of confirmation you would like to enable.",
+				type = "description"
+			},
+			confirmList = {
+				order = 3,
+				name = "Listing",
 				desc = "Enables a confirmation before making a listing.",
 				type = "toggle",
-				width = 0.7,
+				width = 0.5,
 			},
 			confirmBuyout = {
-				order = 3,
-				name = "Confirm Buyout",
+				order = 4,
+				name = "Buyout",
 				desc = "Enables a confirmation before buying an auction.",
 				type = "toggle",
-				width = 0.7,
+				width = 0.5,
 			},
 			confirmCancel = {
-				order = 4,
-				name = "Confirm Cancel",
+				order = 5,
+				name = "Cancel",
 				desc = "Enables a confirmation before canceling your auction.",
 				type = "toggle",
-				width = 0.7,
+				width = 0.5,
 			},
 			confirmCraft = {
-				order = 5,
-				name = "Confirm Craft",
+				order = 6,
+				name = "Craft",
 				desc = "Enables a confirmation before crafting an enchant onto a trinket.",
 				type = "toggle",
-				width = 0.7,
+				width = 0.5,
+			},
+			durationHeader = {
+				order = 7,
+				name = "Auction Duration",
+				type = "header"
 			},
 			listDuration = {
-				order = 6,
+				order = 8,
 				name = "Listing Duration Index",
 				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
 				type = "range",
 				step = 1,
 				min = 1,
-				max = 3
+				max = 3,
+				width = 2
 			},
 			limitsHeader = {
 				order = 10,
