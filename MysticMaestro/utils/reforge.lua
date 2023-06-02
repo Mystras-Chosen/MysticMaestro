@@ -27,6 +27,10 @@ local function StopCraftingAttemptTimer()
 end
 
 local function StopAutoReforge(result)
+	local enabled = false
+	if autoReforgeEnabled or autoAutoEnabled then
+		enabled = true
+	end
 	if autoAutoEnabled then
 		if slotIndex - 1 >= 0 then
 			slotIndex = slotIndex - 1
@@ -43,7 +47,7 @@ local function StopAutoReforge(result)
 	end
 	if result then
 		MM:Print("Reforge stopped for " .. result)
-	else
+	elseif enabled then
 		MM:Print("Reforge has been stopped")
 	end
 	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
