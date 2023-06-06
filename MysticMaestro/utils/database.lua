@@ -21,8 +21,6 @@ local defaultDB = {
 
       notificationLearned = true,
 
-      autoBloodyUntarnished = false,
-
       useGetall = true,
       rarityMagic = true,
       rarityRare = true,

@@ -161,13 +161,6 @@ local function createConfig()
 					.. "Best practice would be clearing your inventory of other items and place Bloody Jar on your mouse wheel up/down binding.",
 				type = "description"
 			},
-			autoBloodyUntarnished = {
-				order = 42,
-				name = "Bloodforge Untarnished Mystic Scroll",
-				desc = "Automatically bloodforge Untarnished Mystic Scroll when you interact with your Bloody Bar.",
-				type = "toggle",
-				width = "full"
-			},
 		}
 	}
 	-- Scan
