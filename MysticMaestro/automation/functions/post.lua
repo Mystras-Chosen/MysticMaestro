@@ -81,9 +81,9 @@ local function assembleQueFromResults()
       local price, yours = MM:PriceCorrection(results[1],results)
       if not price then
         MM:Print("Price is below Minimum, leaving in inventory.")
-        return
+      else
+        undercut(enchantID, price, yours)
       end
-      undercut(enchantID, price, yours)
     else
       MM:ListAuctionQueue(enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
     end

@@ -428,9 +428,9 @@ local function setUpButtonWidgets()
           local price, yours = MM:PriceCorrection(results[1],results)
           if not price then
             MM:Print("Price is below Minimum, leaving in inventory.")
-            return
+          else
+            undercut(MM:GetSelectedEnchantButton().enchantID, price, yours)
           end
-          undercut(MM:GetSelectedEnchantButton().enchantID, price, yours)
         else
           MM:ListAuction(MM:GetSelectedEnchantButton().enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
         end
