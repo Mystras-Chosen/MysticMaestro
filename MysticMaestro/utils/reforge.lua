@@ -96,7 +96,9 @@ local function FindNextInsignia()
 	for i=bagID, 4 do
 		for j=slotIndex + 1, GetContainerNumSlots(i) do
 			local item = select(7, GetContainerItemInfo(i, j))
-			if item and (item:find("Insignia of the Alliance") or item:find("Insignia of the Horde") or item:find("Bloodforged Untarnished Mystic Scroll")) then
+			local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
+			local istrinket = MM:IsTrinket(name,reqLevel)
+			if item and istrinket then
 				local re = GetREInSlot(i, j)
 				local reObj = MYSTIC_ENCHANTS[re]
 				if reObj ~= nil then
