@@ -97,10 +97,13 @@ local function FindNextInsignia()
 	for i=bagID, 4 do
 		for j=slotIndex + 1, GetContainerNumSlots(i) do
 			local item = select(7, GetContainerItemInfo(i, j))
-			local name,_,_,_,reqLevel = GetItemInfo(item)
-			local istrinket = MM:IsTrinket(name,reqLevel)
-			if item and istrinket then
-				if name:find("Untarnished Mystic Scroll") then
+			if item then
+				local isBound = MM:IsSoulbound(i, j)
+				local name,_,_,_,reqLevel = GetItemInfo(item)
+				local istrinket = MM:IsTrinket(name,reqLevel)
+			end
+			if item and istrinket and not isBound then
+				if name == "Untarnished Mystic Scroll" then
 					nextItemUntarnished = true
 				else
 					nextItemUntarnished = false

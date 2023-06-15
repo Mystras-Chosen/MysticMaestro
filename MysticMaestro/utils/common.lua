@@ -436,6 +436,6 @@ end
 
 function MM:IsTrinket(itemName,reqLevel)
   if itemName and reqLevel then
-    return (reqLevel == 15 and itemName:find("Insignia of the")) or itemName:find("Bloodforged Untarnished Mystic Scroll")
+    return (reqLevel == 15 and itemName:find("Insignia of the")) or itemName:find("Untarnished Mystic Scroll")
   end
 end
