@@ -104,7 +104,7 @@ local function FindNextInsignia()
 				istrinket = MM:IsTrinket(name,reqLevel)
 			end
 			if item and istrinket and not isBound then
-				if name == "Untarnished Mystic Scroll" then
+				if name == "Untarnished Mystic Scroll" or name == "Bloodforged Untarnished Mystic Scroll" then
 					nextItemUntarnished = true
 				else
 					nextItemUntarnished = false
