@@ -648,7 +648,9 @@ local function findSellableItemWithEnchantID(enchantID,listMode)
   elseif #items.trinket > 0 then
     return unpack(items.trinket[1])
   elseif #items.other > 0 then
-    table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
+    if #items.other > 1 then
+      table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
+    end
     return unpack(items.other[1])
   else
     return
