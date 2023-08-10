@@ -11,11 +11,9 @@ function MM:GetAuctionInfo(i)
 end
 
 function MM:IsEnchantItemFound(itemName, quality, level, buyoutPrice, i)
-  local trinketFound = MM:IsTrinket(itemName, level)
-  local enchantID, mysticScroll = GetAuctionItemMysticEnchant("list", i)
-  enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
-  local properItem = buyoutPrice and buyoutPrice > 0 and ((quality and quality >= 3) or mysticScroll) 
-  return properItem and enchantID, enchantID, trinketFound
+  -- local enchantID = GetAuctionItemMysticEnchant("list", i)
+  local properItem = buyoutPrice and buyoutPrice > 0 or false
+  return properItem and enchantID
 end
 
 function MM:CollectSpecificREData(scanTime, expectedEnchantID)
@@ -118,11 +116,8 @@ local function getMyAuctionInfo(i)
   local enchantID, mysticScroll = GetAuctionItemMysticEnchant("owner", i)
   enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
   local link = GetAuctionItemLink("owner", i)
-  -- local duration = GetAuctionItemTimeLeft("owner", i)
   local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
-  local allowedQuality, allowedItemLevel, allowedVendorPrice
-  local allowed = mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice)
-  return buyoutPrice, enchantID, link, allowed
+  return buyoutPrice, enchantID, link
 end
 
 local function collectMyAuctionData(results)
@@ -604,54 +599,29 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 }
 
 local function findSellableItemWithEnchantID(enchantID,listMode)
-  local items = {trinket = {},other = {}}
+  local items = {}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
-      local _,count,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
+      local _,count,_,quality,_,_,item,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
       local name, reqLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
       if item then
-        name, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(item)
-        mysticScroll = name:match("^Mystic Scroll: (.*)")
-      end
-      -- we have an item, with at least 3 quality and is not soulbound
-      if item and (mysticScroll or (MM:AllowedItem(quality, iLevel, vendorPrice) and not MM:IsSoulbound(bagID, slotIndex))) then
+        query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
         local re
-        if mysticScroll then
-          re = MM.RE_LOOKUP[mysticScroll]
-        else
-          re = GetREInSlot(bagID, slotIndex)
+        if query ~= nil then
+          re = query.SpellID
         end
-        if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
-          re = MM.RE_ID[re]
-        end
-      
-        -- the item matches our specified RE, and is sorted into trinket or not
         if re == enchantID then
-          local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
-          local istrinket = MM:IsTrinket(name,reqLevel)
           for i=1, count do
-            table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, (vendorPrice or 0)})
+            table.insert(items, {bagID, slotIndex})
           end
         end
       end
     end
   end
   if listMode then
-    local itemList = {}
-    for _, entry in pairs(items.trinket) do
-      table.insert(itemList,entry)
-    end
-    for _, entry in pairs(items.other) do
-      table.insert(itemList,entry)
-    end
-    return itemList ~= {} and itemList or false
-  elseif #items.trinket > 0 then
-    return unpack(items.trinket[1])
-  elseif #items.other > 0 then
-    if #items.other > 1 then
-      table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
-    end
-    return unpack(items.other[1])
+    return items ~= {} and items or false
+  elseif #items > 0 then
+    return unpack(items[1])
   else
     return
   end

@@ -52,10 +52,10 @@ end
 
 local function recordListingData(index)
   local itemName, level, buyoutPrice, quality = MM:GetAuctionInfo(index)
-  local itemFound, enchantID, trinketFound = MM:IsEnchantItemFound(itemName, quality, level, buyoutPrice, index)
-  if itemFound then
-    local temp = listings[enchantID][scanTime] or ":"
-    listings[enchantID][scanTime] = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+  local enchantID = MM:IsEnchantItemFound(itemName, quality, level, buyoutPrice, index)
+  if enchantID then
+    local temp = listings[enchantID][scanTime] or ""
+    listings[enchantID][scanTime] = buyoutPrice .. "," .. temp
   end
 end
 
