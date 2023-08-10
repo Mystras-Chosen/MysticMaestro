@@ -14,7 +14,7 @@ local function addLinesTooltip(tt, spellID)
     end
     tt:AppendText("   "..indicator)
   end
-  tt:AddDoubleLine(MM:cTxt(name, enchant.quality), MM:DaysAgoString(stats and stats.Last or 0),1,1,0,1,1,1)
+  tt:AddDoubleLine(MM:cTxt(enchant.SpellName, enchant.quality), MM:DaysAgoString(stats and stats.Last or 0),1,1,0,1,1,1)
   if stats ~= nil and stats.Last ~= nil then
     local temp
     if MM.db.realm.OPTIONS.ttMin then
