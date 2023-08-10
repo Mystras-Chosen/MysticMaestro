@@ -603,60 +603,25 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 }
 
 local function findSellableItemWithEnchantID(enchantID,listMode)
-  local items = {trinket = {},other = {}}
-  for bagID=0, 4 do
-    for slotIndex=1, GetContainerNumSlots(bagID) do
-      local _,count,_,quality,_,_,item = GetContainerItemInfo(bagID, slotIndex)
-      local name, reqLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
-      if item then
-        name, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(item)
-        mysticScroll = name:match("^Mystic Scroll: (.*)")
-      end
-      -- we have an item, with at least 3 quality and is not soulbound
-      if item and (mysticScroll or (MM:AllowedItem(quality, iLevel, vendorPrice) and not MM:IsSoulbound(bagID, slotIndex))) then
-        local re
-        if mysticScroll then
-          re = MM.RE_LOOKUP[mysticScroll]
-        else
-          re = GetREInSlot(bagID, slotIndex)
-        end
-        if re and not MYSTIC_ENCHANTS[re] and MM.RE_ID[re] then
-          re = MM.RE_ID[re]
-        end
-      
-        -- the item matches our specified RE, and is sorted into trinket or not
-        if re == enchantID then
-          local _,_,_,_,reqLevel,_,_,_,_,_,vendorPrice = GetItemInfo(item)
-          local istrinket = MM:IsTrinket(name,reqLevel)
-          for i=1, count do
-            table.insert(istrinket and items.trinket or items.other, istrinket and {bagID, slotIndex} or {bagID, slotIndex, (vendorPrice or 0)})
-          end
-        end
-      end
+  local matchingEnchantScrolls = {}
+
+  for _, scrollData in ipairs(C_MysticEnchant.GetMysticScrolls()) do
+    local scrollInfo = C_MysticEnchant.GetEnchantInfoByItem(scrollData.Entry)
+    if scrollInfo and scrollInfo.SpellID == enchantID then
+      table.insert(matchingEnchantScrolls, scrollData)
     end
   end
+
+  print("found: " .. #matchingEnchantScrolls)
+  
   if listMode then
-    local itemList = {}
-    for _, entry in pairs(items.trinket) do
-      table.insert(itemList,entry)
-    end
-    for _, entry in pairs(items.other) do
-      table.insert(itemList,entry)
-    end
-    return itemList ~= {} and itemList or false
-  elseif #items.trinket > 0 then
-    return unpack(items.trinket[1])
-  elseif #items.other > 0 then
-    if #items.other > 1 then
-      table.sort(items.other,function(k1, k2) return MM:Compare(items.other[k1].vendorPrice, items.other[k2].vendorPrice, ">") end)
-    end
-    return unpack(items.other[1])
-  else
-    return
+    return matchingEnchantScrolls
+  elseif #matchingEnchantScrolls > 0 then
+    return matchingEnchantScrolls[1]
   end
 end
 
-local bagClear, isFetching, fetchBag, fetchSlot, autoPosting, autoPostingTimer
+local bagClear, isFetching, fetchSellableScrollData, autoPosting, autoPostingTimer
 local auctionQueue = {}
 local auctionQueueAdded = {}
 function MM:ClearAuctionItem()
@@ -669,8 +634,8 @@ function MM:ClearAuctionItem()
   return true
 end
 
-function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
-  PickupContainerItem(bagID, slotIndex)
+function MM:PlaceItemInAuctionSlot(sellableScrollData)
+  PickupContainerItem(sellableScrollData.Bag, sellableScrollData.Slot)
   ClickAuctionSellItemButton()
   ClearCursor()
 end
@@ -694,7 +659,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       end
       local nextItem = table.remove(auctionQueue)
       bagClear = true
-      fetchBag, fetchSlot = nextItem[1], nextItem[2]
+      fetchSellableScrollData = nextItem
       startingPrice = nextItem.price
       enchantToList = nextItem.enchantID
     elseif bagClear then
@@ -704,11 +669,10 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       end
     elseif isFetching then
       if not GetAuctionSellItemInfo() then
-        MM:PlaceItemInAuctionSlot(fetchBag, fetchSlot)
+        MM:PlaceItemInAuctionSlot(fetchSellableScrollData)
       else
         isFetching = nil
-        fetchBag = nil
-        fetchSlot = nil
+        fetchSellableScrollData = nil
         if autoPosting then
             MM:StartAuction(enchantToList, startingPrice)
         else
@@ -726,11 +690,12 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 )
 
 function MM:ListAuction(enchantID, price)
-  local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
-  if bagID then
+  local sellableScrollData = findSellableItemWithEnchantID(enchantID)
+  if sellableScrollData then
+    print("scrollData not nil")
     MM:CloseAuctionPopups()
     bagClear = true
-    fetchBag, fetchSlot = bagID, slotIndex
+    fetchSellableScrollData = sellableScrollData
     startingPrice = price
     enchantToList = enchantID
   else
@@ -740,11 +705,12 @@ end
 
 function MM:ListAuctionQueue(enchantID,price)
   if not auctionQueueAdded[enchantID] then
-    local itemList = findSellableItemWithEnchantID(enchantID,true)
-    for _, entry in ipairs(itemList) do
-      entry.price = price
-      entry.enchantID = enchantID
-      table.insert(auctionQueue,entry)
+    local sellableScrollDataList = findSellableItemWithEnchantID(enchantID,true)
+    print("list: " .. tostring(#sellableScrollDataList))
+    for _, sellableScrollData in ipairs(sellableScrollDataList) do
+      sellableScrollData.price = price
+      sellableScrollData.enchantID = enchantID
+      table.insert(auctionQueue,sellableScrollData)
     end
     autoPosting = true
     auctionQueueAdded[enchantID] = true
