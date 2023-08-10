@@ -154,17 +154,26 @@ function MM:BuildWorkingShopList()
 				if enchantName ~= "" then
 					local n = enchantName:lower()
 					local standardStr = select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))
-					-- local ID = MM.RE_LOOKUP[standardStr]
-					if ID then
-						enabledList[ID] = true
+					local enchantList = C_MysticEnchant.QueryEnchants(99,1,standardStr,{})
+					local enchant, spellID
+					if enchantList then
+						for _, enchant in ipairs(enchantList) do
+							if enchant.SpellName == standardStr then
+								spellID = enchant.SpellID
+								do break end
+							end
+						end
+					end
+					if spellID then
+						enabledList[spellID] = true
 						if list.extract then
-							extractList[ID] = true
+							extractList[spellID] = true
 						end
 						if list.reserve then
-							reserveList[ID] = true
+							reserveList[spellID] = true
 						end
 						if list.unknown then
-							unknownList[ID] = true
+							unknownList[spellID] = true
 						end
 					end
 				end
