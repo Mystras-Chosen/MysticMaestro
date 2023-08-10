@@ -49,6 +49,16 @@ function GetREInSlot(bagID, containerIndex)
   end
 end
 
+function GetREData(spellID)
+  local enchantData = MYSTIC_ENCHANTS[spellID]
+  return {
+    spellName = enchantData.spellName,
+    quality = EnchantQualitySettings[enchantData.quality], -- color
+    spellID = enchantData.spellID,
+    enchantID = enchantData.spellID
+  }
+end
+
 -- spellID, flags, enchantID, quality, spellName, 
 
 
