@@ -1,34 +1,20 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local function getNameAndID(input)
-  local nameRE, idRE
-  if type(input) == "number" then
-    idRE = input
-    nameRE = MM.RE_NAMES[input]
-  else
-    -- idRE = MM.RE_LOOKUP[input]
-    nameRE = input
-  end
-  return nameRE, idRE
-end
-
-local function addLinesTooltip(tt, input)
+local function addLinesTooltip(tt, spellID)
   if not MM.db.realm.OPTIONS.ttEnable then return end
-  local name, reID = getNameAndID(input)
-  if name == nil or reID == nil then return end
-  local stats = MM:StatObj(reID)
-  local known = IsReforgeEnchantmentKnown(reID)
-  local dataRE = MYSTIC_ENCHANTS[reID]
-  if MM.db.realm.OPTIONS.ttKnownIndicator and dataRE then
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+  if not enchant then return end
+  local stats = MM:StatObj(spellID)
+  if MM.db.realm.OPTIONS.ttKnownIndicator and enchant then
     local indicator
-    if known then
+    if enchant.Known then
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_green", 64, 64, 16, 16, 0, 1, 0, 1)
     else
       indicator = CreateTextureMarkup("Interface\\Icons\\ability_felarakkoa_feldetonation_red", 64, 64, 16, 16, 0, 1, 0, 1)
     end
     tt:AppendText("   "..indicator)
   end
-  tt:AddDoubleLine(dataRE and MM:cTxt(name, tostring(dataRE.quality)) or "Mystic Maestro:",MM:DaysAgoString(stats and stats.Last or 0),1,1,0,1,1,1)
+  tt:AddDoubleLine(MM:cTxt(name, enchant.quality), MM:DaysAgoString(stats and stats.Last or 0),1,1,0,1,1,1)
   if stats ~= nil and stats.Last ~= nil then
     local temp
     if MM.db.realm.OPTIONS.ttMin then
@@ -86,8 +72,7 @@ function MM:TooltipHandlerItem(tooltip)
 end
 
 function MM:TooltipHandlerSpell(tooltip)
-  local enchant
-  spellID = select(3 , tooltip:GetSpell())
+  local spellID = select(3 , tooltip:GetSpell())
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
   if not enchant then return end
   addLinesTooltip(tooltip, spellID)

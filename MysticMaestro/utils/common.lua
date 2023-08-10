@@ -381,7 +381,13 @@ local colors = {
   ["2"] = "|cff1eff00",
   ["3"] = "|cff0070dd",
   ["4"] = "|cffa335ee",
-  ["5"] = "|cffff8000"
+  ["5"] = "|cffff8000",
+  ["RE_QUALITY_UNCOMMON"] = "|cff1eff00",
+  ["RE_QUALITY_RARE"] = "|cff0070dd",
+  ["RE_QUALITY_EPIC"] = "|cffa335ee",
+  ["RE_QUALITY_LEGENDARY"] = "|cffff8000",
+  ["RE_QUALITY_ARTIFACT"] = "|cffff8000",
+  ["RE_QUALITY_HEIRLOOM"] = "|cffff8000",
 }
 
 function MM:cTxt(text, color)
