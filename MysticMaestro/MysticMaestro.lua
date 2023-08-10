@@ -14,7 +14,102 @@ end
 function MM:OnEnable()
   MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
+  MM:AddressCompatibility()
 end
+
+MM.RE_LOOKUP = {}
+MM.RE_KNOWN = {}
+MM.RE_NAMES = {}
+MM.RE_ID = {}
+
+function MM:AddressCompatibility()
+
+  local function transformEnchantQuality(qualityString)
+    if qualityString == "RE_QUALITY_LEGENDARY" then
+      return 5 --"legendary"
+    elseif qualityString == "RE_QUALITY_EPIC" then
+      return 4 -- "epic"
+    elseif qualityString == "RE_QUALITY_RARE" then
+      return 3 --"rare"
+    elseif qualityString == "RE_QUALITY_UNCOMMON" then
+      return 2 --"uncommon"
+    else
+      print("trying to transform unknown enchant quality: " .. (qualityString or ""))
+    end
+  end
+  
+  local results = C_MysticEnchant.QueryEnchants(10000, 1, "", {})
+  
+  local enchants = {}
+  for _, enchantData in ipairs(results) do
+    enchants[enchantData.SpellID] = {
+      spellID = enchantData.SpellID,
+      flags = enchantData.IsWorldforged and 1 or false,
+      quality = transformEnchantQuality(enchantData.Quality),
+      spellName = enchantData.SpellName,
+      known = enchantData.Known,
+      enchantID = enchantData.SpellID,
+    }
+  end
+  
+  MYSTIC_ENCHANTS = enchants
+  
+  function IsReforgeEnchantmentKnown(spellID) -- old API function. was enchantID, but now should be spellID
+    return enchants[spellID].known
+  end
+  
+  function GetREInSlot(bagID, containerIndex)
+    for _, scrollData in ipairs(C_MysticEnchant.GetMysticScrolls()) do
+      if scrollData.Bag == bagID and scrollData.Slot == containerIndex then
+        local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scrollData.Entry)
+        if enchantInfo and enchantInfo.SpellID then
+          return enchantInfo.SpellID
+        end
+      end
+    end
+  end
+  
+  function GetREData(spellID)
+    local enchantData = MYSTIC_ENCHANTS[spellID]
+    return {
+      spellName = enchantData.spellName,
+      quality = enchantData.quality, -- color
+      spellID = enchantData.spellID,
+      enchantID = enchantData.spellID
+    }
+  end
+  
+  -- spellID, flags, enchantID, quality, spellName, 
+  
+  EnchantQualitySettingsWithBar = {
+    [5] = "|cFFFF8000", -- 255, 128, 0
+    [4] = "|cFFA335EE", -- 163, 53, 238
+    [3] = "|cFF0070DD", -- 0, 112, 221
+    [2] = "|cFF1EFF00", -- 30, 255, 0
+  }
+  
+  
+  EnchantQualitySettings = {
+    [5] = "\124cFFFF8000", -- 255, 128, 0
+    [4] = "\124cFFA335EE", -- 163, 53, 238
+    [3] = "\124cFF0070DD", -- 0, 112, 221
+    [2] = "\124cFF1EFF00", -- 30, 255, 0
+  }
+
+  for k, v in pairs(MYSTIC_ENCHANTS) do
+    if v.spellID ~= 0 and v.flags ~= 1 then
+      local enchantName = GetSpellInfo(v.spellID)
+      MM.RE_LOOKUP[enchantName] = v.enchantID
+      MM.RE_NAMES[v.enchantID] = enchantName
+      MM.RE_KNOWN[v.enchantID] = IsReforgeEnchantmentKnown(v.enchantID)
+      if v.spellID ~= v.enchantID then
+        MM.RE_ID[v.spellID] = v.enchantID
+      end
+    end
+  end
+end
+
+
 
 MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", function()
   MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()

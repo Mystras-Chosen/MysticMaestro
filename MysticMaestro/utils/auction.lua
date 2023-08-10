@@ -600,35 +600,25 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 }
 
 local function findSellableItemWithEnchantID(enchantID,listMode)
-  local items = {}
-  for bagID=0, 4 do
-    for slotIndex=1, GetContainerNumSlots(bagID) do
-      local _,count,_,quality,_,_,item,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
-      local name, reqLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
-      if item then
-        query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
-        local re
-        if query ~= nil then
-          re = query.SpellID
-        end
-        if re == enchantID then
-          for i=1, count do
-            table.insert(items, {bagID, slotIndex})
-          end
-        end
-      end
+  local matchingEnchantScrolls = {}
+
+  for _, scrollData in ipairs(C_MysticEnchant.GetMysticScrolls()) do
+    local scrollInfo = C_MysticEnchant.GetEnchantInfoByItem(scrollData.Entry)
+    if scrollInfo and scrollInfo.SpellID == enchantID then
+      table.insert(matchingEnchantScrolls, scrollData)
     end
   end
+
+  print("found: " .. #matchingEnchantScrolls)
+  
   if listMode then
-    return items ~= {} and items or false
-  elseif #items > 0 then
-    return unpack(items[1])
-  else
-    return
+    return matchingEnchantScrolls
+  elseif #matchingEnchantScrolls > 0 then
+    return matchingEnchantScrolls[1]
   end
 end
 
-local bagClear, isFetching, fetchBag, fetchSlot, autoPosting, autoPostingTimer
+local bagClear, isFetching, fetchSellableScrollData, autoPosting, autoPostingTimer
 local auctionQueue = {}
 local auctionQueueAdded = {}
 function MM:ClearAuctionItem()
@@ -641,8 +631,8 @@ function MM:ClearAuctionItem()
   return true
 end
 
-function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
-  PickupContainerItem(bagID, slotIndex)
+function MM:PlaceItemInAuctionSlot(sellableScrollData)
+  PickupContainerItem(sellableScrollData.Bag, sellableScrollData.Slot)
   ClickAuctionSellItemButton()
   ClearCursor()
 end
@@ -666,7 +656,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       end
       local nextItem = table.remove(auctionQueue)
       bagClear = true
-      fetchBag, fetchSlot = nextItem[1], nextItem[2]
+      fetchSellableScrollData = nextItem
       startingPrice = nextItem.price
       enchantToList = nextItem.enchantID
     elseif bagClear then
@@ -676,11 +666,10 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       end
     elseif isFetching then
       if not GetAuctionSellItemInfo() then
-        MM:PlaceItemInAuctionSlot(fetchBag, fetchSlot)
+        MM:PlaceItemInAuctionSlot(fetchSellableScrollData)
       else
         isFetching = nil
-        fetchBag = nil
-        fetchSlot = nil
+        fetchSellableScrollData = nil
         if autoPosting then
             MM:StartAuction(enchantToList, startingPrice)
         else
@@ -698,11 +687,12 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 )
 
 function MM:ListAuction(enchantID, price)
-  local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
-  if bagID then
+  local sellableScrollData = findSellableItemWithEnchantID(enchantID)
+  if sellableScrollData then
+    print("scrollData not nil")
     MM:CloseAuctionPopups()
     bagClear = true
-    fetchBag, fetchSlot = bagID, slotIndex
+    fetchSellableScrollData = sellableScrollData
     startingPrice = price
     enchantToList = enchantID
   else
@@ -712,11 +702,12 @@ end
 
 function MM:ListAuctionQueue(enchantID,price)
   if not auctionQueueAdded[enchantID] then
-    local itemList = findSellableItemWithEnchantID(enchantID,true)
-    for _, entry in ipairs(itemList) do
-      entry.price = price
-      entry.enchantID = enchantID
-      table.insert(auctionQueue,entry)
+    local sellableScrollDataList = findSellableItemWithEnchantID(enchantID,true)
+    print("list: " .. tostring(#sellableScrollDataList))
+    for _, sellableScrollData in ipairs(sellableScrollDataList) do
+      sellableScrollData.price = price
+      sellableScrollData.enchantID = enchantID
+      table.insert(auctionQueue,sellableScrollData)
     end
     autoPosting = true
     auctionQueueAdded[enchantID] = true
