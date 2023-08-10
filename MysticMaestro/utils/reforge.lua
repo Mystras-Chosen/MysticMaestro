@@ -71,8 +71,8 @@ local function RequestReforge()
 				StopAutoReforge("Player Moving")
 				return
 			end
-			RequestSlotReforgeEnchantment(bagID, slotIndex)
-			
+			RequestSlotReforgeEnchantment(bagID, slotIndex) -- reroll
+			--C_MysticEnchant.CollectionReforgeItem(753344230, 954252)
 		end)
 	else
 			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)

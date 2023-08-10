@@ -120,7 +120,6 @@ local function getMyAuctionInfo(i)
   local link = GetAuctionItemLink("owner", i)
   -- local duration = GetAuctionItemTimeLeft("owner", i)
   local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
-  local allowedQuality, allowedItemLevel, allowedVendorPrice
   local allowed = mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice)
   return buyoutPrice, enchantID, link, allowed
 end
