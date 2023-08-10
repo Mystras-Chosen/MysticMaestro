@@ -103,21 +103,14 @@ end
 
 function MM:ItemLinkRE(reID)
   local RE = MYSTIC_ENCHANTS[reID]
-  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[RE.quality][1]
+  local color = EnchantQualitySettings[RE.quality]
   return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
 end
 
-function MM:FindBlankInsignia()
-  -- Find a valid insignia to use for crafting
-  for bagID=0, 4 do
-    for containerIndex=1, GetContainerNumSlots(bagID) do
-      local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
-      if itemLink then
-        local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
-        if MM:IsTrinket(itemName,reqLevel) and not GetREInSlot(bagID, containerIndex) then
-          return bagID, containerIndex
-        end
-      end
+function MM:FindBlankScroll()
+  for _, scrollData in ipairs(C_MysticEnchant.GetMysticScrolls()) do
+    if scrollData.Name == "Untarnished Mystic Scroll" then
+      return scrollData.Guid
     end
   end
 end
@@ -397,15 +390,12 @@ function MM:cTxt(text, color)
 end
 
 
-function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
+function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(self, event, entry, data)
   if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
     and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
     and event ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
-  MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
-  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(this, event, entry, data)
-end
-
-function MM:MYSTIC_ENCHANT_LEARNED(this, spellID)
+  MM:ASCENSION_REFORGE_ENCHANT_RESULT(self, event, entry, data)
+  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(self, event, entry, data)
   if not self.db.realm.OPTIONS.notificationLearned then return end
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
   if not enchant then return end
@@ -421,14 +411,11 @@ function MM:GetOrbCurrency()
 end
 
 function MM:AllowedItem(quality, iLevel, vendorPrice)
-  local allowedQuality = quality == 3 or MM.db.realm.OPTIONS.allowEpic and quality == 4
-  local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
-  local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
-  return allowedQuality and allowedItemLevel and allowedVendorPrice
+  return true
 end
 
 function MM:IsTrinket(itemName,reqLevel)
-  if itemName and reqLevel then
-    return (reqLevel == 15 and itemName:find("Insignia of the")) or itemName:find("Untarnished Mystic Scroll")
+  if itemName then
+    return itemName:find("Untarnished Mystic Scroll")
   end
 end

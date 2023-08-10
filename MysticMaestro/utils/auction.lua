@@ -116,7 +116,8 @@ local function getMyAuctionInfo(i)
   local enchantID, mysticScroll = GetAuctionItemMysticEnchant("owner", i)
   local link = GetAuctionItemLink("owner", i)
   local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
-  return buyoutPrice, enchantID, link
+  local allowed = mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice)
+  return buyoutPrice, enchantID, link, allowed
 end
 
 local function collectMyAuctionData(results)

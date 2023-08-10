@@ -1,8 +1,6 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local Graph = LibStub("LibGraph-2.0")
 
-local MYSTIC_ENCHANTS = MYSTIC_ENCHANTS
-
 local function createMysticEnchantData(enchantListingData, correction)
   local averageData, minimumData, maxData = {}, {}, {}
   for timeStamp, auctionList in pairs(enchantListingData) do

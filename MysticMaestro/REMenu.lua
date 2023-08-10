@@ -230,7 +230,7 @@ do -- functions to initialize menu and menu container
 
   local awaitingRECraftResults, craftTime, pendingCraftedEnchantID, pendingCraftedEnchantCount
   local function onUpdate()
-    if awaitingRECraftResults and craftTime + 1 < GetTime() then
+    if awaitingRECraftResults and craftTime + 2 < GetTime() then
       awaitingRECraftResults = nil
       craftTime = nil
       pendingCraftedEnchantCount = nil
@@ -241,13 +241,13 @@ do -- functions to initialize menu and menu container
 
   MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
 
-  local enchantToCraft, insigniaBagID, insigniaContainerIndex
+  local enchantToCraft, blankScrollGUID
   local function attemptCraftingRE()
     awaitingRECraftResults = true
     craftTime = GetTime()
     pendingCraftedEnchantID = enchantToCraft
     pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
-    RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
+    C_MysticEnchant.CollectionReforgeItem(blankScrollGUID, enchantToCraft)
   end
   
   StaticPopupDialogs["MM_CRAFT_RE"] = {
@@ -284,8 +284,8 @@ do -- functions to initialize menu and menu container
       return
     end
 
-    insigniaBagID, insigniaContainerIndex = MM:FindBlankInsignia()
-    if not insigniaBagID then
+    blankScrollGUID = MM:FindBlankScroll()
+    if not blankScrollGUID then
       UIErrorsFrame:AddMessage("No blank trinkets in bags", 1, 0, 0)
       return
     end
@@ -977,6 +977,7 @@ do -- filter functions
 
   local function qualityCheckMet(enchantID, filter)
     local quality = MYSTIC_ENCHANTS[enchantID].quality
+    print(enchantID, quality)
     return filter.allQualities
     or filter.uncommon and quality == 2
     or filter.rare and quality == 3
@@ -1010,6 +1011,7 @@ do -- filter functions
         table.insert(resultSet, enchantID)
       end
     end
+    print(#resultSet)
     self:SortMysticEnchants(MM.db.realm.VIEWS.sort or 1)
   end
 end
