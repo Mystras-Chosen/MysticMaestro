@@ -16,14 +16,6 @@ function MM:OnEnable()
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
 end
 
--- MM.RE_NAMES = {}
--- for k, v in pairs(MYSTIC_ENCHANTS) do
---   if v.spellID ~= 0 and v.flags ~= 1 then
---     local enchantName = GetSpellInfo(v.spellID)
---     MM.RE_NAMES[v.enchantID] = enchantName
---   end
--- end
-
 MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE", function()
   MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
   MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()

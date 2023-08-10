@@ -292,7 +292,9 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 		end
 		table.sort(enchants,
       function(k1, k2)
-        return MM.RE_NAMES[k1] < MM.RE_NAMES[k2]
+        local enchant1 = C_MysticEnchant.GetEnchantInfoBySpell(k1)
+        local enchant2 = C_MysticEnchant.GetEnchantInfoBySpell(k2)
+        return MM:Compare(enchant1.SpellName,enchant2.SpellName,"<")
       end
     )
 		MM[qualityName:upper() .. "_ENCHANTS"] = enchants

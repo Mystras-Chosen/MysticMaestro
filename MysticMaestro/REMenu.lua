@@ -14,11 +14,12 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
       GetValues = function(self, text, _, max)
         wipe(queryResults)
         text = text:lower()
-        for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-          if enchantID ~= 0 and enchantData.flags ~= 1 then
-            local enchantName = MM.RE_NAMES[enchantID]
+        local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
+        for _, enchant in pairs(enchantList) do
+          if enchant.SpellID ~= 0 and not enchant.IsWorldforged then
+            local enchantName = enchant.SpellName
             if enchantName and enchantName:lower():find(text) then
-              queryResults[enchantID] = MM:cTxt(enchantName, tostring(enchantData.quality))
+              queryResults[enchant.SpellID] = MM:cTxt(enchantName, tostring(enchant.Quality))
               max = max - 1
               if max == 0 then
                 return queryResults
@@ -56,7 +57,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
         end
       end,
       GetHyperlink = function(self, key)
-        return "spell:" .. MYSTIC_ENCHANTS[key].spellID
+        return "spell:" .. key
       end
     }
   )
@@ -1034,8 +1035,16 @@ do -- sort functions
   }
 
   local sortFunctions = {
-    alphabetical_asc = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],"<") end,
-    alphabetical_des = function(k1, k2) return MM:Compare(MM.RE_NAMES[k1],MM.RE_NAMES[k2],">") end,
+    alphabetical_asc = function(k1, k2) 
+      local enchant1 = C_MysticEnchant.GetEnchantInfoBySpell(k1)
+      local enchant2 = C_MysticEnchant.GetEnchantInfoBySpell(k2)
+      return MM:Compare(enchant1.SpellName,enchant2.SpellName,"<")
+    end,
+    alphabetical_des = function(k1, k2)
+      local enchant1 = C_MysticEnchant.GetEnchantInfoBySpell(k1)
+      local enchant2 = C_MysticEnchant.GetEnchantInfoBySpell(k2)
+      return MM:Compare(enchant1.SpellName,enchant2.SpellName,">")
+    end,
     oldest = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Last"), MM:LowestListed(k2,"Last"), "<", true) end,
     newest = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Last"), MM:LowestListed(k2,"Last"), ">") end,
     min = function(k1, k2) return MM:Compare(MM:LowestListed(k1,"Min"), MM:LowestListed(k2,"Min"), ">") end,

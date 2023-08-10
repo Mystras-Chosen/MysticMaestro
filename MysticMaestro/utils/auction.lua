@@ -260,7 +260,8 @@ end
 MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if pendingQuery and CanSendAuctionQuery() then
-      QueryAuctionItems(MM.RE_NAMES[enchantToQuery], nil, nil, 0, 0, 3, false, true, nil)
+      local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantToQuery)
+      QueryAuctionItems(enchant.SpellName, nil, nil, 0, 0, 3, false, true, nil)
       pendingQuery = false
       awaitingResults = true
       timeoutTime = GetTime() + 1
@@ -781,7 +782,8 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
     if restoreList and CanSendAuctionQuery() then
       if enchantToRestoreIsStillSelected() then
         MM:InitializeSingleScan(enchantToRestore)
-        QueryAuctionItems(MM.RE_NAMES[enchantToRestore], nil, nil, 0, 0, 3, false, true, nil)
+        local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantToRestore)
+        QueryAuctionItems(enchant.SpellName, nil, nil, 0, 0, 3, false, true, nil)
         local results = MM:GetSortedMyAuctionResults()
         for _, result in ipairs(results) do
           if enchantToRestore == result.enchantID then
