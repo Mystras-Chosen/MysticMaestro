@@ -6,7 +6,7 @@ local function getNameAndID(input)
     idRE = input
     nameRE = MM.RE_NAMES[input]
   else
-    idRE = MM.RE_LOOKUP[input]
+    -- idRE = MM.RE_LOOKUP[input]
     nameRE = input
   end
   return nameRE, idRE
@@ -76,36 +76,19 @@ local function addLinesTooltip(tt, input)
 end
 
 function MM:TooltipHandlerItem(tooltip)
-  local enchant, name
-  enchant = tooltip:GetItemMysticEnchant()
-  if enchant and not MYSTIC_ENCHANTS[enchant] and MM.RE_ID[enchant] then
-    enchant = MM.RE_ID[enchant]
-  end
-  if enchant then
-    addLinesTooltip(tooltip, enchant)
-  else
-    name = tooltip:GetItem()
-    if name ~= nil then
-      enchant = MM.RE_LOOKUP[name:match("Mystic Scroll: (.+)")]
-      if enchant then
-        addLinesTooltip(tooltip, enchant)
-      end
-    end
-  end
+  local _,link = tooltip:GetItem()
+  if not link then return end
+  local itemID = GetItemInfoFromHyperlink(link)
+  if not itemID then return end
+  local enchant = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+  if not enchant then return end
+  addLinesTooltip(tooltip, enchant.SpellID)
 end
 
 function MM:TooltipHandlerSpell(tooltip)
   local enchant
-  enchant = select(3 , tooltip:GetSpell())
-  if MYSTIC_ENCHANTS[enchant] == nil then
-    local swapID = MM.RE_ID[enchant]
-    if swapID and MYSTIC_ENCHANTS[swapID] ~= nil then
-      enchant = swapID
-    else
-      return
-    end
-  end
-  if enchant then
-    addLinesTooltip(tooltip, enchant)
-  end
+  spellID = select(3 , tooltip:GetSpell())
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+  if not enchant then return end
+  addLinesTooltip(tooltip, spellID)
 end

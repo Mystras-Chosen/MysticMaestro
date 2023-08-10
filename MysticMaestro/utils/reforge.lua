@@ -50,7 +50,7 @@ local function StopAutoReforge(result)
 	elseif enabled then
 		MM:Print("Reforge has been stopped")
 	end
-	MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
+	-- MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
 end
 
 local function RequestReforge()
@@ -154,7 +154,7 @@ function MM:BuildWorkingShopList()
 				if enchantName ~= "" then
 					local n = enchantName:lower()
 					local standardStr = select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))
-					local ID = MM.RE_LOOKUP[standardStr]
+					-- local ID = MM.RE_LOOKUP[standardStr]
 					if ID then
 						enabledList[ID] = true
 						if list.extract then
@@ -353,26 +353,21 @@ local function dots()
 end
 
 local function StartAutoReforge()
-	if itemLoaded then
-		MM:Print("Reforging the loaded item!")
-		autoReforgeEnabled = true
+	if bagID == nil then
+		bagID = 0
+		slotIndex = 0
+	end
+	if FindNextInsignia() then
+		MM:Print("Scrolls found, lets roll!")
+		autoAutoEnabled = true
 	else
-		if bagID == nil then
-			bagID = 0
-			slotIndex = 0
-		end
-		if FindNextInsignia() then
-			MM:Print("Trinkets found, lets roll!")
-			autoAutoEnabled = true
-		else
-			MM:Print("There are no trinkets to roll on!")
-			return
-		end
+		MM:Print("There are no scrolls to roll on!")
+		return
 	end
 	RequestReforge()
-	local button = MysticMaestroEnchantingFrameAutoReforgeButton
-	button:SetText("Reforging"..dots())
-	dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
+	-- local button = MysticMaestroEnchantingFrameAutoReforgeButton
+	-- button:SetText("Reforging"..dots())
+	-- dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
 end
 
 local function UNIT_SPELLCAST_INTERRUPTED()
@@ -382,37 +377,3 @@ local function UNIT_SPELLCAST_INTERRUPTED()
 	end
 end
 MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED",UNIT_SPELLCAST_INTERRUPTED)
-
-if not MysticMaestroEnchantingFrameAutoReforgeButton then
-	local button = CreateFrame("Button", "MysticMaestroEnchantingFrameAutoReforgeButton", MysticEnchantingFrame, "UIPanelButtonTemplate")
-	button:SetWidth(80)
-	button:SetHeight(22)
-	button:SetPoint("BOTTOMLEFT", 300, 37)
-	button:RegisterForClicks("AnyUp")
-	button:SetScript("OnClick", function(self)
-		if not options then initOptions() end
-		if self:GetText() == "Auto Reforge" then
-			StartAutoReforge()
-		else
-			StopAutoReforge("Button Clicked")
-		end
-	end)
-	button:SetText("Auto Reforge")
-	AltarReforgesText = MysticEnchantingFrameProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	AltarReforgesText:SetPoint("TOP", MysticEnchantingFrameProgressBar, "BOTTOM")
-	AltarReforgesText:SetText("Start reforging to get estimate")
-	MM:SetAltarLevelUPText()
-	settingsButton = CreateFrame("BUTTON", nil, MysticEnchantingFrame)
-	settingsButton:SetSize(27, 27)
-	settingsButton:SetPoint("LEFT", MysticMaestroEnchantingFrameAutoReforgeButton, "RIGHT")
-	settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
-	settingsButton:SetScript("OnClick",
-		function()
-			MM:OpenConfig("Reforge")
-		end
-	)
-	-- Put the collections frame at a lower strata
-	-- the collections frame includes all Character Advancement, vanity, Enchants etc
-	Collections:SetFrameStrata("HIGH")
-	Collections:SetFrameLevel(2)
-end

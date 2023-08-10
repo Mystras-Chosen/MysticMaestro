@@ -160,7 +160,6 @@ function MM:UpdateSellableREsCache(bagID)
     local enchantID = GetREInSlot(bagID, containerIndex)
     if itemLink then
       itemName, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
-      enchantID, mysticScroll = MM:StandardizeEnchantID(itemName, enchantID)
       if enchantID then
         newContainerCache[enchantID] = (newContainerCache[enchantID] or 0) + (count or 1)
       elseif MM:IsTrinket(itemName,reqLevel) then
@@ -419,17 +418,6 @@ function MM:AllowedItem(quality, iLevel, vendorPrice)
   local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
   local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
   return allowedQuality and allowedItemLevel and allowedVendorPrice
-end
-
-function MM:StandardizeEnchantID(itemName, enchantID)
-  local mysticScroll = itemName and itemName:match("^Mystic Scroll: (.*)")
-  if not enchantID and mysticScroll then
-    enchantID = MM.RE_LOOKUP[mysticScroll]
-  end
-  if enchantID and not MYSTIC_ENCHANTS[enchantID] and MM.RE_ID[enchantID] then
-    enchantID = MM.RE_ID[enchantID]
-  end
-  return enchantID, mysticScroll
 end
 
 function MM:IsTrinket(itemName,reqLevel)
