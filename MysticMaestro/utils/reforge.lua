@@ -72,6 +72,7 @@ local function RequestReforge()
 				return
 			end
 			RequestSlotReforgeEnchantment(bagID, slotIndex)
+			
 		end)
 	else
 			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)

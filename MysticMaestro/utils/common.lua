@@ -103,7 +103,7 @@ end
 
 function MM:ItemLinkRE(reID)
   local RE = MYSTIC_ENCHANTS[reID]
-  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[RE.quality][1]
+  local color = EnchantQualitySettings[RE.quality]
   return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
 end
 
@@ -435,7 +435,7 @@ function MM:StandardizeEnchantID(itemName, enchantID)
 end
 
 function MM:IsTrinket(itemName,reqLevel)
-  if itemName and reqLevel then
-    return (reqLevel == 15 and itemName:find("Insignia of the")) or itemName:find("Untarnished Mystic Scroll")
+  if itemName then
+    return itemName:find("Untarnished Mystic Scroll")
   end
 end

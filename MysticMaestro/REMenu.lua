@@ -976,6 +976,7 @@ do -- filter functions
 
   local function qualityCheckMet(enchantID, filter)
     local quality = MYSTIC_ENCHANTS[enchantID].quality
+    print(enchantID, quality)
     return filter.allQualities
     or filter.uncommon and quality == 2
     or filter.rare and quality == 3
@@ -1009,6 +1010,7 @@ do -- filter functions
         table.insert(resultSet, enchantID)
       end
     end
+    print(#resultSet)
     self:SortMysticEnchants(MM.db.realm.VIEWS.sort or 1)
   end
 end
