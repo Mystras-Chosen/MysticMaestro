@@ -62,7 +62,6 @@ local function RequestReforge()
 				StopAutoReforge("Player Moving")
 				return
 			end
-			MysticEnchantingFrameControlFrameRollButton:GetScript("OnClick")(MysticEnchantingFrameControlFrameRollButton)
 		end)
 	elseif autoAutoEnabled then
 		reforgeHandle = Timer.NewTicker(.05, function()
@@ -399,8 +398,6 @@ if not MysticMaestroEnchantingFrameAutoReforgeButton then
 		end
 	end)
 	button:SetText("Auto Reforge")
-	MysticEnchantingFrameControlFrameRollButton:HookScript("OnEnable", function() itemLoaded = true end )
-	MysticEnchantingFrameControlFrameRollButton:HookScript("OnDisable", function() itemLoaded = false end )
 	AltarReforgesText = MysticEnchantingFrameProgressBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	AltarReforgesText:SetPoint("TOP", MysticEnchantingFrameProgressBar, "BOTTOM")
 	AltarReforgesText:SetText("Start reforging to get estimate")
