@@ -8,7 +8,7 @@ local GetSpellInfo = GetSpellInfo
 
 function MM:OnInitialize()
   MM:SetupDatabase()
-  MM:RegisterEvent("COMMENTATOR_SKIRMISH_QUEUE_REQUEST")
+  MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
 end
 
 function MM:OnEnable()

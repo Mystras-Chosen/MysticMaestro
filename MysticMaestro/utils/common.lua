@@ -401,18 +401,17 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
     and event ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
   MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
   MM:ASCENSION_REFORGE_PROGRESS_UPDATE(this, event, entry, data)
+end
+
+function MM:MYSTIC_ENCHANT_LEARNED(this, spellID)
   if not self.db.realm.OPTIONS.notificationLearned then return end
-  if event == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
-    RE = GetREData(entry)
-    if RE and RE.enchantID > 0 then
-      local message = MM.RE_KNOWN[RE.enchantID] and " was already a known RE!" or " RE has been unlocked!"
-      local name, _, icon = GetSpellInfo(RE.spellID)
-      texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
-      local enchantColor = colors[tostring(RE.quality)]
-      MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", RE.spellID, enchantColor, name, message))
-      DEFAULT_CHAT_FRAME:AddMessage(texture)
-    end
-  end
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+  if not enchant then return end
+  local icon = select(3, GetSpellInfo(spellID))
+  local texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
+  local enchantColor = colors[enchant.Quality]
+  MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", spellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
+  DEFAULT_CHAT_FRAME:AddMessage(texture)
 end
 
 function MM:GetOrbCurrency()
