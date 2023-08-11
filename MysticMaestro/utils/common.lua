@@ -408,6 +408,10 @@ function MM:cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
 
+function MM:IsREKnown(spellID)
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  return enchant and enchant.Known or false
+end
 
 function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
   if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 

@@ -271,7 +271,7 @@ do -- functions to initialize menu and menu container
       error("No enchantID on enchant button")
     end
 
-    if not IsReforgeEnchantmentKnown(enchantID) then
+    if not MM:IsREKnown(enchantID) then
       UIErrorsFrame:AddMessage("Mystic enchant is not known", 1, 0, 0)
       return
     end
@@ -984,7 +984,7 @@ do -- filter functions
   end
 
   local function knownCheckMet(enchantID, filter)
-    local known = IsReforgeEnchantmentKnown(enchantID)
+    local known = MM:IsREKnown(enchantID)
     return filter.allKnown
     or filter.known and known
     or filter.unknown and not known
@@ -1171,7 +1171,7 @@ do -- show/hide and select/deselect mystic enchant button functions
     end)
     local r, g, b = unpack(enchantQualityColors[quality])
     local mult = .3
-    if IsReforgeEnchantmentKnown(enchantID) then
+    if MM:IsREKnown(enchantID) then
       button.IconBorder:SetVertexColor(1, 1, 1)
       button.Icon:SetVertexColor(1, 1, 1)
       button.BG:SetVertexColor(1, 1, 1)

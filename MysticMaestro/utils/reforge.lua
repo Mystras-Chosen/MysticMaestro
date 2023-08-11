@@ -78,8 +78,8 @@ local function RequestReforge()
 end
 
 local function configShoppingMatch(currentEnchant)
-	local enabled = options.stopForShop.enabled and shopEnabledList[currentEnchant.enchantID]
-	local unknownMatch = not shopUnknownList[currentEnchant.enchantID] or (shopUnknownList[currentEnchant.enchantID] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
+	local enabled = options.stopForShop.enabled and shopEnabledList[currentEnchant.SpellID]
+	local unknownMatch = not shopUnknownList[currentEnchant.SpellID] or (shopUnknownList[currentEnchant.SpellID] and not currentEnchant.Known)
 	local eval = enabled and unknownMatch 
 	return eval and "Shopping Match" or nil
 end
@@ -105,11 +105,11 @@ local function FindNextInsignia()
 				local re = MM:GetREInSlot(i, j)
 				local reObj = C_MysticEnchant.GetEnchantInfoBySpell(re)
 				if reObj ~= nil then
-					local knownStr = "known"
-					if not IsReforgeEnchantmentKnown(re) then
-						knownStr = red .. "un" .. knownStr .. "|r"
+					local knownStr
+					if not reObj.Known then
+						knownStr = red .. "unknown" .. "|r"
 					else
-						knownStr = green .. knownStr .. "|r"
+						knownStr = green .. "known" .. "|r"
 					end
 					if shopReserveList[re] then
 						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
@@ -181,7 +181,7 @@ function MM:BuildWorkingShopList()
 end
 
 local function extract(enchantID)
-	if not IsReforgeEnchantmentKnown(enchantID) 
+	if not MM:IsREKnown(enchantID) 
 	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
 			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
 			RequestSlotReforgeExtraction(bagID, slotIndex)
@@ -204,7 +204,8 @@ local function configQualityMatch(currentEnchant)
 end
 
 local function configUnknownMatch(currentEnchant)
-	local eval = options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
+	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+	local eval = options.stopUnknown.enabled and not currentEnchant.Known and options.stopUnknown[quality]
 	return eval and "Unknown Match" or nil
 end
 
@@ -217,9 +218,10 @@ end
 
 local function configGreenMatch(currentEnchant)
 	local matchGreen, rxMatch, unknownLogic
-	if options.green.enabled and currentEnchant.quality == 2 then
-		rxMatch = string.match(currentEnchant.spellName,"^[a-zA-Z]+")
-		unknownLogic = not options.green.unknown or (options.green.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
+	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+	if options.green.enabled and quality == 2 then
+		rxMatch = string.match(currentEnchant.SpellName,"^[a-zA-Z]+")
+		unknownLogic = not options.green.unknown or (options.green.unknown and not currentEnchant.Known)
 		matchGreen = options.green[rxMatch] or options.green.Other and otherGreens[rxMatch]
 	end
 	local eval = unknownLogic and matchGreen
@@ -265,7 +267,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 		end
 		if autoAutoEnabled then
 			local knownStr, seasonal = "", ""
-			if not IsReforgeEnchantmentKnown(enchantID) then
+			if not currentEnchant.Known then
 				knownStr = red .. "unknown" .. "|r"
 			else
 				knownStr = green .. "known" .. "|r"
