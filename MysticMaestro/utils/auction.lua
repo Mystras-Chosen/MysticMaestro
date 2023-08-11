@@ -598,13 +598,12 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local function findSellableItemWithEnchantID(enchantID,listMode)
+local function findSellableScrollWithEnchantID(enchantID,listMode)
   local items = {}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
-      local _,count,_,quality,_,_,item,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
-      local name, reqLevel, vendorPrice, mysticScroll, allowedQuality, allowedItemLevel, allowedVendorPrice
-      if item then
+      local _,count,_,_,_,_,_,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
+      if itemID then
         query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
         local re
         if query ~= nil then
@@ -697,7 +696,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 )
 
 function MM:ListAuction(enchantID, price)
-  local bagID, slotIndex = findSellableItemWithEnchantID(enchantID)
+  local bagID, slotIndex = findSellableScrollWithEnchantID(enchantID)
   if bagID then
     MM:CloseAuctionPopups()
     bagClear = true
@@ -711,7 +710,7 @@ end
 
 function MM:ListAuctionQueue(enchantID,price)
   if not auctionQueueAdded[enchantID] then
-    local itemList = findSellableItemWithEnchantID(enchantID,true)
+    local itemList = findSellableScrollWithEnchantID(enchantID,true)
     for _, entry in ipairs(itemList) do
       entry.price = price
       entry.enchantID = enchantID

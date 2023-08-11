@@ -282,7 +282,7 @@ do -- functions to initialize menu and menu container
       return
     end
 
-    insigniaBagID, insigniaContainerIndex = MM:FindBlankInsignia()
+    insigniaBagID, insigniaContainerIndex = MM:FindBlankScrolls()
     if not insigniaBagID then
       UIErrorsFrame:AddMessage("No blank trinkets in bags", 1, 0, 0)
       return

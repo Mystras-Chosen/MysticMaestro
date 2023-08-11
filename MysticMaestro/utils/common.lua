@@ -115,31 +115,19 @@ function MM:GetREInSlot(bag,slot)
   return enchant and enchant.SpellID
 end
 
-function MM:FindBlankInsignia()
+function MM:FindBlankScrolls()
   -- Find a valid insignia to use for crafting
   for bagID=0, 4 do
     for containerIndex=1, GetContainerNumSlots(bagID) do
       local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
       if itemLink then
-        local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
-        if MM:IsTrinket(itemName,reqLevel) and not MM:GetREInSlot(bagID, containerIndex) then
+        local itemName = GetItemInfo(itemLink)
+        if MM:IsUntarnished(itemName) then
           return bagID, containerIndex
         end
       end
     end
   end
-end
-
-function MM:IsSoulbound(bag, slot)
-  local TT = MysticMaestroTT
-  TT:ClearLines()  
-  TT:SetBagItem(bag, slot)
-  for i = 1,TT:NumLines() do
-    if(_G[TT:GetName().."TextLeft"..i]:GetText()==ITEM_SOULBOUND) then
-      return true
-    end
-  end
-  return false
 end
 
 -- split up cache by bagID so BAG_UPDATE doesn't have to refresh the entire cache every time
@@ -162,15 +150,15 @@ end
 -- item exists, rare, has RE, is not soulbound
 function MM:UpdateSellableREsCache(bagID)
   local newContainerCache = {}
-  local itemName, iLevel, reqLevel, vendorPrice, mysticScroll
+  local itemName
   for containerIndex=1, GetContainerNumSlots(bagID) do
-    local _,count,_,quality, _, _, itemLink = GetContainerItemInfo(bagID, containerIndex)
+    local _,count,_,_,_,_,itemLink = GetContainerItemInfo(bagID, containerIndex)
     local enchantID = MM:GetREInSlot(bagID, containerIndex)
     if itemLink then
-      itemName, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
+      itemName = GetItemInfo(itemLink)
       if enchantID then
         newContainerCache[enchantID] = (newContainerCache[enchantID] or 0) + (count or 1)
-      elseif MM:IsTrinket(itemName,reqLevel) then
+      elseif MM:IsUntarnished(itemName) then
         newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
     end
@@ -436,15 +424,7 @@ function MM:GetOrbCurrency()
   return GetItemCount(98570)
 end
 
-function MM:AllowedItem(quality, iLevel, vendorPrice)
-  local allowedQuality = quality == 3 or MM.db.realm.OPTIONS.allowEpic and quality == 4
-  local allowedItemLevel = iLevel <= MM.db.realm.OPTIONS.limitIlvl
-  local allowedVendorPrice = (vendorPrice or 0) <= MM.db.realm.OPTIONS.limitGold * 10000
-  return allowedQuality and allowedItemLevel and allowedVendorPrice
-end
-
-function MM:IsTrinket(itemName,reqLevel)
-  if itemName and reqLevel then
-    return (reqLevel == 15 and itemName:find("Insignia of the")) or itemName:find("Untarnished Mystic Scroll")
-  end
+function MM:IsUntarnished(itemName)
+  if not itemName then return false end
+  return itemName:find("Untarnished Mystic Scroll")
 end
