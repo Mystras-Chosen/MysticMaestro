@@ -100,9 +100,10 @@ function MM:PriceCorrection(obj,list)
 end
 
 function MM:ItemLinkRE(reID)
-  local RE = MYSTIC_ENCHANTS[reID]
-  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[RE.quality][1]
-  return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  local quality = Enum.EnchantQualityEnum[enchant.Quality]
+  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[quality][1]
+  return color .. "\124Hspell:" .. enchant.SpellID .. "\124h[" .. RE.SpellName .. "]\124h\124r"
 end
 
 function MM:GetREInSlot(bag,slot)
@@ -276,7 +277,9 @@ local qualityCost = {
 }
 
 function MM:OrbCost(reID)
-	return qualityCost[MYSTIC_ENCHANTS[reID].quality]
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  local quality = Enum.EnchantQualityEnum[enchant.Quality]
+	return qualityCost[quality]
 end
 
 local qualityValue = {
@@ -291,10 +294,12 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
 	if not enchants then
 		enchants = {}
-		for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-			if enchantData.quality == qualityValue[qualityName] and enchantData.flags ~= 1 then
-				table.insert(enchants, enchantID)
-				enchants[enchantID] = true
+    local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
+		for _, enchant in pairs(enchantList) do
+      local quality = Enum.EnchantQualityEnum[enchant.Quality]
+			if quality == qualityValue[qualityName] and not enchant.IsWorldforged then
+				table.insert(enchants, enchant.SpellID)
+				enchants[enchant.SpellID] = true
 			end
 		end
 		table.sort(enchants,

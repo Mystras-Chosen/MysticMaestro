@@ -255,7 +255,7 @@ end
 function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
 	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
-		local currentEnchant = MYSTIC_ENCHANTS[enchantID]
+		local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
 		local result = configConditionMet(currentEnchant)
 		local norunes = configNoRunes(currentEnchant)
 		if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
