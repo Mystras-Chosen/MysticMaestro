@@ -99,12 +99,19 @@ function MM:PriceCorrection(obj,list)
   end
 end
 
-
-
 function MM:ItemLinkRE(reID)
   local RE = MYSTIC_ENCHANTS[reID]
   local color = AscensionUI.MysticEnchant.EnchantQualitySettings[RE.quality][1]
   return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
+end
+
+function MM:GetREInSlot(bag,slot)
+  local itemLink = select(7, GetContainerItemInfo(bag, slot))
+  if not itemLink then return end
+  local itemID = GetItemInfoFromHyperlink(itemLink)
+  if not itemID then return end
+  local enchant = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+  return enchant and enchant.SpellID
 end
 
 function MM:FindBlankInsignia()
@@ -114,7 +121,7 @@ function MM:FindBlankInsignia()
       local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
       if itemLink then
         local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
-        if MM:IsTrinket(itemName,reqLevel) and not GetREInSlot(bagID, containerIndex) then
+        if MM:IsTrinket(itemName,reqLevel) and not MM:GetREInSlot(bagID, containerIndex) then
           return bagID, containerIndex
         end
       end
@@ -157,7 +164,7 @@ function MM:UpdateSellableREsCache(bagID)
   local itemName, iLevel, reqLevel, vendorPrice, mysticScroll
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local _,count,_,quality, _, _, itemLink = GetContainerItemInfo(bagID, containerIndex)
-    local enchantID = GetREInSlot(bagID, containerIndex)
+    local enchantID = MM:GetREInSlot(bagID, containerIndex)
     if itemLink then
       itemName, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
       if enchantID then

@@ -91,7 +91,6 @@ local function isSeasonal(spellID)
 	end
 end
 
-local nextItemUntarnished = false
 local function FindNextInsignia()
 	for i=bagID, 4 do
 		for j=slotIndex + 1, GetContainerNumSlots(i) do
@@ -103,13 +102,8 @@ local function FindNextInsignia()
 				istrinket = MM:IsTrinket(name,reqLevel)
 			end
 			if item and istrinket and not isBound then
-				if name == "Untarnished Mystic Scroll" then
-					nextItemUntarnished = true
-				else
-					nextItemUntarnished = false
-				end
-				local re = GetREInSlot(i, j)
-				local reObj = MYSTIC_ENCHANTS[re]
+				local re = MM:GetREInSlot(i, j)
+				local reObj = C_MysticEnchant.GetEnchantInfoBySpell(re)
 				if reObj ~= nil then
 					local knownStr = "known"
 					if not IsReforgeEnchantmentKnown(re) then
@@ -232,17 +226,13 @@ local function configGreenMatch(currentEnchant)
 	return eval and "Green Match" or nil
 end
 
-local function configUntainted()
-	return nextItemUntarnished and "Untarnished Mystic Scroll" or nil
-end
-
 local function configConditionMet(currentEnchant)
 	if not options then initOptions() end
 	local unknown = configUnknownMatch(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
 	local green = configGreenMatch(currentEnchant)
 	-- Determine if we should extract this enchant
-	if (autoAutoEnabled and not nextItemUntarnished)
+	if (autoAutoEnabled)
 	and ((unknown and options.stopUnknown.extract)
 	or (seasonal and options.stopSeasonal.extract)
 	or (green and options.green.extract)
@@ -251,7 +241,7 @@ local function configConditionMet(currentEnchant)
 	end
 	-- check for spam reforge settings
 	if autoReforgeEnabled and options.stopForNothing then
-		return configNoRunes(currentEnchant) or configUntainted()
+		return configNoRunes(currentEnchant)
 	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
@@ -260,7 +250,6 @@ local function configConditionMet(currentEnchant)
 	or seasonal
 	or green
 	or configPriceMatch(currentEnchant)
-	or configUntainted()
 end
 
 function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
