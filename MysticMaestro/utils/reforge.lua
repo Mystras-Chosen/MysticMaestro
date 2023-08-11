@@ -84,11 +84,11 @@ local function configShoppingMatch(currentEnchant)
 	return eval and "Shopping Match" or nil
 end
 
-local function isSeasonal(spellID)
-	local enchant = GetMysticEnchantInfo(spellID)
-	if enchant then
-		return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
-	end
+local function isSeasonal(enchant)
+	return false
+	-- if enchant then
+	-- 	return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
+	-- end
 end
 
 local function FindNextInsignia()
@@ -188,18 +188,19 @@ local function extract(enchantID)
 	end
 end
 
-local function configNoRunes(currentEnchant)
+local function configNoRunes()
 	local eval = options.stopIfNoRunes and GetItemCount(98462) <= 0
 	return eval and "No Runes" or nil
 end
 
 local function configSeasonalMatch(currentEnchant)
-	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant.enchantID)
+	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant)
 	return eval and "Seasonal Enchant" or nil
 end
 
 local function configQualityMatch(currentEnchant)
-	local eval = options.stopQuality.enabled and options.stopQuality[currentEnchant.quality]
+	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+	local eval = options.stopQuality.enabled and options.stopQuality[quality]
 	return eval and "Quality Match" or nil
 end
 
@@ -210,9 +211,10 @@ local function configUnknownMatch(currentEnchant)
 end
 
 local function configPriceMatch(currentEnchant)
-    local priceObj = Maestro(currentEnchant.enchantID)
-    if not priceObj then return options.stopPrice.enabled and options.stopPrice[currentEnchant.quality] and "Unknown Priced" end
-		local eval = options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
+    local priceObj = Maestro(currentEnchant.SpellID)
+		local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+    if not priceObj then return options.stopPrice.enabled and options.stopPrice[quality] and "Unknown Priced" end
+		local eval = options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[quality]
     return eval and "Price Match" or nil
 end
 
@@ -243,7 +245,7 @@ local function configConditionMet(currentEnchant)
 	end
 	-- check for spam reforge settings
 	if autoReforgeEnabled and options.stopForNothing then
-		return configNoRunes(currentEnchant)
+		return configNoRunes()
 	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
@@ -259,7 +261,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
 		local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
 		local result = configConditionMet(currentEnchant)
-		local norunes = configNoRunes(currentEnchant)
+		local norunes = configNoRunes()
 		if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
 			-- End reforge
 			StopAutoReforge(result or norunes)
