@@ -79,20 +79,19 @@ local function RequestReforge()
 end
 
 local function configShoppingMatch(currentEnchant)
-	local enabled = options.stopForShop.enabled and shopEnabledList[currentEnchant.enchantID]
-	local unknownMatch = not shopUnknownList[currentEnchant.enchantID] or (shopUnknownList[currentEnchant.enchantID] and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
+	local enabled = options.stopForShop.enabled and shopEnabledList[currentEnchant.SpellID]
+	local unknownMatch = not shopUnknownList[currentEnchant.SpellID] or (shopUnknownList[currentEnchant.SpellID] and not currentEnchant.Known)
 	local eval = enabled and unknownMatch 
 	return eval and "Shopping Match" or nil
 end
 
-local function isSeasonal(spellID)
-	local enchant = GetMysticEnchantInfo(spellID)
-	if enchant then
-		return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
-	end
+local function isSeasonal(enchant)
+	return false
+	-- if enchant then
+	-- 	return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
+	-- end
 end
 
-local nextItemUntarnished = false
 local function FindNextInsignia()
 	for i=bagID, 4 do
 		for j=slotIndex + 1, GetContainerNumSlots(i) do
@@ -104,19 +103,14 @@ local function FindNextInsignia()
 				istrinket = MM:IsTrinket(name,reqLevel)
 			end
 			if item and istrinket and not isBound then
-				if name == "Untarnished Mystic Scroll" then
-					nextItemUntarnished = true
-				else
-					nextItemUntarnished = false
-				end
-				local re = GetREInSlot(i, j)
-				local reObj = MYSTIC_ENCHANTS[re]
+				local re = MM:GetREInSlot(i, j)
+				local reObj = C_MysticEnchant.GetEnchantInfoBySpell(re)
 				if reObj ~= nil then
-					local knownStr = "known"
-					if not IsReforgeEnchantmentKnown(re) then
-						knownStr = red .. "un" .. knownStr .. "|r"
+					local knownStr
+					if not reObj.Known then
+						knownStr = red .. "unknown" .. "|r"
 					else
-						knownStr = green .. knownStr .. "|r"
+						knownStr = green .. "known" .. "|r"
 					end
 					if shopReserveList[re] then
 						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
@@ -188,53 +182,53 @@ function MM:BuildWorkingShopList()
 end
 
 local function extract(enchantID)
-	if not IsReforgeEnchantmentKnown(enchantID) 
+	if not MM:IsREKnown(enchantID) 
 	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
 			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
 			RequestSlotReforgeExtraction(bagID, slotIndex)
 	end
 end
 
-local function configNoRunes(currentEnchant)
+local function configNoRunes()
 	local eval = options.stopIfNoRunes and GetItemCount(98462) <= 0
 	return eval and "No Runes" or nil
 end
 
 local function configSeasonalMatch(currentEnchant)
-	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant.enchantID)
+	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant)
 	return eval and "Seasonal Enchant" or nil
 end
 
 local function configQualityMatch(currentEnchant)
-	local eval = options.stopQuality.enabled and options.stopQuality[currentEnchant.quality]
+	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+	local eval = options.stopQuality.enabled and options.stopQuality[quality]
 	return eval and "Quality Match" or nil
 end
 
 local function configUnknownMatch(currentEnchant)
-	local eval = options.stopUnknown.enabled and not IsReforgeEnchantmentKnown(currentEnchant.enchantID) and options.stopUnknown[currentEnchant.quality]
+	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+	local eval = options.stopUnknown.enabled and not currentEnchant.Known and options.stopUnknown[quality]
 	return eval and "Unknown Match" or nil
 end
 
 local function configPriceMatch(currentEnchant)
-    local priceObj = Maestro(currentEnchant.enchantID)
-    if not priceObj then return options.stopPrice.enabled and options.stopPrice[currentEnchant.quality] and "Unknown Priced" end
-		local eval = options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[currentEnchant.quality]
+    local priceObj = Maestro(currentEnchant.SpellID)
+		local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+    if not priceObj then return options.stopPrice.enabled and options.stopPrice[quality] and "Unknown Priced" end
+		local eval = options.stopPrice.enabled and priceObj.Min >= options.stopPrice.value * 10000 and options.stopPrice[quality]
     return eval and "Price Match" or nil
 end
 
 local function configGreenMatch(currentEnchant)
 	local matchGreen, rxMatch, unknownLogic
-	if options.green.enabled and currentEnchant.quality == 2 then
-		rxMatch = string.match(currentEnchant.spellName,"^[a-zA-Z]+")
-		unknownLogic = not options.green.unknown or (options.green.unknown and not IsReforgeEnchantmentKnown(currentEnchant.enchantID))
+	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
+	if options.green.enabled and quality == 2 then
+		rxMatch = string.match(currentEnchant.SpellName,"^[a-zA-Z]+")
+		unknownLogic = not options.green.unknown or (options.green.unknown and not currentEnchant.Known)
 		matchGreen = options.green[rxMatch] or options.green.Other and otherGreens[rxMatch]
 	end
 	local eval = unknownLogic and matchGreen
 	return eval and "Green Match" or nil
-end
-
-local function configUntainted()
-	return nextItemUntarnished and "Untarnished Mystic Scroll" or nil
 end
 
 local function configConditionMet(currentEnchant)
@@ -243,7 +237,7 @@ local function configConditionMet(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
 	local green = configGreenMatch(currentEnchant)
 	-- Determine if we should extract this enchant
-	if (autoAutoEnabled and not nextItemUntarnished)
+	if (autoAutoEnabled)
 	and ((unknown and options.stopUnknown.extract)
 	or (seasonal and options.stopSeasonal.extract)
 	or (green and options.green.extract)
@@ -252,7 +246,7 @@ local function configConditionMet(currentEnchant)
 	end
 	-- check for spam reforge settings
 	if autoReforgeEnabled and options.stopForNothing then
-		return configNoRunes(currentEnchant) or configUntainted()
+		return configNoRunes()
 	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
@@ -261,15 +255,14 @@ local function configConditionMet(currentEnchant)
 	or seasonal
 	or green
 	or configPriceMatch(currentEnchant)
-	or configUntainted()
 end
 
 function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
 	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
 	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
-		local currentEnchant = MYSTIC_ENCHANTS[enchantID]
+		local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
 		local result = configConditionMet(currentEnchant)
-		local norunes = configNoRunes(currentEnchant)
+		local norunes = configNoRunes()
 		if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
 			-- End reforge
 			StopAutoReforge(result or norunes)
@@ -277,7 +270,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 		end
 		if autoAutoEnabled then
 			local knownStr, seasonal = "", ""
-			if not IsReforgeEnchantmentKnown(enchantID) then
+			if not currentEnchant.Known then
 				knownStr = red .. "unknown" .. "|r"
 			else
 				knownStr = green .. "known" .. "|r"

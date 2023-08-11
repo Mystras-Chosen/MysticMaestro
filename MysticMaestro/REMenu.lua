@@ -271,7 +271,7 @@ do -- functions to initialize menu and menu container
       error("No enchantID on enchant button")
     end
 
-    if not IsReforgeEnchantmentKnown(enchantID) then
+    if not MM:IsREKnown(enchantID) then
       UIErrorsFrame:AddMessage("Mystic enchant is not known", 1, 0, 0)
       return
     end
@@ -974,7 +974,8 @@ do -- filter functions
   end
 
   local function qualityCheckMet(enchantID, filter)
-    local quality = MYSTIC_ENCHANTS[enchantID].quality
+    local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
+    local quality = Enum.EnchantQualityEnum[enchant.Quality]
     return filter.allQualities
     or filter.uncommon and quality == 2
     or filter.rare and quality == 3
@@ -983,7 +984,7 @@ do -- filter functions
   end
 
   local function knownCheckMet(enchantID, filter)
-    local known = IsReforgeEnchantmentKnown(enchantID)
+    local known = MM:IsREKnown(enchantID)
     return filter.allKnown
     or filter.known and known
     or filter.unknown and not known
@@ -1001,11 +1002,12 @@ do -- filter functions
     filter = filter or MM.db.realm.VIEWS.filter
     MM.db.realm.VIEWS.filter = filter
     resultSet = {}
-    for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-      if enchantID ~= 0 and enchantData.flags ~= 1 and qualityCheckMet(enchantID, filter)
-      and knownCheckMet(enchantID, filter) and favoriteCheckMet(enchantID, filter)
-      and bagsCheckMet(enchantID, filter) then
-        table.insert(resultSet, enchantID)
+    local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
+    for _, enchant in pairs(enchantList) do
+      if enchant.SpellID ~= 0 and not enchant.IsWorldforged and qualityCheckMet(enchant.SpellID, filter)
+      and knownCheckMet(enchant.SpellID, filter) and favoriteCheckMet(enchant.SpellID, filter)
+      and bagsCheckMet(enchant.SpellID, filter) then
+        table.insert(resultSet, enchant.SpellID)
       end
     end
     self:SortMysticEnchants(MM.db.realm.VIEWS.sort or 1)
@@ -1152,9 +1154,10 @@ do -- show/hide and select/deselect mystic enchant button functions
   local function updateEnchantButton(enchantID, buttonNumber)
     local button = enchantButtons[buttonNumber]
     button.enchantID = enchantID
-    local enchantData = MYSTIC_ENCHANTS[enchantID]
-    button.IconBorder:SetTexture(enchantQualityBorders[enchantData.quality])
-    local enchantName, _, enchantIcon = GetSpellInfo(enchantData.spellID)
+    local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
+    local quality = Enum.EnchantQualityEnum[enchant.Quality]
+    button.IconBorder:SetTexture(enchantQualityBorders[quality])
+    local enchantName, _, enchantIcon = GetSpellInfo(enchant.SpellID)
     button.Icon:SetTexture(enchantIcon)
     button.REText:SetText(enchantName)
     
@@ -1163,12 +1166,12 @@ do -- show/hide and select/deselect mystic enchant button functions
         self.H:Show()
       end
       GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
-      GameTooltip:SetHyperlink("|Hspell:"..enchantData.spellID.."|h[test]|h")
+      GameTooltip:SetHyperlink("|Hspell:"..enchant.SpellID.."|h[test]|h")
       GameTooltip:Show()
     end)
-    local r, g, b = unpack(enchantQualityColors[enchantData.quality])
+    local r, g, b = unpack(enchantQualityColors[quality])
     local mult = .3
-    if IsReforgeEnchantmentKnown(enchantID) then
+    if MM:IsREKnown(enchantID) then
       button.IconBorder:SetVertexColor(1, 1, 1)
       button.Icon:SetVertexColor(1, 1, 1)
       button.BG:SetVertexColor(1, 1, 1)

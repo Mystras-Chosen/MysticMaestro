@@ -99,18 +99,33 @@ function MM:PriceCorrection(obj,list)
   end
 end
 
-
-
 function MM:ItemLinkRE(reID)
-  local RE = MYSTIC_ENCHANTS[reID]
-  local color = EnchantQualitySettings[RE.quality]
-  return color .. "\124Hspell:" .. RE.spellID .. "\124h[" .. RE.spellName .. "]\124h\124r"
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  local quality = Enum.EnchantQualityEnum[enchant.Quality]
+  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[quality][1]
+  return color .. "\124Hspell:" .. enchant.SpellID .. "\124h[" .. RE.SpellName .. "]\124h\124r"
 end
 
-function MM:FindBlankScroll()
-  for _, scrollData in ipairs(C_MysticEnchant.GetMysticScrolls()) do
-    if scrollData.Name == "Untarnished Mystic Scroll" then
-      return scrollData.Guid
+function MM:GetREInSlot(bag,slot)
+  local itemLink = select(7, GetContainerItemInfo(bag, slot))
+  if not itemLink then return end
+  local itemID = GetItemInfoFromHyperlink(itemLink)
+  if not itemID then return end
+  local enchant = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+  return enchant and enchant.SpellID
+end
+
+function MM:FindBlankInsignia()
+  -- Find a valid insignia to use for crafting
+  for bagID=0, 4 do
+    for containerIndex=1, GetContainerNumSlots(bagID) do
+      local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
+      if itemLink then
+        local itemName, _, _, _, reqLevel = GetItemInfo(itemLink)
+        if MM:IsTrinket(itemName,reqLevel) and not MM:GetREInSlot(bagID, containerIndex) then
+          return bagID, containerIndex
+        end
+      end
     end
   end
 end
@@ -150,7 +165,7 @@ function MM:UpdateSellableREsCache(bagID)
   local itemName, iLevel, reqLevel, vendorPrice, mysticScroll
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local _,count,_,quality, _, _, itemLink = GetContainerItemInfo(bagID, containerIndex)
-    local enchantID = GetREInSlot(bagID, containerIndex)
+    local enchantID = MM:GetREInSlot(bagID, containerIndex)
     if itemLink then
       itemName, _, _, iLevel, reqLevel, _, _, _, _, _, vendorPrice = GetItemInfo(itemLink)
       if enchantID then
@@ -262,7 +277,9 @@ local qualityCost = {
 }
 
 function MM:OrbCost(reID)
-	return qualityCost[MYSTIC_ENCHANTS[reID].quality]
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  local quality = Enum.EnchantQualityEnum[enchant.Quality]
+	return qualityCost[quality]
 end
 
 local qualityValue = {
@@ -277,10 +294,12 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
 	if not enchants then
 		enchants = {}
-		for enchantID, enchantData in pairs(MYSTIC_ENCHANTS) do
-			if enchantData.quality == qualityValue[qualityName] and enchantData.flags ~= 1 then
-				table.insert(enchants, enchantID)
-				enchants[enchantID] = true
+    local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
+		for _, enchant in pairs(enchantList) do
+      local quality = Enum.EnchantQualityEnum[enchant.Quality]
+			if quality == qualityValue[qualityName] and not enchant.IsWorldforged then
+				table.insert(enchants, enchant.SpellID)
+				enchants[enchant.SpellID] = true
 			end
 		end
 		table.sort(enchants,
@@ -389,6 +408,10 @@ function MM:cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
 
+function MM:IsREKnown(spellID)
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  return enchant and enchant.Known or false
+end
 
 function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(self, event, entry, data)
   if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
