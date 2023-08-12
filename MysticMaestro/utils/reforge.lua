@@ -92,17 +92,17 @@ local function isSeasonal(enchant)
 	-- end
 end
 
-local function FindNextInsignia()
+local function FindNextScroll()
 	for i=bagID, 4 do
 		for j=slotIndex + 1, GetContainerNumSlots(i) do
 			local item = select(7, GetContainerItemInfo(i, j))
-			local isBound, name, reqLevel, istrinket
 			if item then
-				isBound = MM:IsSoulbound(i, j)
-				name,_,_,_,reqLevel = GetItemInfo(item)
-				istrinket = MM:IsTrinket(name,reqLevel)
-			end
-			if item and istrinket and not isBound then
+				local name = GetItemInfo(item)
+				if MM:IsUntarnished(name) then 
+					bagID = i
+					slotIndex = j
+					return true
+				end
 				local re = MM:GetREInSlot(i, j)
 				local reObj = C_MysticEnchant.GetEnchantInfoBySpell(re)
 				if reObj ~= nil then
@@ -119,10 +119,6 @@ local function FindNextInsignia()
 						slotIndex = j
 						return true
 					end
-				else
-					bagID = i
-					slotIndex = j
-					return true
 				end
 			end
 		end
@@ -285,7 +281,7 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 			end
 		end
 		if result or norunes then
-			local cantFind = not FindNextInsignia()
+			local cantFind = not FindNextScroll()
 			if cantFind or norunes then
 				if cantFind then
 					MM:Print("Out of Insignia, inventory position reset to first bag")
@@ -360,7 +356,7 @@ local function StartAutoReforge()
 		bagID = 0
 		slotIndex = 0
 	end
-	if FindNextInsignia() then
+	if FindNextScroll() then
 		MM:Print("Scrolls found, lets roll!")
 		autoAutoEnabled = true
 	else
