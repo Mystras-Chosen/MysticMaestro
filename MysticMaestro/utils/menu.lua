@@ -1,4 +1,12 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+-- Colours stored for code readability
+local WHITE = "|cffFFFFFF";
+local GREEN = "|cff1eff00";
+local BLUE = "|cff0070dd";
+local ORANGE = "|cffFF8400";
+local GOLD  = "|cffffcc00";
+local LIGHTBLUE = "|cFFADD8E6";
+local ORANGE2 = "|cFFFFA500";
 
 local EdgelessFrameBackdrop = {
   bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -97,4 +105,45 @@ end
 
 function MM:IsStandAloneMenuOpen()
   return self:IsMenuOpen() and MysticMaestroMenu:GetParent() ~= AuctionFrame
+end
+
+--for a adding a divider to dew drop menus 
+function MM:AddDividerLine(maxLenght)
+  local text = WHITE.."----------------------------------------------------------------------------------------------------"
+  MM.dewdrop:AddLine(
+      'text' , text:sub(1, maxLenght),
+      'textHeight', 12,
+      'textWidth', 12,
+      'isTitle', true,
+      "notCheckable", true
+  );
+end
+
+function MM:CloseDewDrop(divider, maxLenght)
+  if divider then
+    MM:AddDividerLine(maxLenght)
+  end
+  MM.dewdrop:AddLine(
+      'text', "Close Menu",
+      'textR', 0,
+      'textG', 1,
+      'textB', 1,
+      'textHeight', 12,
+      'textWidth', 12,
+      'closeWhenClicked', true,
+      'notCheckable', true
+  )
+end
+
+function MM:OpenDBURL(ID, Type)
+  OpenAscensionDBURL("?"..Type.."="..ID);
+end
+
+function MM:Chatlink(ID,chatType,Type)
+  if Type == "spell" then
+    print(MysticEnchantUtil.GetEnchantLink(ID))
+      SendChatMessage(MysticEnchantUtil.GetEnchantLink(ID) ,chatType);
+  else
+      SendChatMessage(select(2,GetItemInfo(ID)) ,chatType);
+  end
 end

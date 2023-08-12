@@ -99,13 +99,6 @@ function MM:PriceCorrection(obj,list)
   end
 end
 
-function MM:ItemLinkRE(reID)
-  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
-  local quality = Enum.EnchantQualityEnum[enchant.Quality]
-  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[quality][1]
-  return color .. "\124Hspell:" .. enchant.SpellID .. "\124h[" .. RE.SpellName .. "]\124h\124r"
-end
-
 function MM:GetREInSlot(bag,slot)
   local itemLink = select(7, GetContainerItemInfo(bag, slot))
   if not itemLink then return end
@@ -424,4 +417,22 @@ end
 function MM:IsUntarnished(itemName)
   if not itemName then return false end
   return itemName:find("Untarnished Mystic Scroll")
+end
+
+-- returns true, if player has item with given ID in inventory or bags and it's not on cooldown
+function MM:HasItem(itemID)
+  local item, found, id
+  -- scan bags
+  for bag = 0, 4 do
+    for slot = 1, GetContainerNumSlots(bag) do
+      item = GetContainerItemLink(bag, slot)
+      if item then
+        found, _, id = item:find('^|c%x+|Hitem:(%d+):.+')
+        if found and tonumber(id) == itemID then
+          return true
+        end
+      end
+    end
+  end
+  return false
 end

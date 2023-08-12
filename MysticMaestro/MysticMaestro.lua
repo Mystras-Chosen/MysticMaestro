@@ -1,4 +1,5 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+
 local AceGUI = LibStub("AceGUI-3.0")
 local Dialog = LibStub("AceConfigDialog-3.0")
 
@@ -8,7 +9,7 @@ local GetSpellInfo = GetSpellInfo
 
 function MM:OnInitialize()
   MM:SetupDatabase()
-  MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
+  --MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
 end
 
 function MM:OnEnable()

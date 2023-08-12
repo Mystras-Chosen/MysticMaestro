@@ -219,7 +219,7 @@ do -- functions to initialize menu and menu container
     MM:UpdateFavoriteIndicator(self:GetParent())
 
     local insert = MM.db.realm.FAVORITE_ENCHANTS[enchantID] and "w" or " longer"
-    MM:Print(MM:ItemLinkRE(enchantID).." is no"..insert.." a favorite.")
+    MM:Print(MysticEnchantUtil.GetEnchantLink(enchantID).." is no"..insert.." a favorite.")
     if MM:IsEmbeddedMenuOpen() then
       MM:CacheMyAuctionResults()
       MM:RefreshMyAuctionsScrollFrame()
@@ -290,7 +290,7 @@ do -- functions to initialize menu and menu container
 
     enchantToCraft = enchantID
     if MM.db.realm.OPTIONS.confirmCraft then
-      StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
+      StaticPopup_Show("MM_CRAFT_RE", MysticEnchantUtil.GetEnchantLink(enchantToCraft), orbCost)
     else
       attemptCraftingRE()
     end
@@ -484,7 +484,7 @@ do -- functions to initialize menu and menu container
         craftTime = nil
         pendingCraftedEnchantCount = nil
         pendingCraftedEnchantID = nil
-        MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantToCraft))
+        MM:Print("Applied to insignia: "..MysticEnchantUtil.GetEnchantLink(enchantToCraft))
       end
     end
     if MM:IsMenuOpen() then
