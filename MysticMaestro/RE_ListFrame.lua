@@ -345,14 +345,13 @@ collectionSetup = function()
     end
     --Show list view when Mystic Enchanting frame opens
     _G[C_Frame]:HookScript("OnShow", function()
-       -- MM:CreateAlterButton()
+
+        -- MM:CreateAlterButton()
     end)
 
     --Hide it when it closes
     _G[C_Frame]:HookScript("OnHide", function()
-    MysticMaestro_ListFrame:Hide();
-    MysticMaestro_ListFrame_ITEMSET = false
-    MysticMaestro_ListFrame_BAGID, MysticMaestro_ListFrame_SLOTID = nil,nil
+
     end)
     CreateListFrame()
     return true
@@ -390,25 +389,63 @@ hooksecurefunc("ContainerFrameItemButton_OnClick", function(self, button)
     end
 end)
 
+-- Creates all our frames the first time the enchanting collections window is opened
 CreateListFrame = function()
-local mainframe = CreateFrame("FRAME", "MysticMaestro_ListFrame", _G[C_Frame],"UIPanelDialogTemplate")
-    mainframe:SetSize(305, _G[C_Frame]:GetHeight()+7);
-    mainframe:SetPoint("RIGHT", _G[C_Frame], "RIGHT", 300, 0);
-    mainframe.TitleText = mainframe:CreateFontString();
-    mainframe.TitleText:SetFont("Fonts\\FRIZQT__.TTF", 12)
-    mainframe.TitleText:SetFontObject(GameFontNormal)
-    mainframe.TitleText:SetText("Mystic Extended");
-    mainframe.TitleText:SetPoint("TOP", 0, -9);
-    mainframe.TitleText:SetShadowOffset(1,-1);
-    mainframe:Hide();
-    mainframe:SetScript("OnHide",
+
+local collectionOverlay = CreateFrame("FRAME", "MysticMaestro_Collection_Overlay", _G[C_Frame])
+    collectionOverlay:SetSize(_G[C_Frame]:GetWidth(), _G[C_Frame]:GetHeight())
+    collectionOverlay:SetPoint("CENTER")
+    collectionOverlay:Show()
+
+--[[     collectionOverlay.ListFrameText = collectionOverlay:CreateFontString();
+    collectionOverlay.ListFrameText:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    collectionOverlay.ListFrameText:SetFontObject(GameFontNormal)
+    collectionOverlay.ListFrameText:SetText("Mystic Extended");
+    collectionOverlay.ListFrameText:SetPoint("TOPRIGHT", -70, -11);
+    collectionOverlay.ListFrameText:SetShadowOffset(1,-1);
+ ]]
+    collectionOverlay.ListFrameKnownCount = CreateFrame("Button", nil, collectionOverlay)
+    collectionOverlay.ListFrameKnownCount:SetPoint("TOPLEFT", 0, 0)
+    collectionOverlay.ListFrameKnownCount:SetSize(190,20)
+    collectionOverlay.ListFrameKnownCount.Lable = collectionOverlay.ListFrameKnownCount:CreateFontString(nil , "BORDER", "GameFontNormal")
+    collectionOverlay.ListFrameKnownCount.Lable:SetJustifyH("LEFT")
+    collectionOverlay.ListFrameKnownCount.Lable:SetPoint("LEFT", 0, 0);
+    collectionOverlay.ListFrameKnownCount:SetScript("OnShow", function()
+        MM:CalculateKnowEnchants()
+        collectionOverlay.ListFrameKnownCount.Lable:SetText("Known Enchants: |cffffffff".. MM.db.KnownEnchantNumbers.Total.Known.."/"..MM.db.KnownEnchantNumbers.Total.Total)
+    end)
+    collectionOverlay.ListFrameKnownCount:SetScript("OnEnter", function(self) MM:EnchantCountTooltip(self) end)
+    collectionOverlay.ListFrameKnownCount:SetScript("OnLeave", function() GameTooltip:Hide() end)
+
+local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOverlay, "UIPanelDialogTemplate")
+    listFrame:SetSize(350, collectionOverlay:GetHeight()+7);
+    listFrame:SetPoint("LEFT", collectionOverlay,"RIGHT")
+    listFrame.TitleText = listFrame:CreateFontString();
+    listFrame.TitleText:SetFont("Fonts\\FRIZQT__.TTF", 12)
+    listFrame.TitleText:SetFontObject(GameFontNormal)
+    listFrame.TitleText:SetText("Enchant Shoping List");
+    listFrame.TitleText:SetPoint("TOP", 0, -9);
+    listFrame.TitleText:SetShadowOffset(1,-1);
+    listFrame:Hide();
+    listFrame:SetScript("OnHide",
     function()
         if _G[C_Frame]:IsVisible() then
             MM.db.ListFrameLastState = false;
             MysticMaestro_ListFrame_ShowButton:SetText("Show");
-            _G[C_Frame].MysticMaestro_ListFrameText:Show();
+            _G[C_Frame].ListFrameText:Show();
         end
     end)
+    listFrame.texture = listFrame:CreateTexture(nil, "BACKGROUND")
+    local tex = AtlasUtil:GetAtlasInfo("_UI-Frame-TitleTileBg")
+    listFrame.texture:SetTexture(tex.filename)
+    listFrame.texture:SetTexCoord(tex.leftTexCoord, tex.rightTexCoord, tex.topTexCoord, tex.bottomTexCoord)
+    listFrame.texture:SetSize(listFrame:GetWidth(), listFrame:GetHeight())
+    listFrame.texture:SetPoint("CENTER")
+    listFrame:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16,
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 },
+    });
 
     local listDropdown = CreateFrame("Button", "MysticMaestro_ListFrame_ListDropDown", MysticMaestro_ListFrame, "UIDropDownMenuTemplate");
     listDropdown:SetPoint("TOPLEFT", 4, -40);
@@ -459,20 +496,7 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
 	removelistbtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 ------------------------------------------------------------------
---Reforge button in list interface
-local reforgebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_ListFrameReforgeButton", MysticEnchantingFrame, "OptionsButtonTemplate");
-    reforgebuttonlist:SetSize(100,26);
-    reforgebuttonlist:SetPoint("TOP", MysticEnchantingFrame, "TOP", 230, -33);
-    reforgebuttonlist:SetText("Start Reforge");
-    reforgebuttonlist:RegisterForClicks("LeftButtonDown", "RightButtonDown");
-    reforgebuttonlist:SetScript("OnClick", function(self, btnclick) MysticMaestro_ListFrame_OnClick(self,btnclick) end);
-    reforgebuttonlist:SetScript("OnEnter", function(self)
-        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine("Left Click To Start Reforging");
-        GameTooltip:AddLine("Right Click To Show Roll Settings");
-        GameTooltip:Show();
-    end);
-    reforgebuttonlist:SetScript("OnLeave", function() GameTooltip:Hide() end);
+
 
 --Shows a menu with options and sharing options
 local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_ListFrameMenuButton", MysticMaestro_ListFrame, "OptionsButtonTemplate");
@@ -488,29 +512,50 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_ListFrame
             MM.dewdrop:Open(self);
         end
     end);
+    collectionOverlay.sharebuttonlist = sharebuttonlist
 
-local optionsbuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_ListFrameOptionsButton", MysticMaestro_ListFrame, "OptionsButtonTemplate");
-    optionsbuttonlist:SetSize(133,30);
-    optionsbuttonlist:SetPoint("BOTTOMLEFT", MysticMaestro_ListFrame, "BOTTOMLEFT", 20, 20);
-    optionsbuttonlist:SetText("Options");
-    optionsbuttonlist:RegisterForClicks("LeftButtonDown");
-    optionsbuttonlist:SetScript("OnClick", function() MM:OptionsToggle() end);
+-- opens the settings page
+    listFrame.optionsbuttonlist = CreateFrame("Button", nil, MysticMaestro_ListFrame, "SettingsGearButtonTemplate");
+    listFrame.optionsbuttonlist:SetSize(30,30);
+    listFrame.optionsbuttonlist:SetPoint("BOTTOMLEFT", MysticMaestro_ListFrame, "BOTTOMLEFT", 20, 20);
+    listFrame.optionsbuttonlist:SetText("Options");
+    listFrame.optionsbuttonlist:RegisterForClicks("LeftButtonDown");
+    listFrame.optionsbuttonlist:SetScript("OnClick", function() MM:OptionsToggle() end);
 
 --Show/Hide button in main list view
-local showFrameBttn = CreateFrame("Button", "MysticMaestro_ListFrame_ShowButton", MysticEnchantingFrame, "OptionsButtonTemplate");
-    showFrameBttn:SetSize(80,26);
-    showFrameBttn:SetPoint("TOP", MysticEnchantingFrame, "TOP", 320, -33);
-    showFrameBttn:SetScript("OnClick", function()
-        if MysticMaestro_ListFrame:IsVisible() then
-            MysticMaestro_ListFrame:Hide();
-            MM.db.ListFrameLastState = false;
-            showFrameBttn:SetText("Show");
+    collectionOverlay.showFrameBttn  = CreateFrame("Button", nil, collectionOverlay, "FilterDropDownMenuTemplate");
+    collectionOverlay.showFrameBttn :SetSize(80,26);
+    collectionOverlay.showFrameBttn :SetPoint("BOTTOMRIGHT", MysticMaestro_Collection_Overlay, -5, 4)
+    collectionOverlay.showFrameBttn :SetScript("OnClick", function()
+        if listFrame:IsVisible() then
+            listFrame:Hide();
+            MM.db.char.ListFrameLastState = false;
+            collectionOverlay.showFrameBttn:SetText("Show");
         else
-            showFrameBttn:SetText("Hide");
-            MysticMaestro_ListFrame:Show();
-            MM.db.ListFrameLastState = true;
+            collectionOverlay.showFrameBttn:SetText("Hide");
+            listFrame:Show();
+            MM.db.char.ListFrameLastState = true;
         end
     end)
+    if MM.db.char.ListFrameLastState then
+        collectionOverlay.showFrameBttn:SetText("Show");
+    else
+        collectionOverlay.showFrameBttn:SetText("Hide");
+    end
+--Reforge button in list interface
+    collectionOverlay.reforgebuttonlist = CreateFrame("Button", nil, collectionOverlay, "FilterDropDownMenuTemplate");
+    collectionOverlay.reforgebuttonlist:SetSize(100,26);
+    collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0);
+    collectionOverlay.reforgebuttonlist:SetText("Start Reforge");
+    collectionOverlay.reforgebuttonlist:RegisterForClicks("LeftButtonDown", "RightButtonDown");
+    collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick) MysticMaestro_ListFrame_OnClick(self,btnclick) end);
+    collectionOverlay.reforgebuttonlist:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Left Click To Start Reforging");
+        GameTooltip:AddLine("Right Click To Show Roll Settings");
+        GameTooltip:Show();
+    end);
+    collectionOverlay.reforgebuttonlist:SetScript("OnLeave", function() GameTooltip:Hide() end);
 
     createScrollFrame()
     scrollSliderCreate()
@@ -575,24 +620,3 @@ function MM:ItemContextMenu(spellID, itemID, self)
     )
     MM.dewdrop:Open(self)
 end
-
---[[ MysticEnchantingFrame.MysticMaestro_ListFrameText = MysticEnchantingFrame:CreateFontString();
-MysticEnchantingFrame.MysticMaestro_ListFrameText:SetFont("Fonts\\FRIZQT__.TTF", 12)
-MysticEnchantingFrame.MysticMaestro_ListFrameText:SetFontObject(GameFontNormal)
-MysticEnchantingFrame.MysticMaestro_ListFrameText:SetText("Mystic Extended");
-MysticEnchantingFrame.MysticMaestro_ListFrameText:SetPoint("TOPRIGHT", -70, -11);
-MysticEnchantingFrame.MysticMaestro_ListFrameText:SetShadowOffset(1,-1);
-
-MysticEnchantingFrame.CollectionsList.PrevButton:SetPoint("RIGHT", MysticEnchantingFrame.CollectionsList, "BOTTOM", 6, 50)
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount = CreateFrame("Button", nil, MysticEnchantingFrame)
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount:SetPoint("BOTTOM", 135, 48)
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount:SetSize(190,20)
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount.Lable = MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount:CreateFontString(nil , "BORDER", "GameFontNormal")
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount.Lable:SetJustifyH("LEFT")
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount.Lable:SetPoint("LEFT", 0, 0);
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount:SetScript("OnShow", function()
-    MM:CalculateKnowEnchants()
-    MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount.Lable:SetText("Known Enchants: |cffffffff".. MM.db.KnownEnchantNumbers.Total.Known.."/"..MM.db.KnownEnchantNumbers.Total.Total)
-end)
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount:SetScript("OnEnter", function(self) MM:EnchantCountTooltip(self) end)
-MysticEnchantingFrame.MysticMaestro_ListFrameKnownCount:SetScript("OnLeave", function() GameTooltip:Hide() end) ]]

@@ -499,3 +499,48 @@ function MM:Chatlink(ID,chatType,Type)
   end
 end
 
+function MM:CalculateKnowEnchants()
+  local known = {
+      Uncommon = { Total = 0, Known = 0, Unknown = 0 },
+      Rare = { Total = 0, Known = 0, Unknown = 0 },
+      Epic = { Total = 0, Known = 0, Unknown = 0 },
+      Legendary = { Total = 0, Known = 0, Unknown = 0 },
+      Total = {Total = 0, Known = 0}
+  }
+
+  for _, v in pairs(MYSTIC_ENCHANTS) do
+     if v.enchantID ~= 0 and v.flags ~= 1 then
+        if v.quality == 2 then
+           known.Uncommon.Total = known.Uncommon.Total + 1
+        elseif v.quality == 3 then
+          known.Rare.Total = known.Rare.Total + 1
+        elseif v.quality == 4 then
+          known.Epic.Total = known.Epic.Total + 1
+        elseif v.quality == 5 then
+          known.Legendary.Total = known.Legendary.Total + 1
+        end
+
+        if IsReforgeEnchantmentKnown(v.enchantID) then
+           if v.quality == 2 then
+              known.Uncommon.Known = known.Uncommon.Known + 1
+           elseif v.quality == 3 then
+              known.Rare.Known = known.Rare.Known + 1
+           elseif v.quality == 4 then
+              known.Epic.Known = known.Epic.Known + 1
+           elseif v.quality == 5 then
+              known.Legendary.Known = known.Legendary.Known + 1
+           end
+           known.Total.Known = known.Total.Known + 1
+        end
+        known.Total.Total = known.Total.Total + 1
+     end
+  end
+  known.Uncommon.Unknown = known.Uncommon.Total - known.Uncommon.Known
+  known.Rare.Unknown = known.Rare.Total - known.Rare.Known
+  known.Epic.Unknown = known.Epic.Total - known.Epic.Known
+  known.Legendary.Unknown = known.Legendary.Total - known.Legendary.Known 
+
+  ME.db.KnownEnchantNumbers = known
+  MysticMaestro_Collection_Overlay.knownCount.Lable:SetText("Known Enchants: |cffffffff".. ME.db.KnownEnchantNumbers.Total.Known.."/"..ME.db.KnownEnchantNumbers.Total.Total)
+end
+
