@@ -1,4 +1,12 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+-- Colours stored for code readability
+local WHITE = "|cffFFFFFF";
+local GREEN = "|cff1eff00";
+local BLUE = "|cff0070dd";
+local ORANGE = "|cffFF8400";
+local GOLD  = "|cffffcc00";
+local LIGHTBLUE = "|cFFADD8E6";
+local ORANGE2 = "|cFFFFA500";
 
 -- API for other addons to get information about an RE
 function Maestro(reID)
@@ -97,6 +105,17 @@ function MM:PriceCorrection(obj,list)
   else
     return obj.buyoutPrice, obj.yours
   end
+end
+
+--[[ function MM:ItemLinkRE(reID)
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
+  local quality = Enum.EnchantQualityEnum[enchant.Quality]
+  local color = AscensionUI.MysticEnchant.EnchantQualitySettings[quality][1]
+  return color .. "\124Hspell:" .. enchant.SpellID .. "\124h[" .. RE.SpellName .. "]\124h\124r"
+end
+ ]]
+function MM:GetEnchantLink(spellID)
+  return LinkUtil:GetSpellLink(spellID)
 end
 
 function MM:GetREInSlot(bag,slot)
@@ -436,3 +455,47 @@ function MM:HasItem(itemID)
   end
   return false
 end
+
+--for a adding a divider to dew drop menus 
+function MM:AddDividerLine(maxLenght)
+  local text = WHITE.."----------------------------------------------------------------------------------------------------"
+  MM.dewdrop:AddLine(
+      'text' , text:sub(1, maxLenght),
+      'textHeight', 12,
+      'textWidth', 12,
+      'isTitle', true,
+      "notCheckable", true
+  );
+end
+
+--pre built dewdrop close button with dividerline
+function MM:CloseDewDrop(divider, maxLenght)
+  if divider then
+    MM:AddDividerLine(maxLenght)
+  end
+  MM.dewdrop:AddLine(
+      'text', "Close Menu",
+      'textR', 0,
+      'textG', 1,
+      'textB', 1,
+      'textHeight', 12,
+      'textWidth', 12,
+      'closeWhenClicked', true,
+      'notCheckable', true
+  )
+end
+
+-- open browser link base on type or id/string
+function MM:OpenDBURL(ID, Type)
+  OpenAscensionDBURL("?"..Type.."="..ID);
+end
+
+-- for sending links to party/raid/guild chat
+function MM:Chatlink(ID,chatType,Type)
+  if Type == "spell" then
+      SendChatMessage(MM:GetEnchantLink(ID) ,chatType);
+  else
+      SendChatMessage(select(2,GetItemInfo(ID)) ,chatType);
+  end
+end
+

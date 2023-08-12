@@ -113,7 +113,7 @@ local function FindNextScroll()
 						knownStr = green .. "known" .. "|r"
 					end
 					if shopReserveList[re] then
-						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MysticEnchantUtil.GetEnchantLink(re))
+						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:GetEnchantLink(re))
 					else
 						bagID = i
 						slotIndex = j
@@ -180,7 +180,7 @@ end
 local function extract(enchantID)
 	if not MM:IsREKnown(enchantID) 
 	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
-			MM:Print("Extracting enchant:" .. MysticEnchantUtil.GetEnchantLink(enchantID))
+			MM:Print("Extracting enchant:" .. MM:GetEnchantLink(enchantID))
 			RequestSlotReforgeExtraction(bagID, slotIndex)
 	end
 end
@@ -275,9 +275,9 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 				seasonal = green .. " seasonal" .. "|r"
 			end
 			if result then
-				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MysticEnchantUtil.GetEnchantLink(enchantID) .. " because of " .. result)
+				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:GetEnchantLink(enchantID) .. " because of " .. result)
 			else
-				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MysticEnchantUtil.GetEnchantLink(enchantID))
+				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:GetEnchantLink(enchantID))
 			end
 		end
 		if result or norunes then
