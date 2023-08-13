@@ -62,7 +62,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     local temp = ":"
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
-      local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo(listingType, index)
+      local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo("list", i)
 
       if seller == nil and currentTime < timeoutTime then
         awaitingResults = true
