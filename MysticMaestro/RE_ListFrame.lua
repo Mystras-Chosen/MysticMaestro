@@ -476,6 +476,8 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     collectionOverlay.reforgebuttonlist = CreateFrame("Button", "MysticMaestro_CollectionsFrame_ReforgButton", collectionOverlay, "FilterDropDownMenuTemplate");
     collectionOverlay.reforgebuttonlist:SetSize(100,24);
     collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0);
+    collectionOverlay.reforgebuttonlist.Icon:Hide()
+    collectionOverlay.reforgebuttonlist.Text:SetPoint("CENTER", 0, 0)
     collectionOverlay.reforgebuttonlist:SetText("Start Reforge");
     collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick) MysticMaestro_ListFrame_OnClick(self,btnclick) end);
     collectionOverlay.reforgebuttonlist:SetScript("OnEnter", function(self)
