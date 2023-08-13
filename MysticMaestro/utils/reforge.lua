@@ -240,10 +240,6 @@ local function configConditionMet(currentEnchant)
 	or shopExtractList[currentEnchant.enchantID]) then
 		extract(currentEnchant.enchantID)
 	end
-	-- check for spam reforge settings
-	if autoReforgeEnabled and options.stopForNothing then
-		return configNoRunes()
-	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
