@@ -441,3 +441,14 @@ function MM:IsUntarnished(itemName)
   if not itemName then return false end
   return itemName:find("Untarnished Mystic Scroll")
 end
+
+-- itemLink, enchantData, buyoutPrice, seller, duration, icon
+function MM:GetAuctionMysticEnchantInfo(listingType, index)
+  local itemLink = GetAuctionItemLink(listingType, index)
+  local itemID = GetItemInfoFromHyperlink(itemLink)
+  local enchantData = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+  local buyoutPrice, _, _, seller = select(9, GetAuctionItemInfo(listingType, index))
+  local duration = GetAuctionItemTimeLeft(listingType, index)
+  local icon = select(2, GetAuctionItemInfo(listingType, index))
+  return itemLink, enchantData, buyoutPrice, seller, duration, icon
+end

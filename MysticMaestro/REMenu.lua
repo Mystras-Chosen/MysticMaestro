@@ -35,7 +35,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
           MM:GoToPage(1)
           MM:SetSelectedEnchantButton(1)
           if MM:IsEmbeddedMenuOpen() then
-            MM:SelectMyAuctionByEnchantID(key)
+            MM:SelectMyAuctionBySpellID(key)
             MM:ClearSelectedEnchantAuctions()
           end
           return key, enchantName
@@ -47,7 +47,7 @@ do -- Create RE search box widget "EditBoxMysticMaestroREPredictor"
             MM:GoToPage(1)
             MM:SetSelectedEnchantButton(1)
             if MM:IsEmbeddedMenuOpen() then
-              MM:SelectMyAuctionByEnchantID(key)
+              MM:SelectMyAuctionBySpellID(key)
               MM:ClearSelectedEnchantAuctions()
             end
             return key, enchantName
@@ -1214,8 +1214,8 @@ do -- show/hide and select/deselect mystic enchant button functions
   end
 
     -- prunes all old listings except for the most recent one that also has buyouts
-  function MM:PruneOldListings(enchantID)
-    local listingData = MM.data.RE_AH_LISTINGS[enchantID]
+  function MM:PruneOldListings(spellID)
+    local listingData = MM.data.RE_AH_LISTINGS[spellID]
     local leftBoundMidnightTime = MM:DaysAgo(MM.daysDisplayedInGraph)
     local removeList = {}
     for timeKey, auctionListString in pairs(listingData) do
@@ -1236,14 +1236,6 @@ do -- show/hide and select/deselect mystic enchant button functions
     end
   end
 
-  function MM:GetEnchantButtonByEnchantID(enchantID)
-    for _, button in ipairs(enchantButtons) do
-      if button.enchantID == enchantID then
-        return button
-      end
-    end
-  end
-
   local selectedEnchantButton
 
   function MM:GetSelectedEnchantButton()
@@ -1260,14 +1252,14 @@ do -- show/hide and select/deselect mystic enchant button functions
       lastSelectedButton.H:SetDesaturated(true)
       lastSelectedButton.H:Hide()
     end
-    self:PruneOldListings(button.enchantID)
-    self:PopulateGraph(button.enchantID)
-    self:ShowStatistics(button.enchantID)
+    self:PruneOldListings(button.spellID)
+    self:PopulateGraph(button.spellID)
+    self:ShowStatistics(button.spellID)
     if self:IsEmbeddedMenuOpen() then
       self:CancelSingleScan()
       self:ClearSelectedEnchantAuctions()
-      self:InitializeSingleScan(button.enchantID) -- async populate scroll bars
-      self:SelectMyAuctionByEnchantID(button.enchantID)
+      self:InitializeSingleScan(button.spellID) -- async populate scroll bars
+      self:SelectMyAuctionBySpellID(button.spellID)
     end
     selectedEnchantButton = button
   end

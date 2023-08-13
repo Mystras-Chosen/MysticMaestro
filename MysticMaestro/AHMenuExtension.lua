@@ -31,10 +31,10 @@ function MM:SetSelectedMyAuctionData(data)
   end
 end
 
-function MM:SelectMyAuctionByEnchantID(enchantID)
+function MM:SelectMyAuctionBySpellID(spellID)
   local myAuctionResults = self:GetSortedMyAuctionResults()
   for _, result in ipairs(myAuctionResults) do
-    if result.enchantID == enchantID then
+    if result.spellID == spellID then
       self:SetSelectedMyAuctionData(result)
       return
     end
@@ -219,10 +219,10 @@ local function myAuctionsScrollFrame_Update(self)
       button.data = result
       local textColor = MM:GetLastScanTimeColor(result)
       button.auctionCount:SetText("|cff" .. textColor .. #button.data.auctions .. "|r")
-      local reData = GetREData(button.data.enchantID)
-      button.enchantName:SetText(MM:cTxt(reData.spellName, tostring(reData.quality)))
+      local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(result.spellID)
+      button.enchantName:SetText(MM:cTxt(enchantData.SpellName, tostring(enchantData.Quality)))
       button:Show()
-      if selectedData and button.data.enchantID == selectedData.enchantID then
+      if selectedData and button.data.spellID == selectedData.spellID then
         button.H:Show()
         button.H:SetDesaturated(false)
       elseif button:IsMouseOver() then
@@ -307,7 +307,7 @@ function MM:RefreshMyAuctionsScrollFrame()
   myAuctionsScrollFrame_Update(self:GetMyAuctionsScrollFrame())
   local selectedEnchantButton = self:GetSelectedEnchantButton()
   if selectedEnchantButton then
-    self:SelectMyAuctionByEnchantID(selectedEnchantButton.enchantID)
+    self:SelectMyAuctionBySpellID(selectedEnchantButton.spellID)
   end
 end
 
