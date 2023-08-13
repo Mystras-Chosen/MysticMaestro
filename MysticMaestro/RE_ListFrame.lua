@@ -471,8 +471,9 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     else
         collectionOverlay.showFrameBttn:SetText("Hide");
     end
+
 --Reforge button in list interface
-    collectionOverlay.reforgebuttonlist = CreateFrame("Button", nil, collectionOverlay, "FilterDropDownMenuTemplate");
+    collectionOverlay.reforgebuttonlist = CreateFrame("Button", "MysticMaestro_CollectionsFrame_ReforgButton", collectionOverlay, "FilterDropDownMenuTemplate");
     collectionOverlay.reforgebuttonlist:SetSize(100,24);
     collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0);
     collectionOverlay.reforgebuttonlist:SetText("Start Reforge");
