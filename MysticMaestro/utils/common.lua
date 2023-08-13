@@ -7,6 +7,7 @@ local ORANGE = "|cffFF8400";
 local GOLD  = "|cffffcc00";
 local LIGHTBLUE = "|cFFADD8E6";
 local ORANGE2 = "|cFFFFA500";
+local CYAN =  "|cff00ffff"
 
 -- API for other addons to get information about an RE
 function Maestro(reID)
@@ -500,47 +501,55 @@ function MM:Chatlink(ID,chatType,Type)
 end
 
 function MM:CalculateKnowEnchants()
-  local known = {
-      Uncommon = { Total = 0, Known = 0, Unknown = 0 },
-      Rare = { Total = 0, Known = 0, Unknown = 0 },
-      Epic = { Total = 0, Known = 0, Unknown = 0 },
-      Legendary = { Total = 0, Known = 0, Unknown = 0 },
-      Total = {Total = 0, Known = 0}
+  local enchantCount = {
+  totalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN})),
+  knownEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN})),
+  totalNormalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownNormalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalWorldForgedEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_WORLDFORGED})),
+  knownWorldForgedEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_WORLDFORGED})),
+  totalCommonEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_UNCOMMON,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownCommonEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNCOMMON,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalRareEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_RARE,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownRareEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_RARE,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalEpicEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_EPIC,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownEpicEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_EPIC,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalLegendaryEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_LEGENDARY,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownLegendaryEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_LEGENDARY,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
   }
+  enchantCount.unknownEnchants = enchantCount.totalEnchants - enchantCount.knownEnchants
+  enchantCount.unknownNormalEnchants = enchantCount.totalNormalEnchants - enchantCount.knownNormalEnchants
+  enchantCount.unknownWorldForgedEnchants = enchantCount.totalWorldForgedEnchants - enchantCount.knownWorldForgedEnchants
+  enchantCount.unknownCommonEnchants = enchantCount.totalCommonEnchants - enchantCount.knownCommonEnchants
+  enchantCount.unknownRareEnchants = enchantCount.totalRareEnchants - enchantCount.knownRareEnchants
+  enchantCount.unknownEpicEnchants = enchantCount.totalEpicEnchants - enchantCount.knownEpicEnchants
+  enchantCount.unknownLegendaryEnchants = enchantCount.totalLegendaryEnchants - enchantCount.knownLegendaryEnchants
 
-  for _, v in pairs(MYSTIC_ENCHANTS) do
-     if v.enchantID ~= 0 and v.flags ~= 1 then
-        if v.quality == 2 then
-           known.Uncommon.Total = known.Uncommon.Total + 1
-        elseif v.quality == 3 then
-          known.Rare.Total = known.Rare.Total + 1
-        elseif v.quality == 4 then
-          known.Epic.Total = known.Epic.Total + 1
-        elseif v.quality == 5 then
-          known.Legendary.Total = known.Legendary.Total + 1
-        end
-
-        if IsReforgeEnchantmentKnown(v.enchantID) then
-           if v.quality == 2 then
-              known.Uncommon.Known = known.Uncommon.Known + 1
-           elseif v.quality == 3 then
-              known.Rare.Known = known.Rare.Known + 1
-           elseif v.quality == 4 then
-              known.Epic.Known = known.Epic.Known + 1
-           elseif v.quality == 5 then
-              known.Legendary.Known = known.Legendary.Known + 1
-           end
-           known.Total.Known = known.Total.Known + 1
-        end
-        known.Total.Total = known.Total.Total + 1
-     end
-  end
-  known.Uncommon.Unknown = known.Uncommon.Total - known.Uncommon.Known
-  known.Rare.Unknown = known.Rare.Total - known.Rare.Known
-  known.Epic.Unknown = known.Epic.Total - known.Epic.Known
-  known.Legendary.Unknown = known.Legendary.Total - known.Legendary.Known 
-
-  ME.db.KnownEnchantNumbers = known
-  MysticMaestro_Collection_Overlay.knownCount.Lable:SetText("Known Enchants: |cffffffff".. ME.db.KnownEnchantNumbers.Total.Known.."/"..ME.db.KnownEnchantNumbers.Total.Total)
+  return enchantCount
 end
 
+function MM:EnchantCountTooltip(self, enchants)
+  GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+  GameTooltip:AddLine("Enchant Numbers")
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(2)).."Uncommon Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownCommonEnchants.."/"..enchants.totalCommonEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownCommonEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(3)).."Rare Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownRareEnchants.."/"..enchants.totalRareEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownRareEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(4)).."Epic Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownEpicEnchants.."/"..enchants.totalEpicEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownEpicEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(5)).."Legendary Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownLegendaryEnchants.."/"..enchants.totalLegendaryEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownLegendaryEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(CYAN.."Worldforged Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownWorldForgedEnchants.."/"..enchants.totalWorldForgedEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownWorldForgedEnchants)
+  GameTooltip:Show()
+end
