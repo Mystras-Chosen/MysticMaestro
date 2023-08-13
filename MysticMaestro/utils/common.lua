@@ -98,6 +98,8 @@ local function ifOver(obj)
   end
 end
 
+-- When listing an auction, we determine what kind of undercut to perform.
+-- Using the two functions from above, we determine how to price the enchant.
 function MM:PriceCorrection(obj,list)
   if obj.buyoutPrice < MM.db.realm.OPTIONS.postMin * 10000 then
     return ifUnder(obj,list)
@@ -108,17 +110,19 @@ function MM:PriceCorrection(obj,list)
   end
 end
 
---[[ function MM:ItemLinkRE(reID)
+-- Creates a Quality colored item link for use in text
+function MM:ItemLinkRE(reID)
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
   local quality = Enum.EnchantQualityEnum[enchant.Quality]
   local color = AscensionUI.MysticEnchant.EnchantQualitySettings[quality][1]
   return color .. "\124Hspell:" .. enchant.SpellID .. "\124h[" .. RE.SpellName .. "]\124h\124r"
 end
- ]]
+
 function MM:GetEnchantLink(spellID)
   return LinkUtil:GetSpellLink(spellID)
 end
 
+-- Inhouse version of the previous function
 function MM:GetREInSlot(bag,slot)
   local itemLink = select(7, GetContainerItemInfo(bag, slot))
   if not itemLink then return end
@@ -128,8 +132,8 @@ function MM:GetREInSlot(bag,slot)
   return enchant and enchant.SpellID
 end
 
+-- Find Untarnished Mystic Scroll to use in crafting
 function MM:FindBlankScrolls()
-  -- Find a valid insignia to use for crafting
   for bagID=0, 4 do
     for containerIndex=1, GetContainerNumSlots(bagID) do
       local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
@@ -160,7 +164,7 @@ function MM:CountSellableREInBags(enchantID)
   return sellableREsInBagsCache[enchantID]
 end
 
--- item exists, rare, has RE, is not soulbound
+-- Create a cache of the scrolls available in bags
 function MM:UpdateSellableREsCache(bagID)
   local newContainerCache = {}
   local itemName
@@ -179,12 +183,14 @@ function MM:UpdateSellableREsCache(bagID)
   sellableREsInBagsCache[bagID] = newContainerCache
 end
 
+-- cache helper
 function MM:ResetSellableREsCache()
   for bagID=0, 4 do
     self:UpdateSellableREsCache(bagID)
   end
 end
 
+-- cache helper
 function MM:GetSellableREs()
   local sellableREs = {}
   for bagID=0, 4 do
@@ -240,6 +246,7 @@ function MM:DaysAgo(days)
   return time(t)
 end
 
+-- print out the object to chat
 function MM:Dump(orig, depth)
   if not depth then print("Line","Key","Value") end
   depth = depth or 0
@@ -252,6 +259,7 @@ function MM:Dump(orig, depth)
   end
 end
 
+-- calculate the variance between values
 function MM:Variance(tbl,mean)
   local dif
   local sum, count = 0, 0
@@ -265,6 +273,7 @@ function MM:Variance(tbl,mean)
   return ( sum / count )
 end
 
+-- use the variance to calculate standard deviation
 function MM:StdDev(tbl,mean)
   local variance = MM:Variance(tbl,mean)
   return math.sqrt(variance)
@@ -277,6 +286,7 @@ local qualityCost = {
   [5] = 25
 }
 
+-- return an orb cost for each quality of enchants
 function MM:OrbCost(reID)
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(reID)
   local quality = Enum.EnchantQualityEnum[enchant.Quality]
@@ -290,8 +300,8 @@ local qualityValue = {
   legendary = 5
 }
 
+-- list of mystic enchant IDs ordered alphabetically by their spell name
 function MM:GetAlphabetizedEnchantList(qualityName)
-	-- list of mystic enchant IDs ordered alphabetically by their spell name
 	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
 	if not enchants then
 		enchants = {}
@@ -377,6 +387,7 @@ function MM:Lowest(a,b)
 	return lowest
 end
 
+-- returns the price stats for a given enchant
 function MM:StatObj(reID)
   local stats = self.data.RE_AH_STATISTICS[reID]
   return stats and stats.current
@@ -404,7 +415,7 @@ local colors = {
   ["RE_QUALITY_ARTIFACT"] = "|cffff8000",
   ["RE_QUALITY_HEIRLOOM"] = "|cffff8000",
 }
-
+-- Color text using the above table
 function MM:cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
@@ -418,8 +429,12 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(self, event, entry, data)
   if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
     and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
     and event ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
-  MM:ASCENSION_REFORGE_ENCHANT_RESULT(self, event, entry, data)
-  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(self, event, entry, data)
+  MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
+  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(this, event, entry, data)
+end
+
+-- Notification function for the LEARNED event
+function MM:MYSTIC_ENCHANT_LEARNED(this, spellID)
   if not self.db.realm.OPTIONS.notificationLearned then return end
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
   if not enchant then return end
@@ -430,6 +445,7 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(self, event, entry, data)
   DEFAULT_CHAT_FRAME:AddMessage(texture)
 end
 
+-- determine the count of Mystic Orbs
 function MM:GetOrbCurrency()
   return GetItemCount(98570)
 end
@@ -552,4 +568,14 @@ function MM:EnchantCountTooltip(self, enchants)
   GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownWorldForgedEnchants.."/"..enchants.totalWorldForgedEnchants)
   GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownWorldForgedEnchants)
   GameTooltip:Show()
+end
+-- itemLink, enchantData, buyoutPrice, seller, duration, icon
+function MM:GetAuctionMysticEnchantInfo(listingType, index)
+  local itemLink = GetAuctionItemLink(listingType, index)
+  local itemID = GetItemInfoFromHyperlink(itemLink)
+  local enchantData = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+  local buyoutPrice, _, _, seller = select(9, GetAuctionItemInfo(listingType, index))
+  local duration = GetAuctionItemTimeLeft(listingType, index)
+  local icon = select(2, GetAuctionItemInfo(listingType, index))
+  return itemLink, enchantData, buyoutPrice, seller, duration, icon
 end

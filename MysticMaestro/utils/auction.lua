@@ -3,35 +3,22 @@
 -- Upvalue global functions called on every frame
 local GetTime, CanSendAuctionQuery = GetTime, CanSendAuctionQuery
 
-function MM:GetAuctionInfo(i)
-  local itemName, icon, _, quality, _, level, _, _, buyoutPrice, _, _, seller = GetAuctionItemInfo("list", i)
-  local link = GetAuctionItemLink("list", i)
-  local duration = GetAuctionItemTimeLeft("list", i)
-  return itemName, level, buyoutPrice, quality, seller, icon, link, duration
-end
-
-function MM:IsEnchantItemFound(itemName, quality, level, buyoutPrice, i)
-  -- local enchantID = GetAuctionItemMysticEnchant("list", i)
-  local properItem = buyoutPrice and buyoutPrice > 0 or false
-  return properItem and enchantID
-end
-
-function MM:CollectSpecificREData(scanTime, expectedEnchantID)
+function MM:CollectSpecificREData(scanTime, expectedSpellID)
   local listings = self.data.RE_AH_LISTINGS
   local enchantFound = false
   local numBatchAuctions = GetNumAuctionItems("list")
   local temp = ":"
   if numBatchAuctions > 0 then
     for i = 1, numBatchAuctions do
-      local itemName, level, buyoutPrice, quality = MM:GetAuctionInfo(i)
-      local itemFound, enchantID, trinketFound = MM:IsEnchantItemFound(itemName,quality,level,buyoutPrice,i)
-      if itemFound and enchantID == expectedEnchantID then
-        temp = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+      local _, enchantData, buyoutPrice = MM:GetAuctionMysticEnchantInfo("list", i)
+      if enchantData and enchantData.SpellID == expectedSpellID
+      and buyoutPrice and buyoutPrice > 0 then
+        temp = buyoutPrice .. "," .. temp
         enchantFound = true
       end
     end
     if enchantFound then
-      listings[expectedEnchantID][scanTime] = temp
+      listings[expectedSpellID][scanTime] = temp
     end
   end
   return enchantFound
@@ -69,64 +56,57 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
   if awaitingResults then
     local currentTime = GetTime()
     self.lastSelectScanTime = currentTime
-    local listings, reID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
-    local listingData = listings[reID]
+    local listings, expectedSpellID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
+    local listingData = listings[expectedSpellID]
     results = {}
     local temp = ":"
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
-      local itemName, level, buyoutPrice, quality, seller, icon, link, duration = MM:GetAuctionInfo(i)
+      local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo(listingType, index)
+
       if seller == nil and currentTime < timeoutTime then
         awaitingResults = true
       end
-      local itemFound, enchantID, trinketFound = MM:IsEnchantItemFound(itemName,quality,level,buyoutPrice,i)
-      if itemFound and reID == enchantID then
+
+      if enchantData and enchantData.SpellID == expectedSpellID
+      and buyoutPrice and buyoutPrice > 0 then
         table.insert(results, {
           id = i,
-          enchantID = enchantID,
+          spellID = enchantData.SpellID,
           seller = seller,
           buyoutPrice = buyoutPrice,
           yours = seller == UnitName("player"),
           icon = icon,
-          link = link,
+          link = itemLink,
           duration = duration
         })
-        temp = trinketFound and buyoutPrice .. "," .. temp or temp .. buyoutPrice .. ","
+        temp = buyoutPrice .. "," .. temp
       end
     end
-    listings[reID][sTime] = temp
-    self:CalculateREStats(reID, listingData)
+    listings[expectedSpellID][sTime] = temp
+    self:CalculateREStats(expectedSpellID, listingData)
     table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
     if self:IsEmbeddedMenuOpen() and not self.AutomationManager:IsRunning() then
       self:PopulateSelectedEnchantAuctions(results)
-      self:SetMyAuctionLastScanTime(reID)
-      self:SetMyAuctionBuyoutStatus(reID)
+      self:SetMyAuctionLastScanTime(expectedSpellID)
+      self:SetMyAuctionBuyoutStatus(expectedSpellID)
       self:RefreshMyAuctionsScrollFrame()
       self:EnableListButton()
       self:EnableAuctionRefreshButton()
-      self:PopulateGraph(reID)
-      self:ShowStatistics(reID)
+      self:PopulateGraph(expectedSpellID)
+      self:ShowStatistics(expectedSpellID)
     end
     timeoutTime = (awaitingResults and currentTime < timeoutTime) and timeoutTime or nil
   end
 end
 
-local function getMyAuctionInfo(i)
-  local itemName, _, _, quality, _, _, _, _, buyoutPrice = GetAuctionItemInfo("owner", i)
-  local enchantID, mysticScroll = GetAuctionItemMysticEnchant("owner", i)
-  local link = GetAuctionItemLink("owner", i)
-  local iLevel, _, _, _, _, _, _, vendorPrice = select(4,GetItemInfo(link))
-  local allowed = mysticScroll or MM:AllowedItem(quality, iLevel, vendorPrice)
-  return buyoutPrice, enchantID, link, allowed
-end
-
 local function collectMyAuctionData(results)
   local numPlayerAuctions = GetNumAuctionItems("owner")
   for i=1, numPlayerAuctions do
-    local buyoutPrice, enchantID, link, allowed = getMyAuctionInfo(i)
-    if buyoutPrice and allowed and enchantID then
-      results[enchantID] = results[enchantID] or { auctions = {} }
-      table.insert(results[enchantID].auctions, {
+    local link, enchantData, buyoutPrice = MM:GetAuctionMysticEnchantInfo("owner", i)
+    if buyoutPrice and enchantData then
+      results[enchantData.SpellID] = results[enchantData.SpellID] or { auctions = {} }
+      table.insert(results[enchantData.SpellID].auctions, {
         id = i, -- need to have owner ID so auction can be canceled
         buyoutPrice = buyoutPrice, -- need to have buyout price so canceled auction can be matched
         link = link
@@ -136,27 +116,27 @@ local function collectMyAuctionData(results)
 end
 
 local function collectFavoritesData(results)
-  for enchantID in pairs(MM.db.realm.FAVORITE_ENCHANTS) do
-    results[enchantID] = results[enchantID] or { auctions = {} }
+  for spellID in pairs(MM.db.realm.FAVORITE_ENCHANTS) do
+    results[spellID] = results[spellID] or { auctions = {} }
   end
 end
 
 local function transferLastScanTime(fromResults, toResults)
-  for enchantID, result in pairs(toResults) do
-    if fromResults[enchantID] then
-      result.lastScanTime = fromResults[enchantID].lastScanTime
-      result.lowestBuyout = fromResults[enchantID].lowestBuyout
+  for spellID, result in pairs(toResults) do
+    if fromResults[spellID] then
+      result.lastScanTime = fromResults[spellID].lastScanTime
+      result.lowestBuyout = fromResults[spellID].lowestBuyout
     end
   end
 end
 
-local function inferListedAuctionResults(newResults, listedAuctionEnchantID)
-  newResults[listedAuctionEnchantID].lastScanTime = MM.lastSelectScanTime
+local function inferListedAuctionResults(newResults, listedAuctionSpellID)
+  newResults[listedAuctionSpellID].lastScanTime = MM.lastSelectScanTime
   local listedEnchantAuctionResults = MM:GetSelectedEnchantAuctionsResults()
   if #listedEnchantAuctionResults > 0 then
-    newResults[listedAuctionEnchantID].lowestBuyout = listedEnchantAuctionResults[1].buyoutPrice > MM.listedAuctionBuyoutPrice or listedEnchantAuctionResults[1].yours
+    newResults[listedAuctionSpellID].lowestBuyout = listedEnchantAuctionResults[1].buyoutPrice > MM.listedAuctionBuyoutPrice or listedEnchantAuctionResults[1].yours
   else
-    newResults[listedAuctionEnchantID].lowestBuyout = true
+    newResults[listedAuctionSpellID].lowestBuyout = true
   end
 end
 
@@ -166,15 +146,15 @@ function MM:GetMyAuctionResults()
   return myAuctionResults
 end
 
-function MM:CacheMyAuctionResults(listedAuctionEnchantID)
+function MM:CacheMyAuctionResults(listedAuctionSpellID)
   local newResults = {}
   collectMyAuctionData(newResults)
   collectFavoritesData(newResults)
   if myAuctionResults then
     transferLastScanTime(myAuctionResults, newResults)
   end
-  if listedAuctionEnchantID and newResults[listedAuctionEnchantID] then
-    inferListedAuctionResults(newResults, listedAuctionEnchantID)
+  if listedAuctionSpellID and newResults[listedAuctionSpellID] then
+    inferListedAuctionResults(newResults, listedAuctionSpellID)
   end
   myAuctionResults = newResults
   return myAuctionResults
@@ -182,9 +162,9 @@ end
 
 local function convertMyAuctionResults(results)
   local r = {}
-  for enchantID, result in pairs(results) do
+  for spellID, result in pairs(results) do
     table.insert(r, {
-      enchantID = enchantID,
+      spellID = spellID,
       lastScanTime = result.lastScanTime,
       lowestBuyout = result.lowestBuyout,
       auctions = result.auctions
@@ -262,7 +242,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
   function()
     if pendingQuery and CanSendAuctionQuery() then
       local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantToQuery)
-      QueryAuctionItems(enchant.SpellName, nil, nil, 0, 0, 3, false, true, nil)
+      QueryAuctionItems(enchant.SpellName)
       pendingQuery = false
       awaitingResults = true
       timeoutTime = GetTime() + 1
@@ -775,7 +755,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       if enchantToRestoreIsStillSelected() then
         MM:InitializeSingleScan(enchantToRestore)
         local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantToRestore)
-        QueryAuctionItems(enchant.SpellName, nil, nil, 0, 0, 3, false, true, nil)
+        QueryAuctionItems(enchant.SpellName)
         local results = MM:GetSortedMyAuctionResults()
         for _, result in ipairs(results) do
           if enchantToRestore == result.enchantID then
