@@ -537,6 +537,38 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 
     createScrollFrame()
     scrollSliderCreate()
+
+    local function NextPage(self)
+        PlaySound(SOUNDKIT.ABILITIES_TURN_PAGEA)
+
+        if self.page >= self.maxPage then
+            self.page = self.maxPage
+        else
+            self.page = self.page + 1
+        end
+
+        self:OnPageChanged()
+    end
+
+    function PreviousPage(self)
+        PlaySound(SOUNDKIT.ABILITIES_TURN_PAGEA)
+
+        if self.page <= 1 then
+            self.page = 1
+        else
+            self.page = self.page - 1
+        end
+
+        self:OnPageChanged()
+    end
+
+    EnchantCollection.Collection.CollectionTab:SetScript("OnMouseWheel", function(self, delta)
+        if (delta == -1) then
+           NextPage(self)
+        elseif (delta == 1) then
+           PreviousPage(self)
+        end
+  end)
 end
 
 
@@ -600,3 +632,4 @@ function MM:ItemContextMenu(spellID, itemID, self)
     )
     MM.dewdrop:Open(self)
 end
+
