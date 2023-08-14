@@ -1,10 +1,10 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local function addLinesTooltip(tt, spellID)
+local function addLinesTooltip(tt, SpellID)
   if not MM.db.realm.OPTIONS.ttEnable then return end
-  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if not enchant then return end
-  local stats = MM:StatObj(spellID)
+  local stats = MM:StatObj(SpellID)
   if MM.db.realm.OPTIONS.ttKnownIndicator and enchant then
     local indicator
     if enchant.Known then
@@ -34,7 +34,7 @@ local function addLinesTooltip(tt, spellID)
       tt:AddDoubleLine("Current Max", temp,1,1,0,1,1,1)
     end
     if MM.db.realm.OPTIONS.ttGPO then
-      temp = MM:OrbValue(spellID)
+      temp = MM:OrbValue(SpellID)
       tt:AddDoubleLine("Current GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENMin then
@@ -54,7 +54,7 @@ local function addLinesTooltip(tt, spellID)
       tt:AddDoubleLine("10-Day Max", MM:cTxt(temp,"min"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENGPO then
-      temp = MM:OrbValue(spellID,"10d_Min")
+      temp = MM:OrbValue(SpellID,"10d_Min")
       tt:AddDoubleLine("10-Day GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
     end
   end
@@ -72,8 +72,8 @@ function MM:TooltipHandlerItem(tooltip)
 end
 
 function MM:TooltipHandlerSpell(tooltip)
-  local spellID = select(3 , tooltip:GetSpell())
-  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+  local SpellID = select(3 , tooltip:GetSpell())
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if not enchant then return end
-  addLinesTooltip(tooltip, spellID)
+  addLinesTooltip(tooltip, SpellID)
 end

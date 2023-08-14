@@ -58,13 +58,13 @@ local function ifUnder(obj,list)
   elseif MM.db.realm.OPTIONS.postIfUnder == "KEEP" then
     return false
   elseif MM.db.realm.OPTIONS.postIfUnder == "MEAN10" then
-    fetched = MM:StatObj(obj.spellID)
+    fetched = MM:StatObj(obj.SpellID)
     return fetched and fetched["10d_Mean"] or MM.db.realm.OPTIONS.postDefault * 10000, true
   elseif MM.db.realm.OPTIONS.postIfUnder == "MEDIAN10" then
-    fetched = MM:StatObj(obj.spellID)
+    fetched = MM:StatObj(obj.SpellID)
     return fetched and fetched["10d_Med"] or MM.db.realm.OPTIONS.postDefault * 10000, true
   elseif MM.db.realm.OPTIONS.postIfUnder == "MAX10" then
-    fetched = MM:StatObj(obj.spellID)
+    fetched = MM:StatObj(obj.SpellID)
     return fetched and fetched["10d_Max"] or (MM.db.realm.OPTIONS.postMax * 10000), true
   end
 end
@@ -78,13 +78,13 @@ local function ifOver(obj)
   elseif MM.db.realm.OPTIONS.postIfOver == "MAX" then
     return MM.db.realm.OPTIONS.postMax * 10000, true
   elseif MM.db.realm.OPTIONS.postIfOver == "MEAN10" then
-    fetched = MM:StatObj(obj.spellID)
+    fetched = MM:StatObj(obj.SpellID)
     return fetched and fetched["10d_Mean"] or (MM.db.realm.OPTIONS.postDefault * 10000), true
   elseif MM.db.realm.OPTIONS.postIfOver == "MEDIAN10" then
-    fetched = MM:StatObj(obj.spellID)
+    fetched = MM:StatObj(obj.SpellID)
     return fetched and fetched["10d_Med"] or (MM.db.realm.OPTIONS.postDefault * 10000), true
   elseif MM.db.realm.OPTIONS.postIfOver == "MAX10" then
-    fetched = MM:StatObj(obj.spellID)
+    fetched = MM:StatObj(obj.SpellID)
     return fetched and fetched["10d_Max"] or (MM.db.realm.OPTIONS.postMax * 10000), true
   end
 end
@@ -109,8 +109,8 @@ local EnchantQualitySettings = {
 }
 
 -- Creates a Quality colored item link for use in text
-function MM:ItemLinkRE(spellID)
-  local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+function MM:ItemLinkRE(SpellID)
+  local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   local quality = Enum.EnchantQualityEnum[enchantData.Quality]
   local color = EnchantQualitySettings[quality]
   return color .. "\124Hspell:" .. enchantData.SpellID .. "\124h[" .. enchantData.SpellName .. "]\124h\124r"
@@ -143,10 +143,10 @@ end
 
 -- split up cache by bagID so BAG_UPDATE doesn't have to refresh the entire cache every time
 local sellableREsInBagsCache = setmetatable({ [0] = {}, [1] = {}, [2] = {}, [3] = {}, [4] = {} }, {
-  __index = function(t, spellID)
+  __index = function(t, SpellID)
     local count = 0
     for bagID=0, 4 do
-      count = count + (t[bagID][spellID] or 0)
+      count = count + (t[bagID][SpellID] or 0)
     end
     return count
   end
@@ -154,8 +154,8 @@ local sellableREsInBagsCache = setmetatable({ [0] = {}, [1] = {}, [2] = {}, [3] 
 
 -- get number of sellable REs with that ID in bags
 -- pass "blanks" to get the number of blank trinkets in bags
-function MM:CountSellableREInBags(spellID)
-  return sellableREsInBagsCache[spellID]
+function MM:CountSellableREInBags(SpellID)
+  return sellableREsInBagsCache[SpellID]
 end
 
 -- Create a cache of the scrolls available in bags
@@ -164,11 +164,11 @@ function MM:UpdateSellableREsCache(bagID)
   local itemName
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local _,count,_,_,_,_,itemLink = GetContainerItemInfo(bagID, containerIndex)
-    local spellID = MM:GetREInSlot(bagID, containerIndex)
+    local SpellID = MM:GetREInSlot(bagID, containerIndex)
     if itemLink then
       itemName = GetItemInfo(itemLink)
-      if spellID then
-        newContainerCache[spellID] = (newContainerCache[spellID] or 0) + (count or 1)
+      if SpellID then
+        newContainerCache[SpellID] = (newContainerCache[SpellID] or 0) + (count or 1)
       elseif MM:IsUntarnished(itemName) then
         newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
@@ -188,9 +188,9 @@ end
 function MM:GetSellableREs()
   local sellableREs = {}
   for bagID=0, 4 do
-    for spellID, count in pairs(sellableREsInBagsCache[bagID]) do
-      if spellID ~= "blanks" then
-        sellableREs[spellID] = count
+    for SpellID, count in pairs(sellableREsInBagsCache[bagID]) do
+      if SpellID ~= "blanks" then
+        sellableREs[SpellID] = count
       end
     end
   end
@@ -414,8 +414,8 @@ function MM:cTxt(text, color)
   return (colors[color] or "|cffffffff") .. text .. "|r"
 end
 
-function MM:IsREKnown(spellID)
-  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+function MM:IsREKnown(SpellID)
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   return enchant and enchant.Known or false
 end
 
@@ -428,14 +428,14 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
 end
 
 -- Notification function for the LEARNED event
-function MM:MYSTIC_ENCHANT_LEARNED(this, spellID)
+function MM:MYSTIC_ENCHANT_LEARNED(this, SpellID)
   if not self.db.realm.OPTIONS.notificationLearned then return end
-  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+  local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if not enchant then return end
-  local icon = select(3, GetSpellInfo(spellID))
+  local icon = select(3, GetSpellInfo(SpellID))
   local texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
   local enchantColor = colors[enchant.Quality]
-  MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", spellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
+  MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", SpellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
   DEFAULT_CHAT_FRAME:AddMessage(texture)
 end
 
