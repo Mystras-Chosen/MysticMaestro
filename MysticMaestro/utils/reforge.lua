@@ -70,8 +70,7 @@ local function RequestReforge()
 				StopAutoReforge("Player Moving")
 				return
 			end
-			RequestSlotReforgeEnchantment(bagID, slotIndex) -- reroll
-			--C_MysticEnchant.CollectionReforgeItem(753344230, 954252)
+			RequestSlotReforgeEnchantment(bagID, slotIndex)
 		end)
 	else
 			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
@@ -113,7 +112,7 @@ local function FindNextScroll()
 						knownStr = green .. "known" .. "|r"
 					end
 					if shopReserveList[re] then
-						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:GetEnchantLink(re))
+						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
 					else
 						bagID = i
 						slotIndex = j
@@ -180,7 +179,7 @@ end
 local function extract(enchantID)
 	if not MM:IsREKnown(enchantID) 
 	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
-			MM:Print("Extracting enchant:" .. MM:GetEnchantLink(enchantID))
+			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
 			RequestSlotReforgeExtraction(bagID, slotIndex)
 	end
 end
@@ -240,6 +239,10 @@ local function configConditionMet(currentEnchant)
 	or shopExtractList[currentEnchant.enchantID]) then
 		extract(currentEnchant.enchantID)
 	end
+	-- check for spam reforge settings
+	if autoReforgeEnabled and options.stopForNothing then
+		return configNoRunes()
+	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
@@ -271,9 +274,9 @@ function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchan
 				seasonal = green .. " seasonal" .. "|r"
 			end
 			if result then
-				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:GetEnchantLink(enchantID) .. " because of " .. result)
+				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID) .. " because of " .. result)
 			else
-				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:GetEnchantLink(enchantID))
+				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
 			end
 		end
 		if result or norunes then

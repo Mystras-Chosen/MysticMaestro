@@ -585,7 +585,7 @@ local function findSellableScrollWithSpellID(spellID,listMode)
     for slotIndex=1, GetContainerNumSlots(bagID) do
       local _,count,_,_,_,_,_,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
       if itemID then
-        query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+        local query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
         local re
         if query ~= nil then
           re = query.SpellID
@@ -598,17 +598,16 @@ local function findSellableScrollWithSpellID(spellID,listMode)
       end
     end
   end
-
-  print("found: " .. #matchingEnchantScrolls)
-  
   if listMode then
-    return matchingEnchantScrolls
-  elseif #matchingEnchantScrolls > 0 then
-    return matchingEnchantScrolls[1]
+    return items ~= {} and items or false
+  elseif #items > 0 then
+    return unpack(items[1])
+  else
+    return
   end
 end
 
-local bagClear, isFetching, fetchSellableScrollData, autoPosting, autoPostingTimer
+local bagClear, isFetching, fetchBag, fetchSlot, autoPosting, autoPostingTimer
 local auctionQueue = {}
 local auctionQueueAdded = {}
 function MM:ClearAuctionItem()
@@ -621,8 +620,8 @@ function MM:ClearAuctionItem()
   return true
 end
 
-function MM:PlaceItemInAuctionSlot(sellableScrollData)
-  PickupContainerItem(sellableScrollData.Bag, sellableScrollData.Slot)
+function MM:PlaceItemInAuctionSlot(bagID, slotIndex)
+  PickupContainerItem(bagID, slotIndex)
   ClickAuctionSellItemButton()
   ClearCursor()
 end
@@ -646,7 +645,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       end
       local nextItem = table.remove(auctionQueue)
       bagClear = true
-      fetchSellableScrollData = nextItem
+      fetchBag, fetchSlot = nextItem[1], nextItem[2]
       startingPrice = nextItem.price
       enchantToList = nextItem.spellID
     elseif bagClear then
@@ -656,10 +655,11 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       end
     elseif isFetching then
       if not GetAuctionSellItemInfo() then
-        MM:PlaceItemInAuctionSlot(fetchSellableScrollData)
+        MM:PlaceItemInAuctionSlot(fetchBag, fetchSlot)
       else
         isFetching = nil
-        fetchSellableScrollData = nil
+        fetchBag = nil
+        fetchSlot = nil
         if autoPosting then
             MM:StartAuction(enchantToList, startingPrice)
         else
@@ -681,7 +681,7 @@ function MM:ListAuction(spellID, price)
   if bagID then
     MM:CloseAuctionPopups()
     bagClear = true
-    fetchSellableScrollData = sellableScrollData
+    fetchBag, fetchSlot = bagID, slotIndex
     startingPrice = price
     enchantToList = spellID
   else

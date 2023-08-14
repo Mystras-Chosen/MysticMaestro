@@ -436,8 +436,8 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(self, event, entry, data)
   if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
     and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
     and event ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
-  MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
-  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(this, event, entry, data)
+  MM:ASCENSION_REFORGE_ENCHANT_RESULT(self, event, entry, data)
+  MM:ASCENSION_REFORGE_PROGRESS_UPDATE(self, event, entry, data)
 end
 
 -- Notification function for the LEARNED event

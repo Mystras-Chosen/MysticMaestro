@@ -9,7 +9,6 @@
 
 Libs\embeds.xml
 utils\database.lua
-wrappers.lua
 MysticMaestro.lua
 utils\common.lua
 utils\auction.lua

@@ -228,7 +228,7 @@ do -- functions to initialize menu and menu container
 
   local awaitingRECraftResults, craftTime, pendingCraftedEnchantID, pendingCraftedEnchantCount
   local function onUpdate()
-    if awaitingRECraftResults and craftTime + 2 < GetTime() then
+    if awaitingRECraftResults and craftTime + 1 < GetTime() then
       awaitingRECraftResults = nil
       craftTime = nil
       pendingCraftedEnchantCount = nil
@@ -239,13 +239,13 @@ do -- functions to initialize menu and menu container
 
   MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
 
-  local enchantToCraft, blankScrollGUID
+  local enchantToCraft, insigniaBagID, insigniaContainerIndex
   local function attemptCraftingRE()
     awaitingRECraftResults = true
     craftTime = GetTime()
     pendingCraftedEnchantID = enchantToCraft
     pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
-    C_MysticEnchant.CollectionReforgeItem(blankScrollGUID, enchantToCraft)
+    RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
   end
   
   StaticPopupDialogs["MM_CRAFT_RE"] = {
@@ -282,15 +282,15 @@ do -- functions to initialize menu and menu container
       return
     end
 
-    blankScrollGUID = MM:FindBlankScroll()
-    if not blankScrollGUID then
+    insigniaBagID, insigniaContainerIndex = MM:FindBlankScrolls()
+    if not insigniaBagID then
       UIErrorsFrame:AddMessage("No blank trinkets in bags", 1, 0, 0)
       return
     end
 
     enchantToCraft = spellID
     if MM.db.realm.OPTIONS.confirmCraft then
-      StaticPopup_Show("MM_CRAFT_RE", MM:GetEnchantLink(enchantToCraft), orbCost)
+      StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
     else
       attemptCraftingRE()
     end
@@ -484,7 +484,7 @@ do -- functions to initialize menu and menu container
         craftTime = nil
         pendingCraftedEnchantCount = nil
         pendingCraftedEnchantID = nil
-        MM:Print("Applied to insignia: "..MM:GetEnchantLink(enchantToCraft))
+        MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantToCraft))
       end
     end
     if MM:IsMenuOpen() then

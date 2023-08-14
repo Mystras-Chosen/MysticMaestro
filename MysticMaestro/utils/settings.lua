@@ -406,6 +406,12 @@ local function createConfig()
 				desc = "Stop reforging when you have run out of Mystic Runes",
 				type = "toggle"
 			},
+			stopForNothing = {
+				order = 2,
+				name = "Spam Reforge",
+				desc = "When you load an item into the reforge slot, continue to spam reforge until you run out of runes. This will ignore all the options below for the reforge slot.",
+				type = "toggle"
+			},
 			shopHeader = {
 				order = 3,
 				name = "Stop for shopping list items",
