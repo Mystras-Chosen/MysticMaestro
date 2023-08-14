@@ -22,7 +22,7 @@ function MM:SetSelectedMyAuctionData(data)
   selectedMyAuctionData = data
   local myAuctionsButton = self:GetMyAuctionsScrollFrame().buttons
   for _, button in ipairs(myAuctionsButton) do
-      if data and button.data and button.data.spellID == data.spellID then
+      if data and button.data and button.data.SpellID == data.SpellID then
         button.H:Show()
         button.H:SetDesaturated(false)
       else
@@ -31,10 +31,10 @@ function MM:SetSelectedMyAuctionData(data)
   end
 end
 
-function MM:SelectMyAuctionBySpellID(spellID)
+function MM:SelectMyAuctionBySpellID(SpellID)
   local myAuctionResults = self:GetSortedMyAuctionResults()
   for _, result in ipairs(myAuctionResults) do
-    if result.spellID == spellID then
+    if result.SpellID == SpellID then
       self:SetSelectedMyAuctionData(result)
       return
     end
@@ -84,10 +84,10 @@ local function createMyAuctionsButton(parent, listingName)
   listingButton:SetScript("OnClick",
     function(self)
       local currentSelectionData = MM:GetSelectedMyAuctionData()
-      if not currentSelectionData or self.data.spellID ~= currentSelectionData.spellID then
+      if not currentSelectionData or self.data.SpellID ~= currentSelectionData.SpellID then
         MM:SetSelectedMyAuctionData(self.data)
         MM:SetSearchBarDefaultText()
-        MM:SetResultSet({self.data.spellID})
+        MM:SetResultSet({self.data.SpellID})
         MM:GoToPage(1)
         MM:SetSelectedEnchantButton(1)
       end
@@ -97,7 +97,7 @@ local function createMyAuctionsButton(parent, listingName)
   listingButton:SetScript("OnLeave",
     function(self)
       local data = MM:GetSelectedMyAuctionData()
-      if not data or self.data.spellID ~= data.spellID then
+      if not data or self.data.SpellID ~= data.SpellID then
         self.H:Hide()
       end
     end
@@ -106,7 +106,7 @@ local function createMyAuctionsButton(parent, listingName)
   listingButton:SetScript("OnEnter",
     function(self)
       local data = MM:GetSelectedMyAuctionData()
-      if not data or self.data.spellID ~= data.spellID then
+      if not data or self.data.SpellID ~= data.SpellID then
         self.H:Show()
         self.H:SetDesaturated(true)
       end
@@ -218,10 +218,10 @@ local function myAuctionsScrollFrame_Update(self)
       button.data = result
       local textColor = MM:GetLastScanTimeColor(result)
       button.auctionCount:SetText("|cff" .. textColor .. #button.data.auctions .. "|r")
-      local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(result.spellID)
+      local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(result.SpellID)
       button.enchantName:SetText(MM:cTxt(enchantData.SpellName, tostring(enchantData.Quality)))
       button:Show()
-      if selectedData and button.data.spellID == selectedData.spellID then
+      if selectedData and button.data.SpellID == selectedData.SpellID then
         button.H:Show()
         button.H:SetDesaturated(false)
       elseif button:IsMouseOver() then
@@ -306,7 +306,7 @@ function MM:RefreshMyAuctionsScrollFrame()
   myAuctionsScrollFrame_Update(self:GetMyAuctionsScrollFrame())
   local selectedEnchantButton = self:GetSelectedEnchantButton()
   if selectedEnchantButton then
-    self:SelectMyAuctionBySpellID(selectedEnchantButton.spellID)
+    self:SelectMyAuctionBySpellID(selectedEnchantButton.SpellID)
   end
 end
 
@@ -376,11 +376,11 @@ local function initAHExtension()
   createRefreshButton()
 end
 
-local function undercut(spellID, buyoutPrice, yours)
+local function undercut(SpellID, buyoutPrice, yours)
   if yours then
-    MM:ListAuction(spellID, buyoutPrice)
+    MM:ListAuction(SpellID, buyoutPrice)
   else
-    MM:ListAuction(spellID, buyoutPrice - 1)
+    MM:ListAuction(SpellID, buyoutPrice - 1)
   end
 end
 
@@ -428,13 +428,13 @@ local function setUpButtonWidgets()
           if not price then
             MM:Print("Price is below Minimum, leaving in inventory.")
           else
-            undercut(MM:GetSelectedEnchantButton().spellID, price, yours)
+            undercut(MM:GetSelectedEnchantButton().SpellID, price, yours)
           end
         else
-          MM:ListAuction(MM:GetSelectedEnchantButton().spellID, MM.db.realm.OPTIONS.postDefault * 10000)
+          MM:ListAuction(MM:GetSelectedEnchantButton().SpellID, MM.db.realm.OPTIONS.postDefault * 10000)
         end
       else
-        undercut(auctionData.spellID, auctionData.buyoutPrice, auctionData.yours)
+        undercut(auctionData.SpellID, auctionData.buyoutPrice, auctionData.yours)
       end
     end
   )
@@ -454,7 +454,7 @@ local function setUpButtonWidgets()
       local selectedAuctionData = MM:GetSelectedSelectedEnchantAuctionData()
       if not selectedAuctionData then return end
       if selectedAuctionData.yours then
-        MM:CancelAuction(selectedAuctionData.spellID, selectedAuctionData.buyoutPrice)
+        MM:CancelAuction(selectedAuctionData.SpellID, selectedAuctionData.buyoutPrice)
       else
         MM:BuyoutAuction(selectedAuctionData.id)
       end

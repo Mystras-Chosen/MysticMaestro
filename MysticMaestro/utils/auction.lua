@@ -26,11 +26,11 @@ end
 
 local pendingQuery, awaitingResults, timeoutTime, enchantToQuery, selectedScanTime
 
-function MM:InitializeSingleScan(spellID)
+function MM:InitializeSingleScan(SpellID)
   pendingQuery = true
   awaitingResults = false
   timeoutTime = nil
-  enchantToQuery = spellID
+  enchantToQuery = SpellID
   selectedScanTime = time()
 end
 
@@ -72,7 +72,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
       and buyoutPrice and buyoutPrice > 0 then
         table.insert(results, {
           id = i,
-          spellID = enchantData.SpellID,
+          SpellID = enchantData.SpellID,
           seller = seller,
           buyoutPrice = buyoutPrice,
           yours = seller == UnitName("player"),
@@ -116,16 +116,16 @@ local function collectMyAuctionData(results)
 end
 
 local function collectFavoritesData(results)
-  for spellID in pairs(MM.db.realm.FAVORITE_ENCHANTS) do
-    results[spellID] = results[spellID] or { auctions = {} }
+  for SpellID in pairs(MM.db.realm.FAVORITE_ENCHANTS) do
+    results[SpellID] = results[SpellID] or { auctions = {} }
   end
 end
 
 local function transferLastScanTime(fromResults, toResults)
-  for spellID, result in pairs(toResults) do
-    if fromResults[spellID] then
-      result.lastScanTime = fromResults[spellID].lastScanTime
-      result.lowestBuyout = fromResults[spellID].lowestBuyout
+  for SpellID, result in pairs(toResults) do
+    if fromResults[SpellID] then
+      result.lastScanTime = fromResults[SpellID].lastScanTime
+      result.lowestBuyout = fromResults[SpellID].lowestBuyout
     end
   end
 end
@@ -162,9 +162,9 @@ end
 
 local function convertMyAuctionResults(results)
   local r = {}
-  for spellID, result in pairs(results) do
+  for SpellID, result in pairs(results) do
     table.insert(r, {
-      spellID = spellID,
+      SpellID = SpellID,
       lastScanTime = result.lastScanTime,
       lowestBuyout = result.lowestBuyout,
       auctions = result.auctions
@@ -186,8 +186,8 @@ function MM:GetSortedMyAuctionResults()
   return sortableMyAuctionResults
 end
 
-function MM:SetMyAuctionBuyoutStatus(spellID)
-  local result = self:GetMyAuctionResults()[spellID]
+function MM:SetMyAuctionBuyoutStatus(SpellID)
+  local result = self:GetMyAuctionResults()[SpellID]
   if result then
     local selectedAuctionResults = self:GetSelectedEnchantAuctionsResults()
     result.lowestBuyout = #selectedAuctionResults > 0 and selectedAuctionResults[1].yours
@@ -207,8 +207,8 @@ function MM:SetMyAuctionLastScanTime(myAuctionSpellID)
   local result = self:GetMyAuctionResults()[myAuctionSpellID]
   if result then
     result.lastScanTime = GetTime()
-    for handle, spellID in pairs(lastScanTimerHandles) do
-      if spellID == myAuctionSpellID then
+    for handle, SpellID in pairs(lastScanTimerHandles) do
+      if SpellID == myAuctionSpellID then
         lastScanTimerHandles[handle] = nil
         handle:Cancel()
       end
@@ -228,7 +228,7 @@ function MM:GetLastScanTimeColor(result)
       return "ff0000"
     -- subtract 1 because callback is called too early for some reason
     elseif result.lastScanTime + waitTimePeriod - 1 < GetTime() then
-      lastScanTimerHandles[Timer.NewTimer(veryLongTimePeriod - waitTimePeriod, updateColorCallback)] = result.spellID
+      lastScanTimerHandles[Timer.NewTimer(veryLongTimePeriod - waitTimePeriod, updateColorCallback)] = result.SpellID
       return "ffff00"
     else
       return "00ff00"
@@ -510,11 +510,11 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
   --enterClicksFirstButton = 1  -- causes taint for some reason
 }
 
--- returns the first id that matches spellID and buyoutPrice
-local function findOwnerAuctionID(spellID, buyoutPrice)
+-- returns the first id that matches SpellID and buyoutPrice
+local function findOwnerAuctionID(SpellID, buyoutPrice)
   local results = MM:GetSortedMyAuctionResults()
   for _, result in ipairs(results) do
-    if result.spellID == spellID then
+    if result.SpellID == SpellID then
       for _, auction in ipairs(result.auctions) do
         if auction.buyoutPrice == buyoutPrice then
           return auction.id
@@ -526,8 +526,8 @@ local function findOwnerAuctionID(spellID, buyoutPrice)
   return nil
 end
 
-function MM:CancelAuction(spellID, buyoutPrice)
-  local auctionID = findOwnerAuctionID(spellID, buyoutPrice)
+function MM:CancelAuction(SpellID, buyoutPrice)
+  local auctionID = findOwnerAuctionID(SpellID, buyoutPrice)
   SetSelectedAuctionItem("owner", auctionID)
   if MM.db.realm.OPTIONS.confirmCancel then
     StaticPopup_Show("MM_CANCEL_AUCTION")
@@ -537,14 +537,14 @@ function MM:CancelAuction(spellID, buyoutPrice)
   end
 end
 
-function MM:StartAuction(spellID, price)
+function MM:StartAuction(SpellID, price)
   local duration = MM.db.realm.OPTIONS.listDuration
   if CalculateAuctionDeposit(duration) > GetMoney() then
     UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
     return false
   else
     StartAuction(price, price, duration, 1, 1)
-    self.listedAuctionSpellID = spellID
+    self.listedAuctionSpellID = SpellID
     self.listedAuctionBuyoutPrice = price
     return true
   end
@@ -579,7 +579,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local function findSellableScrollWithSpellID(spellID,listMode)
+local function findSellableScrollWithSpellID(SpellID,listMode)
   local items = {}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
@@ -590,7 +590,7 @@ local function findSellableScrollWithSpellID(spellID,listMode)
         if query ~= nil then
           re = query.SpellID
         end
-        if re == spellID then
+        if re == SpellID then
           for i=1, count do
             table.insert(items, {bagID, slotIndex})
           end
@@ -647,7 +647,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       bagClear = true
       fetchBag, fetchSlot = nextItem[1], nextItem[2]
       startingPrice = nextItem.price
-      enchantToList = nextItem.spellID
+      enchantToList = nextItem.SpellID
     elseif bagClear then
       if MM:ClearAuctionItem() then
         bagClear = nil
@@ -676,29 +676,29 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
   end
 )
 
-function MM:ListAuction(spellID, price)
-  local bagID, slotIndex = findSellableScrollWithSpellID(spellID)
+function MM:ListAuction(SpellID, price)
+  local bagID, slotIndex = findSellableScrollWithSpellID(SpellID)
   if bagID then
     MM:CloseAuctionPopups()
     bagClear = true
     fetchBag, fetchSlot = bagID, slotIndex
     startingPrice = price
-    enchantToList = spellID
+    enchantToList = SpellID
   else
     print("No item found")
   end
 end
 
-function MM:ListAuctionQueue(spellID,price)
-  if not auctionQueueAdded[spellID] then
-    local itemList = findSellableScrollWithSpellID(spellID,true)
+function MM:ListAuctionQueue(SpellID,price)
+  if not auctionQueueAdded[SpellID] then
+    local itemList = findSellableScrollWithSpellID(SpellID,true)
     for _, entry in ipairs(itemList) do
       entry.price = price
-      entry.spellID = spellID
+      entry.SpellID = SpellID
       table.insert(auctionQueue,entry)
     end
     autoPosting = true
-    auctionQueueAdded[spellID] = true
+    auctionQueueAdded[SpellID] = true
   end
 end
 
@@ -722,7 +722,7 @@ function MM:RefreshSelectedEnchantAuctions(waitForEvent)
   end
   self:DisableListButton()
   self:DisableAuctionRefreshButton()
-  enchantToRestore = MM:GetSelectedEnchantButton().spellID
+  enchantToRestore = MM:GetSelectedEnchantButton().SpellID
 end
 
 -- entry point for refresh after buying or cancelling an auction
@@ -747,7 +747,7 @@ end
 
 local function enchantToRestoreIsStillSelected()
   local selectedEnchantButton = MM:GetSelectedEnchantButton()
-  return selectedEnchantButton and enchantToRestore == MM:GetSelectedEnchantButton().spellID
+  return selectedEnchantButton and enchantToRestore == MM:GetSelectedEnchantButton().SpellID
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
@@ -766,7 +766,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         QueryAuctionItems(enchant.SpellName)
         local results = MM:GetSortedMyAuctionResults()
         for _, result in ipairs(results) do
-          if enchantToRestore == result.spellID then
+          if enchantToRestore == result.SpellID then
             MM:SetSelectedMyAuctionData(result)
           end
         end
