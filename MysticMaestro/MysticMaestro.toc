@@ -17,9 +17,12 @@ utils\menu.lua
 utils\settings.lua
 utils\graph.lua
 utils\reforge.lua
+utils\share.lua
+utils\guildbank.lua
 REMenu.lua
 AHMenuExtension.lua
-RE_ListFrame.lua
+collectionExtensionFrame.lua
+movableRegforgeButton.lua
 automation\AutomationManager.lua
 automation\automationCommon.lua
 automation\functions\scan.lua
