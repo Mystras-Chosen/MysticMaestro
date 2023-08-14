@@ -472,7 +472,7 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
         collectionOverlay.showFrameBttn:SetText("Hide");
     end
 
---Reforge button in list interface
+    -- Reforge button in list interface
     collectionOverlay.reforgebuttonlist = CreateFrame("Button", "MysticMaestro_CollectionsFrame_ReforgButton", collectionOverlay, "FilterDropDownMenuTemplate");
     collectionOverlay.reforgebuttonlist:SetSize(100,24);
     collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0);
@@ -488,6 +488,8 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     end);
     collectionOverlay.reforgebuttonlist:SetScript("OnLeave", function() GameTooltip:Hide() end);
 
+
+    -- Altar summon button on the enchant collection frame
     local itemID = 1903513
     if MM:HasItem(itemID) then
         collectionOverlay.altarBtn = CreateFrame("Button", nil, collectionOverlay, "SecureActionButtonTemplate")
@@ -518,10 +520,11 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
         end)
         collectionOverlay.altarBtn:SetScript("OnLeave", function() GameTooltip:Hide() collectionOverlay.altarBtn.Highlight:Hide() end)
     end
+
     -- opens the settings page
     collectionOverlay.optionsbutton = CreateFrame("Button", nil, collectionOverlay, "SettingsGearButtonTemplate");
     collectionOverlay.optionsbutton:SetSize(24,24);
-    collectionOverlay.optionsbutton:SetPoint("RIGHT", collectionOverlay.altarBtn, "LEFT", -5, 1);
+    collectionOverlay.optionsbutton:SetPoint("RIGHT", collectionOverlay.altarBtn, "LEFT", -5, 1.2);
     collectionOverlay.optionsbutton:RegisterForClicks("LeftButtonDown");
     collectionOverlay.optionsbutton:SetScript("OnClick", function() MM:OpenConfig("Reforge") end);
     collectionOverlay.optionsbutton:SetScript("OnEnter", function(self)
@@ -537,6 +540,8 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     scrollSliderCreate()
 end
 
+
+-- Right Click context menu in the enchanting frame
 function MM:ItemContextMenu(spellID, itemID, self)
     if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
     MM.dewdrop:Register(self,
