@@ -585,9 +585,9 @@ local function findSellableScrollWithSpellID(SpellID,listMode)
     for slotIndex=1, GetContainerNumSlots(bagID) do
       local _,count,_,_,_,_,_,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
       if itemID then
-        query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+        local query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
         local re
-        if query ~= nil then
+        if query then
           re = query.SpellID
         end
         if re == SpellID then
