@@ -576,7 +576,7 @@ local function initAHTab()
     end
   end)
   initAHdone = true
-  end
+end
 
 function MM:ADDON_LOADED(addonName)
   if addonName == "Blizzard_AuctionUI" then
