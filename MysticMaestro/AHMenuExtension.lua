@@ -22,7 +22,7 @@ function MM:SetSelectedMyAuctionData(data)
   selectedMyAuctionData = data
   local myAuctionsButton = self:GetMyAuctionsScrollFrame().buttons
   for _, button in ipairs(myAuctionsButton) do
-      if data and button.data and button.data.enchantID == data.enchantID then
+      if data and button.data and button.data.spellID == data.spellID then
         button.H:Show()
         button.H:SetDesaturated(false)
       else
@@ -84,11 +84,11 @@ local function createMyAuctionsButton(parent, listingName)
   listingButton:SetScript("OnClick",
     function(self)
       local currentSelectionData = MM:GetSelectedMyAuctionData()
-      if not currentSelectionData or self.data.enchantID ~= currentSelectionData.enchantID then
+      if not currentSelectionData or self.data.spellID ~= currentSelectionData.spellID then
         MM:SetSelectedMyAuctionData(self.data)
 
         MM:SetSearchBarDefaultText()
-        MM:SetResultSet({self.data.enchantID})
+        MM:SetResultSet({self.data.spellID})
         MM:GoToPage(1)
         MM:SetSelectedEnchantButton(1)
       end
