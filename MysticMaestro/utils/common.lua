@@ -1,4 +1,13 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+-- Colours stored for code readability
+local WHITE = "|cffFFFFFF";
+local GREEN = "|cff1eff00";
+local BLUE = "|cff0070dd";
+local ORANGE = "|cffFF8400";
+local GOLD  = "|cffffcc00";
+local LIGHTBLUE = "|cFFADD8E6";
+local ORANGE2 = "|cFFFFA500";
+local CYAN =  "|cff00ffff"
 
 -- API for other addons to get information about an RE
 function Maestro(reID)
@@ -449,6 +458,120 @@ function MM:IsUntarnished(itemName)
   return itemName:find("Untarnished Mystic Scroll")
 end
 
+-- returns true, if player has item with given ID in inventory or bags and it's not on cooldown
+function MM:HasItem(itemID)
+  local item, found, id
+  -- scan bags
+  for bag = 0, 4 do
+    for slot = 1, GetContainerNumSlots(bag) do
+      item = GetContainerItemLink(bag, slot)
+      if item then
+        found, _, id = item:find('^|c%x+|Hitem:(%d+):.+')
+        if found and tonumber(id) == itemID then
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+--for a adding a divider to dew drop menus 
+function MM:AddDividerLine(maxLenght)
+  local text = WHITE.."----------------------------------------------------------------------------------------------------"
+  MM.dewdrop:AddLine(
+      'text' , text:sub(1, maxLenght),
+      'textHeight', 12,
+      'textWidth', 12,
+      'isTitle', true,
+      "notCheckable", true
+  );
+end
+
+--pre built dewdrop close button with dividerline
+function MM:CloseDewDrop(divider, maxLenght)
+  if divider then
+    MM:AddDividerLine(maxLenght)
+  end
+  MM.dewdrop:AddLine(
+      'text', "Close Menu",
+      'textR', 0,
+      'textG', 1,
+      'textB', 1,
+      'textHeight', 12,
+      'textWidth', 12,
+      'closeWhenClicked', true,
+      'notCheckable', true
+  )
+end
+
+-- open browser link base on type or id/string
+function MM:OpenDBURL(ID, Type)
+  OpenAscensionDBURL("?"..Type.."="..ID);
+end
+
+-- for sending links to party/raid/guild chat
+function MM:Chatlink(ID,chatType,Type)
+  if Type == "spell" then
+      SendChatMessage(MM:ItemLinkRE(ID) ,chatType);
+  else
+      SendChatMessage(select(2,GetItemInfo(ID)) ,chatType);
+  end
+end
+
+function MM:CalculateKnowEnchants()
+  local enchantCount = {
+  totalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN})),
+  knownEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN})),
+  totalNormalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownNormalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalWorldForgedEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_WORLDFORGED})),
+  knownWorldForgedEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_WORLDFORGED})),
+  totalCommonEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_UNCOMMON,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownCommonEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNCOMMON,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalRareEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_RARE,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownRareEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_RARE,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalEpicEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_EPIC,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownEpicEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_EPIC,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  totalLegendaryEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_LEGENDARY,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
+  knownLegendaryEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_LEGENDARY,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
+  }
+  enchantCount.unknownEnchants = enchantCount.totalEnchants - enchantCount.knownEnchants
+  enchantCount.unknownNormalEnchants = enchantCount.totalNormalEnchants - enchantCount.knownNormalEnchants
+  enchantCount.unknownWorldForgedEnchants = enchantCount.totalWorldForgedEnchants - enchantCount.knownWorldForgedEnchants
+  enchantCount.unknownCommonEnchants = enchantCount.totalCommonEnchants - enchantCount.knownCommonEnchants
+  enchantCount.unknownRareEnchants = enchantCount.totalRareEnchants - enchantCount.knownRareEnchants
+  enchantCount.unknownEpicEnchants = enchantCount.totalEpicEnchants - enchantCount.knownEpicEnchants
+  enchantCount.unknownLegendaryEnchants = enchantCount.totalLegendaryEnchants - enchantCount.knownLegendaryEnchants
+
+  return enchantCount
+end
+
+function MM:EnchantCountTooltip(self, enchants)
+  GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+  GameTooltip:AddLine("Enchant Numbers")
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(2)).."Uncommon Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownCommonEnchants.."/"..enchants.totalCommonEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownCommonEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(3)).."Rare Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownRareEnchants.."/"..enchants.totalRareEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownRareEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(4)).."Epic Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownEpicEnchants.."/"..enchants.totalEpicEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownEpicEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(select(4, GetItemQualityColor(5)).."Legendary Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownLegendaryEnchants.."/"..enchants.totalLegendaryEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownLegendaryEnchants)
+  GameTooltip:AddLine(" ")
+  GameTooltip:AddLine(CYAN.."Worldforged Enchants")
+  GameTooltip:AddLine("|cffffffffKnown: "..enchants.knownWorldForgedEnchants.."/"..enchants.totalWorldForgedEnchants)
+  GameTooltip:AddLine("|cffffffffUnknown: "..enchants.unknownWorldForgedEnchants)
+  GameTooltip:Show()
+end
 -- itemLink, enchantData, buyoutPrice, seller, duration, icon
 function MM:GetAuctionMysticEnchantInfo(listingType, index)
   local itemLink = GetAuctionItemLink(listingType, index)

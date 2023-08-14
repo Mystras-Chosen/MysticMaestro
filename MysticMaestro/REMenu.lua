@@ -445,10 +445,9 @@ do -- functions to initialize menu and menu container
 
   local settingsButton
   local function createSettingsButton(mmf)
-    settingsButton = CreateFrame("BUTTON", nil, mmf)
+    settingsButton = CreateFrame("BUTTON", nil, mmf, "SettingsGearButtonTemplate")
     settingsButton:SetSize(27, 27)
     settingsButton:SetPoint("TOP", mmf, "TOP", -76, 0)
-    settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
     settingsButton:SetScript("OnClick",
       function()
         if MM.AutomationManager:IsRunning() then return end

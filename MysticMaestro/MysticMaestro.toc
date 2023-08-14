@@ -19,6 +19,7 @@ utils\graph.lua
 utils\reforge.lua
 REMenu.lua
 AHMenuExtension.lua
+RE_ListFrame.lua
 automation\AutomationManager.lua
 automation\automationCommon.lua
 automation\functions\scan.lua
