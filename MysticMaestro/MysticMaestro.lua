@@ -9,7 +9,7 @@ local GetSpellInfo = GetSpellInfo
 function MM:OnInitialize()
   MM:SetupDatabase()
   MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
-  MM:RegisterEvent("ADDON_LOADED", MM.collectionSetup)
+  MM:RegisterEvent("ADDON_LOADED", MM.ADDON_LOADED)
 end
 
 function MM:OnEnable()

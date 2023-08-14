@@ -283,9 +283,9 @@ local function enchantButtonClick(self)
         DEFAULT_CHAT_FRAMM:AddMessage(itemLink .. " Is already on this list.")
     end
 end
-
+local setupLoaded
 function MM:collectionSetup(addon)
-    if addon == "Ascension_EnchantCollection" then
+    if setupLoaded then return end
         for i = 1, 18 do
             local button = _G["EnchantCollection"]["Collection"]["CollectionTab"]["buttonIDToButton"][i]
                 button:HookScript("OnMouseDown", function(self, arg1)
@@ -296,8 +296,7 @@ function MM:collectionSetup(addon)
         end
 
     CreateListFrame()
-    MM:UnregisterEvent("ADDON_LOADED")
-    end
+    setupLoaded = true
 end
 
 --[[ hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(self)
