@@ -551,7 +551,7 @@ local function MMTab_OnClick(index)
 end
 
 local initAHdone
-local function initAHTab()
+function MM:initAHTab()
     if initAHdone then return end
     MM.AHTabIndex = AuctionFrame.numTabs+1
     local framename = "AuctionFrameTab"..MM.AHTabIndex
@@ -578,13 +578,6 @@ local function initAHTab()
   initAHdone = true
 end
 
-function MM:ADDON_LOADED(addonName)
-  if addonName == "Blizzard_AuctionUI" then
-    initAHTab()
-  elseif addonName == "Ascension_EnchantCollection" then
-    MM.collectionSetup()
-  end
-end
 
 
 do  -- display MysticMaestroMenu in standalone container

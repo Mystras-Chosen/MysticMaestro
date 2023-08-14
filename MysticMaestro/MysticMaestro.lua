@@ -27,3 +27,11 @@ MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE", function()
   MM:MyAuctions_AUCTION_OWNED_LIST_UPDATE()
   MM:List_AUCTION_OWNED_LIST_UPDATE()
 end)
+
+function MM:ADDON_LOADED(addonName)
+  if addonName == "Blizzard_AuctionUI" then
+    MM:initAHTab()
+  elseif addonName == "Ascension_EnchantCollection" then
+    MM.collectionSetup()
+  end
+end
