@@ -34,7 +34,7 @@ local function addLinesTooltip(tt, spellID)
       tt:AddDoubleLine("Current Max", temp,1,1,0,1,1,1)
     end
     if MM.db.realm.OPTIONS.ttGPO then
-      temp = MM:OrbValue(reID)
+      temp = MM:OrbValue(spellID)
       tt:AddDoubleLine("Current GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENMin then
@@ -54,7 +54,7 @@ local function addLinesTooltip(tt, spellID)
       tt:AddDoubleLine("10-Day Max", MM:cTxt(temp,"min"),1,1,0)
     end
     if MM.db.realm.OPTIONS.ttTENGPO then
-      temp = MM:OrbValue(reID,"10d_Min")
+      temp = MM:OrbValue(spellID,"10d_Min")
       tt:AddDoubleLine("10-Day GPO", MM:cTxt(GetCoinTextureString(temp), temp > 10000 and "gold" or "red"),1,1,0)
     end
   end

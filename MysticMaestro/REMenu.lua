@@ -1130,14 +1130,14 @@ do -- show/hide and select/deselect mystic enchant button functions
   }
 
   function MM:UpdateFavoriteIndicator(button)
-    local isFavorite = self.db.realm.FAVORITE_ENCHANTS[button.enchantID]
+    local isFavorite = self.db.realm.FAVORITE_ENCHANTS[button.spellID]
     button.FavoriteButton.Texture:SetDesaturated(not isFavorite)
     button.FavoriteButton.Texture:SetVertexColor(1, 1, 1, isFavorite and 1 or .3)
   end
 
   function MM:UpdateCraftIndicator(button)
-    local enchantID = button.enchantID
-    local itemCount = MM:CountSellableREInBags(enchantID)
+    local spellID = button.spellID
+    local itemCount = MM:CountSellableREInBags(spellID)
     if itemCount == 0 then
       button.CraftButton.Texture:SetDesaturated(not button.CraftButton:IsMouseOver())
       button.CraftButton.Texture:SetVertexColor(1, 1, 1, button.CraftButton:IsMouseOver() and 1 or .3)
@@ -1151,13 +1151,13 @@ do -- show/hide and select/deselect mystic enchant button functions
     end
   end
 
-  local function updateEnchantButton(enchantID, buttonNumber)
+  local function updateEnchantButton(spellID, buttonNumber)
     local button = enchantButtons[buttonNumber]
-    button.enchantID = enchantID
-    local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
-    local quality = Enum.EnchantQualityEnum[enchant.Quality]
+    button.spellID = spellID
+    local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
+    local quality = Enum.EnchantQualityEnum[enchantData.Quality]
     button.IconBorder:SetTexture(enchantQualityBorders[quality])
-    local enchantName, _, enchantIcon = GetSpellInfo(enchant.SpellID)
+    local enchantName, _, enchantIcon = GetSpellInfo(enchantData.SpellID)
     button.Icon:SetTexture(enchantIcon)
     button.REText:SetText(enchantName)
     

@@ -62,7 +62,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     local temp = ":"
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
-      local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo(listingType, index)
+      local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo("list", i)
 
       if seller == nil and currentTime < timeoutTime then
         awaitingResults = true
@@ -714,7 +714,7 @@ function MM:RefreshSelectedEnchantAuctions(waitForEvent)
   end
   self:DisableListButton()
   self:DisableAuctionRefreshButton()
-  enchantToRestore = MM:GetSelectedEnchantButton().enchantID
+  enchantToRestore = MM:GetSelectedEnchantButton().spellID
 end
 
 -- entry point for refresh after buying or cancelling an auction
@@ -739,7 +739,7 @@ end
 
 local function enchantToRestoreIsStillSelected()
   local selectedEnchantButton = MM:GetSelectedEnchantButton()
-  return selectedEnchantButton and enchantToRestore == MM:GetSelectedEnchantButton().enchantID
+  return selectedEnchantButton and enchantToRestore == MM:GetSelectedEnchantButton().spellID
 end
 
 MM.OnUpdateFrame:HookScript("OnUpdate",
@@ -758,7 +758,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
         QueryAuctionItems(enchant.SpellName)
         local results = MM:GetSortedMyAuctionResults()
         for _, result in ipairs(results) do
-          if enchantToRestore == result.enchantID then
+          if enchantToRestore == result.spellID then
             MM:SetSelectedMyAuctionData(result)
           end
         end
