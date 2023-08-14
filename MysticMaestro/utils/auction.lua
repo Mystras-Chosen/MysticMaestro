@@ -26,11 +26,11 @@ end
 
 local pendingQuery, awaitingResults, timeoutTime, enchantToQuery, selectedScanTime
 
-function MM:InitializeSingleScan(enchantID)
+function MM:InitializeSingleScan(spellID)
   pendingQuery = true
   awaitingResults = false
   timeoutTime = nil
-  enchantToQuery = enchantID
+  enchantToQuery = spellID
   selectedScanTime = time()
 end
 
@@ -186,8 +186,8 @@ function MM:GetSortedMyAuctionResults()
   return sortableMyAuctionResults
 end
 
-function MM:SetMyAuctionBuyoutStatus(enchantID)
-  local result = self:GetMyAuctionResults()[enchantID]
+function MM:SetMyAuctionBuyoutStatus(spellID)
+  local result = self:GetMyAuctionResults()[spellID]
   if result then
     local selectedAuctionResults = self:GetSelectedEnchantAuctionsResults()
     result.lowestBuyout = #selectedAuctionResults > 0 and selectedAuctionResults[1].yours
@@ -203,18 +203,18 @@ local function updateColorCallback(self)
   end
 end
 
-function MM:SetMyAuctionLastScanTime(myAuctionEnchantID)
-  local result = self:GetMyAuctionResults()[myAuctionEnchantID]
+function MM:SetMyAuctionLastScanTime(myAuctionSpellID)
+  local result = self:GetMyAuctionResults()[myAuctionSpellID]
   if result then
     result.lastScanTime = GetTime()
-    for handle, enchantID in pairs(lastScanTimerHandles) do
-      if enchantID == myAuctionEnchantID then
+    for handle, spellID in pairs(lastScanTimerHandles) do
+      if spellID == myAuctionSpellID then
         lastScanTimerHandles[handle] = nil
         handle:Cancel()
       end
     end
     local waitTimePeriod = self.db.realm.OPTIONS.myTimeout * 60
-    lastScanTimerHandles[Timer.NewTimer(waitTimePeriod, updateColorCallback)] = myAuctionEnchantID
+    lastScanTimerHandles[Timer.NewTimer(waitTimePeriod, updateColorCallback)] = myAuctionSpellID
   end
 end
 
@@ -228,7 +228,7 @@ function MM:GetLastScanTimeColor(result)
       return "ff0000"
     -- subtract 1 because callback is called too early for some reason
     elseif result.lastScanTime + waitTimePeriod - 1 < GetTime() then
-      lastScanTimerHandles[Timer.NewTimer(veryLongTimePeriod - waitTimePeriod, updateColorCallback)] = result.enchantID
+      lastScanTimerHandles[Timer.NewTimer(veryLongTimePeriod - waitTimePeriod, updateColorCallback)] = result.spellID
       return "ffff00"
     else
       return "00ff00"
@@ -510,11 +510,11 @@ StaticPopupDialogs["MM_CANCEL_AUCTION"] = {
   --enterClicksFirstButton = 1  -- causes taint for some reason
 }
 
--- returns the first id that matches enchantID and buyoutPrice
-local function findOwnerAuctionID(enchantID, buyoutPrice)
+-- returns the first id that matches spellID and buyoutPrice
+local function findOwnerAuctionID(spellID, buyoutPrice)
   local results = MM:GetSortedMyAuctionResults()
   for _, result in ipairs(results) do
-    if result.enchantID == enchantID then
+    if result.spellID == spellID then
       for _, auction in ipairs(result.auctions) do
         if auction.buyoutPrice == buyoutPrice then
           return auction.id
@@ -526,8 +526,8 @@ local function findOwnerAuctionID(enchantID, buyoutPrice)
   return nil
 end
 
-function MM:CancelAuction(enchantID, buyoutPrice)
-  local auctionID = findOwnerAuctionID(enchantID, buyoutPrice)
+function MM:CancelAuction(spellID, buyoutPrice)
+  local auctionID = findOwnerAuctionID(spellID, buyoutPrice)
   SetSelectedAuctionItem("owner", auctionID)
   if MM.db.realm.OPTIONS.confirmCancel then
     StaticPopup_Show("MM_CANCEL_AUCTION")
@@ -537,14 +537,14 @@ function MM:CancelAuction(enchantID, buyoutPrice)
   end
 end
 
-function MM:StartAuction(enchantID, price)
+function MM:StartAuction(spellID, price)
   local duration = MM.db.realm.OPTIONS.listDuration
   if CalculateAuctionDeposit(duration) > GetMoney() then
     UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
     return false
   else
     StartAuction(price, price, duration, 1, 1)
-    self.listedAuctionEnchantID = enchantID
+    self.listedAuctionSpellID = spellID
     self.listedAuctionBuyoutPrice = price
     return true
   end
@@ -579,7 +579,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local function findSellableScrollWithEnchantID(enchantID,listMode)
+local function findSellableScrollWithSpellID(spellID,listMode)
   local items = {}
   for bagID=0, 4 do
     for slotIndex=1, GetContainerNumSlots(bagID) do
@@ -590,7 +590,7 @@ local function findSellableScrollWithEnchantID(enchantID,listMode)
         if query ~= nil then
           re = query.SpellID
         end
-        if re == enchantID then
+        if re == spellID then
           for i=1, count do
             table.insert(items, {bagID, slotIndex})
           end
@@ -647,7 +647,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
       bagClear = true
       fetchBag, fetchSlot = nextItem[1], nextItem[2]
       startingPrice = nextItem.price
-      enchantToList = nextItem.enchantID
+      enchantToList = nextItem.spellID
     elseif bagClear then
       if MM:ClearAuctionItem() then
         bagClear = nil
@@ -676,29 +676,29 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
   end
 )
 
-function MM:ListAuction(enchantID, price)
-  local bagID, slotIndex = findSellableScrollWithEnchantID(enchantID)
+function MM:ListAuction(spellID, price)
+  local bagID, slotIndex = findSellableScrollWithSpellID(spellID)
   if bagID then
     MM:CloseAuctionPopups()
     bagClear = true
     fetchBag, fetchSlot = bagID, slotIndex
     startingPrice = price
-    enchantToList = enchantID
+    enchantToList = spellID
   else
     print("No item found")
   end
 end
 
-function MM:ListAuctionQueue(enchantID,price)
-  if not auctionQueueAdded[enchantID] then
-    local itemList = findSellableScrollWithEnchantID(enchantID,true)
+function MM:ListAuctionQueue(spellID,price)
+  if not auctionQueueAdded[spellID] then
+    local itemList = findSellableScrollWithSpellID(spellID,true)
     for _, entry in ipairs(itemList) do
       entry.price = price
-      entry.enchantID = enchantID
+      entry.spellID = spellID
       table.insert(auctionQueue,entry)
     end
     autoPosting = true
-    auctionQueueAdded[enchantID] = true
+    auctionQueueAdded[spellID] = true
   end
 end
 
