@@ -213,13 +213,13 @@ do -- functions to initialize menu and menu container
   end
 
   local function favoriteButton_OnClick(self, button, down)
-    local enchantID = self:GetParent().enchantID
+    local spellID = self:GetParent().spellID
     
-    MM.db.realm.FAVORITE_ENCHANTS[enchantID] = not MM.db.realm.FAVORITE_ENCHANTS[enchantID] or nil
+    MM.db.realm.FAVORITE_ENCHANTS[spellID] = not MM.db.realm.FAVORITE_ENCHANTS[spellID] or nil
     MM:UpdateFavoriteIndicator(self:GetParent())
 
-    local insert = MM.db.realm.FAVORITE_ENCHANTS[enchantID] and "w" or " longer"
-    MM:Print(MM:GetEnchantLink(enchantID).." is no"..insert.." a favorite.")
+    local insert = MM.db.realm.FAVORITE_ENCHANTS[spellID] and "w" or " longer"
+    MM:Print(MM:ItemLinkRE(spellID).." is no"..insert.." a favorite.")
     if MM:IsEmbeddedMenuOpen() then
       MM:CacheMyAuctionResults()
       MM:RefreshMyAuctionsScrollFrame()
@@ -266,17 +266,17 @@ do -- functions to initialize menu and menu container
   local function craftButton_OnClick(self, button, down)
     enchantToCraft = nil
     
-    local enchantID = self:GetParent().enchantID
-    if not enchantID then
-      error("No enchantID on enchant button")
+    local spellID = self:GetParent().spellID
+    if not spellID then
+      error("No spellID on enchant button")
     end
 
-    if not MM:IsREKnown(enchantID) then
+    if not MM:IsREKnown(spellID) then
       UIErrorsFrame:AddMessage("Mystic enchant is not known", 1, 0, 0)
       return
     end
 
-    local orbCost = MM:OrbCost(enchantID)
+    local orbCost = MM:OrbCost(spellID)
     if orbCost > MM:GetOrbCurrency() then
       UIErrorsFrame:AddMessage("Not enough mystic orbs", 1, 0, 0)
       return
@@ -288,7 +288,7 @@ do -- functions to initialize menu and menu container
       return
     end
 
-    enchantToCraft = enchantID
+    enchantToCraft = spellID
     if MM.db.realm.OPTIONS.confirmCraft then
       StaticPopup_Show("MM_CRAFT_RE", MM:GetEnchantLink(enchantToCraft), orbCost)
     else
@@ -827,7 +827,7 @@ do -- show and hide MysticMaestroMenu
     searchBar.editBox:ClearFocus()
     searchBar:SetCallback(
       "OnEnterPressed",
-      function(self, event, enchantID)
+      function(self, event, spellID)
         self.editBox:ClearFocus()
       end
     )
@@ -973,8 +973,8 @@ do -- filter functions
     return resultSet
   end
 
-  local function qualityCheckMet(enchantID, filter)
-    local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
+  local function qualityCheckMet(spellID, filter)
+    local enchant = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
     local quality = Enum.EnchantQualityEnum[enchant.Quality]
     return filter.allQualities
     or filter.uncommon and quality == 2
@@ -983,19 +983,19 @@ do -- filter functions
     or filter.legendary and quality == 5
   end
 
-  local function knownCheckMet(enchantID, filter)
-    local known = MM:IsREKnown(enchantID)
+  local function knownCheckMet(spellID, filter)
+    local known = MM:IsREKnown(spellID)
     return filter.allKnown
     or filter.known and known
     or filter.unknown and not known
   end
 
-  local function favoriteCheckMet(enchantID, filter)
-    return not filter.favorites or MM.db.realm.FAVORITE_ENCHANTS[enchantID]
+  local function favoriteCheckMet(spellID, filter)
+    return not filter.favorites or MM.db.realm.FAVORITE_ENCHANTS[spellID]
   end
 
-  local function bagsCheckMet(enchantID, filter)
-    return not filter.bags or MM:CountSellableREInBags(enchantID) > 0
+  local function bagsCheckMet(spellID, filter)
+    return not filter.bags or MM:CountSellableREInBags(spellID) > 0
   end
 
   function MM:FilterMysticEnchants(filter)
@@ -1157,7 +1157,7 @@ do -- show/hide and select/deselect mystic enchant button functions
     local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(spellID)
     local quality = Enum.EnchantQualityEnum[enchantData.Quality]
     button.IconBorder:SetTexture(enchantQualityBorders[quality])
-    local enchantName, _, enchantIcon = GetSpellInfo(enchantData.SpellID)
+    local enchantName, _, enchantIcon = GetSpellInfo(spellID)
     button.Icon:SetTexture(enchantIcon)
     button.REText:SetText(enchantName)
     
@@ -1166,12 +1166,12 @@ do -- show/hide and select/deselect mystic enchant button functions
         self.H:Show()
       end
       GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
-      GameTooltip:SetHyperlink("|Hspell:"..enchant.SpellID.."|h[test]|h")
+      GameTooltip:SetHyperlink("|Hspell:"..spellID.."|h[test]|h")
       GameTooltip:Show()
     end)
     local r, g, b = unpack(enchantQualityColors[quality])
     local mult = .3
-    if MM:IsREKnown(enchantID) then
+    if MM:IsREKnown(spellID) then
       button.IconBorder:SetVertexColor(1, 1, 1)
       button.Icon:SetVertexColor(1, 1, 1)
       button.BG:SetVertexColor(1, 1, 1)
@@ -1291,8 +1291,8 @@ do -- show/hide statistics functions
     return t
   end
 
-  function MM:ShowStatistics(enchantID)
-    local info = MM:StatObj(enchantID)
+  function MM:ShowStatistics(spellID)
+    local info = MM:StatObj(spellID)
     local coinStr = {}
     local gpoStr = {}
     if info then
@@ -1307,14 +1307,14 @@ do -- show/hide statistics functions
       coinStr.dev = GetCoinTextureString(info.Dev)
       coinStr.d_dev = MM:cTxt(GetCoinTextureString(info["10d_Dev"]),"min")
 
-      gpoStr.min = GetCoinTextureString(MM:OrbValue(enchantID,"Min"))
-      gpoStr.d_min = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Min")),"min")
-      gpoStr.med = GetCoinTextureString(MM:OrbValue(enchantID,"Med"))
-      gpoStr.d_med = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Med")),"min")
-      gpoStr.mean = GetCoinTextureString(MM:OrbValue(enchantID,"Mean"))
-      gpoStr.d_mean = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Mean")),"min")
-      gpoStr.max = GetCoinTextureString(MM:OrbValue(enchantID,"Max"))
-      gpoStr.d_max = MM:cTxt(GetCoinTextureString(MM:OrbValue(enchantID,"10d_Max")),"min")
+      gpoStr.min = GetCoinTextureString(MM:OrbValue(spellID,"Min"))
+      gpoStr.d_min = MM:cTxt(GetCoinTextureString(MM:OrbValue(spellID,"10d_Min")),"min")
+      gpoStr.med = GetCoinTextureString(MM:OrbValue(spellID,"Med"))
+      gpoStr.d_med = MM:cTxt(GetCoinTextureString(MM:OrbValue(spellID,"10d_Med")),"min")
+      gpoStr.mean = GetCoinTextureString(MM:OrbValue(spellID,"Mean"))
+      gpoStr.d_mean = MM:cTxt(GetCoinTextureString(MM:OrbValue(spellID,"10d_Mean")),"min")
+      gpoStr.max = GetCoinTextureString(MM:OrbValue(spellID,"Max"))
+      gpoStr.d_max = MM:cTxt(GetCoinTextureString(MM:OrbValue(spellID,"10d_Max")),"min")
 
       local daysAgo = MM:DaysAgoString(info.Last)
       if daysAgo == "" then daysAgo = "Just Now" end
