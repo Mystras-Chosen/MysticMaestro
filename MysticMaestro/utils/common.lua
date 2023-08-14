@@ -511,9 +511,10 @@ function MM:OpenDBURL(ID, Type)
 end
 
 -- for sending links to party/raid/guild chat
-function MM:Chatlink(ID,chatType,Type)
-  if Type == "spell" then
-      SendChatMessage(MM:ItemLinkRE(ID) ,chatType);
+function MM:Chatlink(ID,chatType)
+  local spellLink = LinkUtil:GetSpellLink(ID)
+  if spellLink then
+      SendChatMessage(spellLink ,chatType);
   else
       SendChatMessage(select(2,GetItemInfo(ID)) ,chatType);
   end

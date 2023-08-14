@@ -286,7 +286,7 @@ end
 
 function MM:collectionSetup(addon)
     if addon == "Ascension_EnchantCollection" then
-        for i = 1, 15 do
+        for i = 1, 18 do
             local button = _G["EnchantCollection"]["Collection"]["CollectionTab"]["buttonIDToButton"][i]
                 button:HookScript("OnMouseDown", function(self, arg1)
                     if arg1 == "RightButton" then
@@ -562,7 +562,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                 )
                 MM.dewdrop:AddLine(
                         "text", GREEN.."Guild",
-                        "func", function() MM:Chatlink(spellID,"GUILD","spell") end,
+                        "func", function() MM:Chatlink(spellID,"GUILD") end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -570,7 +570,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                     );
                     MM.dewdrop:AddLine(
                         "text", LIGHTBLUE.."Party",
-                        "func", function() MM:Chatlink(spellID,"PARTY","spell") end,
+                        "func", function() MM:Chatlink(spellID,"PARTY") end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -578,7 +578,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                     );
                     MM.dewdrop:AddLine(
                         "text", ORANGE2.."Raid",
-                        "func", function() MM:Chatlink(spellID,"RAID","spell") end,
+                        "func", function() MM:Chatlink(spellID,"RAID") end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
