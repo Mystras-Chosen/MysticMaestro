@@ -27,27 +27,21 @@ local function StopCraftingAttemptTimer()
 end
 
 local function StopAutoReforge(result)
-	local enabled = false
-	if autoReforgeEnabled or autoAutoEnabled then
-		enabled = true
-	end
-	if autoAutoEnabled then
-		if slotIndex - 1 >= 0 then
-			slotIndex = slotIndex - 1
-		elseif bagID - 1 >= 0 then
-			bagID = bagID - 1
-			slotIndex = GetContainerNumSlots(bagID)
-		end
-	end
+	if not autoReforgeEnabled then return end
 	autoReforgeEnabled = false
-	autoAutoEnabled = false
+	if slotIndex - 1 >= 0 then
+		slotIndex = slotIndex - 1
+	elseif bagID - 1 >= 0 then
+		bagID = bagID - 1
+		slotIndex = GetContainerNumSlots(bagID)
+	end
 	if dynamicButtonTextHandle then
 		dynamicButtonTextHandle:Cancel()
 		dynamicButtonTextHandle = nil
 	end
 	if result then
 		MM:Print("Reforge stopped for " .. result)
-	elseif enabled then
+	else
 		MM:Print("Reforge has been stopped")
 	end
 	-- MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
@@ -57,14 +51,6 @@ local function RequestReforge()
 	-- attempt to roll every .05 seconds
 	if autoReforgeEnabled then
 		reforgeHandle = Timer.NewTicker(.05, function()
-			if GetUnitSpeed("player") ~= 0 then 
-				StopCraftingAttemptTimer()
-				StopAutoReforge("Player Moving")
-				return
-			end
-		end)
-	elseif autoAutoEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
 			if GetUnitSpeed("player") ~= 0 then
 				StopCraftingAttemptTimer()
 				StopAutoReforge("Player Moving")
@@ -73,7 +59,7 @@ local function RequestReforge()
 			RequestSlotReforgeEnchantment(bagID, slotIndex)
 		end)
 	else
-			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
+			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
 	end
 end
 
@@ -232,16 +218,12 @@ local function configConditionMet(currentEnchant)
 	local seasonal = configSeasonalMatch(currentEnchant)
 	local green = configGreenMatch(currentEnchant)
 	-- Determine if we should extract this enchant
-	if (autoAutoEnabled)
+	if (autoReforgeEnabled)
 	and ((unknown and options.stopUnknown.extract)
 	or (seasonal and options.stopSeasonal.extract)
 	or (green and options.green.extract)
 	or shopExtractList[currentEnchant.enchantID]) then
 		extract(currentEnchant.enchantID)
-	end
-	-- check for spam reforge settings
-	if autoReforgeEnabled and options.stopForNothing then
-		return configNoRunes()
 	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
@@ -259,12 +241,7 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	local result = configConditionMet(currentEnchant)
 	local norunes = configNoRunes()
-	if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
-		-- End reforge
-		StopAutoReforge(result or norunes)
-		return
-	end
-	if autoAutoEnabled then
+	if autoReforgeEnabled then
 		local knownStr, seasonal = "", ""
 		if not currentEnchant.Known then
 			knownStr = red .. "unknown" .. "|r"
@@ -356,7 +333,7 @@ local function StartAutoReforge()
 	end
 	if FindNextScroll() then
 		MM:Print("Scrolls found, lets roll!")
-		autoAutoEnabled = true
+		autoReforgeEnabled = true
 	else
 		MM:Print("There are no scrolls to roll on!")
 		return
@@ -368,7 +345,7 @@ local function StartAutoReforge()
 end
 
 local function UNIT_SPELLCAST_INTERRUPTED()
-	if (autoAutoEnabled or autoReforgeEnabled)
+	if (autoReforgeEnabled)
 	and GetUnitSpeed("player") ~= 0 then
 		StopAutoReforge("Player Moving")
 	end
