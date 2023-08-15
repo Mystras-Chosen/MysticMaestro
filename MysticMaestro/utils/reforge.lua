@@ -252,48 +252,45 @@ local function configConditionMet(currentEnchant)
 	or configPriceMatch(currentEnchant)
 end
 
-function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
-	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
-	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
-		local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
-		local result = configConditionMet(currentEnchant)
-		local norunes = configNoRunes()
-		if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
-			-- End reforge
-			StopAutoReforge(result or norunes)
+function MM:MYSTIC_ENCHANT_REFORGE_RESULT(result, SpellID)
+	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+	local result = configConditionMet(currentEnchant)
+	local norunes = configNoRunes()
+	if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
+		-- End reforge
+		StopAutoReforge(result or norunes)
+		return
+	end
+	if autoAutoEnabled then
+		local knownStr, seasonal = "", ""
+		if not currentEnchant.Known then
+			knownStr = red .. "unknown" .. "|r"
+		else
+			knownStr = green .. "known" .. "|r"
+		end
+		if isSeasonal(SpellID) then
+			seasonal = green .. " seasonal" .. "|r"
+		end
+		if result then
+			MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
+		else
+			MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(SpellID))
+		end
+	end
+	if result or norunes then
+		local cantFind = not FindNextScroll()
+		if cantFind or norunes then
+			if cantFind then
+				MM:Print("Out of Insignia, inventory position reset to first bag")
+			end
+			StopAutoReforge(norunes)
 			return
 		end
-		if autoAutoEnabled then
-			local knownStr, seasonal = "", ""
-			if not currentEnchant.Known then
-				knownStr = red .. "unknown" .. "|r"
-			else
-				knownStr = green .. "known" .. "|r"
-			end
-			if isSeasonal(enchantID) then
-				seasonal = green .. " seasonal" .. "|r"
-			end
-			if result then
-				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID) .. " because of " .. result)
-			else
-				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
-			end
-		end
-		if result or norunes then
-			local cantFind = not FindNextScroll()
-			if cantFind or norunes then
-				if cantFind then
-					MM:Print("Out of Insignia, inventory position reset to first bag")
-				end
-				StopAutoReforge(norunes)
-				return
-			end
-		end
-		if GetUnitSpeed("player") == 0 then
-			RequestReforge()
-		else
-			StopAutoReforge("Player Moving")
-		end
+	end
+	if GetUnitSpeed("player") == 0 then
+		RequestReforge()
+	else
+		StopAutoReforge("Player Moving")
 	end
 end
 
@@ -332,8 +329,7 @@ function MM:SetAltarLevelUPText(xp, level)
 	MM.db.realm.AltarLevelUp = levelUP
 end
 
-function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
-	if subEvent ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
+function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(xp, level)
 	MM:SetAltarLevelUPText(xp, level)
 end
 
