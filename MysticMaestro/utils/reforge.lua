@@ -252,7 +252,8 @@ local function configConditionMet(currentEnchant)
 	or configPriceMatch(currentEnchant)
 end
 
-function MM:MYSTIC_ENCHANT_REFORGE_RESULT(result, SpellID)
+function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	if result ~= "RE_REFORGE_OK" then return end
 	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	local result = configConditionMet(currentEnchant)
 	local norunes = configNoRunes()
