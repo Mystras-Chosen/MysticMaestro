@@ -247,7 +247,7 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	else
 		StopAutoReforge("Player Moving")
 	end 
-	MM:AltarLevelRequireXP(arg2)
+	MM:AltarLevelRequireXP(SpellID)
 end
 local lastProgress
 function MM:AltarLevelRequireXP(arg2)
