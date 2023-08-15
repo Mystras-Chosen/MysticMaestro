@@ -211,7 +211,7 @@ local function configConditionMet(currentEnchant)
 	or configPriceMatch(currentEnchant)
 end
 
-function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+function MM:StartAutoForge(result, SpellID)
 	if not autoReforgeEnabled
 	or result ~= "RE_REFORGE_OK"
 	or SpellID == 0 then return end
@@ -246,10 +246,15 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 		RequestReforge()
 	else
 		StopAutoReforge("Player Moving")
-	end 
+	end
+end
+
+function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	MM:StartAutoForge(result, SpellID)
 	MM:AltarLevelRequireXP(SpellID)
 end
 local lastProgress
+MM.lvl = {}
 function MM:AltarLevelRequireXP(arg2)
 	if arg2 == 0 then return end
 
@@ -257,6 +262,7 @@ function MM:AltarLevelRequireXP(arg2)
     local progress, level = C_MysticEnchant.GetProgress()
 	if not lastProgress or lastProgress <= 0 then lastProgress = progress end
 	local progressDif = progress - lastProgress
+	tinsert(MM.lvl,{progress,lastProgress, progressDif})
 	lastProgress = progress
 	local progressNeeded = (100 - progress) / progressDif
 
