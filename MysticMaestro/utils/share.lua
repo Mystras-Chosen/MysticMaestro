@@ -1,11 +1,11 @@
 -- **********************************************************************
 -- EnchantListShare:
 --	<local>SpamProtect(name)
--- 	ME:OnEnable()
+-- 	MM:OnEnable()
 --	MysticExtended_GetEnchantList(wlstrg,sendername)
---	ME:OnCommReceived(prefix, message, distribution, sender)
+--	MM:OnCommReceived(prefix, message, distribution, sender)
 -- **********************************************************************
-local ME = LibStub("AceAddon-3.0"):GetAddon("MysticExtended")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local playerName = UnitName("player");
 local realmName = GetRealmName();
 local SpamFilter = {}
@@ -44,13 +44,13 @@ MysticExtended_GetEnchantList(wlstrg,sendername)
 Get the EnchantList, Deserialize it and save it in the savedvariables table
 ]]
 function MysticExtended_GetEnchantList(wlstrg,sendername)
-	local success, wltab = ME:Deserialize(wlstrg);
+	local success, wltab = MM:Deserialize(wlstrg);
 	if success then
-		tinsert(ME.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}});
+		tinsert(MM.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}});
 		for i,v in ipairs(wltab) do
-			tinsert(ME.EnchantSaveLists[#ME.EnchantSaveLists], v)
+			tinsert(MM.EnchantSaveLists[#MM.EnchantSaveLists], v)
 		end
-		ME:MenuInitialize();
+		MM:MenuInitialize();
 	end
 end
 
@@ -66,10 +66,10 @@ StaticPopupDialogs["MYSTICEXTENDED_GET_ENCHANTLIST"] = {
 		this:SetFrameStrata("TOOLTIP");
 	end,
 	OnAccept = function(self,data)
-		ME:SendCommMessage("MysticExtendedEnchantList", "AcceptEnchantList", "WHISPER", data)
+		MM:SendCommMessage("MysticExtendedEnchantList", "AcceptEnchantList", "WHISPER", data)
 	end,
 	OnCancel = function (self,data)
-		ME:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantlist", "WHISPER", data)
+		MM:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantlist", "WHISPER", data)
 	end,
 	timeout = 15,
 	whileDead = 1,
@@ -77,10 +77,10 @@ StaticPopupDialogs["MYSTICEXTENDED_GET_ENCHANTLIST"] = {
 }
 
 --[[
-ME:OnCommReceived(prefix, message, distribution, sender)
+MM:OnCommReceived(prefix, message, distribution, sender)
 Incomming messages from AceComm
 ]]
-function ME:OnCommReceived(prefix, message, distribution, sender)
+function MM:OnCommReceived(prefix, message, distribution, sender)
 	if prefix ~= "MysticExtendedEnchantList" then return end
 	if message == "SpamProtect" then
 		--local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(sender)]), "(%d+)%.")
@@ -89,17 +89,17 @@ function ME:OnCommReceived(prefix, message, distribution, sender)
 		SpamFilter[string.lower(sender)] = GetTime()
 	elseif message == "AcceptEnchantList" then
 		local wsltable = {};
-			for i,v in ipairs(ME.EnchantSaveLists[ME.db.currentSelectedList]) do
+			for i,v in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
 				tinsert(wsltable,{v[1]});
 			end
-			wsltable.Name = ME.EnchantSaveLists[ME.db.currentSelectedList].Name;
-		local sendData = ME:Serialize(wsltable);
-		ME:SendCommMessage("MysticExtendedEnchantList", sendData, "WHISPER", sender);
+			wsltable.Name = MM.EnchantSaveLists[MM.db.currentSelectedList].Name;
+		local sendData = MM:Serialize(wsltable);
+		MM:SendCommMessage("MysticExtendedEnchantList", sendData, "WHISPER", sender);
 	elseif message == "EnchantListRequest" then
-		if ME.db.AllowShareEnchantList then
-			if ME.db.AllowShareEnchantListInCombat then
+		if MM.db.AllowShareEnchantList then
+			if MM.db.AllowShareEnchantListInCombat then
 				if UnitAffectingCombat("player") then
-					ME:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantList", "WHISPER", sender)
+					MM:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantList", "WHISPER", sender)
 					DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..WHITE..sender..RED.." tried to send you a EnchantList. Rejected because you are in combat.");
 				else
 					local dialog = StaticPopup_Show("MYSTICEXTENDED_GET_ENCHANTLIST", sender);
@@ -114,7 +114,7 @@ function ME:OnCommReceived(prefix, message, distribution, sender)
 				end
 			end
 		else
-			ME:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantList", "WHISPER", sender);
+			MM:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantList", "WHISPER", sender);
 		end
 
 	elseif message == "CancelEnchantList" then
@@ -122,7 +122,7 @@ function ME:OnCommReceived(prefix, message, distribution, sender)
 	else
 		SpamFilter[string.lower(sender)] = GetTime()
 		MysticExtended_GetEnchantList(message,sender)
-		ME:SendCommMessage("MysticExtendedEnchantList", "FinishSend", "WHISPER", sender)
+		MM:SendCommMessage("MysticExtendedEnchantList", "FinishSend", "WHISPER", sender)
 	end
 end
 
@@ -145,7 +145,7 @@ StaticPopupDialogs["MYSTICEXTENDED_SEND_ENCHANTLIST"] = {
 			DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..RED.."You can't send EnchantLists to yourself.");
 		else
 			if SpamProtect(string.lower(name)) then
-				ME:SendCommMessage("MysticExtendedEnchantList", "EnchantListRequest", "WHISPER", name);
+				MM:SendCommMessage("MysticExtendedEnchantList", "EnchantListRequest", "WHISPER", name);
 			else
 				local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(name)]), "(%d+)%.")
 				DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList to "..WHITE..name..RED..".");
@@ -172,13 +172,13 @@ StaticPopupDialogs["MYSTICEXTENDED_IMPORT_ENCHANTLIST"] = {
 	end,
 	OnAccept = function()
 		local data = string.sub(_G[this:GetParent():GetName().."EditBox"]:GetText(), 5)
-		local success, wltab = ME:Deserialize(data);
+		local success, wltab = MM:Deserialize(data);
 	if success then
-		tinsert(ME.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}});
+		tinsert(MM.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}});
 		for i,v in ipairs(wltab) do
-			tinsert(ME.EnchantSaveLists[#ME.EnchantSaveLists], v)
+			tinsert(MM.EnchantSaveLists[#MM.EnchantSaveLists], v)
 		end
-		ME:MenuInitialize();
+		MM:MenuInitialize();
 	end
 	end,
 	hasEditBox = 1,

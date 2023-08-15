@@ -13,32 +13,6 @@ local realmName = GetRealmName();
 --Set Savedvariables defaults
 local reFound = false;
 
-
---[[ TableName = Name of the saved setting
-CheckBox = Global name of the checkbox if it has one and first numbered table entry is the boolean
-Text = Global name of where the text and first numbered table entry is the default text ]]
-local function setupSettings(db)
-    for _,v in ipairs(DefaultSettings) do
-        if db[v.TableName] == nil then
-            if #v > 1 then
-                db[v.TableName] = {}
-                for _, n in ipairs(v) do
-                    tinsert(db[v.TableName], n)
-                end
-            else
-                db[v.TableName] = v[1]
-            end
-        end
-
-        if v.CheckBox then
-            _G[v.CheckBox]:SetChecked(db[v.TableName])
-        end
-        if v.Text then
-            _G[v.Text]:SetText(db[v.TableName])
-        end
-    end
-end
-
 MM.QualityList = {
     [1] = {"Uncommon",2},
     [2] = {"Rare",3},
@@ -63,88 +37,8 @@ local citysList = {
     ["Dalaran"] = true,
 }
 
---Returns listTableNum, enchTableNum, enableDisenchantboolean, enableRollboolean, ignoreListboolean
-function MM:SearchLists(enchantID, type)
-    local compair = {
-        ["Extract"] = { { "enableRoll", true }, { "enableDisenchant", true }, { "ignoreList", false } },
-        ["ExtractOnly"] = { { "enableRollExt", true }, { "enableDisenchant", true }, { "ignoreList", false } },
-        ["ExtractAny"] = { { "enableDisenchant", true }, { "ignoreList", false } },
-        ["Keep"] = { { "enableRoll", true }, { "ignoreList", false } },
-        ["Ignore"] = { { "enableRoll", true }, { "enableDisenchant", false }, { "ignoreList", true } }
-    }
-    --checks to see if we should keep or roll over this enchant
-    local function getStates(table)
-        for _, s in ipairs(compair[type]) do
-            if not s[2] == table[realmName][s[1]] then
-                return false
-            end
-        end
-        return true
-    end
 
-    for _, v in ipairs(MM.EnchantSaveLists) do
-        for _, b in ipairs(v) do
-            if b[1] == enchantID and getStates(v) then
-                return true
-            end
-        end
-    end
-end
 
---returns if the item needs to be reforged or not
-local function rollCheck(bagID, slotID, extractoff)
-    if MM.RollExtracts then return true end
-    local enchantID = GetREInSlot(bagID, slotID)
-    if not enchantID then return true end
-    local extractCount = GetItemCount(98463)
-        if (MM.db.UnknownAutoExtract and extractCount and (extractCount > MM.db.minExtractNum) and not IsReforgeEnchantmentKnown(enchantID) and MM:DoRarity(enchantID,2)) or
-            MM:SearchLists(enchantID, "Extract") or
-            (extractCount and (extractCount > 0) and MM:SearchLists(enchantID, "ExtractOnly")) then
-            --extract if we have extracts keep if not
-            if not extractoff and extractCount and (extractCount > 0) then
-                MM:ExtractEnchant(bagID,slotID,enchantID)
-                --updates scroll frame after removing an item from a list
-                MysticExtended_ScrollFrameUpdate()
-            end
-            if MM.db.Debug then print("Extract") end
-            return false
-        elseif MM:SearchLists(enchantID, "Keep") then
-            --keep enchants on these lists
-            if MM.db.Debug then print("Keep") end
-            return false
-        elseif MM:SearchLists(enchantID, "Ignore") then
-            --reforge items on these lists
-            if MM.db.Debug then print("Ignore") end
-            return true
-        elseif mysticMastro and MM.db.mysticMastro and MysticMaestroData[realmName].RE_AH_STATISTICS[enchantID] and
-            MysticMaestroData[realmName].RE_AH_STATISTICS[enchantID].current and
-            MM.db.MinGold >= MysticMaestroData[realmName].RE_AH_STATISTICS[enchantID].current.Min then
-            if MM.db.Debug then print("Gold") end
-            return true
-        elseif auctionator and MM.db.auctionator and AUCTIONATOR_MYSTIC_ENCHANT_PRICE_DATABASE[realmName][enchantID] and
-        AUCTIONATOR_MYSTIC_ENCHANT_PRICE_DATABASE[realmName][enchantID].Current and
-        MM.db.MinGold >= AUCTIONATOR_MYSTIC_ENCHANT_PRICE_DATABASE[realmName][enchantID].Current then
-        if MM.db.Debug then print("Gold") end
-        return true
-        elseif not MM:DoRarity(enchantID,1) then
-            --reforge the raritys that arnt selected
-            if MM.db.Debug then print("Rarity") end
-            return true
-        end
-end
-
---works out how many rolls on the current item type it will take to get the next altar level
-local function GetRequiredRollsForLevel(level)
-    if level == 0 then
-        return 1
-    end
-
-    if level >= 250 and not C_Realm:IsRealmMask(Enum.RealmMask.Area52) then
-        return 557250 + (level - 250) * 4097
-    end
-
-    return floor(354 * level + 7.5 * level * level)
-end
 
 function MM:ButtonEnable(button)
     if button == "Main" then

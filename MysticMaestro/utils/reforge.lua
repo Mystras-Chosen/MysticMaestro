@@ -246,17 +246,23 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 		RequestReforge()
 	else
 		StopAutoReforge("Player Moving")
-	end
+	end 
+	MM:AltarLevelRequireXP(arg2)
 end
+local lastProgress
+function MM:AltarLevelRequireXP(arg2)
+	if arg2 == 0 then return end
 
-local function AltarLevelRequireXP(level)
-	if level == 0 then
-			return 1
-	end
-	if level >= 250 and not C_Realm:IsRealmMask(Enum.RealmMask.Area52) then
-			return 557250 + (level - 250) * 4097
-	end
-	return floor(354 * level + 7.5 * level * level)
+	--works out how many rolls on the current item type it will take to get the next altar level
+    local progress, level = C_MysticEnchant.GetProgress()
+	if not lastProgress or lastProgress <= 0 then lastProgress = progress end
+	local progressDif = progress - lastProgress
+	lastProgress = progress
+	local progressNeeded = (100 - progress) / progressDif
+
+	print(math.floor(progressNeeded))
+	return math.floor(progressNeeded)
+
 end
 
 function MM:SetAltarLevelUPText(xp, level)
@@ -265,7 +271,7 @@ function MM:SetAltarLevelUPText(xp, level)
 		if MM.db.realm.AltarLevelUp then
 			AltarReforgesText:SetText("Next level in " .. MM.db.realm.AltarLevelUp .. " reforges")
 		end
-		return 
+		return
 	end
 	local gained = xp - (MM.db.realm.AltarXP or 0)
 	if gained == 0 then
@@ -277,7 +283,7 @@ function MM:SetAltarLevelUPText(xp, level)
 	else
 		MM.db.realm.prevAltarGained = gained
 	end
-	local remaining = AltarLevelRequireXP(level) - xp
+	local remaining = MM:AltarLevelRequireXP() - xp
 	local levelUP = math.floor(remaining / gained) + 1
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
 	MM.db.realm.AltarXP = xp
