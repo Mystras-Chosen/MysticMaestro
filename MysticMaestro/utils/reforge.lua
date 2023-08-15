@@ -6,7 +6,7 @@ local itemLoaded = false
 local options, autoAutoEnabled, autoReforgeEnabled
 local shopEnabledList, shopExtractList, shopReserveList, shopUnknownList
 local reforgeHandle, dynamicButtonTextHandle
-local bagID, slotIndex
+local bagID, slotIndex, itemGuid
 local AltarReforgesText, settingsButton
 local otherGreens = {
 	Speedy = true,
@@ -44,7 +44,7 @@ local function StopAutoReforge(result)
 	else
 		MM:Print("Reforge has been stopped")
 	end
-	-- MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
+	MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
 end
 
 local function RequestReforge()
@@ -56,7 +56,7 @@ local function RequestReforge()
 				StopAutoReforge("Player Moving")
 				return
 			end
-			RequestSlotReforgeEnchantment(bagID, slotIndex)
+			C_MysticEnchant.ReforgeItem(itemGuid)
 		end)
 	else
 			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
@@ -77,40 +77,17 @@ local function isSeasonal(enchant)
 	-- end
 end
 
-local function FindNextScroll()
-	for i=bagID, 4 do
-		for j=slotIndex + 1, GetContainerNumSlots(i) do
-			local item = select(7, GetContainerItemInfo(i, j))
-			if item then
-				local name = GetItemInfo(item)
-				if MM:IsUntarnished(name) then 
-					bagID = i
-					slotIndex = j
-					return true
-				end
-				local re = MM:GetREInSlot(i, j)
-				local reObj = C_MysticEnchant.GetEnchantInfoBySpell(re)
-				if reObj ~= nil then
-					local knownStr
-					if not reObj.Known then
-						knownStr = red .. "unknown" .. "|r"
-					else
-						knownStr = green .. "known" .. "|r"
-					end
-					if shopReserveList[re] then
-						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
-					else
-						bagID = i
-						slotIndex = j
-						return true
-					end
-				end
-			end
+local function FindNextScroll(target)
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+	for _, scroll in ipairs(inventoryList) do
+		if (target and scroll.Entry == target)
+		or (not target and scroll.Name == "Untarnished Mystic Scroll") then
+			bagID = scroll.Bag
+			slotIndex = scroll.Slot
+			itemGuid = scroll.Guid
+			return true
 		end
-		slotIndex = 0
 	end
-	bagID = 0
-	slotIndex = 0
 end
 
 local function initOptions()
@@ -257,13 +234,11 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 			MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(SpellID))
 		end
 	end
-	if result or norunes then
+	if norunes then StopAutoReforge(norunes) return end
+	if result then
 		local cantFind = not FindNextScroll()
-		if cantFind or norunes then
-			if cantFind then
-				MM:Print("Out of Insignia, inventory position reset to first bag")
-			end
-			StopAutoReforge(norunes)
+		if cantFind then
+			StopAutoReforge("Out of Scrolls")
 			return
 		end
 	end
@@ -339,15 +314,23 @@ local function StartAutoReforge()
 		return
 	end
 	RequestReforge()
-	-- local button = MysticMaestroEnchantingFrameAutoReforgeButton
-	-- button:SetText("Reforging"..dots())
-	-- dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
+	local button = MysticMaestro_CollectionsFrame_ReforgeButton
+	button:SetText("Reforging"..dots())
+	dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
 end
 
-local function UNIT_SPELLCAST_INTERRUPTED()
+function MM:ReforgeButtonClick()
+	if not options then initOptions() end
+	if autoReforgeEnabled then
+		StopAutoReforge("Button Pressed")
+	else
+		StartAutoReforge()
+	end
+end
+
+function MM:UNIT_SPELLCAST_INTERRUPTED()
 	if (autoReforgeEnabled)
 	and GetUnitSpeed("player") ~= 0 then
 		StopAutoReforge("Player Moving")
 	end
 end
-MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED",UNIT_SPELLCAST_INTERRUPTED)

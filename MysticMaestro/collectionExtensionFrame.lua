@@ -472,18 +472,25 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     end
 
     -- Reforge button in list interface
-    collectionOverlay.reforgebuttonlist = CreateFrame("Button", "MysticMaestro_CollectionsFrame_ReforgButton", collectionOverlay, "FilterDropDownMenuTemplate");
-    collectionOverlay.reforgebuttonlist:SetSize(100,24);
-    collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0);
+    collectionOverlay.reforgebuttonlist = CreateFrame("Button", "MysticMaestro_CollectionsFrame_ReforgeButton", collectionOverlay, "FilterDropDownMenuTemplate")
+    collectionOverlay.reforgebuttonlist:SetSize(100,24)
+    collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0)
     collectionOverlay.reforgebuttonlist.Icon:Hide()
     collectionOverlay.reforgebuttonlist.Text:SetPoint("CENTER", 0, 0)
-    collectionOverlay.reforgebuttonlist:SetText("Start Reforge");
-    collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick) MysticMaestro_ListFrame_OnClick(self,btnclick) end);
+    collectionOverlay.reforgebuttonlist:SetText("Auto Reforge")
+    collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick)
+        -- if btnclick ~= "LeftButton" then return end
+        MM:ReforgeButtonClick()
+    end)
     collectionOverlay.reforgebuttonlist:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine(WHITE.."Auto Reforging");
-        GameTooltip:AddLine("Left Click To Start Reforging");
-        GameTooltip:Show();
+        GameTooltip:AddLine(WHITE.."Bulk Reforging")
+        GameTooltip:AddLine("Left Click To Start Reforging")
+        GameTooltip:AddLine("Stops when out of runes or bag space")
+        GameTooltip:AddLine("Stops when moving your character")
+        GameTooltip:AddLine("Reforges each scroll until a match")
+        GameTooltip:AddLine("Configure match options in settings")
+        GameTooltip:Show()
     end);
     collectionOverlay.reforgebuttonlist:SetScript("OnLeave", function() GameTooltip:Hide() end);
 
