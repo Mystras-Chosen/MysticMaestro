@@ -230,11 +230,11 @@ end
 
 function MM:TimeToDate(stamp)
   local d = date("*t",stamp)
-  return time({year=d.year, month=d.month, day=d.day})
+  return time({year=d.year, month=d.month, day=d.day, hour=0})
 end
 
 function MM:DaysAgo(days)
-  local stamp = MM:TimeToDate(time())
+  local stamp = MM:TimeToDate(time()) + 86400 -- add a day's worth of seconds
   local t = date("*t",stamp)
   t.day = t.day - days
   return time(t)
