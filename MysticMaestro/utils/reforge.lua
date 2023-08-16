@@ -251,24 +251,39 @@ end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	MM:StartAutoForge(result, SpellID)
-	MM:AltarLevelRequireXP(SpellID)
+	MM:AltarLevelRequiredRolls(SpellID)
 end
-local lastProgress
-MM.lvl = {}
-function MM:AltarLevelRequireXP(arg2)
+
+function MM:AltarLevelRequiredRolls(arg2)
+	if not MM.db.atlarLevel then MM.db.atlarLevel = {} end
 	if arg2 == 0 then return end
 
 	--works out how many rolls on the current item type it will take to get the next altar level
     local progress, level = C_MysticEnchant.GetProgress()
-	if not lastProgress or lastProgress <= 0 then lastProgress = progress end
-	local progressDif = progress - lastProgress
-	tinsert(MM.lvl,{progress,lastProgress, progressDif})
-	lastProgress = progress
-	local progressNeeded = (100 - progress) / progressDif
 
-	print(math.floor(progressNeeded))
-	return math.floor(progressNeeded)
+	if MM.db.atlarLevel.lastLevel ~= level or not MM.db.atlarLevel.lastProgress then
+		MM.db.atlarLevel.lastLevel = level
+		MM.db.atlarLevel.lastProgress = progress
+	end
 
+	local progressDif = progress - MM.db.atlarLevel.lastProgress
+
+	if progressDif == 0 then return end
+
+	if progressDif ~= 0 and (not MM.db.atlarLevel.lastProgressDif or MM.db.atlarLevel.lastProgressDif > progressDif) then
+		MM.db.atlarLevel.lastProgressDif = progressDif
+	end
+
+	if MM.db.atlarLevel.lastProgressDif < progressDif then
+		progressDif = MM.db.atlarLevel.lastProgressDif
+	end
+
+	MM.db.atlarLevel.lastProgress = progress
+
+	local rollsNeeded = (100 - progress) / progressDif
+
+	--print(math.ceil(rollsNeeded))
+	return math.ceil(rollsNeeded)
 end
 
 function MM:SetAltarLevelUPText(xp, level)
@@ -289,15 +304,11 @@ function MM:SetAltarLevelUPText(xp, level)
 	else
 		MM.db.realm.prevAltarGained = gained
 	end
-	local remaining = MM:AltarLevelRequireXP() - xp
+	local remaining = MM:AltarLevelRequiredRolls() - xp
 	local levelUP = math.floor(remaining / gained) + 1
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
 	MM.db.realm.AltarXP = xp
 	MM.db.realm.AltarLevelUp = levelUP
-end
-
-function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(xp, level)
-	MM:SetAltarLevelUPText(xp, level)
 end
 
 local function UNIT_SPELLCAST_START(event, unitID, spell)
