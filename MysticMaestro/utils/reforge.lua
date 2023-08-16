@@ -49,6 +49,23 @@ local function StopAutoReforge(result)
 	end
 	--hide screen text count down
 	MM:ToggleScreenReforgeText()
+	MM:StandaloneReforgeText()
+end
+
+
+function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
+    --starts the next roll after last cast
+    if arg1 == "player" and arg2 == "Reforge Mystic Enchant" then
+        --stops all rolling when enchanting is interrupted
+        if event == "UNIT_SPELLCAST_INTERRUPTED" then
+            MM:StopAutoRoll();
+        elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+            --starts short timer to start next roll item
+            MM:ScheduleTimer(MM.RequestReforge, .6);
+        end
+		MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+        MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
+    end
 end
 
 local function RequestReforge()
@@ -66,6 +83,24 @@ local function RequestReforge()
 		end)
 	else
 			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
+	end
+end
+
+function MM:RequestReforge()
+	-- attempt to roll every .05 seconds
+	if autoReforgeEnabled then
+		if GetUnitSpeed("player") ~= 0 then
+			StopCraftingAttemptTimer()
+			StopAutoReforge("Player Moving")
+			return
+		end
+		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+		if C_MysticEnchant.CanReforgeItem(itemGuid) then
+			C_MysticEnchant.ReforgeItem(itemGuid)
+		end
+	else
+		MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
 	end
 end
 
@@ -212,6 +247,7 @@ function MM:StartAutoForge(SpellID)
 
 	--show rune count down
 	MM:ToggleScreenReforgeText(true)
+	MM:StandaloneReforgeText(true)
 
 	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	local knownState = currentEnchant.Known and strKnown or strUnknown
@@ -241,7 +277,7 @@ function MM:StartAutoForge(SpellID)
 	if scrollFound then MM:Print("Found reforged scroll") end
 	-- Check if the player is moving to stop
 	if GetUnitSpeed("player") == 0 then
-		RequestReforge()
+		MM:RequestReforge()
 	else
 		StopAutoReforge("Player Moving")
 	end
@@ -335,7 +371,7 @@ local function StartAutoReforge()
 		MM:Print("There are no scrolls to roll on!")
 		return
 	end
-	RequestReforge()
+	MM:RequestReforge()
 	if MysticMaestro_CollectionsFrame_ReforgeButton then 
 		local button = MysticMaestro_CollectionsFrame_ReforgeButton
 		button:SetText("Reforging"..dots())

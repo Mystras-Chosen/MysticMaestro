@@ -2,7 +2,7 @@
 -- EnchantListShare:
 --	<local>SpamProtect(name)
 -- 	MM:OnEnable()
---	MysticExtended_GetEnchantList(wlstrg,sendername)
+--	MysticMaestro_GetEnchantList(wlstrg,sendername)
 --	MM:OnCommReceived(prefix, message, distribution, sender)
 -- **********************************************************************
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
@@ -40,10 +40,10 @@ local function SpamProtect(name)
 end
 
 --[[
-MysticExtended_GetEnchantList(wlstrg,sendername)
+MysticMaestro_GetEnchantList(wlstrg,sendername)
 Get the EnchantList, Deserialize it and save it in the savedvariables table
 ]]
-function MysticExtended_GetEnchantList(wlstrg,sendername)
+function MysticMaestro_GetEnchantList(wlstrg,sendername)
 	local success, wltab = MM:Deserialize(wlstrg);
 	if success then
 		tinsert(MM.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}});
@@ -55,10 +55,10 @@ function MysticExtended_GetEnchantList(wlstrg,sendername)
 end
 
 --[[
-StaticPopupDialogs["MYSTICEXTENDED_GET_ENCHANTLIST"]
+StaticPopupDialogs["MysticMaestro_GET_ENCHANTLIST"]
 This is shown, if someone send you a Enchantlist
 ]]
-StaticPopupDialogs["MYSTICEXTENDED_GET_ENCHANTLIST"] = {
+StaticPopupDialogs["MysticMaestro_GET_ENCHANTLIST"] = {
 	text = "%s sends you an Enchantlist. Accept?",
 	button1 = ACCEPT,
 	button2 = CANCEL,
@@ -66,10 +66,10 @@ StaticPopupDialogs["MYSTICEXTENDED_GET_ENCHANTLIST"] = {
 		this:SetFrameStrata("TOOLTIP");
 	end,
 	OnAccept = function(self,data)
-		MM:SendCommMessage("MysticExtendedEnchantList", "AcceptEnchantList", "WHISPER", data)
+		MM:SendCommMessage("MysticMaestroEnchantList", "AcceptEnchantList", "WHISPER", data)
 	end,
 	OnCancel = function (self,data)
-		MM:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantlist", "WHISPER", data)
+		MM:SendCommMessage("MysticMaestroEnchantList", "CancelEnchantlist", "WHISPER", data)
 	end,
 	timeout = 15,
 	whileDead = 1,
@@ -81,10 +81,10 @@ MM:OnCommReceived(prefix, message, distribution, sender)
 Incomming messages from AceComm
 ]]
 function MM:OnCommReceived(prefix, message, distribution, sender)
-	if prefix ~= "MysticExtendedEnchantList" then return end
+	if prefix ~= "MysticMaestroEnchantList" then return end
 	if message == "SpamProtect" then
 		--local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(sender)]), "(%d+)%.")
-		--DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList too "..WHITE..sender..RED..".");
+		--DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList too "..WHITE..sender..RED..".");
 	elseif message == "FinishSend" then
 		SpamFilter[string.lower(sender)] = GetTime()
 	elseif message == "AcceptEnchantList" then
@@ -94,43 +94,43 @@ function MM:OnCommReceived(prefix, message, distribution, sender)
 			end
 			wsltable.Name = MM.EnchantSaveLists[MM.db.currentSelectedList].Name;
 		local sendData = MM:Serialize(wsltable);
-		MM:SendCommMessage("MysticExtendedEnchantList", sendData, "WHISPER", sender);
+		MM:SendCommMessage("MysticMaestroEnchantList", sendData, "WHISPER", sender);
 	elseif message == "EnchantListRequest" then
 		if MM.db.AllowShareEnchantList then
 			if MM.db.AllowShareEnchantListInCombat then
 				if UnitAffectingCombat("player") then
-					MM:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantList", "WHISPER", sender)
-					DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..WHITE..sender..RED.." tried to send you a EnchantList. Rejected because you are in combat.");
+					MM:SendCommMessage("MysticMaestroEnchantList", "CancelEnchantList", "WHISPER", sender)
+					DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..WHITE..sender..RED.." tried to send you a EnchantList. Rejected because you are in combat.");
 				else
-					local dialog = StaticPopup_Show("MYSTICEXTENDED_GET_ENCHANTLIST", sender);
+					local dialog = StaticPopup_Show("MysticMaestro_GET_ENCHANTLIST", sender);
 					if ( dialog ) then
 						dialog.data = sender;
 					end
 				end
 			else
-				local dialog = StaticPopup_Show("MYSTICEXTENDED_GET_ENCHANTLIST", sender);
+				local dialog = StaticPopup_Show("MysticMaestro_GET_ENCHANTLIST", sender);
 				if ( dialog ) then
 					dialog.data = sender;
 				end
 			end
 		else
-			MM:SendCommMessage("MysticExtendedEnchantList", "CancelEnchantList", "WHISPER", sender);
+			MM:SendCommMessage("MysticMaestroEnchantList", "CancelEnchantList", "WHISPER", sender);
 		end
 
 	elseif message == "CancelEnchantList" then
-		DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..WHITE..sender..RED.." rejects your EnchantList.");
+		DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..WHITE..sender..RED.." rejects your EnchantList.");
 	else
 		SpamFilter[string.lower(sender)] = GetTime()
-		MysticExtended_GetEnchantList(message,sender)
-		MM:SendCommMessage("MysticExtendedEnchantList", "FinishSend", "WHISPER", sender)
+		MysticMaestro_GetEnchantList(message,sender)
+		MM:SendCommMessage("MysticMaestroEnchantList", "FinishSend", "WHISPER", sender)
 	end
 end
 
 --[[
-StaticPopupDialogs["MYSTICEXTENDED_SEND_ENCHANTLIST"]
+StaticPopupDialogs["MysticMaestro_SEND_ENCHANTLIST"]
 This is shown, if you want too share a EnchantList
 ]]
-StaticPopupDialogs["MYSTICEXTENDED_SEND_ENCHANTLIST"] = {
+StaticPopupDialogs["MysticMaestro_SEND_ENCHANTLIST"] = {
 	text = "Send Enchant List (%s)",
 	button1 = "Send",
 	button2 = "Cancel",
@@ -142,13 +142,13 @@ StaticPopupDialogs["MYSTICEXTENDED_SEND_ENCHANTLIST"] = {
 		local name = _G[this:GetParent():GetName().."EditBox"]:GetText()
 		if name == "" then return end
 		if string.lower(name) == string.lower(playerName) then
-			DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..RED.."You can't send EnchantLists to yourself.");
+			DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You can't send EnchantLists to yourself.");
 		else
 			if SpamProtect(string.lower(name)) then
-				MM:SendCommMessage("MysticExtendedEnchantList", "EnchantListRequest", "WHISPER", name);
+				MM:SendCommMessage("MysticMaestroEnchantList", "EnchantListRequest", "WHISPER", name);
 			else
 				local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(name)]), "(%d+)%.")
-				DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticExtended"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList to "..WHITE..name..RED..".");
+				DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList to "..WHITE..name..RED..".");
 			end
 		end
 	end,
@@ -159,10 +159,10 @@ StaticPopupDialogs["MYSTICEXTENDED_SEND_ENCHANTLIST"] = {
 }
 
 --[[
-StaticPopupDialogs["MYSTICEXTENDED_IMPORT_ENCHANTLIST"]
+StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"]
 This is shown, if you want too import an EnchantList
 ]]
-StaticPopupDialogs["MYSTICEXTENDED_IMPORT_ENCHANTLIST"] = {
+StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"] = {
 	text = "Paste List String To Import",
 	button1 = "Import",
 	button2 = "Cancel",

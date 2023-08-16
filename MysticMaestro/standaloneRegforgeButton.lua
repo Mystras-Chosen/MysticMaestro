@@ -307,3 +307,13 @@ function MM:StandaloneCityReforgeToggle()
       MysticMaestro_ReforgeFrame_Menu:Hide();
   end
 end
+
+function MM:StandaloneReforgeText(show)
+    if show then
+        MysticMaestro_ReforgeFrame_Menu.AnimatedTex:Show()
+        MysticMaestro_ReforgeFrame.Text:SetText("|cffffffffAuto\nForging")
+    else
+        MysticMaestro_ReforgeFrame_Menu.AnimatedTex:Hide()
+        MysticMaestro_ReforgeFrame.Text:SetText("|cffffffffStart\nReforge")
+    end
+end
