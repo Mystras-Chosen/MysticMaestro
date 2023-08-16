@@ -119,7 +119,9 @@ local EnchantQualitySettings = {
 
 -- Creates a Quality colored item link for use in text
 function MM:ItemLinkRE(SpellID)
+  if SpellID == 0 then return "" end
   local enchantData = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+  if not enchantData then return "" end
   local quality = Enum.EnchantQualityEnum[enchantData.Quality]
   local color = EnchantQualitySettings[quality]
   return color .. "\124Hspell:" .. enchantData.SpellID .. "\124h[" .. enchantData.SpellName .. "]\124h\124r"

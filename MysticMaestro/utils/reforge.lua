@@ -60,7 +60,7 @@ local function RequestReforge()
 				StopAutoReforge("Player Moving")
 				return
 			end
-			if UnitCastingInfo("player") == nil then
+			if C_MysticEnchant.CanReforgeItem(itemGuid) then
 				C_MysticEnchant.ReforgeItem(itemGuid)
 			end
 		end)
@@ -78,8 +78,13 @@ end
 
 local function FindNextScroll(target)
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+	local enchant
+	if target then
+		enchant = C_MysticEnchant.GetEnchantInfoBySpell(target)
+		if not enchant then return end
+	end
 	for _, scroll in ipairs(inventoryList) do
-		if (target and scroll.Entry == target)
+		if (target and scroll.Entry == enchant.ItemID)
 		or (not target and scroll.Name == "Untarnished Mystic Scroll") then
 			bagID = scroll.Bag
 			slotIndex = scroll.Slot
@@ -202,7 +207,7 @@ local function configConditionMet(currentEnchant)
 	or configPriceMatch(currentEnchant)
 end
 
-function MM:StartAutoForge(result, SpellID)
+function MM:StartAutoForge(SpellID)
 	if not autoReforgeEnabled then return end
 
 	--show rune count down
@@ -221,6 +226,7 @@ function MM:StartAutoForge(result, SpellID)
 	local norunes = configNoRunes()
 	if norunes then StopAutoReforge(norunes) return end
 
+	local scrollFound
 	-- if we have a match, we want to roll another scroll
 	if result then
 		local scrollFound = FindNextScroll()
@@ -230,9 +236,9 @@ function MM:StartAutoForge(result, SpellID)
 			return
 		end
 	else -- with no match, we find the resulting scroll from the reforge
-		FindNextScroll(SpellID)
+		scrollFound = FindNextScroll(SpellID)
 	end
-
+	if scrollFound then MM:Print("Found reforged scroll") end
 	-- Check if the player is moving to stop
 	if GetUnitSpeed("player") == 0 then
 		RequestReforge()
@@ -246,7 +252,7 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	or SpellID == 0 then return end
 
 	MM:AltarLevelRequiredRolls() -- not sure why this is here
-	MM:StartAutoForge(result, SpellID)
+	MM:StartAutoForge(SpellID)
 end
 
 function MM:AltarLevelRequiredRolls()
@@ -330,8 +336,8 @@ local function StartAutoReforge()
 		return
 	end
 	RequestReforge()
-	local button = MysticMaestro_CollectionsFrame_ReforgeButton
-	if button then
+	if MysticMaestro_CollectionsFrame_ReforgeButton then 
+		local button = MysticMaestro_CollectionsFrame_ReforgeButton
 		button:SetText("Reforging"..dots())
 		dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
 	end
