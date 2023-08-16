@@ -30,6 +30,32 @@ local citysList = {
 
 local function rollMenuLevel1(value,frame)
     if frame == "MysticMaestro_ReforgeFrame" then
+        local itemID = 1903513
+        if MM:HasItem(itemID) then
+            local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+            local startTime, duration = GetItemCooldown(itemID)
+            local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+            local text = name
+            if cooldown > 0 then
+              text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
+            end
+            local secure = {
+              type1 = 'item',
+              item = name
+            }
+            MM.dewdrop:AddLine(
+              'text', text,
+              'secure', secure,
+              'icon', icon,
+              'closeWhenClicked', true
+            )
+        end
+        MM.dewdrop:AddLine(
+            'text', "Options",
+            'func', function() MM:OpenConfig("Reforge") end,
+            'notCheckable', true,
+            'closeWhenClicked', true
+        )
         MM.dewdrop:AddLine(
             'text', "Unlock Frame",
             'func', MM.UnlockFrame,

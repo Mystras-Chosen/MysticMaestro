@@ -52,6 +52,8 @@ local defaultDB = {
       reforgeStandaloneOnMouseOver = false,
       reforgeStandaloneEnable = true,
 
+      minimap = {hide = false},
+
       stopIfNoRunes = true,
       stopForNothing = true,
       shoppingListsDropdown = 1,

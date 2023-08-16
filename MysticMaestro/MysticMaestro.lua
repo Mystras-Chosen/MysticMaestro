@@ -18,9 +18,13 @@ function MM:OnInitialize()
 end
 
 function MM:OnEnable()
+
   MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
+
   MM:StandaloneButtonOnLoad()
+  MM:MinimapIconSetup()
+
 end
 
 --[[

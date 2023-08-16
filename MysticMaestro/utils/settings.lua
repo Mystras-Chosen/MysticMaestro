@@ -20,6 +20,14 @@ local function createConfig()
 		get = get,
 		set = set,
 		args = {
+			minimap = {
+				order = 38,
+				name = "Hide Minimap Button",
+				desc = "Hides the minimap button",
+				type = "toggle",
+				width = 1,
+				set = function() MM.db.realm.OPTIONS.minimap.hide = not MM.db.realm.OPTIONS.minimap.hide end
+			},
 			confirmHeader = {
 				order = 1,
 				name = "Confirmations",
@@ -161,6 +169,7 @@ local function createConfig()
 				desc = "Show standalone Reforge Button",
 				type = "toggle",
 				width = .4,
+				set = function() MM.db.realm.OPTIONS.reforgeStandaloneEnable = not MM.db.realm.OPTIONS.reforgeStandaloneEnable end
 			},
 			reforgeStandaloneOnMouseOver = {
 				order = 37,
@@ -168,6 +177,7 @@ local function createConfig()
 				desc = "Show only on mouse over",
 				type = "toggle",
 				width = .8,
+				set = function() MM.db.realm.OPTIONS.reforgeStandaloneOnMouseOver = not MM.db.realm.OPTIONS.reforgeStandaloneOnMouseOver end
 			},
 			reforgeStandaloneCitys = {
 				order = 38,
@@ -175,6 +185,7 @@ local function createConfig()
 				desc = "Only show while in major citys",
 				type = "toggle",
 				width = 1,
+				set = function() MM.db.realm.OPTIONS.reforgeStandaloneCitys = not MM.db.realm.OPTIONS.reforgeStandaloneCitys end
 			},
 		}
 	}

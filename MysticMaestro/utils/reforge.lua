@@ -44,7 +44,9 @@ local function StopAutoReforge(result)
 	else
 		MM:Print("Reforge has been stopped")
 	end
-	MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
+	if MysticMaestro_CollectionsFrame_ReforgeButton then
+		MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
+	end
 	--hide screen text count down
 	MM:ToggleScreenReforgeText()
 end
@@ -329,8 +331,10 @@ local function StartAutoReforge()
 	end
 	RequestReforge()
 	local button = MysticMaestro_CollectionsFrame_ReforgeButton
-	button:SetText("Reforging"..dots())
-	dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
+	if button then
+		button:SetText("Reforging"..dots())
+		dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
+	end
 end
 
 function MM:ReforgeButtonClick()

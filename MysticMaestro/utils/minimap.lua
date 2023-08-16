@@ -1,11 +1,13 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local icon = LibStub('LibDBIcon-1.0');
 local addonName = ...
-local minimap = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
+MYSTICMAESTRO_MINIMAP = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
     type = 'data source',
-    text = "MysticMaestro",
+    text = "Mystic Maestro",
     icon = 'Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\inv_blacksmithing_khazgoriananvil1',
   })
+
+local minimap = MYSTICMAESTRO_MINIMAP
 
 function minimap.OnClick(self, button)
     GameTooltip:Hide()
@@ -46,8 +48,8 @@ end
 
 -- show/hide minimap icon
 function MM:ToggleMinimap()
-    local hide = not MM.db.minimap.hide
-    MM.db.minimap.hide = hide
+    local hide = not MM.db.realm.OPTIONS.minimap.hide
+    MM.db.realm.OPTIONS.minimap.hide = hide
     if hide then
       icon:Hide("MysticMaestro")
     else
@@ -100,7 +102,7 @@ function MM:MiniMapMenuRegister(self)
                 )
                 MM.dewdrop:AddLine(
                     'text', "Options",
-                    'func', MM.OptionsToggle,
+                    'func', function() MM:OpenConfig("Reforge") end,
                     'notCheckable', true,
                     'closeWhenClicked', true
                 )
@@ -124,4 +126,17 @@ function MM:MiniMapMenuRegister(self)
 		end,
 		'dontHook', true
 	)
+end
+
+function MM:MinimapIconSetup()
+
+    if icon then
+        icon:Register('MysticMaestro', minimap, MM.db.realm.OPTIONS.minimap)
+    end
+
+    if MM.db.realm.OPTIONS.minimap and MM.db.realm.OPTIONS.minimap.hide then
+        MM.db.realm.OPTIONS.minimap = true
+    else
+        MM.db.realm.OPTIONS.minimap = false
+    end
 end
