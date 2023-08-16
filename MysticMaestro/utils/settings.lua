@@ -639,29 +639,6 @@ local function createConfig()
 					end
 				end,
 			},
-			seasonalHeader = {
-				order = 20,
-				name = "Stop for seasonal enchants",
-				type = "header"
-			},
-			seasonalEnabled = {
-				order = 21,
-				name = "Enabled",
-				desc = "Stop reforging items with any seasonal enchant",
-				type = "toggle",
-				width = "half",
-				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.enabled end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.enabled = val end
-			},
-			seasonalExtract = {
-				order = 22,
-				name = "Extract",
-				desc = "Automatically extract any unknown seasonal enchant",
-				type = "toggle",
-				width = "half",
-				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.extract end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.extract = val end
-			},
 			qualityHeader = {
 				order = 30,
 				name = "Stop for specific qualities of enchants",

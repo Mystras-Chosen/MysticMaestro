@@ -57,10 +57,6 @@ local defaultDB = {
       },
       shoppingLists = {
       },
-      stopSeasonal = {
-        enabled = false,
-        extract = false
-      },
       stopQuality = {
         enabled = false,
         [2] = true,

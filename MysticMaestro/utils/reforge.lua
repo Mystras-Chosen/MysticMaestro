@@ -1,7 +1,7 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local green = "|cff00ff00"
-local red = "|cffff0000"
+local strKnown = "|cff00ff00known|r"
+local strUnknown = "|cffff0000unknown|r"
 local itemLoaded = false
 local options, autoAutoEnabled, autoReforgeEnabled
 local shopEnabledList, shopExtractList, shopReserveList, shopUnknownList
@@ -68,13 +68,6 @@ local function configShoppingMatch(currentEnchant)
 	local unknownMatch = not shopUnknownList[currentEnchant.SpellID] or (shopUnknownList[currentEnchant.SpellID] and not currentEnchant.Known)
 	local eval = enabled and unknownMatch 
 	return eval and "Shopping Match" or nil
-end
-
-local function isSeasonal(enchant)
-	return false
-	-- if enchant then
-	-- 	return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
-	-- end
 end
 
 local function FindNextScroll(target)
@@ -152,11 +145,6 @@ local function configNoRunes()
 	return eval and "No Runes" or nil
 end
 
-local function configSeasonalMatch(currentEnchant)
-	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant)
-	return eval and "Seasonal Enchant" or nil
-end
-
 local function configQualityMatch(currentEnchant)
 	local quality = Enum.EnchantQualityEnum[currentEnchant.Quality]
 	local eval = options.stopQuality.enabled and options.stopQuality[quality]
@@ -192,12 +180,10 @@ end
 local function configConditionMet(currentEnchant)
 	if not options then initOptions() end
 	local unknown = configUnknownMatch(currentEnchant)
-	local seasonal = configSeasonalMatch(currentEnchant)
 	local green = configGreenMatch(currentEnchant)
 	-- Determine if we should extract this enchant
 	if (autoReforgeEnabled)
 	and ((unknown and options.stopUnknown.extract)
-	or (seasonal and options.stopSeasonal.extract)
 	or (green and options.green.extract)
 	or shopExtractList[currentEnchant.enchantID]) then
 		extract(currentEnchant.enchantID)
@@ -206,42 +192,38 @@ local function configConditionMet(currentEnchant)
 	return configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
 	or unknown
-	or seasonal
 	or green
 	or configPriceMatch(currentEnchant)
 end
 
 function MM:StartAutoForge(result, SpellID)
-	if not autoReforgeEnabled
-	or result ~= "RE_REFORGE_OK"
-	or SpellID == 0 then return end
+	if not autoReforgeEnabled then return end
+
 	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+	local knownState = currentEnchant.Known and strKnown or strUnknown
 	local result = configConditionMet(currentEnchant)
-	local norunes = configNoRunes()
-	if autoReforgeEnabled then
-		local knownStr, seasonal = "", ""
-		if not currentEnchant.Known then
-			knownStr = red .. "unknown" .. "|r"
-		else
-			knownStr = green .. "known" .. "|r"
-		end
-		if isSeasonal(SpellID) then
-			seasonal = green .. " seasonal" .. "|r"
-		end
-		if result then
-			MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
-		else
-			MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(SpellID))
-		end
-	end
-	if norunes then StopAutoReforge(norunes) return end
 	if result then
-		local cantFind = not FindNextScroll()
-		if cantFind then
+		MM:Print("Stopped on " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
+	else
+		MM:Print("Skipping " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID))
+	end
+
+	-- dermine if we have runes remaining to continue
+	local norunes = configNoRunes()
+	if norunes then StopAutoReforge(norunes) return end
+
+	-- if we have a match, we want to roll another scroll
+	if result then
+		local scrollFound = FindNextScroll()
+		if not scrollFound then
 			StopAutoReforge("Out of Scrolls")
 			return
 		end
+	else -- without a
+		FindNextScroll(SpellID)
 	end
+
+	-- Check if the player is moving to stop
 	if GetUnitSpeed("player") == 0 then
 		RequestReforge()
 	else
@@ -250,13 +232,15 @@ function MM:StartAutoForge(result, SpellID)
 end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
-	MM:StartAutoForge(result, SpellID)
-	MM:AltarLevelRequiredRolls(SpellID)
+	if result ~= "RE_REFORGE_OK"
+	or SpellID == 0 then return end
+
+	MM:StartAutoForge(SpellID)
+	MM:AltarLevelRequiredRolls()
 end
 
-function MM:AltarLevelRequiredRolls(arg2)
+function MM:AltarLevelRequiredRolls()
 	if not MM.db.atlarLevel then MM.db.atlarLevel = {} end
-	if arg2 == 0 then return end
 
 	--works out how many rolls on the current item type it will take to get the next altar level
     local progress, level = C_MysticEnchant.GetProgress()
