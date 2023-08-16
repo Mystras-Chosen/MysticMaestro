@@ -54,51 +54,28 @@ end
 
 
 function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
-    --starts the next roll after last cast
-    if arg1 == "player" and arg2 == "Reforge Mystic Enchant" then
-        --stops all rolling when enchanting is interrupted
-        if event == "UNIT_SPELLCAST_INTERRUPTED" then
-            MM:StopAutoRoll();
-        elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
-            --starts short timer to start next roll item
-            MM:ScheduleTimer(MM.RequestReforge, .8);
-        end
-		MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-        MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
-    end
-end
-
-local function RequestReforge()
-	-- attempt to roll every .05 seconds
 	if not autoReforgeEnabled then return end
-	reforgeHandle = Timer.NewTicker(.1, function()
-		if GetUnitSpeed("player") ~= 0 then
-			StopCraftingAttemptTimer()
-			StopAutoReforge("Player Moving")
-			return
-		end
-		if C_MysticEnchant.CanReforgeItem(itemGuid) then
-			C_MysticEnchant.ReforgeItem(itemGuid)
-		end
-	end)
+	if arg1 ~= "player" or arg2 ~= "Reforge Mystic Enchant" then return end
+
+	--starts short timer to start next roll item
+	MM:ScheduleTimer(MM.RequestReforge, 1)
+	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 
 function MM:RequestReforge()
-	-- attempt to roll every .05 seconds
-	if autoReforgeEnabled then
-		if GetUnitSpeed("player") ~= 0 then
-			StopCraftingAttemptTimer()
-			StopAutoReforge("Player Moving")
-			return
-		end
-		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-		local itemGuid = MM:FindNextScroll()
-		if itemGuid then
-			C_MysticEnchant.ReforgeItem(itemGuid)
-		end
-	else
-		MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
+	if not autoReforgeEnabled then return end
+
+	if GetUnitSpeed("player") ~= 0 then
+		StopCraftingAttemptTimer()
+		StopAutoReforge("Player Moving")
+		return
+	end
+	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	local itemGuid = MM:FindNextScroll()
+	if itemGuid then
+		C_MysticEnchant.ReforgeItem(itemGuid)
 	end
 end
 
@@ -108,24 +85,6 @@ local function configShoppingMatch(currentEnchant)
 	local eval = enabled and unknownMatch 
 	return eval and "Shopping Match" or nil
 end
-
---[[ local function FindNextScroll(target)
-	local inventoryList = C_MysticEnchant.GetMysticScrolls()
-	local enchant
-	if target then
-		enchant = C_MysticEnchant.GetEnchantInfoBySpell(target)
-		if not enchant then return end
-	end
-	for _, scroll in ipairs(inventoryList) do
-		if (target and scroll.Entry == enchant.ItemID)
-		or (not target and scroll.Name == "Untarnished Mystic Scroll") then
-			bagID = scroll.Bag
-			slotIndex = scroll.Slot
-			itemGuid = scroll.Guid
-			return true
-		end
-	end
-end ]]
 
 local function initOptions()
 	options = MM.db.realm.OPTIONS
@@ -244,11 +203,11 @@ function MM:FindNextScroll()
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()
 
 	for _, scroll in ipairs(inventoryList) do
-	   local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
-
-	   if scroll.Entry == 992720 or enchantInfo and not configConditionMet(enchantInfo) then
-		  return scroll.Guid
-	   end
+		local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
+	
+		if scroll.Entry == 992720 or enchantInfo and not configConditionMet(enchantInfo) then
+			return scroll.Guid
+		end
 	end
 end
 
@@ -295,7 +254,7 @@ end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	if not autoReforgeEnabled then return end
-	
+
 	if result ~= "RE_REFORGE_OK"
 	or SpellID == 0 then return end
 
