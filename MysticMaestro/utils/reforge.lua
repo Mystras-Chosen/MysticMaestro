@@ -60,7 +60,7 @@ function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
 	if arg1 ~= "player" or arg2 ~= "Reforge Mystic Enchant" then return end
 
 	--starts short timer to start next roll item
-	MM:ScheduleTimer(MM.RequestReforge, 1)
+	Timer.NextFrame(MM.RequestReforge)
 	MM:UnregisterEvent("UNIT_SPELLCAST_START")
 	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
