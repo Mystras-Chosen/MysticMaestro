@@ -18,10 +18,8 @@ function minimap.OnClick(self, button)
             MM:MiniMapMenuRegister(self);
             MM.dewdrop:Open(this);
         end
-    elseif not MysticExtendedExtractFrame:IsVisible() and button == 'LeftButton' then
-        MysticExtendedExtractFrame:Show();
-    else
-        MysticExtendedExtractFrame:Hide();
+    elseif button == 'LeftButton' then
+
     end
 end
 
@@ -70,7 +68,7 @@ function MM:MiniMapMenuRegister(self)
                 end
                 MM.dewdrop:AddLine(
                     'text', text,
-                    'func', startAutoRoll,
+                    'func', MM.ReforgeButtonClick,
                     'notCheckable', true,
                     'closeWhenClicked', true
                 )
