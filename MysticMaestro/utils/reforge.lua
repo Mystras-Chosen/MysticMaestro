@@ -2,11 +2,9 @@
 
 local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
-local itemLoaded = false
-local options, autoAutoEnabled, autoReforgeEnabled
+local options, autoReforgeEnabled, itemGuid
 local shopEnabledList, shopExtractList, shopReserveList, shopUnknownList
 local reforgeHandle, dynamicButtonTextHandle
-local bagID, slotIndex, itemGuid
 local AltarReforgesText, settingsButton
 local otherGreens = {
 	Speedy = true,
@@ -341,10 +339,6 @@ local function dots()
 end
 
 local function StartAutoReforge()
-	if bagID == nil then
-		bagID = 0
-		slotIndex = 0
-	end
 	if MM:FindNextScroll() then
 		MM:Print("Scrolls found, lets roll!")
 		autoReforgeEnabled = true
