@@ -219,7 +219,7 @@ function MM:StartAutoForge(result, SpellID)
 			StopAutoReforge("Out of Scrolls")
 			return
 		end
-	else -- without a
+	else -- with no match, we find the resulting scroll from the reforge
 		FindNextScroll(SpellID)
 	end
 
@@ -236,7 +236,7 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	or SpellID == 0 then return end
 
 	MM:StartAutoForge(SpellID)
-	MM:AltarLevelRequiredRolls()
+	MM:AltarLevelRequiredRolls() -- not sure why this is here
 end
 
 function MM:AltarLevelRequiredRolls()
