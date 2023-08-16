@@ -70,20 +70,17 @@ end
 
 local function RequestReforge()
 	-- attempt to roll every .05 seconds
-	if autoReforgeEnabled then
-		reforgeHandle = Timer.NewTicker(.1, function()
-			if GetUnitSpeed("player") ~= 0 then
-				StopCraftingAttemptTimer()
-				StopAutoReforge("Player Moving")
-				return
-			end
-			if C_MysticEnchant.CanReforgeItem(itemGuid) then
-				C_MysticEnchant.ReforgeItem(itemGuid)
-			end
-		end)
-	else
-			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
-	end
+	if not autoReforgeEnabled then return end
+	reforgeHandle = Timer.NewTicker(.1, function()
+		if GetUnitSpeed("player") ~= 0 then
+			StopCraftingAttemptTimer()
+			StopAutoReforge("Player Moving")
+			return
+		end
+		if C_MysticEnchant.CanReforgeItem(itemGuid) then
+			C_MysticEnchant.ReforgeItem(itemGuid)
+		end
+	end)
 end
 
 function MM:RequestReforge()
@@ -129,19 +126,6 @@ end
 		end
 	end
 end ]]
-
-function MM:FindNextScroll()
-	local inventoryList = C_MysticEnchant.GetMysticScrolls()
-
-	for _, scroll in ipairs(inventoryList) do
-	   local itemId = GetContainerItemID(scroll.Bag, scroll.Slot)
-	   local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(itemId)
-
-	   if itemId == 992720 or enchantInfo.Quality == "RE_QUALITY_UNCOMMON" then
-		  return scroll.Guid
-	   end
-	end
- end
 
 local function initOptions()
 	options = MM.db.realm.OPTIONS
@@ -256,6 +240,18 @@ local function configConditionMet(currentEnchant)
 	or configPriceMatch(currentEnchant)
 end
 
+function MM:FindNextScroll()
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+
+	for _, scroll in ipairs(inventoryList) do
+	   local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
+
+	   if scroll.Entry == 992720 or enchantInfo and not configConditionMet(enchantInfo) then
+		  return scroll.Guid
+	   end
+	end
+end
+
 function MM:StartAutoForge(SpellID)
 	if not autoReforgeEnabled then return end
 
@@ -298,6 +294,8 @@ function MM:StartAutoForge(SpellID)
 end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	if not autoReforgeEnabled then return end
+	
 	if result ~= "RE_REFORGE_OK"
 	or SpellID == 0 then return end
 
@@ -361,6 +359,7 @@ function MM:SetAltarLevelUPText(xp, level)
 end
 
 local function UNIT_SPELLCAST_START(event, unitID, spell)
+	if not autoReforgeEnabled then return end
 	-- if cast has started, then stop trying to cast
 	if unitID == "player" and spell == "Enchanting" then
 		StopCraftingAttemptTimer()
@@ -403,8 +402,9 @@ function MM:ReforgeButtonClick()
 end
 
 function MM:UNIT_SPELLCAST_INTERRUPTED()
-	if (autoReforgeEnabled)
-	and GetUnitSpeed("player") ~= 0 then
+	if not autoReforgeEnabled then return end
+
+	if GetUnitSpeed("player") ~= 0 then
 		StopAutoReforge("Player Moving")
 	end
 end
