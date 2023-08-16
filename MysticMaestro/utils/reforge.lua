@@ -45,6 +45,8 @@ local function StopAutoReforge(result)
 		MM:Print("Reforge has been stopped")
 	end
 	MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
+	--hide screen text count down
+	MM:ToggleScreenReforgeText()
 end
 
 local function RequestReforge()
@@ -199,7 +201,12 @@ local function configConditionMet(currentEnchant)
 end
 
 function MM:StartAutoForge(result, SpellID)
-	if not autoReforgeEnabled then return end
+	if not autoReforgeEnabled
+	or result ~= "RE_REFORGE_OK"
+	or SpellID == 0 then return end
+
+	--show rune count down
+	MM:ToggleScreenReforgeText(true)
 
 	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	local knownState = currentEnchant.Known and strKnown or strUnknown
@@ -235,11 +242,8 @@ function MM:StartAutoForge(result, SpellID)
 end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
-	if result ~= "RE_REFORGE_OK"
-	or SpellID == 0 then return end
-
-	MM:StartAutoForge(SpellID)
 	MM:AltarLevelRequiredRolls() -- not sure why this is here
+	MM:StartAutoForge(result, SpellID)
 end
 
 function MM:AltarLevelRequiredRolls()
@@ -269,8 +273,7 @@ function MM:AltarLevelRequiredRolls()
 
 	local rollsNeeded = (100 - progress) / progressDif
 
-	--print(math.ceil(rollsNeeded))
-	return math.ceil(rollsNeeded)
+	MM.db.atlarLevel.rollsNeeded = math.ceil(rollsNeeded)
 end
 
 function MM:SetAltarLevelUPText(xp, level)

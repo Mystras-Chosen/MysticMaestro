@@ -48,6 +48,10 @@ local defaultDB = {
       ttTENMean = false,
       ttTENMax = false,
 
+      reforgeStandaloneCitys = false,
+      reforgeStandaloneOnMouseOver = false,
+      reforgeStandaloneEnable = true,
+
       stopIfNoRunes = true,
       stopForNothing = true,
       shoppingListsDropdown = 1,

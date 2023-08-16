@@ -284,7 +284,7 @@ local function enchantButtonClick(self)
     end
 end
 local setupLoaded
-function MM:collectionSetup(addon)
+function MM:CollectionSetup(addon)
     if setupLoaded then return end
         for i = 1, 18 do
             local button = _G["EnchantCollection"]["Collection"]["CollectionTab"]["buttonIDToButton"][i]

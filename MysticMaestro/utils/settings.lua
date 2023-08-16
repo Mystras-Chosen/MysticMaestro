@@ -150,6 +150,32 @@ local function createConfig()
 				desc = "Enable chat output when you learn an enchant, or if you use an epic or legendary mystic scroll.",
 				type = "toggle"
 			},
+			reforgeStandaloneHeader = {
+				order = 35,
+				name = "Standalone Reforge Button",
+				type = "header"
+			},
+			reforgeStandaloneEnable = {
+				order = 36,
+				name = "Show",
+				desc = "Show standalone Reforge Button",
+				type = "toggle",
+				width = .4,
+			},
+			reforgeStandaloneOnMouseOver = {
+				order = 37,
+				name = "On Mouse Over",
+				desc = "Show only on mouse over",
+				type = "toggle",
+				width = .8,
+			},
+			reforgeStandaloneCitys = {
+				order = 38,
+				name = "Only In Major Citys",
+				desc = "Only show while in major citys",
+				type = "toggle",
+				width = 1,
+			},
 		}
 	}
 	-- Scan
@@ -413,12 +439,12 @@ local function createConfig()
 				type = "toggle"
 			},
 			shopHeader = {
-				order = 3,
+				order = 15,
 				name = "Stop for shopping list items",
 				type = "header"
 			},
 			shopEnabled = {
-				order = 4,
+				order = 16,
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant on your shopping lists",
 				type = "toggle",
@@ -426,7 +452,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.enabled = val end
 			},
 			shoppingListsDropdown = {
-				order = 5,
+				order = 17,
 				name = "Select a List",
 				desc = "This is where you can find all of your shopping lists",
 				type = "select",
@@ -441,7 +467,7 @@ local function createConfig()
 				end,
 			},
 			shoppingListName = {
-				order = 6,
+				order = 18,
 				name = "List Name",
 				desc = "Rename the currently selected Shopping List",
 				type = "input",
@@ -459,7 +485,7 @@ local function createConfig()
 				end
 			},
 			shoppingListAdd = {
-				order = 7,
+				order = 19,
 				name = "Add",
 				desc = "Add a new Shopping List",
 				type = "execute",
@@ -477,7 +503,7 @@ local function createConfig()
 				end,
 			},
 			shoppingListRemove = {
-				order = 8,
+				order = 20,
 				name = "Remove",
 				desc = "Remove the selected Shopping List",
 				type = "execute",
@@ -492,12 +518,12 @@ local function createConfig()
 				end,
 			},
 			spacer1 = {
-				order = 9,
+				order = 21,
 				type = "description",
 				name = " "
 			},
 			shopEnabledList = {
-				order = 10,
+				order = 22,
 				name = "Enabled",
 				desc = "Enables or disables this Shopping List",
 				type = "toggle",
@@ -516,7 +542,7 @@ local function createConfig()
 				end
 			},
 			shopUnknown = {
-				order = 11,
+				order = 23,
 				name = "Unknown",
 				desc = "This shopping list will only stop reforging for enchants which are unknown",
 				type = "toggle",
@@ -535,7 +561,7 @@ local function createConfig()
 				end
 			},
 			shopExtract = {
-				order = 12,
+				order = 24,
 				name = "Extract",
 				desc = "This shopping list will extract unknown entries automatically",
 				type = "toggle",
@@ -554,7 +580,7 @@ local function createConfig()
 				end
 			},
 			reserveShoppingList = {
-				order = 13,
+				order = 25,
 				name = "Reserve",
 				desc = "Items places on this shopping list will not be reforged over when looking for insignia to roll on",
 				type = "toggle",
@@ -573,7 +599,7 @@ local function createConfig()
 				end
 			},
 			shoppingSubList = {
-				order = 14,
+				order = 26,
 				name = "Enchant Entries",
 				desc = "Select an entry within the Shopping List to modify or remove",
 				type = "select",
@@ -592,7 +618,7 @@ local function createConfig()
 				end,
 			},
 			shoppingSubListName = {
-				order = 15,
+				order = 27,
 				name = "Selected Entry",
 				desc = "Input or modify the selected entry in the Shopping List",
 				type = "input",
@@ -610,7 +636,7 @@ local function createConfig()
 				end
 			},
 			shoppingSubListAdd = {
-				order = 16,
+				order = 28,
 				name = "Add",
 				desc = "Add a new entry to the current Shopping List",
 				type = "execute",
@@ -623,7 +649,7 @@ local function createConfig()
 				end,
 			},
 			shoppingSubListRemove = {
-				order = 17,
+				order = 29,
 				name = "Remove",
 				desc = "Remove the selected entry of the current Shopping List",
 				type = "execute",
@@ -640,12 +666,12 @@ local function createConfig()
 				end,
 			},
 			qualityHeader = {
-				order = 30,
+				order = 33,
 				name = "Stop for specific qualities of enchants",
 				type = "header"
 			},
 			qualityEnabled = {
-				order = 31,
+				order = 33,
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant of any enabled quality",
 				type = "toggle",
@@ -654,7 +680,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
 			},
 			qualityUncommon = {
-				order = 32,
+				order = 34,
 				name = "Uncommon",
 				desc = "Stop reforging items with any uncommon quality enchant",
 				type = "toggle",
@@ -663,7 +689,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[2] = val end
 			},
 			qualityRare = {
-				order = 33,
+				order = 35,
 				name = "Rare",
 				desc = "Stop reforging items with any rare quality enchant",
 				type = "toggle",
@@ -672,7 +698,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[3] = val end
 			},
 			qualityEpic = {
-				order = 34,
+				order = 35,
 				name = "Epic",
 				desc = "Stop reforging items with any epic quality enchant",
 				type = "toggle",
@@ -681,7 +707,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[4] = val end
 			},
 			qualityLegendary = {
-				order = 35,
+				order = 36,
 				name = "Legendary",
 				desc = "Stop reforging items with any legendary quality enchant",
 				type = "toggle",
@@ -1043,22 +1069,24 @@ function MM:OpenConfig(panel)
 end
 
 function MM:ProcessSlashCommand(input)
-  local lowerInput = input:lower()
-  if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
-    MM:HandleGetAllScan()
-  elseif lowerInput:match("^scan") then
-    MM:HandleScan(input:match("^%w+%s+(.+)"))
-  elseif lowerInput:match("^calc") then
-    MM:CalculateAllStats()
-  elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
+	local lowerInput = input:lower()
+	if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
+		MM:HandleGetAllScan()
+	elseif lowerInput:match("^scan") then
+		MM:HandleScan(input:match("^%w+%s+(.+)"))
+	elseif lowerInput:match("^calc") then
+		MM:CalculateAllStats()
+	elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
 		MM:OpenConfig("Mystic Maestro")
-  elseif input == "" then
-    MM:HandleMenuSlashCommand()
-  else
-    MM:Print("Command not recognized")
-    MM:Print("Valid input is scan, getall, calc")
-    MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
-  end
+	elseif lowerInput:match("^reforgebutton") then
+		MM:StandaloneReforgeShow()
+	elseif input == "" then
+		MM:HandleMenuSlashCommand()
+	else
+		MM:Print("Command not recognized")
+		MM:Print("Valid input is scan, getall, calc, reforgebutton")
+		MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
+	end
 end
 
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")

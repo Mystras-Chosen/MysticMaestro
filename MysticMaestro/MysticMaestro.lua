@@ -8,19 +8,19 @@ function MM:OnInitialize()
   MM:SetupDatabase()
   MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
   MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
-  MM:RegisterEvent("ASCENSION_REFORGE_PROGRESS_UPDATE")
   MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
   MM:RegisterEvent("ADDON_LOADED")
   MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
   MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE")
   MM:RegisterEvent("GUILDBANKFRAME_OPENED");
   MM:RegisterEvent("ZONE_CHANGED");
-  MM:RegisterEvent("ZONE_CHANGED", MM.ZONE_CHANGED_NEW_AREA);
+  MM:RegisterEvent("ZONE_CHANGED_NEW_AREA", MM.ZONE_CHANGED);
 end
 
 function MM:OnEnable()
   MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
+  MM:StandaloneButtonOnLoad()
 end
 
 --[[
@@ -29,14 +29,7 @@ Event Handlers
 function MM:ZONE_CHANGED(event, arg1, arg2, arg3)
     -- used to auto hide/show floating button in citys
   if event == "ZONE_CHANGED" or event == "ZONE_CHANGED_NEW_AREA" then
-      --auto show/hide in city's
-    if MM.db.ShowInCity and MM.db.ButtonEnable and (citysList[GetMinimapZoneText()] or citysList[GetRealZoneText()]) then
-        MysticMaestro_ReforgeFrame:Show();
-        MysticMaestro_ReforgeFrame_Menu:Show();
-    elseif MM.db.ShowInCity and MM.db.ButtonEnable then
-        MysticMaestro_ReforgeFrame:Hide();
-        MysticMaestro_ReforgeFrame_Menu:Hide();
-    end
+    MM:StandaloneCityReforgeToggle()
   end
 end
 
@@ -47,7 +40,7 @@ function MM:ADDON_LOADED(event, arg1, arg2, arg3)
   end
   -- setup for collection frame
   if event == "ADDON_LOADED" and arg1 == "Ascension_EnchantCollection" then
-    MM.collectionSetup()
+    MM.CollectionSetup()
   end
 end
 
