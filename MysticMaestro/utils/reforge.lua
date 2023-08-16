@@ -56,7 +56,9 @@ local function RequestReforge()
 				StopAutoReforge("Player Moving")
 				return
 			end
-			C_MysticEnchant.ReforgeItem(itemGuid)
+			if UnitCastingInfo("player") == nil then
+				C_MysticEnchant.ReforgeItem(itemGuid)
+			end
 		end)
 	else
 			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled)
@@ -216,6 +218,7 @@ function MM:StartAutoForge(result, SpellID)
 	if result then
 		local scrollFound = FindNextScroll()
 		if not scrollFound then
+			-- here we can place logic for possibly creating scrolls
 			StopAutoReforge("Out of Scrolls")
 			return
 		end
