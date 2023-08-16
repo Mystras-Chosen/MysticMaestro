@@ -52,7 +52,7 @@ end
 local function RequestReforge()
 	-- attempt to roll every .05 seconds
 	if autoReforgeEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
+		reforgeHandle = Timer.NewTicker(.1, function()
 			if GetUnitSpeed("player") ~= 0 then
 				StopCraftingAttemptTimer()
 				StopAutoReforge("Player Moving")
@@ -201,9 +201,7 @@ local function configConditionMet(currentEnchant)
 end
 
 function MM:StartAutoForge(result, SpellID)
-	if not autoReforgeEnabled
-	or result ~= "RE_REFORGE_OK"
-	or SpellID == 0 then return end
+	if not autoReforgeEnabled then return end
 
 	--show rune count down
 	MM:ToggleScreenReforgeText(true)
@@ -242,6 +240,9 @@ function MM:StartAutoForge(result, SpellID)
 end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	if result ~= "RE_REFORGE_OK"
+	or SpellID == 0 then return end
+
 	MM:AltarLevelRequiredRolls() -- not sure why this is here
 	MM:StartAutoForge(result, SpellID)
 end
