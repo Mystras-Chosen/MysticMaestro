@@ -68,6 +68,9 @@ end
 
 function MM:RequestReforge()
 	if not autoReforgeEnabled then return end
+	if reforgeHandle then return end
+	itemGuid = MM:FindNextScroll()
+
 	MM:Print("Request received")
 	MM:RegisterEvent("UNIT_SPELLCAST_START")
 	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
@@ -80,12 +83,11 @@ function MM:RequestReforge()
 			return
 		end
 		if C_MysticEnchant.CanReforgeItem(itemGuid) then
-			C_MysticEnchant.ReforgeItem(itemGuid)
 			StopCraftingAttemptTimer()
+			C_MysticEnchant.ReforgeItem(itemGuid)
 		end
 	end)
 
-	itemGuid = MM:FindNextScroll()
 end
 
 local function configShoppingMatch(currentEnchant)
