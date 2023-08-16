@@ -61,7 +61,7 @@ function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
             MM:StopAutoRoll();
         elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
             --starts short timer to start next roll item
-            MM:ScheduleTimer(MM.RequestReforge, .6);
+            MM:ScheduleTimer(MM.RequestReforge, .8);
         end
 		MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
         MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED");
@@ -96,7 +96,8 @@ function MM:RequestReforge()
 		end
 		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-		if C_MysticEnchant.CanReforgeItem(itemGuid) then
+		local itemGuid = MM:FindNextScroll()
+		if itemGuid then
 			C_MysticEnchant.ReforgeItem(itemGuid)
 		end
 	else
@@ -111,7 +112,7 @@ local function configShoppingMatch(currentEnchant)
 	return eval and "Shopping Match" or nil
 end
 
-local function FindNextScroll(target)
+--[[ local function FindNextScroll(target)
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()
 	local enchant
 	if target then
@@ -127,7 +128,20 @@ local function FindNextScroll(target)
 			return true
 		end
 	end
-end
+end ]]
+
+function MM:FindNextScroll()
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+
+	for _, scroll in ipairs(inventoryList) do
+	   local itemId = GetContainerItemID(scroll.Bag, scroll.Slot)
+	   local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(itemId)
+
+	   if itemId == 992720 or enchantInfo.Quality == "RE_QUALITY_UNCOMMON" then
+		  return scroll.Guid
+	   end
+	end
+ end
 
 local function initOptions()
 	options = MM.db.realm.OPTIONS
@@ -265,14 +279,14 @@ function MM:StartAutoForge(SpellID)
 	local scrollFound
 	-- if we have a match, we want to roll another scroll
 	if result then
-		local scrollFound = FindNextScroll()
+		local scrollFound = MM:FindNextScroll()
 		if not scrollFound then
 			-- here we can place logic for possibly creating scrolls
 			StopAutoReforge("Out of Scrolls")
 			return
 		end
 	else -- with no match, we find the resulting scroll from the reforge
-		scrollFound = FindNextScroll(SpellID)
+		scrollFound = MM:FindNextScroll(SpellID)
 	end
 	if scrollFound then MM:Print("Found reforged scroll") end
 	-- Check if the player is moving to stop
@@ -364,7 +378,7 @@ local function StartAutoReforge()
 		bagID = 0
 		slotIndex = 0
 	end
-	if FindNextScroll() then
+	if MM:FindNextScroll() then
 		MM:Print("Scrolls found, lets roll!")
 		autoReforgeEnabled = true
 	else
