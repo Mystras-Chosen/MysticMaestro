@@ -307,27 +307,27 @@ local qualityValue = {
 
 -- list of mystic enchant IDs ordered alphabetically by their spell name
 function MM:GetAlphabetizedEnchantList(qualityName)
-	local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
-	if not enchants then
-		enchants = {}
+  local enchants = MM[qualityName:upper() .. "_ENCHANTS"]
+  if not enchants then
+    enchants = {}
     local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
-		for _, enchant in pairs(enchantList) do
+    for _, enchant in pairs(enchantList) do
       local quality = Enum.EnchantQualityEnum[enchant.Quality]
-			if quality == qualityValue[qualityName] and not enchant.IsWorldforged then
-				table.insert(enchants, enchant.SpellID)
-				enchants[enchant.SpellID] = true
-			end
-		end
-		table.sort(enchants,
+      if quality == qualityValue[qualityName] and not enchant.IsWorldforged then
+        table.insert(enchants, enchant.SpellID)
+        enchants[enchant.SpellID] = true
+      end
+    end
+    table.sort(enchants,
       function(k1, k2)
         local enchant1 = C_MysticEnchant.GetEnchantInfoBySpell(k1)
         local enchant2 = C_MysticEnchant.GetEnchantInfoBySpell(k2)
         return MM:Compare(enchant1.SpellName,enchant2.SpellName,"<")
       end
     )
-		MM[qualityName:upper() .. "_ENCHANTS"] = enchants
-	end
-	return enchants
+    MM[qualityName:upper() .. "_ENCHANTS"] = enchants
+  end
+  return enchants
 end
 
 function MM:Clone(orig)

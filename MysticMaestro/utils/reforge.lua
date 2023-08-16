@@ -32,60 +32,20 @@ local function StopAutoReforge(result)
 		dynamicButtonTextHandle:Cancel()
 		dynamicButtonTextHandle = nil
 	end
+
 	if result then
 		MM:Print("Reforge stopped for " .. result)
 	else
 		MM:Print("Reforge has been stopped")
 	end
+
 	if MysticMaestro_CollectionsFrame_ReforgeButton then
 		MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
 	end
+
 	--hide screen text count down
 	MM:ToggleScreenReforgeText()
 	MM:StandaloneReforgeText()
-end
-
-function MM:UNIT_SPELLCAST_START(event, unitID, spell)
-	if not autoReforgeEnabled then return end
-	-- if cast has started, then stop trying to cast
-	if unitID == "player" and spell == "Enchanting" then
-		StopCraftingAttemptTimer()
-	end
-end
-
-function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
-	if not autoReforgeEnabled then return end
-	if arg1 ~= "player" or arg2 ~= "Reforge Mystic Enchant" then return end
-
-	--starts short timer to start next roll item
-	Timer.NextFrame(MM.RequestReforge)
-	MM:UnregisterEvent("UNIT_SPELLCAST_START")
-	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-end
-
-function MM:RequestReforge()
-	if not autoReforgeEnabled then return end
-	if reforgeHandle then return end
-	itemGuid = MM:FindNextScroll()
-
-	MM:Print("Request received")
-	MM:RegisterEvent("UNIT_SPELLCAST_START")
-	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
-
-	reforgeHandle = Timer.NewTicker(.5, function()
-		if GetUnitSpeed("player") ~= 0 then
-			StopCraftingAttemptTimer()
-			StopAutoReforge("Player Moving")
-			return
-		end
-		if C_MysticEnchant.CanReforgeItem(itemGuid) then
-			StopCraftingAttemptTimer()
-			C_MysticEnchant.ReforgeItem(itemGuid)
-		end
-	end)
-
 end
 
 local function configShoppingMatch(currentEnchant)
@@ -230,7 +190,7 @@ function MM:FindSpecificScroll(itemID)
 	end
 end
 
-function MM:StartAutoForge(SpellID)
+function MM:ContinueAutoForge(SpellID)
 	if not autoReforgeEnabled then return end
 
 	--show rune count down
@@ -266,16 +226,6 @@ function MM:StartAutoForge(SpellID)
 	
 	-- We have passed all validations
 	MM:RequestReforge()
-end
-
-function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
-	if not autoReforgeEnabled then return end
-
-	if result ~= "RE_REFORGE_OK"
-	or SpellID == 0 then return end
-
-	MM:AltarLevelRequiredRolls() -- not sure why this is here
-	MM:StartAutoForge(SpellID)
 end
 
 function MM:AltarLevelRequiredRolls()
@@ -361,6 +311,46 @@ function MM:ReforgeButtonClick()
 	else
 		StartAutoReforge()
 	end
+end
+
+function MM:RequestReforge()
+	if not autoReforgeEnabled then return end
+	if reforgeHandle then return end
+	itemGuid = MM:FindNextScroll()
+
+	MM:Print("Request received")
+	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+
+	reforgeHandle = Timer.NewTicker(.05, function()
+		if GetUnitSpeed("player") ~= 0 then
+			StopCraftingAttemptTimer()
+			StopAutoReforge("Player Moving")
+			return
+		end
+		if C_MysticEnchant.CanReforgeItem(itemGuid) then
+			StopCraftingAttemptTimer()
+			C_MysticEnchant.ReforgeItem(itemGuid)
+		end
+	end)
+end
+
+function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	if not autoReforgeEnabled
+	or result ~= "RE_REFORGE_OK"
+	or SpellID == 0 then return end
+
+	MM:AltarLevelRequiredRolls() -- not sure why this is here
+	MM:ContinueAutoForge(SpellID)
+end
+
+function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
+	if not autoReforgeEnabled then return end
+	if arg1 ~= "player" or arg2 ~= "Reforge Mystic Enchant" then return end
+
+	Timer.NextFrame(MM.RequestReforge)
+	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 
 function MM:UNIT_SPELLCAST_INTERRUPTED()

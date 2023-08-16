@@ -6,25 +6,29 @@ MM.OnUpdateFrame = CreateFrame("Frame")
 
 function MM:OnInitialize()
   MM:SetupDatabase()
+
   MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
   MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
-  --MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
   MM:RegisterEvent("ADDON_LOADED")
   MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
   MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE")
   MM:RegisterEvent("GUILDBANKFRAME_OPENED");
   MM:RegisterEvent("ZONE_CHANGED");
   MM:RegisterEvent("ZONE_CHANGED_NEW_AREA", MM.ZONE_CHANGED);
+
+  MM.RE_CACHE = {}
+  local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
+  for _, enchant in pairs(enchantList) do
+    MM.RE_CACHE[enchant.SpellID] = enchant
+  end
 end
 
 function MM:OnEnable()
-
-  MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
-  MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
-
   MM:StandaloneButtonOnLoad()
   MM:MinimapIconSetup()
 
+  MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
+  MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
 end
 
 --[[
