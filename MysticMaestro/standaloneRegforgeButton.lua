@@ -257,17 +257,17 @@ local countDownFrame = CreateFrame("Frame", "MysticMaestroCountDownFrame", UIPar
     countDownFrame.rollingText:SetText("Auto Reforging In Progress");
 
 function MM:ToggleScreenReforgeText(show)
-    if not MM.db.atlarLevel.rollsNeeded then return end
+    if not MM.db.realm.OPTIONS.altarLevel.rollsNeeded then return end
 	if show then
     --show run count down
         MysticMaestroCountDownFrame:Show()
-        MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
-        MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.atlarLevel.rollsNeeded).." Enchants")
         MysticMaestroNextLevelText:Show()
     else
         MysticMaestroNextLevelText:Hide()
         MysticMaestroCountDownFrame:Hide()
     end
+    MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
+    MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.OPTIONS.altarLevel.rollsNeeded).." Enchants")
 end
 
 function MM:StandaloneButtonOnLoad()

@@ -174,7 +174,7 @@ function MM:FindNextScroll()
 
 	for _, scroll in ipairs(inventoryList) do
 		local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
-	
+
 		if scroll.Entry == 992720 or enchantInfo and not configConditionMet(enchantInfo) then
 			return scroll.Guid
 		end
@@ -192,10 +192,6 @@ end
 
 function MM:ContinueAutoForge(SpellID)
 	if not autoReforgeEnabled then return end
-
-	--show rune count down
-	MM:ToggleScreenReforgeText(true)
-	MM:StandaloneReforgeText(true)
 
 	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	local knownState = currentEnchant.Known and strKnown or strUnknown
@@ -229,33 +225,33 @@ function MM:ContinueAutoForge(SpellID)
 end
 
 function MM:AltarLevelRequiredRolls()
-	if not MM.db.atlarLevel then MM.db.atlarLevel = {} end
+	if not MM.db.realm.OPTIONS.altarLevel then MM.db.realm.OPTIONS.altarLevel = {} end
 
 	--works out how many rolls on the current item type it will take to get the next altar level
     local progress, level = C_MysticEnchant.GetProgress()
 
-	if MM.db.atlarLevel.lastLevel ~= level or not MM.db.atlarLevel.lastProgress then
-		MM.db.atlarLevel.lastLevel = level
-		MM.db.atlarLevel.lastProgress = progress
+	if MM.db.realm.OPTIONS.altarLevel.lastLevel ~= level or not MM.db.realm.OPTIONS.altarLevel.lastProgress then
+		MM.db.realm.OPTIONS.altarLevel.lastLevel = level
+		MM.db.realm.OPTIONS.altarLevel.lastProgress = progress
 	end
 
-	local progressDif = progress - MM.db.atlarLevel.lastProgress
+	local progressDif = progress - MM.db.realm.OPTIONS.altarLevel.lastProgress
 
 	if progressDif == 0 then return end
 
-	if progressDif ~= 0 and (not MM.db.atlarLevel.lastProgressDif or MM.db.atlarLevel.lastProgressDif > progressDif) then
-		MM.db.atlarLevel.lastProgressDif = progressDif
+	if progressDif ~= 0 and (not MM.db.realm.OPTIONS.altarLevel.lastProgressDif or MM.db.realm.OPTIONS.altarLevel.lastProgressDif > progressDif) then
+		MM.db.realm.OPTIONS.altarLevel.lastProgressDif = progressDif
 	end
 
-	if MM.db.atlarLevel.lastProgressDif < progressDif then
-		progressDif = MM.db.atlarLevel.lastProgressDif
+	if MM.db.realm.OPTIONS.altarLevel.lastProgressDif < progressDif then
+		progressDif = MM.db.realm.OPTIONS.altarLevel.lastProgressDif
 	end
 
-	MM.db.atlarLevel.lastProgress = progress
+	MM.db.realm.OPTIONS.altarLevel.lastProgress = progress
 
 	local rollsNeeded = (100 - progress) / progressDif
 
-	MM.db.atlarLevel.rollsNeeded = math.ceil(rollsNeeded)
+	MM.db.realm.OPTIONS.altarLevel.rollsNeeded = math.ceil(rollsNeeded)
 end
 
 function MM:SetAltarLevelUPText(xp, level)
@@ -296,6 +292,7 @@ local function StartAutoReforge()
 		MM:Print("There are no scrolls to roll on!")
 		return
 	end
+
 	MM:RequestReforge()
 	if MysticMaestro_CollectionsFrame_ReforgeButton then 
 		local button = MysticMaestro_CollectionsFrame_ReforgeButton
@@ -316,6 +313,9 @@ end
 function MM:RequestReforge()
 	if not autoReforgeEnabled then return end
 	if reforgeHandle then return end
+	--show rune count down
+	MM:ToggleScreenReforgeText(true)
+	MM:StandaloneReforgeText(true)
 	itemGuid = MM:FindNextScroll()
 
 	MM:Print("Request received")
