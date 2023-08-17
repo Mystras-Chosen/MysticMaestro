@@ -51,7 +51,7 @@ function automationTable.Start()
 end
 
 local function recordListingData(index)
-  local _, enchantData, buyoutPrice = MM:GetAuctionMysticEnchantInfo(listingType, index)
+  local _, enchantData, buyoutPrice = MM:GetAuctionMysticEnchantInfo("list", index)
   if enchantData and buyoutPrice and buyoutPrice > 0 then
     local temp = listings[enchantData.SpellID][scanTime] or ""
     listings[enchantData.SpellID][scanTime] = buyoutPrice .. "," .. temp
