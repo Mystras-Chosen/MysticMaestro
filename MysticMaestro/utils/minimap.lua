@@ -89,7 +89,7 @@ function MM:MiniMapMenuRegister(self)
                 )
                 MM.dewdrop:AddLine(
                     'text', "Options",
-                    'func', function() MM:OpenConfig("Reforge") end,
+                    'func', function() MM:OpenConfig("General") end,
                     'notCheckable', true,
                     'closeWhenClicked', true
                 )

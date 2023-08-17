@@ -226,33 +226,33 @@ function MM:ContinueAutoForge(SpellID)
 end
 
 function MM:AltarLevelRequiredRolls()
-	if not MM.db.realm.altarLevel then MM.db.realm.altarLevel = {} end
+	if not MM.db.realm.ALTARLEVEL then MM.db.realm.ALTARLEVEL = {} end
 
 	--works out how many rolls on the current item type it will take to get the next altar level
     local progress, level = C_MysticEnchant.GetProgress()
 
-	if MM.db.realm.altarLevel.lastLevel ~= level or not MM.db.realm.altarLevel.lastProgress then
-		MM.db.realm.altarLevel.lastLevel = level
-		MM.db.realm.altarLevel.lastProgress = progress
+	if MM.db.realm.ALTARLEVEL.lastLevel ~= level or not MM.db.realm.ALTARLEVEL.lastProgress then
+		MM.db.realm.ALTARLEVEL.lastLevel = level
+		MM.db.realm.ALTARLEVEL.lastProgress = progress
 	end
 
-	local progressDif = progress - MM.db.realm.altarLevel.lastProgress
+	local progressDif = progress - MM.db.realm.ALTARLEVEL.lastProgress
 
 	if progressDif == 0 then return end
 
-	if progressDif ~= 0 and (not MM.db.realm.altarLevel.lastProgressDif or MM.db.realm.altarLevel.lastProgressDif > progressDif) then
-		MM.db.realm.altarLevel.lastProgressDif = progressDif
+	if progressDif ~= 0 and (not MM.db.realm.ALTARLEVEL.lastProgressDif or MM.db.realm.ALTARLEVEL.lastProgressDif > progressDif) then
+		MM.db.realm.ALTARLEVEL.lastProgressDif = progressDif
 	end
 
-	if MM.db.realm.altarLevel.lastProgressDif < progressDif then
-		progressDif = MM.db.realm.altarLevel.lastProgressDif
+	if MM.db.realm.ALTARLEVEL.lastProgressDif < progressDif then
+		progressDif = MM.db.realm.ALTARLEVEL.lastProgressDif
 	end
 
-	MM.db.realm.altarLevel.lastProgress = progress
+	MM.db.realm.ALTARLEVEL.lastProgress = progress
 
 	local rollsNeeded = (100 - progress) / progressDif
 
-	MM.db.realm.altarLevel.rollsNeeded = math.ceil(rollsNeeded)
+	MM.db.realm.ALTARLEVEL.rollsNeeded = math.ceil(rollsNeeded)
 end
 
 function MM:SetAltarLevelUPText(xp, level)

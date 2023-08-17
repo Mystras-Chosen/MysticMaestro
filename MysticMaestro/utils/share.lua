@@ -46,9 +46,9 @@ Get the EnchantList, Deserialize it and save it in the savedvariables table
 function MysticMaestro_GetEnchantList(wlstrg,sendername)
 	local success, wltab = MM:Deserialize(wlstrg)
 	if success then
-		tinsert(MM.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}})
+		tinsert(MM.shoppingLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}})
 		for i,v in ipairs(wltab) do
-			tinsert(MM.EnchantSaveLists[#MM.EnchantSaveLists], v)
+			tinsert(MM.shoppingLists[#MM.shoppingLists], v)
 		end
 		MM:MenuInitialize()
 	end
@@ -89,10 +89,10 @@ function MM:OnCommReceived(prefix, message, distribution, sender)
 		SpamFilter[string.lower(sender)] = GetTime()
 	elseif message == "AcceptEnchantList" then
 		local wsltable = {}
-			for i,v in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
+			for i,v in ipairs(MM.shoppingLists[MM.db.currentSelectedList]) do
 				tinsert(wsltable,{v[1]})
 			end
-			wsltable.Name = MM.EnchantSaveLists[MM.db.currentSelectedList].Name
+			wsltable.Name = MM.shoppingLists[MM.db.currentSelectedList].Name
 		local sendData = MM:Serialize(wsltable)
 		MM:SendCommMessage("MysticMaestroEnchantList", sendData, "WHISPER", sender)
 	elseif message == "EnchantListRequest" then
@@ -174,9 +174,9 @@ StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"] = {
 		local data = string.sub(_G[this:GetParent():GetName().."EditBox"]:GetText(), 5)
 		local success, wltab = MM:Deserialize(data)
 	if success then
-		tinsert(MM.EnchantSaveLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}})
+		tinsert(MM.shoppingLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}})
 		for i,v in ipairs(wltab) do
-			tinsert(MM.EnchantSaveLists[#MM.EnchantSaveLists], v)
+			tinsert(MM.shoppingLists[#MM.shoppingLists], v)
 		end
 		MM:MenuInitialize()
 	end

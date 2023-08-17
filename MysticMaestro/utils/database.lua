@@ -122,7 +122,8 @@ local defaultDB = {
         favorites = false,
         bags = false
       }
-    }
+    },
+    SHOPPING_LISTS = {},
   }
 }
 
@@ -193,4 +194,5 @@ function MM:SetupDatabase()
 	MM.db.realm.OPTIONS = MM.db.realm.OPTIONS or {}
 	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
   MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
+  MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
 end

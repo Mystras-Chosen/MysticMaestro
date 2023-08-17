@@ -53,7 +53,7 @@ local function rollMenuLevel1(value,frame)
         end
         MM.dewdrop:AddLine(
             'text', "Options",
-            'func', function() MM:OpenConfig("Reforge") end,
+            'func', function() MM:OpenConfig("General") end,
             'notCheckable', true,
             'closeWhenClicked', true
         )
@@ -258,7 +258,7 @@ local countDownFrame = CreateFrame("Frame", "MysticMaestroCountDownFrame", UIPar
     countDownFrame.rollingText:SetText("Auto Reforging In Progress")
 
 function MM:ToggleScreenReforgeText(show)
-    if not MM.db.altarLevel or not MM.db.altarLevel.rollsNeeded then return end
+    if not MM.db.realm.ALTARLEVEL or not MM.db.realm.ALTARLEVEL.rollsNeeded then return end
 	if show then
     --show run count down
         MysticMaestroCountDownFrame:Show()
@@ -268,7 +268,7 @@ function MM:ToggleScreenReforgeText(show)
         MysticMaestroCountDownFrame:Hide()
     end
     MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
-    MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.altarLevel.rollsNeeded).." Enchants")
+    MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.ALTARLEVEL.rollsNeeded).." Enchants")
 end
 
 function MM:StandaloneReforgeShow()

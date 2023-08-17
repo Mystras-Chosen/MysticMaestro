@@ -10,19 +10,26 @@ local GOLD  = "|cffffcc00"
 local LIGHTBLUE = "|cFFADD8E6"
 local ORANGE2 = "|cFFFFA500"
 
+local qualityColors = {
+["RE_QUALITY_UNCOMMON"] = 2,
+["RE_QUALITY_RARE"] = 3,
+["RE_QUALITY_EPIC"] = 4,
+["RE_QUALITY_LEGENDARY"] = 5,
+}
+
 local realmName = GetRealmName()
 local showtable = {}
 
 setCurrentSelectedList = function()
     local thisID = this:GetID()
-    MM.db.currentSelectedList = thisID
+    MM.shoppingLists.currentSelectedList = thisID
     UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,thisID)
     MysticMaestro_ListFrame_ScrollFrameUpdate()
 end
 
 function MM:MenuInitialize()
         local info
-        for k,v in ipairs(MM.EnchantSaveLists) do
+        for k,v in ipairs(MM.shoppingLists) do
                     info = {
                         text = v.Name,
                         func = function() setCurrentSelectedList() end
@@ -31,9 +38,9 @@ function MM:MenuInitialize()
         end
 end
 
-function MysticMaestro_ListFrame_ListEnable()
+function MM:ListFrameEnable()
     UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
-	UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,MM.db.currentSelectedList)
+	UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,MM.shoppingLists.currentSelectedList)
     MysticMaestro_ListFrame_ScrollFrameUpdate()
 end
 
@@ -44,10 +51,10 @@ StaticPopupDialogs["MysticMaestro_ListFrame_ADDLIST"] = {
     hasEditBox = true,
     OnAccept = function (self, data, data2)
         local text = self.editBox:GetText()
-        MM.EnchantSaveLists[#MM.EnchantSaveLists + 1] = {["Name"] = text, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false} }
+        MM.shoppingLists[#MM.shoppingLists + 1] = {Name = text, extract = false, enable = false, reforge = false }
         UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
-        UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,#MM.EnchantSaveLists)
-        MM.db.currentSelectedList = #MM.EnchantSaveLists
+        UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,#MM.shoppingLists)
+        MM.shoppingLists.currentSelectedList = #MM.shoppingLists
     MysticMaestro_ListFrame_ScrollFrameUpdate()
     end,
     timeout = 0,
@@ -63,13 +70,13 @@ StaticPopupDialogs["MysticMaestro_ListFrame_EDITLISTNAMM"] = {
     button2 = "Cancel",
     hasEditBox = true,
     OnShow = function(self)
-		self.editBox:SetText(MM.EnchantSaveLists[MM.db.currentSelectedList].Name)
+		self.editBox:SetText(MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name)
 		self:SetFrameStrata("TOOLTIP")
 	end,
     OnAccept = function (self, data, data2)
         local text = self.editBox:GetText()
         if text ~= "" then
-            MM.EnchantSaveLists[MM.db.currentSelectedList].Name = text
+            MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name = text
             UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
             UIDropDownMenu_SetText(MysticMaestro_ListFrame_ListDropDown, text)
             MysticMaestro_ListFrame_ScrollFrameUpdate()
@@ -87,10 +94,10 @@ StaticPopupDialogs["MysticMaestro_ListFrame_DELETELIST"] = {
     button1 = "Confirm",
     button2 = "Cancel",
     OnAccept = function ()
-        tremove(MM.EnchantSaveLists, MM.db.currentSelectedList)
+        tremove(MM.shoppingLists, MM.shoppingLists.currentSelectedList)
         UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
         UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,1)
-        MM.db.currentSelectedList = 1
+        MM.shoppingLists.currentSelectedList = 1
         MysticMaestro_ListFrame_ScrollFrameUpdate()
     end,
     timeout = 0,
@@ -103,10 +110,10 @@ StaticPopupDialogs["MysticMaestro_ListFrame_DELETELIST"] = {
 local function exportString()
     MM.dewdrop:Close()
     local data = {}
-    for i,v in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
+    for i,v in ipairs(MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"]) do
         tinsert(data,{v[1]})
     end
-    data["Name"] = MM.EnchantSaveLists[MM.db.currentSelectedList]["Name"]
+    data["Name"] = MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Name"]
     Internal_CopyToClipboard("MMXT:"..MM:Serialize(data))
 end
 
@@ -119,7 +126,7 @@ function MM:ListFrameMenuRegister(self)
             if level == 1 then
                 MM.dewdrop:AddLine(
                     'text', "Send Current List",
-                    'func', function() StaticPopup_Show("MysticMaestro_ListFrame_SEND_ENCHANTLIST",MM.EnchantSaveLists[MM.db.currentSelectedList].Name) end,
+                    'func', function() StaticPopup_Show("MysticMaestro_ListFrame_SEND_ENCHANTLIST",MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name) end,
                     'notCheckable', true
                 )
                 MM.dewdrop:AddLine(
@@ -162,11 +169,10 @@ local function ItemTemplate_OnLeave()
 end
 ---------------------ScrollFrame----------------------------------
 --Check to see if the enchant is allreay on the list
-local function GetSavedEnchant(id)
-    for i, enchant in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
-        if enchant[1] == id then
-            return i
-        end
+local function GetSavedEnchant(SpellID)
+
+    if MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][SpellID] then
+        return SpellID
     end
 end
 
@@ -185,14 +191,37 @@ scrollFrame = CreateFrame("Frame", "MysticMaestro_ListFrame_ScrollFrame", Mystic
     })
 end
 
- 
+-- Sorts tables alphabetically
+local function pairsByKeys(t)
+    local a = {}
+    for n in pairs(t) do
+      table.insert(a, n)
+    end
+    table.sort(a)
+  
+    local i = 0
+    local iter = function()
+      i = i + 1
+      if a[i] == nil then
+        return nil
+      else
+        return a[i], t[a[i]]
+      end
+    end
+    return iter
+end
+
 function MysticMaestro_ListFrame_ScrollFrameUpdate()
-    if MM.EnchantSaveLists[MM.db.currentSelectedList] then
-        showtable = {Name = MM.EnchantSaveLists[MM.db.currentSelectedList].Name, MenuID = MM.EnchantSaveLists[MM.db.currentSelectedList].MenuID}
-        for _,v in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
-            if MYSTIC_ENCHANTS[v[1]] then
-                tinsert(showtable,v)
-            end
+    local methods = {}
+    if MM.shoppingLists[MM.shoppingLists.currentSelectedList] and MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"] then
+        for _, enchants in pairs(MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"]) do
+            local enchantInfo = C_MysticEnchant.GetEnchantInfoBySpell(enchants.SpellID)
+            methods[enchantInfo.SpellName] = { SpellID = enchants.SpellID, Quality = enchantInfo.Quality, Name = enchantInfo.SpellName }
+        end
+        showtable = {Name = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name, MenuID = MM.shoppingLists[MM.shoppingLists.currentSelectedList].MenuID}
+
+        for _, table in pairsByKeys(methods) do
+            tinsert(showtable, table)
         end
 
         local maxValue = #showtable
@@ -201,16 +230,22 @@ function MysticMaestro_ListFrame_ScrollFrameUpdate()
         for i = 1, MAX_ROWS do
             local value = i + offset
             scrollFrame.rows[i]:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
-            if value <= maxValue and showtable[value] and MYSTIC_ENCHANTS[showtable[value][1]] then
+            if value <= maxValue and showtable[value] then
                 local row = scrollFrame.rows[i]
-                local qualityColor = select(4,GetItemQualityColor(MYSTIC_ENCHANTS[showtable[value][1]].quality))
-                row:SetText(qualityColor..GetSpellInfo(MYSTIC_ENCHANTS[showtable[value][1]].spellID))
-                row.enchantID = showtable[value][1]
-                row.link = MM:CreateItemLink(showtable[value][1])
+                local qualityColor = select(4,GetItemQualityColor(qualityColors[showtable[value].Quality]))
+                row:SetText(qualityColor..showtable[value].Name)
+                row.SpellID = showtable[value].SpellID
+                row.Quality = showtable[value].Quality
+                row.Name = showtable[value].Name
+                row.link = MM:CreateItemLink(showtable[value].SpellID, showtable[value].Quality)
                 row:Show()
             else
                 scrollFrame.rows[i]:Hide()
             end
+        end
+    else
+        for i = 1, MAX_ROWS do
+            scrollFrame.rows[i]:Hide()
         end
     end
 end
@@ -236,18 +271,16 @@ local rows = setmetatable({}, { __index = function(t, i)
 	row:SetNormalFontObject(GameFontHighlightLeft)
     row:RegisterForClicks("LeftButtonDown","RightButtonDown")
     row:SetScript("OnClick", function(self,button)
-        local item = tonumber(row.enchantID)
-        local itemNum = GetSavedEnchant(item)
         if button == "RightButton" then
-            if MM.EnchantSaveLists[MM.db.currentSelectedList][itemNum] then
-                tremove(MM.EnchantSaveLists[MM.db.currentSelectedList],itemNum)
+            if MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][row.SpellID] then
+                MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][row.SpellID] = nil
             end
-            MysticMaestro_ListFrame_ScrollFrameUpdate()    
+            MysticMaestro_ListFrame_ScrollFrameUpdate()
         elseif button == "LeftButton" then
             if IsShiftKeyDown() then
-                ChatEdit_InsertLink(MM:CreateItemLink(row.enchantID))
+                ChatEdit_InsertLink(MM:CreateItemLink(row.SpellID, row.Quality))
             else
-                Internal_CopyToClipboard(GetSpellInfo(MYSTIC_ENCHANTS[row.enchantID].spellID))
+                Internal_CopyToClipboard(row.Name)
             end
         end
     end)
@@ -267,22 +300,25 @@ end })
 
 scrollFrame.rows = rows
 end
-function MM:CreateItemLink(id)
-    local qualityColor = select(4,GetItemQualityColor(MYSTIC_ENCHANTS[id].quality))
-    local link = qualityColor.."|Hspell:"..MYSTIC_ENCHANTS[id].spellID.."|h["..GetSpellInfo(MYSTIC_ENCHANTS[id].spellID).."]|h|r"
+function MM:CreateItemLink(SpellID, Quality)
+    local qualityColor = select(4,GetItemQualityColor(qualityColors[Quality]))
+    local link = qualityColor.."|Hspell:"..SpellID.."|h["..GetSpellInfo(SpellID).."]|h|r"
     return link
 end
 
 local function enchantButtonClick(self)
-    local id = self.Enchant
-    if not GetSavedEnchant(id) then
-        tinsert(MM.EnchantSaveLists[MM.db.currentSelectedList],{id})
+    local SpellID = self.enchantInfo.SpellID
+    local Quality = self.enchantInfo.Quality
+    if not MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"] then MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"] = {} end
+    if not GetSavedEnchant(SpellID) then
+        MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][SpellID] = {SpellID = SpellID, Quality = self.enchantInfo.Quality}
         MysticMaestro_ListFrame_ScrollFrameUpdate()
     else
-        local itemLink = MM:CreateItemLink(id)
-        DEFAULT_CHAT_FRAMM:AddMessage(itemLink .. " Is already on this list.")
+        local itemLink = MM:CreateItemLink(SpellID, Quality)
+        DEFAULT_CHAT_FRAME:AddMessage(itemLink .. " Is already on this list.")
     end
 end
+
 local setupLoaded
 function MM:CollectionSetup(addon)
     if setupLoaded then return end
@@ -304,7 +340,7 @@ end
         local bagID, slotID = self:GetParent():GetID(), self:GetID()
         local enchant = GetREInSlot(bagID, slotID)
             if enchant and not GetSavedEnchant(enchant) then
-                tinsert(MM.EnchantSaveLists[MM.db.currentSelectedList],{enchant})
+                tinsert(MM.shoppingLists[MM.shoppingLists.currentSelectedList],{enchant})
                 MysticMaestro_ListFrame_ScrollFrameUpdate()
             else
                 local itemLink = MM:CreateItemLink(enchant)
@@ -576,11 +612,12 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
            PreviousPage(self)
         end
   end)
+  MM:ListFrameEnable()
 end
 
 
 -- Right Click context menu in the enchanting frame
-function MM:ItemContextMenu(spellID, itemID, self)
+function MM:ItemContextMenu(SpellID, itemID, self)
     if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
     MM.dewdrop:Register(self,
         'point', function(parent)
@@ -588,6 +625,22 @@ function MM:ItemContextMenu(spellID, itemID, self)
         end,
         'children', function(level, value)
             if level == 1 then
+                MM.dewdrop:AddLine(
+                    'text', "Shopping Lists",
+                    'notCheckable', true,
+                    'isTitle', true,
+                    'textHeight', 13,
+                    'textWidth', 13
+                )
+                MM.dewdrop:AddLine(
+                    'text', "Add to current list",
+                    'func', function() enchantButtonClick(self) end,
+                    'textHeight', 12,
+                    'textWidth', 12,
+                    'notCheckable', true,
+                    'closeWhenClicked', true
+                )
+                MM:AddDividerLine(35)
                 MM.dewdrop:AddLine(
                     'text', "Links",
                     'notCheckable', true,
@@ -597,7 +650,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                 )
                 MM.dewdrop:AddLine(
                     'text', ORANGE.."Open In AscensionDB",
-                    'func', function() MM:OpenDBURL(spellID ,"spell") end,
+                    'func', function() MM:OpenDBURL(SpellID ,"spell") end,
                     'textHeight', 12,
                     'textWidth', 12,
                     'notCheckable', true,
@@ -605,7 +658,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                 )
                 MM.dewdrop:AddLine(
                         "text", GREEN.."Guild",
-                        "func", function() MM:Chatlink(spellID,"GUILD") end,
+                        "func", function() MM:Chatlink(SpellID,"GUILD") end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -613,7 +666,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                     )
                     MM.dewdrop:AddLine(
                         "text", LIGHTBLUE.."Party",
-                        "func", function() MM:Chatlink(spellID,"PARTY") end,
+                        "func", function() MM:Chatlink(SpellID,"PARTY") end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -621,7 +674,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                     )
                     MM.dewdrop:AddLine(
                         "text", ORANGE2.."Raid",
-                        "func", function() MM:Chatlink(spellID,"RAID") end,
+                        "func", function() MM:Chatlink(SpellID,"RAID") end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
