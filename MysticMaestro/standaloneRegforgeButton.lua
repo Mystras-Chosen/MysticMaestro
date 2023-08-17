@@ -1,8 +1,9 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local standaloneReforgeBtn, reforgeStandaloneCitys, reforgeStandaloneOnMouseOver, reforgeStandaloneEnable
+local standaloneReforgeBtn
 local realmName = GetRealmName()
 local reFound = false
+
 
 MM.QualityList = {
     [1] = {"Uncommon",2},
@@ -257,7 +258,7 @@ local countDownFrame = CreateFrame("Frame", "MysticMaestroCountDownFrame", UIPar
     countDownFrame.rollingText:SetText("Auto Reforging In Progress")
 
 function MM:ToggleScreenReforgeText(show)
-    if not MM.db.realm.altarLevel or not MM.db.realm.altarLevel.rollsNeeded then return end
+    if not MM.db.altarLevel or not MM.db.altarLevel.rollsNeeded then return end
 	if show then
     --show run count down
         MysticMaestroCountDownFrame:Show()
@@ -267,24 +268,7 @@ function MM:ToggleScreenReforgeText(show)
         MysticMaestroCountDownFrame:Hide()
     end
     MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
-    MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.altarLevel.rollsNeeded).." Enchants")
-end
-
-function MM:StandaloneButtonOnLoad()
-    reforgeStandaloneCitys = MM.db.realm.OPTIONS.reforgeStandaloneCitys
-    reforgeStandaloneOnMouseOver = MM.db.realm.OPTIONS.reforgeStandaloneOnMouseOver
-    reforgeStandaloneEnable = MM.db.realm.OPTIONS.reforgeStandaloneEnable
-
-    if reforgeStandaloneEnable and not reforgeStandaloneCitys and not reforgeStandaloneOnMouseOver then
-        MysticMaestro_ReforgeFrame:Show()
-        MysticMaestro_ReforgeFrame_Menu:Show()
-    elseif reforgeStandaloneEnable and reforgeStandaloneCitys and not reforgeStandaloneOnMouseOver then
-        MysticMaestro_ReforgeFrame:Hide()
-        MysticMaestro_ReforgeFrame_Menu:Hide()
-    elseif reforgeStandaloneEnable and reforgeStandaloneOnMouseOver then
-        MysticMaestro_ReforgeFrame:Hide()
-        MysticMaestro_ReforgeFrame_Menu:Hide()
-    end
+    MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.altarLevel.rollsNeeded).." Enchants")
 end
 
 function MM:StandaloneReforgeShow()
@@ -297,15 +281,29 @@ function MM:StandaloneReforgeShow()
     end
 end
 
-function MM:StandaloneCityReforgeToggle()
+function MM:StandaloneCityReforgeToggle(button)
+    if button == "city" then
+        MM.sbSettings.Citys = not MM.sbSettings.Citys
+        if MM.sbSettings.Citys then
+            MM:RegisterEvent("ZONE_CHANGED");
+            MM:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+        else
+            MM:UnregisterEvent("ZONE_CHANGED");
+            MM:UnregisterEvent("ZONE_CHANGED_NEW_AREA");
+        end
+    elseif button == "enable" then
+        MM.sbSettings.Enable = not MM.sbSettings.Enable
+    end
+
     --auto show/hide in city's
-  if reforgeStandaloneCitys and reforgeStandaloneEnable and (citysList[GetMinimapZoneText()] or citysList[GetRealZoneText()]) then
-      MysticMaestro_ReforgeFrame:Show()
-      MysticMaestro_ReforgeFrame_Menu:Show()
-  elseif reforgeStandaloneCitys and reforgeStandaloneEnable then
-      MysticMaestro_ReforgeFrame:Hide()
-      MysticMaestro_ReforgeFrame_Menu:Hide()
-  end
+    if MM.sbSettings.Enable and MM.sbSettings.Citys and (citysList[GetMinimapZoneText()] or citysList[GetRealZoneText()])
+    or MM.sbSettings.Enable and not MM.sbSettings.Citys then
+        MysticMaestro_ReforgeFrame:Show()
+        MysticMaestro_ReforgeFrame_Menu:Show()
+    else
+        MysticMaestro_ReforgeFrame:Hide()
+        MysticMaestro_ReforgeFrame_Menu:Hide()
+    end
 end
 
 function MM:StandaloneReforgeText(show)

@@ -21,58 +21,59 @@ local function createConfig()
 		set = set,
 		args = {
 			minimap = {
-				order = 38,
+				order = 1,
 				name = "Hide Minimap Button",
 				desc = "Hides the minimap button",
 				type = "toggle",
 				width = 1,
-				set = function() MM.db.realm.OPTIONS.minimap.hide = not MM.db.realm.OPTIONS.minimap.hide end
+				get = function() return MM.db.realm.OPTIONS.minimap.hide end,
+				set = function() MM:ToggleMinimap() end
 			},
 			confirmHeader = {
-				order = 1,
+				order = 2,
 				name = "Confirmations",
 				type = "header"
 			},
 			confirmDescription = {
-				order = 2,
+				order = 3,
 				name = "Check the box for each type of confirmation you would like to enable.",
 				type = "description"
 			},
 			confirmList = {
-				order = 3,
+				order = 4,
 				name = "Listing",
 				desc = "Enables a confirmation before making a listing.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmBuyout = {
-				order = 4,
+				order = 5,
 				name = "Buyout",
 				desc = "Enables a confirmation before buying an auction.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmCancel = {
-				order = 5,
+				order = 6,
 				name = "Cancel",
 				desc = "Enables a confirmation before canceling your auction.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmCraft = {
-				order = 6,
+				order = 7,
 				name = "Craft",
 				desc = "Enables a confirmation before crafting an enchant onto a trinket.",
 				type = "toggle",
 				width = 0.5,
 			},
 			durationHeader = {
-				order = 7,
+				order = 8,
 				name = "Auction Duration",
 				type = "header"
 			},
 			listDuration = {
-				order = 8,
+				order = 9,
 				name = "Listing Duration Index",
 				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
 				type = "range",
@@ -169,15 +170,8 @@ local function createConfig()
 				desc = "Show standalone Reforge Button",
 				type = "toggle",
 				width = .4,
-				set = function() MM.db.realm.OPTIONS.reforgeStandaloneEnable = not MM.db.realm.OPTIONS.reforgeStandaloneEnable end
-			},
-			reforgeStandaloneOnMouseOver = {
-				order = 37,
-				name = "On Mouse Over",
-				desc = "Show only on mouse over",
-				type = "toggle",
-				width = .8,
-				set = function() MM.db.realm.OPTIONS.reforgeStandaloneOnMouseOver = not MM.db.realm.OPTIONS.reforgeStandaloneOnMouseOver end
+				get = function() return MM.sbSettings.Enable end,
+				set = function() MM:StandaloneCityReforgeToggle("enable") end
 			},
 			reforgeStandaloneCitys = {
 				order = 38,
@@ -185,7 +179,8 @@ local function createConfig()
 				desc = "Only show while in major citys",
 				type = "toggle",
 				width = 1,
-				set = function() MM.db.realm.OPTIONS.reforgeStandaloneCitys = not MM.db.realm.OPTIONS.reforgeStandaloneCitys end
+				get = function() return MM.sbSettings.Citys end,
+				set = function() MM:StandaloneCityReforgeToggle("city") end
 			},
 		}
 	}

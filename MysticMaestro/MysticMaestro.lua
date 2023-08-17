@@ -13,8 +13,10 @@ function MM:OnInitialize()
   MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
   MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE")
   MM:RegisterEvent("GUILDBANKFRAME_OPENED");
-  MM:RegisterEvent("ZONE_CHANGED");
-  MM:RegisterEvent("ZONE_CHANGED_NEW_AREA", MM.ZONE_CHANGED);
+  if MM.sbSettings.Citys then
+    MM:RegisterEvent("ZONE_CHANGED");
+    MM:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+  end
 
   MM.RE_CACHE = {}
   local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
@@ -24,19 +26,27 @@ function MM:OnInitialize()
 end
 
 function MM:OnEnable()
-  MM:StandaloneButtonOnLoad()
+  MM:StandaloneCityReforgeToggle()
   MM:MinimapIconSetup()
 
   MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
+
 end
 
 --[[
 Event Handlers
 ]]
 function MM:ZONE_CHANGED(event, arg1, arg2, arg3)
-    -- used to auto hide/show floating button in citys
-  if event == "ZONE_CHANGED" or event == "ZONE_CHANGED_NEW_AREA" then
+    -- used to auto hide/show floating button while out off citys
+  if event == "ZONE_CHANGED" then
+    MM:StandaloneCityReforgeToggle()
+  end
+end
+
+function MM:ZONE_CHANGED_NEW_AREA(event, arg1, arg2, arg3)
+  -- used to auto hide/show floating button while out off citys
+  if event == "ZONE_CHANGED_NEW_AREA" then
     MM:StandaloneCityReforgeToggle()
   end
 end
@@ -48,7 +58,7 @@ function MM:ADDON_LOADED(event, arg1, arg2, arg3)
   end
   -- setup for collection frame
   if event == "ADDON_LOADED" and arg1 == "Ascension_EnchantCollection" then
-    MM.CollectionSetup()
+    MM:CollectionSetup()
   end
 end
 

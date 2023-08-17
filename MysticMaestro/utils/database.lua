@@ -48,9 +48,10 @@ local defaultDB = {
       ttTENMean = false,
       ttTENMax = false,
 
-      reforgeStandaloneCitys = false,
-      reforgeStandaloneOnMouseOver = false,
-      reforgeStandaloneEnable = true,
+      standaloneBtn = {
+      Citys = false,
+      Enable = true,
+      },
 
       minimap = {hide = false},
 
@@ -191,4 +192,5 @@ function MM:SetupDatabase()
 	MM.db.realm.VIEWS = MM.db.realm.VIEWS or {}
 	MM.db.realm.OPTIONS = MM.db.realm.OPTIONS or {}
 	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
+  MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
 end
