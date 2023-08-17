@@ -46,6 +46,7 @@ local function StopAutoReforge(result)
 	--hide screen text count down
 	MM:ToggleScreenReforgeText()
 	MM:StandaloneReforgeText()
+	MM:CancelTimer(MM.retryTimer)
 end
 
 local function configShoppingMatch(currentEnchant)
@@ -225,33 +226,33 @@ function MM:ContinueAutoForge(SpellID)
 end
 
 function MM:AltarLevelRequiredRolls()
-	if not MM.db.realm.OPTIONS.altarLevel then MM.db.realm.OPTIONS.altarLevel = {} end
+	if not MM.db.realm.altarLevel then MM.db.realm.altarLevel = {} end
 
 	--works out how many rolls on the current item type it will take to get the next altar level
     local progress, level = C_MysticEnchant.GetProgress()
 
-	if MM.db.realm.OPTIONS.altarLevel.lastLevel ~= level or not MM.db.realm.OPTIONS.altarLevel.lastProgress then
-		MM.db.realm.OPTIONS.altarLevel.lastLevel = level
-		MM.db.realm.OPTIONS.altarLevel.lastProgress = progress
+	if MM.db.realm.altarLevel.lastLevel ~= level or not MM.db.realm.altarLevel.lastProgress then
+		MM.db.realm.altarLevel.lastLevel = level
+		MM.db.realm.altarLevel.lastProgress = progress
 	end
 
-	local progressDif = progress - MM.db.realm.OPTIONS.altarLevel.lastProgress
+	local progressDif = progress - MM.db.realm.altarLevel.lastProgress
 
 	if progressDif == 0 then return end
 
-	if progressDif ~= 0 and (not MM.db.realm.OPTIONS.altarLevel.lastProgressDif or MM.db.realm.OPTIONS.altarLevel.lastProgressDif > progressDif) then
-		MM.db.realm.OPTIONS.altarLevel.lastProgressDif = progressDif
+	if progressDif ~= 0 and (not MM.db.realm.altarLevel.lastProgressDif or MM.db.realm.altarLevel.lastProgressDif > progressDif) then
+		MM.db.realm.altarLevel.lastProgressDif = progressDif
 	end
 
-	if MM.db.realm.OPTIONS.altarLevel.lastProgressDif < progressDif then
-		progressDif = MM.db.realm.OPTIONS.altarLevel.lastProgressDif
+	if MM.db.realm.altarLevel.lastProgressDif < progressDif then
+		progressDif = MM.db.realm.altarLevel.lastProgressDif
 	end
 
-	MM.db.realm.OPTIONS.altarLevel.lastProgress = progress
+	MM.db.realm.altarLevel.lastProgress = progress
 
 	local rollsNeeded = (100 - progress) / progressDif
 
-	MM.db.realm.OPTIONS.altarLevel.rollsNeeded = math.ceil(rollsNeeded)
+	MM.db.realm.altarLevel.rollsNeeded = math.ceil(rollsNeeded)
 end
 
 function MM:SetAltarLevelUPText(xp, level)
@@ -310,9 +311,15 @@ function MM:ReforgeButtonClick()
 	end
 end
 
+--timer to try to roll an enchant every 3 seconds if no altar up
+function MM:Repeat()
+    MM:RequestReforge();
+end 
+
 function MM:RequestReforge()
 	if not autoReforgeEnabled then return end
 	if reforgeHandle then return end
+	MM:CancelTimer(MM.retryTimer)
 	--show rune count down
 	MM:ToggleScreenReforgeText(true)
 	MM:StandaloneReforgeText(true)
@@ -321,6 +328,8 @@ function MM:RequestReforge()
 	MM:Print("Request received")
 	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+
+	MM.retryTimer = MM:ScheduleTimer("Repeat", 3)
 
 	reforgeHandle = Timer.NewTicker(.05, function()
 		if GetUnitSpeed("player") ~= 0 then
