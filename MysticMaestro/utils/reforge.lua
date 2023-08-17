@@ -1,12 +1,10 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local green = "|cff00ff00"
-local red = "|cffff0000"
-local itemLoaded = false
-local options, autoAutoEnabled, autoReforgeEnabled
+local strKnown = "|cff00ff00known|r"
+local strUnknown = "|cffff0000unknown|r"
+local options, autoReforgeEnabled, itemGuid
 local shopEnabledList, shopExtractList, shopReserveList, shopUnknownList
 local reforgeHandle, dynamicButtonTextHandle
-local bagID, slotIndex
 local AltarReforgesText, settingsButton
 local otherGreens = {
 	Speedy = true,
@@ -27,54 +25,28 @@ local function StopCraftingAttemptTimer()
 end
 
 local function StopAutoReforge(result)
-	local enabled = false
-	if autoReforgeEnabled or autoAutoEnabled then
-		enabled = true
-	end
-	if autoAutoEnabled then
-		if slotIndex - 1 >= 0 then
-			slotIndex = slotIndex - 1
-		elseif bagID - 1 >= 0 then
-			bagID = bagID - 1
-			slotIndex = GetContainerNumSlots(bagID)
-		end
-	end
+	if not autoReforgeEnabled then return end
 	autoReforgeEnabled = false
-	autoAutoEnabled = false
+
 	if dynamicButtonTextHandle then
 		dynamicButtonTextHandle:Cancel()
 		dynamicButtonTextHandle = nil
 	end
+
 	if result then
 		MM:Print("Reforge stopped for " .. result)
-	elseif enabled then
+	else
 		MM:Print("Reforge has been stopped")
 	end
-	-- MysticMaestroEnchantingFrameAutoReforgeButton:SetText("Auto Reforge")
-end
 
-local function RequestReforge()
-	-- attempt to roll every .05 seconds
-	if autoReforgeEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
-			if GetUnitSpeed("player") ~= 0 then 
-				StopCraftingAttemptTimer()
-				StopAutoReforge("Player Moving")
-				return
-			end
-		end)
-	elseif autoAutoEnabled then
-		reforgeHandle = Timer.NewTicker(.05, function()
-			if GetUnitSpeed("player") ~= 0 then
-				StopCraftingAttemptTimer()
-				StopAutoReforge("Player Moving")
-				return
-			end
-			RequestSlotReforgeEnchantment(bagID, slotIndex)
-		end)
-	else
-			MM:Print("Error starting reforge, values indicate we are not enabled. AR:" .. autoReforgeEnabled .. " AA:" .. autoAutoEnabled)
+	if MysticMaestro_CollectionsFrame_ReforgeButton then
+		MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
 	end
+
+	--hide screen text count down
+	MM:ToggleScreenReforgeText()
+	MM:StandaloneReforgeText()
+	MM:CancelTimer(MM.retryTimer)
 end
 
 local function configShoppingMatch(currentEnchant)
@@ -82,49 +54,6 @@ local function configShoppingMatch(currentEnchant)
 	local unknownMatch = not shopUnknownList[currentEnchant.SpellID] or (shopUnknownList[currentEnchant.SpellID] and not currentEnchant.Known)
 	local eval = enabled and unknownMatch 
 	return eval and "Shopping Match" or nil
-end
-
-local function isSeasonal(enchant)
-	return false
-	-- if enchant then
-	-- 	return not bit.contains(enchant.realms, Enum.RealmMask.Area52)
-	-- end
-end
-
-local function FindNextScroll()
-	for i=bagID, 4 do
-		for j=slotIndex + 1, GetContainerNumSlots(i) do
-			local item = select(7, GetContainerItemInfo(i, j))
-			if item then
-				local name = GetItemInfo(item)
-				if MM:IsUntarnished(name) then 
-					bagID = i
-					slotIndex = j
-					return true
-				end
-				local re = MM:GetREInSlot(i, j)
-				local reObj = C_MysticEnchant.GetEnchantInfoBySpell(re)
-				if reObj ~= nil then
-					local knownStr
-					if not reObj.Known then
-						knownStr = red .. "unknown" .. "|r"
-					else
-						knownStr = green .. "known" .. "|r"
-					end
-					if shopReserveList[re] then
-						print("Reserving " .. knownStr .. " enchant from Shopping List: " .. MM:ItemLinkRE(re))
-					else
-						bagID = i
-						slotIndex = j
-						return true
-					end
-				end
-			end
-		end
-		slotIndex = 0
-	end
-	bagID = 0
-	slotIndex = 0
 end
 
 local function initOptions()
@@ -176,22 +105,18 @@ function MM:BuildWorkingShopList()
 	shopUnknownList = unknownList
 end
 
-local function extract(enchantID)
-	if not MM:IsREKnown(enchantID) 
-	and GetItemCount(98463) and (GetItemCount(98463) > 0) then
-			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchantID))
-			RequestSlotReforgeExtraction(bagID, slotIndex)
+local function extract(enchant)
+	if enchant.Known then return end
+	if GetItemCount(98463) and (GetItemCount(98463) > 0) then
+			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchant.SpellID))
+			local itemGuid = MM:FindSpecificScroll(enchant.ItemID)
+			C_MysticEnchant.DisenchantItem(itemGuid)
 	end
 end
 
 local function configNoRunes()
 	local eval = options.stopIfNoRunes and GetItemCount(98462) <= 0
 	return eval and "No Runes" or nil
-end
-
-local function configSeasonalMatch(currentEnchant)
-	local eval = options.stopSeasonal.enabled and isSeasonal(currentEnchant)
-	return eval and "Seasonal Enchant" or nil
 end
 
 local function configQualityMatch(currentEnchant)
@@ -229,82 +154,105 @@ end
 local function configConditionMet(currentEnchant)
 	if not options then initOptions() end
 	local unknown = configUnknownMatch(currentEnchant)
-	local seasonal = configSeasonalMatch(currentEnchant)
 	local green = configGreenMatch(currentEnchant)
 	-- Determine if we should extract this enchant
-	if (autoAutoEnabled)
+	if (autoReforgeEnabled)
 	and ((unknown and options.stopUnknown.extract)
-	or (seasonal and options.stopSeasonal.extract)
 	or (green and options.green.extract)
 	or shopExtractList[currentEnchant.enchantID]) then
-		extract(currentEnchant.enchantID)
-	end
-	-- check for spam reforge settings
-	if autoReforgeEnabled and options.stopForNothing then
-		return configNoRunes()
+		extract(currentEnchant)
 	end
 	-- Evaluate the enchant against our options
 	return configQualityMatch(currentEnchant)
 	or configShoppingMatch(currentEnchant)
 	or unknown
-	or seasonal
 	or green
 	or configPriceMatch(currentEnchant)
 end
 
-function MM:ASCENSION_REFORGE_ENCHANT_RESULT(event, subEvent, sourceGUID, enchantID)
-	if subEvent ~= "ASCENSION_REFORGE_ENCHANT_RESULT" then return end
-	if tonumber(sourceGUID) == tonumber(UnitGUID("player"), 16) then
-		local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
-		local result = configConditionMet(currentEnchant)
-		local norunes = configNoRunes()
-		if not autoAutoEnabled and (not autoReforgeEnabled or result or norunes) then
-			-- End reforge
-			StopAutoReforge(result or norunes)
-			return
-		end
-		if autoAutoEnabled then
-			local knownStr, seasonal = "", ""
-			if not currentEnchant.Known then
-				knownStr = red .. "unknown" .. "|r"
-			else
-				knownStr = green .. "known" .. "|r"
-			end
-			if isSeasonal(enchantID) then
-				seasonal = green .. " seasonal" .. "|r"
-			end
-			if result then
-				MM:Print("Stopped on " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID) .. " because of " .. result)
-			else
-				MM:Print("Skipping " .. knownStr .. seasonal .. " enchant:" .. MM:ItemLinkRE(enchantID))
-			end
-		end
-		if result or norunes then
-			local cantFind = not FindNextScroll()
-			if cantFind or norunes then
-				if cantFind then
-					MM:Print("Out of Insignia, inventory position reset to first bag")
-				end
-				StopAutoReforge(norunes)
-				return
-			end
-		end
-		if GetUnitSpeed("player") == 0 then
-			RequestReforge()
-		else
-			StopAutoReforge("Player Moving")
+function MM:FindNextScroll()
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+
+	for _, scroll in ipairs(inventoryList) do
+		local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
+
+		if scroll.Entry == 992720 or enchantInfo and not configConditionMet(enchantInfo) then
+			return scroll.Guid
 		end
 	end
 end
 
-local function AltarLevelRequireXP(level)
-	if level == 0 then
-			return 1
+function MM:FindSpecificScroll(itemID)
+	if not itemID then return end
+
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+	for _, scroll in ipairs(inventoryList) do
+		if scroll.Entry == itemID then return scroll.Guid end
 	end
-	if level >= 250 and not C_Realm:IsRealmMask(Enum.RealmMask.Area52) then
-			return 557250 + (level - 250) * 4097
+end
+
+function MM:ContinueAutoForge(SpellID)
+	if not autoReforgeEnabled then return end
+
+	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+	local knownState = currentEnchant.Known and strKnown or strUnknown
+	local result = configConditionMet(currentEnchant)
+	if result then
+		MM:Print("Stopped on " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
+	else
+		MM:Print("Skipping " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID))
 	end
-	return floor(354 * level + 7.5 * level * level)
+
+	-- dermine if we have runes remaining to continue
+	local norunes = configNoRunes()
+	if norunes then StopAutoReforge(norunes) return end
+
+	local scrollFound = MM:FindNextScroll()
+	-- if we have a match, we want to roll another scroll
+	if result and not scrollFound then
+		-- here we can place logic for possibly creating scrolls
+		StopAutoReforge("Out of Scrolls")
+		return
+	end
+
+	-- Check if the player is moving to stop
+	if GetUnitSpeed("player") ~= 0 then
+		StopAutoReforge("Player Moving")
+		return
+	end
+	
+	-- We have passed all validations
+	MM:RequestReforge()
+end
+
+function MM:AltarLevelRequiredRolls()
+	if not MM.db.realm.ALTARLEVEL then MM.db.realm.ALTARLEVEL = {} end
+
+	--works out how many rolls on the current item type it will take to get the next altar level
+    local progress, level = C_MysticEnchant.GetProgress()
+
+	if MM.db.realm.ALTARLEVEL.lastLevel ~= level or not MM.db.realm.ALTARLEVEL.lastProgress then
+		MM.db.realm.ALTARLEVEL.lastLevel = level
+		MM.db.realm.ALTARLEVEL.lastProgress = progress
+	end
+
+	local progressDif = progress - MM.db.realm.ALTARLEVEL.lastProgress
+
+	if progressDif == 0 then return end
+
+	if progressDif ~= 0 and (not MM.db.realm.ALTARLEVEL.lastProgressDif or MM.db.realm.ALTARLEVEL.lastProgressDif > progressDif) then
+		MM.db.realm.ALTARLEVEL.lastProgressDif = progressDif
+	end
+
+	if MM.db.realm.ALTARLEVEL.lastProgressDif < progressDif then
+		progressDif = MM.db.realm.ALTARLEVEL.lastProgressDif
+	end
+
+	MM.db.realm.ALTARLEVEL.lastProgress = progress
+
+	local rollsNeeded = (100 - progress) / progressDif
+
+	MM.db.realm.ALTARLEVEL.rollsNeeded = math.ceil(rollsNeeded)
 end
 
 function MM:SetAltarLevelUPText(xp, level)
@@ -313,7 +261,7 @@ function MM:SetAltarLevelUPText(xp, level)
 		if MM.db.realm.AltarLevelUp then
 			AltarReforgesText:SetText("Next level in " .. MM.db.realm.AltarLevelUp .. " reforges")
 		end
-		return 
+		return
 	end
 	local gained = xp - (MM.db.realm.AltarXP or 0)
 	if gained == 0 then
@@ -325,25 +273,12 @@ function MM:SetAltarLevelUPText(xp, level)
 	else
 		MM.db.realm.prevAltarGained = gained
 	end
-	local remaining = AltarLevelRequireXP(level) - xp
+	local remaining = MM:AltarLevelRequiredRolls() - xp
 	local levelUP = math.floor(remaining / gained) + 1
 	AltarReforgesText:SetText("Next level in " .. levelUP .. " reforges")
 	MM.db.realm.AltarXP = xp
 	MM.db.realm.AltarLevelUp = levelUP
 end
-
-function MM:ASCENSION_REFORGE_PROGRESS_UPDATE(event, subEvent, xp, level)
-	if subEvent ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
-	MM:SetAltarLevelUPText(xp, level)
-end
-
-local function UNIT_SPELLCAST_START(event, unitID, spell)
-	-- if cast has started, then stop trying to cast
-	if unitID == "player" and spell == "Enchanting" then
-		StopCraftingAttemptTimer()
-	end
-end
-MM:RegisterEvent("UNIT_SPELLCAST_START",UNIT_SPELLCAST_START)
 
 local function dots()
 	local floorTime = math.floor(GetTime())
@@ -351,27 +286,86 @@ local function dots()
 end
 
 local function StartAutoReforge()
-	if bagID == nil then
-		bagID = 0
-		slotIndex = 0
-	end
-	if FindNextScroll() then
+	if MM:FindNextScroll() then
 		MM:Print("Scrolls found, lets roll!")
-		autoAutoEnabled = true
+		autoReforgeEnabled = true
 	else
 		MM:Print("There are no scrolls to roll on!")
 		return
 	end
-	RequestReforge()
-	-- local button = MysticMaestroEnchantingFrameAutoReforgeButton
-	-- button:SetText("Reforging"..dots())
-	-- dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
+
+	MM:RequestReforge()
+	if MysticMaestro_CollectionsFrame_ReforgeButton then 
+		local button = MysticMaestro_CollectionsFrame_ReforgeButton
+		button:SetText("Reforging"..dots())
+		dynamicButtonTextHandle = Timer.NewTicker(1, function() button:SetText("Reforging"..dots()) end)
+	end
 end
 
-local function UNIT_SPELLCAST_INTERRUPTED()
-	if (autoAutoEnabled or autoReforgeEnabled)
-	and GetUnitSpeed("player") ~= 0 then
+function MM:ReforgeButtonClick()
+	if not options then initOptions() end
+	if autoReforgeEnabled then
+		StopAutoReforge("Button Pressed")
+	else
+		StartAutoReforge()
+	end
+end
+
+--timer to try to roll an enchant every 3 seconds if no altar up
+function MM:Repeat()
+    MM:RequestReforge();
+end 
+
+function MM:RequestReforge()
+	if not autoReforgeEnabled then return end
+	if reforgeHandle then return end
+	MM:CancelTimer(MM.retryTimer)
+	--show rune count down
+	MM:ToggleScreenReforgeText(true)
+	MM:StandaloneReforgeText(true)
+	itemGuid = MM:FindNextScroll()
+
+	MM:Print("Request received")
+	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+
+	MM.retryTimer = MM:ScheduleTimer("Repeat", 3)
+
+	reforgeHandle = Timer.NewTicker(.05, function()
+		if GetUnitSpeed("player") ~= 0 then
+			StopCraftingAttemptTimer()
+			StopAutoReforge("Player Moving")
+			return
+		end
+		if C_MysticEnchant.CanReforgeItem(itemGuid) then
+			StopCraftingAttemptTimer()
+			C_MysticEnchant.ReforgeItem(itemGuid)
+		end
+	end)
+end
+
+function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	if not autoReforgeEnabled
+	or result ~= "RE_REFORGE_OK"
+	or SpellID == 0 then return end
+
+	MM:AltarLevelRequiredRolls() -- not sure why this is here
+	MM:ContinueAutoForge(SpellID)
+end
+
+function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
+	if not autoReforgeEnabled then return end
+	if arg1 ~= "player" or arg2 ~= "Reforge Mystic Enchant" then return end
+
+	Timer.NextFrame(MM.RequestReforge)
+	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+end
+
+function MM:UNIT_SPELLCAST_INTERRUPTED()
+	if not autoReforgeEnabled then return end
+
+	if GetUnitSpeed("player") ~= 0 then
 		StopAutoReforge("Player Moving")
 	end
 end
-MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED",UNIT_SPELLCAST_INTERRUPTED)

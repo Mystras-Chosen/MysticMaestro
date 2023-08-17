@@ -48,6 +48,13 @@ local defaultDB = {
       ttTENMean = false,
       ttTENMax = false,
 
+      standaloneBtn = {
+      Citys = false,
+      Enable = true,
+      },
+
+      minimap = {hide = false},
+
       stopIfNoRunes = true,
       stopForNothing = true,
       shoppingListsDropdown = 1,
@@ -56,10 +63,6 @@ local defaultDB = {
         enabled = false,
       },
       shoppingLists = {
-      },
-      stopSeasonal = {
-        enabled = false,
-        extract = false
       },
       stopQuality = {
         enabled = false,
@@ -119,7 +122,8 @@ local defaultDB = {
         favorites = false,
         bags = false
       }
-    }
+    },
+    SHOPPING_LISTS = {},
   }
 }
 
@@ -189,4 +193,6 @@ function MM:SetupDatabase()
 	MM.db.realm.VIEWS = MM.db.realm.VIEWS or {}
 	MM.db.realm.OPTIONS = MM.db.realm.OPTIONS or {}
 	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
+  MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
+  MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
 end

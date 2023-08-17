@@ -20,51 +20,60 @@ local function createConfig()
 		get = get,
 		set = set,
 		args = {
-			confirmHeader = {
+			minimap = {
 				order = 1,
+				name = "Hide Minimap Button",
+				desc = "Hides the minimap button",
+				type = "toggle",
+				width = 1,
+				get = function() return MM.db.realm.OPTIONS.minimap.hide end,
+				set = function() MM:ToggleMinimap() end
+			},
+			confirmHeader = {
+				order = 2,
 				name = "Confirmations",
 				type = "header"
 			},
 			confirmDescription = {
-				order = 2,
+				order = 3,
 				name = "Check the box for each type of confirmation you would like to enable.",
 				type = "description"
 			},
 			confirmList = {
-				order = 3,
+				order = 4,
 				name = "Listing",
 				desc = "Enables a confirmation before making a listing.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmBuyout = {
-				order = 4,
+				order = 5,
 				name = "Buyout",
 				desc = "Enables a confirmation before buying an auction.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmCancel = {
-				order = 5,
+				order = 6,
 				name = "Cancel",
 				desc = "Enables a confirmation before canceling your auction.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmCraft = {
-				order = 6,
+				order = 7,
 				name = "Craft",
 				desc = "Enables a confirmation before crafting an enchant onto a trinket.",
 				type = "toggle",
 				width = 0.5,
 			},
 			durationHeader = {
-				order = 7,
+				order = 8,
 				name = "Auction Duration",
 				type = "header"
 			},
 			listDuration = {
-				order = 8,
+				order = 9,
 				name = "Listing Duration Index",
 				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
 				type = "range",
@@ -149,6 +158,29 @@ local function createConfig()
 				name = "Enchant Learned",
 				desc = "Enable chat output when you learn an enchant, or if you use an epic or legendary mystic scroll.",
 				type = "toggle"
+			},
+			reforgeStandaloneHeader = {
+				order = 35,
+				name = "Standalone Reforge Button",
+				type = "header"
+			},
+			reforgeStandaloneEnable = {
+				order = 36,
+				name = "Show",
+				desc = "Show standalone Reforge Button",
+				type = "toggle",
+				width = .4,
+				get = function() return MM.sbSettings.Enable end,
+				set = function() MM:StandaloneCityReforgeToggle("enable") end
+			},
+			reforgeStandaloneCitys = {
+				order = 38,
+				name = "Only In Major Citys",
+				desc = "Only show while in major citys",
+				type = "toggle",
+				width = 1,
+				get = function() return MM.sbSettings.Citys end,
+				set = function() MM:StandaloneCityReforgeToggle("city") end
 			},
 		}
 	}
@@ -408,276 +440,17 @@ local function createConfig()
 			},
 			stopForNothing = {
 				order = 2,
-				name = "Spam Reforge",
-				desc = "When you load an item into the reforge slot, continue to spam reforge until you run out of runes. This will ignore all the options below for the reforge slot.",
+				name = "The Rune Waster",
+				desc = "Continue to spam reforge until you run out of runes. This will ignore all the options below and just roll on the first scroll in your inventory.",
 				type = "toggle"
 			},
-			shopHeader = {
-				order = 3,
-				name = "Stop for shopping list items",
-				type = "header"
-			},
-			shopEnabled = {
-				order = 4,
-				name = "Enabled",
-				desc = "Stop reforging items with an enchant on your shopping lists",
-				type = "toggle",
-				get = function(info) return MM.db.realm.OPTIONS.stopForShop.enabled end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopForShop.enabled = val end
-			},
-			shoppingListsDropdown = {
-				order = 5,
-				name = "Select a List",
-				desc = "This is where you can find all of your shopping lists",
-				type = "select",
-				style = "dropdown",
-				width = "full",
-				values = function() 
-					local returnList = {}
-					for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists) do
-						table.insert(returnList,v.name)
-					end
-					return returnList
-				end,
-			},
-			shoppingListName = {
-				order = 6,
-				name = "List Name",
-				desc = "Rename the currently selected Shopping List",
-				type = "input",
-				width = 1.3,
-				get = function(info)
-					local o = MM.db.realm.OPTIONS
-					if o.shoppingLists[o.shoppingListsDropdown] then
-						return o.shoppingLists[o.shoppingListsDropdown].name
-					end
-				end,
-				set = function(info,val)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].name = val
-					end
-				end
-			},
-			shoppingListAdd = {
-				order = 7,
-				name = "Add",
-				desc = "Add a new Shopping List",
-				type = "execute",
-				width = 0.4,
-				func = function()
-					local newList = {}
-					newList.name = "New List"
-					newList.enabled = true
-					newList.unknown = false
-					newList.extract = false
-					newList.reserve = true
-					newList[1] = ""
-					table.insert(MM.db.realm.OPTIONS.shoppingLists,newList)
-					MM.db.realm.OPTIONS.shoppingListsDropdown = #MM.db.realm.OPTIONS.shoppingLists
-				end,
-			},
-			shoppingListRemove = {
-				order = 8,
-				name = "Remove",
-				desc = "Remove the selected Shopping List",
-				type = "execute",
-				width = 0.45,
-				confirm = true,
-				confirmText = "Are you sure you want to remove this Shopping List?",
-				func = function()
-					table.remove(MM.db.realm.OPTIONS.shoppingLists,MM.db.realm.OPTIONS.shoppingListsDropdown)
-					local newDigit = MM.db.realm.OPTIONS.shoppingListsDropdown - 1
-					MM.db.realm.OPTIONS.shoppingListsDropdown = newDigit > 0 and newDigit or 1
-					MM:BuildWorkingShopList()
-				end,
-			},
-			spacer1 = {
-				order = 9,
-				type = "description",
-				name = " "
-			},
-			shopEnabledList = {
-				order = 10,
-				name = "Enabled",
-				desc = "Enables or disables this Shopping List",
-				type = "toggle",
-				width = "half",
-				get = function(info)
-					local o = MM.db.realm.OPTIONS
-					if o.shoppingLists[o.shoppingListsDropdown] then
-						return o.shoppingLists[o.shoppingListsDropdown].enabled
-					end
-				end,
-				set = function(info,val)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].enabled = val
-						MM:BuildWorkingShopList()
-					end
-				end
-			},
-			shopUnknown = {
-				order = 11,
-				name = "Unknown",
-				desc = "This shopping list will only stop reforging for enchants which are unknown",
-				type = "toggle",
-				width = "half",
-				get = function(info)
-					local o = MM.db.realm.OPTIONS
-					if o.shoppingLists[o.shoppingListsDropdown] then
-						return o.shoppingLists[o.shoppingListsDropdown].unknown
-					end
-				end,
-				set = function(info,val)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].unknown = val
-						MM:BuildWorkingShopList()
-					end
-				end
-			},
-			shopExtract = {
-				order = 12,
-				name = "Extract",
-				desc = "This shopping list will extract unknown entries automatically",
-				type = "toggle",
-				width = "half",
-				get = function(info)
-					local o = MM.db.realm.OPTIONS
-					if o.shoppingLists[o.shoppingListsDropdown] then
-						return o.shoppingLists[o.shoppingListsDropdown].extract
-					end
-				end,
-				set = function(info,val)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].extract = val
-						MM:BuildWorkingShopList()
-					end
-				end
-			},
-			reserveShoppingList = {
-				order = 13,
-				name = "Reserve",
-				desc = "Items places on this shopping list will not be reforged over when looking for insignia to roll on",
-				type = "toggle",
-				width = "half",
-				get = function(info)
-					local o = MM.db.realm.OPTIONS
-					if o.shoppingLists[o.shoppingListsDropdown] then
-						return o.shoppingLists[o.shoppingListsDropdown].reserve
-					end
-				end,
-				set = function(info,val)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown].reserve = val
-						MM:BuildWorkingShopList()
-					end
-				end
-			},
-			shoppingSubList = {
-				order = 14,
-				name = "Enchant Entries",
-				desc = "Select an entry within the Shopping List to modify or remove",
-				type = "select",
-				style = "dropdown",
-				width = "full",
-				values = function() 
-					local returnList = {}
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						for k, v in ipairs(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown]) do
-							table.insert(returnList,v)
-						end
-					else
-						returnList = {}
-					end
-					return returnList
-				end,
-			},
-			shoppingSubListName = {
-				order = 15,
-				name = "Selected Entry",
-				desc = "Input or modify the selected entry in the Shopping List",
-				type = "input",
-				width = 1.3,
-				get = function(info)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						return MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown][MM.db.realm.OPTIONS.shoppingSubList]
-					end
-				end,
-				set = function(info,val)
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown][MM.db.realm.OPTIONS.shoppingSubList] = val
-						MM:BuildWorkingShopList()
-					end
-				end
-			},
-			shoppingSubListAdd = {
-				order = 16,
-				name = "Add",
-				desc = "Add a new entry to the current Shopping List",
-				type = "execute",
-				width = 0.4,
-				func = function()
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						table.insert(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown],"")
-						MM.db.realm.OPTIONS.shoppingSubList = #MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown]
-					end
-				end,
-			},
-			shoppingSubListRemove = {
-				order = 17,
-				name = "Remove",
-				desc = "Remove the selected entry of the current Shopping List",
-				type = "execute",
-				width = 0.45,
-				confirm = true,
-				confirmText = "Are you sure you want to remove this Shopping List Entry?",
-				func = function()
-					if MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown] then
-						table.remove(MM.db.realm.OPTIONS.shoppingLists[MM.db.realm.OPTIONS.shoppingListsDropdown],MM.db.realm.OPTIONS.shoppingSubList)
-						local newDigit = MM.db.realm.OPTIONS.shoppingSubList - 1
-						MM.db.realm.OPTIONS.shoppingSubList = newDigit > 0 and newDigit or 1
-						MM:BuildWorkingShopList()
-					end
-				end,
-			},
-			seasonalHeader = {
-				order = 20,
-				name = "Stop for seasonal enchants",
-				type = "header"
-			},
-			seasonalEnabled = {
-				order = 21,
-				name = "Enabled",
-				desc = "Stop reforging items with any seasonal enchant",
-				type = "toggle",
-				width = "half",
-				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.enabled end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.enabled = val end
-			},
-			seasonalExtract = {
-				order = 22,
-				name = "Extract",
-				desc = "Automatically extract any unknown seasonal enchant",
-				type = "toggle",
-				width = "half",
-				get = function(info) return MM.db.realm.OPTIONS.stopSeasonal.extract end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopSeasonal.extract = val end
-			},
 			qualityHeader = {
-				order = 30,
+				order = 33,
 				name = "Stop for specific qualities of enchants",
 				type = "header"
 			},
-			qualityEnabled = {
-				order = 31,
-				name = "Enabled",
-				desc = "Stop reforging items with an enchant of any enabled quality",
-				type = "toggle",
-				width = "full",
-				get = function(info) return MM.db.realm.OPTIONS.stopQuality.enabled end,
-				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
-			},
 			qualityUncommon = {
-				order = 32,
+				order = 34,
 				name = "Uncommon",
 				desc = "Stop reforging items with any uncommon quality enchant",
 				type = "toggle",
@@ -686,7 +459,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[2] = val end
 			},
 			qualityRare = {
-				order = 33,
+				order = 35,
 				name = "Rare",
 				desc = "Stop reforging items with any rare quality enchant",
 				type = "toggle",
@@ -695,7 +468,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[3] = val end
 			},
 			qualityEpic = {
-				order = 34,
+				order = 35,
 				name = "Epic",
 				desc = "Stop reforging items with any epic quality enchant",
 				type = "toggle",
@@ -704,7 +477,7 @@ local function createConfig()
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality[4] = val end
 			},
 			qualityLegendary = {
-				order = 35,
+				order = 36,
 				name = "Legendary",
 				desc = "Stop reforging items with any legendary quality enchant",
 				type = "toggle",
@@ -1066,22 +839,24 @@ function MM:OpenConfig(panel)
 end
 
 function MM:ProcessSlashCommand(input)
-  local lowerInput = input:lower()
-  if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
-    MM:HandleGetAllScan()
-  elseif lowerInput:match("^scan") then
-    MM:HandleScan(input:match("^%w+%s+(.+)"))
-  elseif lowerInput:match("^calc") then
-    MM:CalculateAllStats()
-  elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
+	local lowerInput = input:lower()
+	if lowerInput:match("^fullscan$") or lowerInput:match("^getall$") then
+		MM:HandleGetAllScan()
+	elseif lowerInput:match("^scan") then
+		MM:HandleScan(input:match("^%w+%s+(.+)"))
+	elseif lowerInput:match("^calc") then
+		MM:CalculateAllStats()
+	elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
 		MM:OpenConfig("Mystic Maestro")
-  elseif input == "" then
-    MM:HandleMenuSlashCommand()
-  else
-    MM:Print("Command not recognized")
-    MM:Print("Valid input is scan, getall, calc")
-    MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
-  end
+	elseif lowerInput:match("^reforgebutton") then
+		MM:StandaloneReforgeShow()
+	elseif input == "" then
+		MM:HandleMenuSlashCommand()
+	else
+		MM:Print("Command not recognized")
+		MM:Print("Valid input is scan, getall, calc, reforgebutton")
+		MM:Print("Scan Rarity includes all, uncommon, rare, epic, legendary")
+	end
 end
 
 MM:RegisterChatCommand("mm", "ProcessSlashCommand")

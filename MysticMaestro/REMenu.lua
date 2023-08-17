@@ -445,10 +445,9 @@ do -- functions to initialize menu and menu container
 
   local settingsButton
   local function createSettingsButton(mmf)
-    settingsButton = CreateFrame("BUTTON", nil, mmf)
+    settingsButton = CreateFrame("BUTTON", nil, mmf, "SettingsGearButtonTemplate")
     settingsButton:SetSize(27, 27)
     settingsButton:SetPoint("TOP", mmf, "TOP", -76, 0)
-    settingsButton:SetNormalTexture("Interface\\AddOns\\MysticMaestro\\textures\\settings_icon")
     settingsButton:SetScript("OnClick",
       function()
         if MM.AutomationManager:IsRunning() then return end
@@ -522,8 +521,38 @@ do -- functions to initialize menu and menu container
   end
 end
 
-do -- hook and display MysticMaestroMenu in AuctionFrame
-  local function initAHTab()
+local function MMTab_OnClick(index)
+  if not MysticMaestroMenu then
+    initializeMenu()
+  end
+  if index ~= MM.AHTabIndex then
+    AuctionPortraitTexture:Show()
+    if MM:IsEmbeddedMenuOpen() then
+      MM:HideMysticMaestroMenu()
+      MM:HideAHExtension()
+    end
+  else
+    AuctionPortraitTexture:Hide()
+    AuctionFrameTopLeft:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-TopLeft");
+    AuctionFrameTop:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Top");
+    AuctionFrameTopRight:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-TopRight");
+    AuctionFrameBotLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-BotLeft");
+    AuctionFrameBot:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Bot");
+    AuctionFrameBotRight:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-BotRight");
+    if MM:IsStandAloneMenuOpen() then
+      MysticMaestroMenuContainer:Hide()
+    end
+    MysticMaestroMenu:ClearAllPoints()
+    MysticMaestroMenu:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 31)
+    MysticMaestroMenu:SetParent(AuctionFrame)
+    MM:ShowMysticMaestroMenu()
+    MM:ShowAHExtension()
+  end
+end
+
+local initAHdone
+function MM:initAHTab()
+    if initAHdone then return end
     MM.AHTabIndex = AuctionFrame.numTabs+1
     local framename = "AuctionFrameTab"..MM.AHTabIndex
     local frame = CreateFrame("Button", framename, AuctionFrame, "AuctionTabTemplate")
@@ -533,61 +562,23 @@ do -- hook and display MysticMaestroMenu in AuctionFrame
 
     PanelTemplates_SetNumTabs (AuctionFrame, MM.AHTabIndex);
     PanelTemplates_EnableTab  (AuctionFrame, MM.AHTabIndex);
-    return frame
-  end
 
-  local function MMTab_OnClick(index)
-    if not MysticMaestroMenu then
-      initializeMenu()
-    end
-    if index ~= MM.AHTabIndex then
-      AuctionPortraitTexture:Show()
-      if MM:IsEmbeddedMenuOpen() then
-        MM:HideMysticMaestroMenu()
-        MM:HideAHExtension()
-      end
-    else
-      AuctionPortraitTexture:Hide()
-      AuctionFrameTopLeft:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-TopLeft");
-      AuctionFrameTop:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Top");
-      AuctionFrameTopRight:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-TopRight");
-      AuctionFrameBotLeft:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Bid-BotLeft");
-      AuctionFrameBot:SetTexture("Interface\\AuctionFrame\\UI-AuctionFrame-Auction-Bot");
-      AuctionFrameBotRight:SetTexture("Interface\\AddOns\\MysticMaestro\\textures\\UI-AuctionFrame-MysticMaestro-BotRight");
-      if MM:IsStandAloneMenuOpen() then
-        MysticMaestroMenuContainer:Hide()
-      end
-      MysticMaestroMenu:ClearAllPoints()
-      MysticMaestroMenu:SetPoint("BOTTOMLEFT", AuctionFrame, "BOTTOMLEFT", 13, 31)
-      MysticMaestroMenu:SetParent(AuctionFrame)
-      MM:ShowMysticMaestroMenu()
-      MM:ShowAHExtension()
-    end
-  end
-
-  function MM:REMenu_ADDON_LOADED(event, addonName)
-    if addonName ~= "Blizzard_AuctionUI" then return end
-    local tab = initAHTab()
- 
-    hooksecurefunc("PanelTemplates_SetTab",
-      function(frame, id)
-        if frame == AuctionFrame then
-          MMTab_OnClick(id)
-        end
-      end
-    )
-
-    self:HookScript(AuctionFrame, "OnHide",
-    function()
-      if self:IsEmbeddedMenuOpen() then
-        self:HideMysticMaestroMenu()
-        self:HideAHExtension()
+    hooksecurefunc("PanelTemplates_SetTab", function(frame, id)
+      if frame == AuctionFrame then
+        MMTab_OnClick(id)
       end
     end)
-  end
 
-  MM:RegisterEvent("ADDON_LOADED", "REMenu_ADDON_LOADED")
+  MM:HookScript("OnHide", function(self)
+    if self:IsEmbeddedMenuOpen() then
+      self:HideMysticMaestroMenu()
+      self:HideAHExtension()
+    end
+  end)
+  initAHdone = true
 end
+
+
 
 do  -- display MysticMaestroMenu in standalone container
   function MM:OpenStandaloneMenu()
