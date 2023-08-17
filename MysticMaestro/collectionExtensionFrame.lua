@@ -2,39 +2,39 @@ local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 -- Localized functions
 local CreateListFrame, setCurrentSelectedList, createScrollFrame, scrollSliderCreate
 -- Colours stored for code readability
-local WHITE = "|cffFFFFFF";
-local GREEN = "|cff1eff00";
-local BLUE = "|cff0070dd";
-local ORANGE = "|cffFF8400";
-local GOLD  = "|cffffcc00";
-local LIGHTBLUE = "|cFFADD8E6";
-local ORANGE2 = "|cFFFFA500";
+local WHITE = "|cffFFFFFF"
+local GREEN = "|cff1eff00"
+local BLUE = "|cff0070dd"
+local ORANGE = "|cffFF8400"
+local GOLD  = "|cffffcc00"
+local LIGHTBLUE = "|cFFADD8E6"
+local ORANGE2 = "|cFFFFA500"
 
-local realmName = GetRealmName();
-local showtable = {};
+local realmName = GetRealmName()
+local showtable = {}
 
 setCurrentSelectedList = function()
-    local thisID = this:GetID();
-    MM.db.currentSelectedList = thisID;
-    UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,thisID);
-    MysticMaestro_ListFrame_ScrollFrameUpdate();
+    local thisID = this:GetID()
+    MM.db.currentSelectedList = thisID
+    UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,thisID)
+    MysticMaestro_ListFrame_ScrollFrameUpdate()
 end
 
 function MM:MenuInitialize()
-        local info;
+        local info
         for k,v in ipairs(MM.EnchantSaveLists) do
                     info = {
-                        text = v.Name;
-                        func = function() setCurrentSelectedList() end;
-                    };
-                    UIDropDownMenu_AddButton(info);
+                        text = v.Name,
+                        func = function() setCurrentSelectedList() end
+                    }
+                    UIDropDownMenu_AddButton(info)
         end
 end
 
 function MysticMaestro_ListFrame_ListEnable()
-    UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize);
-	UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,MM.db.currentSelectedList);
-    MysticMaestro_ListFrame_ScrollFrameUpdate();
+    UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
+	UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,MM.db.currentSelectedList)
+    MysticMaestro_ListFrame_ScrollFrameUpdate()
 end
 
 StaticPopupDialogs["MysticMaestro_ListFrame_ADDLIST"] = {
@@ -44,11 +44,11 @@ StaticPopupDialogs["MysticMaestro_ListFrame_ADDLIST"] = {
     hasEditBox = true,
     OnAccept = function (self, data, data2)
         local text = self.editBox:GetText()
-        MM.EnchantSaveLists[#MM.EnchantSaveLists + 1] = {["Name"] = text, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}; }
-        UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize);
-        UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,#MM.EnchantSaveLists);
-        MM.db.currentSelectedList = #MM.EnchantSaveLists;
-    MysticMaestro_ListFrame_ScrollFrameUpdate();
+        MM.EnchantSaveLists[#MM.EnchantSaveLists + 1] = {["Name"] = text, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false} }
+        UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
+        UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,#MM.EnchantSaveLists)
+        MM.db.currentSelectedList = #MM.EnchantSaveLists
+    MysticMaestro_ListFrame_ScrollFrameUpdate()
     end,
     timeout = 0,
     whileDead = true,
@@ -64,15 +64,15 @@ StaticPopupDialogs["MysticMaestro_ListFrame_EDITLISTNAMM"] = {
     hasEditBox = true,
     OnShow = function(self)
 		self.editBox:SetText(MM.EnchantSaveLists[MM.db.currentSelectedList].Name)
-		self:SetFrameStrata("TOOLTIP");
+		self:SetFrameStrata("TOOLTIP")
 	end,
     OnAccept = function (self, data, data2)
         local text = self.editBox:GetText()
         if text ~= "" then
-            MM.EnchantSaveLists[MM.db.currentSelectedList].Name = text;
-            UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize);
+            MM.EnchantSaveLists[MM.db.currentSelectedList].Name = text
+            UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
             UIDropDownMenu_SetText(MysticMaestro_ListFrame_ListDropDown, text)
-            MysticMaestro_ListFrame_ScrollFrameUpdate();
+            MysticMaestro_ListFrame_ScrollFrameUpdate()
         end
     end,
     timeout = 0,
@@ -87,11 +87,11 @@ StaticPopupDialogs["MysticMaestro_ListFrame_DELETELIST"] = {
     button1 = "Confirm",
     button2 = "Cancel",
     OnAccept = function ()
-        tremove(MM.EnchantSaveLists, MM.db.currentSelectedList);
-        UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize);
-        UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,1);
-        MM.db.currentSelectedList = 1;
-        MysticMaestro_ListFrame_ScrollFrameUpdate();
+        tremove(MM.EnchantSaveLists, MM.db.currentSelectedList)
+        UIDropDownMenu_Initialize(MysticMaestro_ListFrame_ListDropDown, MM.MenuInitialize)
+        UIDropDownMenu_SetSelectedID(MysticMaestro_ListFrame_ListDropDown,1)
+        MM.db.currentSelectedList = 1
+        MysticMaestro_ListFrame_ScrollFrameUpdate()
     end,
     timeout = 0,
     whileDead = true,
@@ -101,13 +101,13 @@ StaticPopupDialogs["MysticMaestro_ListFrame_DELETELIST"] = {
 }
 
 local function exportString()
-    MM.dewdrop:Close();
-    local data = {};
+    MM.dewdrop:Close()
+    local data = {}
     for i,v in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
-        tinsert(data,{v[1]});
+        tinsert(data,{v[1]})
     end
-    data["Name"] = MM.EnchantSaveLists[MM.db.currentSelectedList]["Name"];
-    Internal_CopyToClipboard("MMXT:"..MM:Serialize(data));
+    data["Name"] = MM.EnchantSaveLists[MM.db.currentSelectedList]["Name"]
+    Internal_CopyToClipboard("MMXT:"..MM:Serialize(data))
 end
 
 function MM:ListFrameMenuRegister(self)
@@ -170,25 +170,25 @@ local function GetSavedEnchant(id)
     end
 end
 
-local ROW_HEIGHT = 16;   -- How tall is each row?
-local MAX_ROWS = 23;      -- How many rows can be shown at once?
+local ROW_HEIGHT = 16   -- How tall is each row?
+local MAX_ROWS = 23      -- How many rows can be shown at once?
 local scrollFrame
 createScrollFrame = function()
-scrollFrame = CreateFrame("Frame", "MysticMaestro_ListFrame_ScrollFrame", MysticMaestro_ListFrame);
-    scrollFrame:EnableMouse(true);
-    scrollFrame:SetSize(265, ROW_HEIGHT * MAX_ROWS + 16);
-    scrollFrame:SetPoint("LEFT",20,-8);
+scrollFrame = CreateFrame("Frame", "MysticMaestro_ListFrame_ScrollFrame", MysticMaestro_ListFrame)
+    scrollFrame:EnableMouse(true)
+    scrollFrame:SetSize(265, ROW_HEIGHT * MAX_ROWS + 16)
+    scrollFrame:SetPoint("LEFT",20,-8)
     scrollFrame:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16,
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 },
-    });
+    })
 end
 
  
 function MysticMaestro_ListFrame_ScrollFrameUpdate()
     if MM.EnchantSaveLists[MM.db.currentSelectedList] then
-        showtable = {Name = MM.EnchantSaveLists[MM.db.currentSelectedList].Name, MenuID = MM.EnchantSaveLists[MM.db.currentSelectedList].MenuID};
+        showtable = {Name = MM.EnchantSaveLists[MM.db.currentSelectedList].Name, MenuID = MM.EnchantSaveLists[MM.db.currentSelectedList].MenuID}
         for _,v in ipairs(MM.EnchantSaveLists[MM.db.currentSelectedList]) do
             if MYSTIC_ENCHANTS[v[1]] then
                 tinsert(showtable,v)
@@ -196,11 +196,11 @@ function MysticMaestro_ListFrame_ScrollFrameUpdate()
         end
 
         local maxValue = #showtable
-        FauxScrollFrame_Update(scrollFrame.scrollBar, maxValue, MAX_ROWS, ROW_HEIGHT);
-        local offset = FauxScrollFrame_GetOffset(scrollFrame.scrollBar);
+        FauxScrollFrame_Update(scrollFrame.scrollBar, maxValue, MAX_ROWS, ROW_HEIGHT)
+        local offset = FauxScrollFrame_GetOffset(scrollFrame.scrollBar)
         for i = 1, MAX_ROWS do
             local value = i + offset
-            scrollFrame.rows[i]:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD");
+            scrollFrame.rows[i]:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
             if value <= maxValue and showtable[value] and MYSTIC_ENCHANTS[showtable[value][1]] then
                 local row = scrollFrame.rows[i]
                 local qualityColor = select(4,GetItemQualityColor(MYSTIC_ENCHANTS[showtable[value][1]].quality))
@@ -216,16 +216,16 @@ function MysticMaestro_ListFrame_ScrollFrameUpdate()
 end
 
 scrollSliderCreate = function()
-local scrollSlider = CreateFrame("ScrollFrame","MysticMaestro_ListFrameScroll",MysticMaestro_ListFrame_ScrollFrame,"FauxScrollFrameTemplate");
+local scrollSlider = CreateFrame("ScrollFrame","MysticMaestro_ListFrameScroll",MysticMaestro_ListFrame_ScrollFrame,"FauxScrollFrameTemplate")
 scrollSlider:SetPoint("TOPLEFT", 0, -8)
 scrollSlider:SetPoint("BOTTOMRIGHT", -30, 8)
 scrollSlider:SetScript("OnVerticalScroll", function(self, offset)
     self.offset = math.floor(offset / ROW_HEIGHT + 0.5)
-    MysticMaestro_ListFrame_ScrollFrameUpdate();
+    MysticMaestro_ListFrame_ScrollFrameUpdate()
 end)
 
 scrollSlider:SetScript("OnShow", function()
-    MysticMaestro_ListFrame_ScrollFrameUpdate();
+    MysticMaestro_ListFrame_ScrollFrameUpdate()
 end)
 
 scrollFrame.scrollBar = scrollSlider
@@ -277,7 +277,7 @@ local function enchantButtonClick(self)
     local id = self.Enchant
     if not GetSavedEnchant(id) then
         tinsert(MM.EnchantSaveLists[MM.db.currentSelectedList],{id})
-        MysticMaestro_ListFrame_ScrollFrameUpdate();
+        MysticMaestro_ListFrame_ScrollFrameUpdate()
     else
         local itemLink = MM:CreateItemLink(id)
         DEFAULT_CHAT_FRAMM:AddMessage(itemLink .. " Is already on this list.")
@@ -301,11 +301,11 @@ end
 
 --[[ hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(self)
     if MysticMaestro_ListFrame:IsVisible() and IsAltKeyDown() then
-        local bagID, slotID = self:GetParent():GetID(), self:GetID();
+        local bagID, slotID = self:GetParent():GetID(), self:GetID()
         local enchant = GetREInSlot(bagID, slotID)
             if enchant and not GetSavedEnchant(enchant) then
                 tinsert(MM.EnchantSaveLists[MM.db.currentSelectedList],{enchant})
-                MysticMaestro_ListFrame_ScrollFrameUpdate();
+                MysticMaestro_ListFrame_ScrollFrameUpdate()
             else
                 local itemLink = MM:CreateItemLink(enchant)
                 DEFAULT_CHAT_FRAMM:AddMessage(itemLink .. " Is already on this list.")
@@ -315,7 +315,7 @@ end) ]]
 
 --[[ hooksecurefunc("ContainerFrameItemButton_OnClick", function(self, button)
     if _G["EnchantCollection"]["Collection"]["CollectionTab"]:IsVisible() then
-        local bagID, slotID = self:GetParent():GetID(), self:GetID();
+        local bagID, slotID = self:GetParent():GetID(), self:GetID()
         MysticMaestro_ListFrame_BAGID = bagID
         MysticMaestro_ListFrame_SLOTID = slotID
         MysticMaestro_ListFrame_ITEMSET = false
@@ -331,12 +331,12 @@ local collectionOverlay = CreateFrame("FRAME", "MysticMaestro_Collection_Overlay
     collectionOverlay:SetSize(_G["EnchantCollection"]:GetWidth(), _G["EnchantCollection"]:GetHeight())
     collectionOverlay:SetPoint("CENTER", _G["EnchantCollection"])
 
---[[     collectionOverlay.ListFrameText = collectionOverlay:CreateFontString();
+--[[     collectionOverlay.ListFrameText = collectionOverlay:CreateFontString()
     collectionOverlay.ListFrameText:SetFont("Fonts\\FRIZQT__.TTF", 12)
     collectionOverlay.ListFrameText:SetFontObject(GameFontNormal)
-    collectionOverlay.ListFrameText:SetText("Mystic Extended");
-    collectionOverlay.ListFrameText:SetPoint("TOPRIGHT", -70, -11);
-    collectionOverlay.ListFrameText:SetShadowOffset(1,-1);
+    collectionOverlay.ListFrameText:SetText("Mystic Extended")
+    collectionOverlay.ListFrameText:SetPoint("TOPRIGHT", -70, -11)
+    collectionOverlay.ListFrameText:SetShadowOffset(1,-1)
  ]]
     -- moves enchant page buttons to better fit our known count
     EnchantCollection.Collection.CollectionTab.PageText:SetPoint("BOTTOM",0,50)
@@ -348,7 +348,7 @@ local collectionOverlay = CreateFrame("FRAME", "MysticMaestro_Collection_Overlay
     collectionOverlay.KnownCount:SetSize(190,20)
     collectionOverlay.KnownCount.Lable = collectionOverlay.KnownCount:CreateFontString(nil , "BORDER", "GameFontNormal")
     collectionOverlay.KnownCount.Lable:SetJustifyH("LEFT")
-    collectionOverlay.KnownCount.Lable:SetPoint("LEFT", 0, 0);
+    collectionOverlay.KnownCount.Lable:SetPoint("LEFT", 0, 0)
     collectionOverlay.KnownCount:SetScript("OnShow", function()
         enchantCounts = MM:CalculateKnowEnchants()
         collectionOverlay.KnownCount.Lable:SetText("Known Enchants: |cffffffff"..enchantCounts.knownEnchants.."/"..enchantCounts.totalEnchants)
@@ -359,38 +359,38 @@ local collectionOverlay = CreateFrame("FRAME", "MysticMaestro_Collection_Overlay
     collectionOverlay.KnownCount:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOverlay, "UIPanelDialogTemplate")
-    listFrame:SetSize(350, collectionOverlay:GetHeight()+7);
+    listFrame:SetSize(350, collectionOverlay:GetHeight()+7)
     listFrame:SetPoint("LEFT", collectionOverlay,"RIGHT")
-    listFrame.TitleText = listFrame:CreateFontString();
+    listFrame.TitleText = listFrame:CreateFontString()
     listFrame.TitleText:SetFont("Fonts\\FRIZQT__.TTF", 12)
     listFrame.TitleText:SetFontObject(GameFontNormal)
-    listFrame.TitleText:SetText("Enchant Shoping List");
-    listFrame.TitleText:SetPoint("TOP", 0, -9);
-    listFrame.TitleText:SetShadowOffset(1,-1);
-    listFrame:Hide();
+    listFrame.TitleText:SetText("Enchant Shoping List")
+    listFrame.TitleText:SetPoint("TOP", 0, -9)
+    listFrame.TitleText:SetShadowOffset(1,-1)
+    listFrame:Hide()
     listFrame:SetScript("OnHide",
     function()
         if _G["EnchantCollection"]:IsVisible() then
-            MM.db.ListFrameLastState = false;
+            MM.db.ListFrameLastState = false
         end
     end)
 
-    local listDropdown = CreateFrame("Button", "MysticMaestro_ListFrame_ListDropDown", MysticMaestro_ListFrame, "UIDropDownMenuTemplate");
-    listDropdown:SetPoint("TOPLEFT", 4, -40);
-    listDropdown:SetScript("OnClick", MysticMaestro_ListFrame_ListOnClick);
+    local listDropdown = CreateFrame("Button", "MysticMaestro_ListFrame_ListDropDown", MysticMaestro_ListFrame, "UIDropDownMenuTemplate")
+    listDropdown:SetPoint("TOPLEFT", 4, -40)
+    listDropdown:SetScript("OnClick", MysticMaestro_ListFrame_ListOnClick)
     UIDropDownMenu_SetWidth(MysticMaestro_ListFrame_ListDropDown, 155)
-    listDropdown.EnchantNumber = listDropdown:CreateFontString("MysticMaestro_ListFrameEnchantCount", "OVERLAY", "GameFontNormal");
-    listDropdown.EnchantNumber:SetPoint("TOPLEFT", 26, -8);
+    listDropdown.EnchantNumber = listDropdown:CreateFontString("MysticMaestro_ListFrameEnchantCount", "OVERLAY", "GameFontNormal")
+    listDropdown.EnchantNumber:SetPoint("TOPLEFT", 26, -8)
     listDropdown.EnchantNumber:SetFont("Fonts\\FRIZQT__.TTF", 11)
     listDropdown:SetScript("OnUpdate", function()
-            listDropdown.EnchantNumber:SetText("|cff00ff00"..#showtable);
+            listDropdown.EnchantNumber:SetText("|cff00ff00"..#showtable)
         end)
 
-local editlistnamebtn = CreateFrame("Button", "MysticMaestro_ListFrame_EditListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate");
-    editlistnamebtn:SetPoint("TOPLEFT", 195, -41);
+local editlistnamebtn = CreateFrame("Button", "MysticMaestro_ListFrame_EditListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate")
+    editlistnamebtn:SetPoint("TOPLEFT", 195, -41)
     editlistnamebtn:SetText("E")
-    editlistnamebtn:SetSize(27, 27);
-    editlistnamebtn:SetScript("OnClick", function() StaticPopup_Show("MysticMaestro_ListFrame_EDITLISTNAMM") end);
+    editlistnamebtn:SetSize(27, 27)
+    editlistnamebtn:SetScript("OnClick", function() StaticPopup_Show("MysticMaestro_ListFrame_EDITLISTNAMM") end)
     editlistnamebtn:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetText("Edit List Name")
@@ -399,11 +399,11 @@ local editlistnamebtn = CreateFrame("Button", "MysticMaestro_ListFrame_EditListB
 	editlistnamebtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 
-local addlistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_AddListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate");
-    addlistbtn:SetPoint("TOPLEFT", 225, -41);
+local addlistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_AddListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate")
+    addlistbtn:SetPoint("TOPLEFT", 225, -41)
     addlistbtn:SetText("+")
-    addlistbtn:SetSize(27, 27);
-    addlistbtn:SetScript("OnClick", function() StaticPopup_Show("MysticMaestro_ListFrame_ADDLIST") end);
+    addlistbtn:SetSize(27, 27)
+    addlistbtn:SetScript("OnClick", function() StaticPopup_Show("MysticMaestro_ListFrame_ADDLIST") end)
     addlistbtn:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetText("Create New List")
@@ -411,11 +411,11 @@ local addlistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_AddListBtn", M
 	end)
 	addlistbtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate");
-    removelistbtn:SetPoint("TOPLEFT", 255, -41);
+local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate")
+    removelistbtn:SetPoint("TOPLEFT", 255, -41)
     removelistbtn:SetText("-")
-    removelistbtn:SetSize(27, 27);
-    removelistbtn:SetScript("OnClick", function() StaticPopup_Show("MysticMaestro_ListFrame_DELETELIST") end);
+    removelistbtn:SetSize(27, 27)
+    removelistbtn:SetScript("OnClick", function() StaticPopup_Show("MysticMaestro_ListFrame_DELETELIST") end)
     removelistbtn:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:SetText("Remove List")
@@ -426,49 +426,49 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
 ------------------------------------------------------------------
 
 --Shows a menu with options and sharing options
-local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButton", MysticMaestro_ListFrame, "OptionsButtonTemplate");
-    sharebuttonlist:SetSize(133,30);
-    sharebuttonlist:SetPoint("BOTTOMRIGHT", MysticMaestro_ListFrame, "BOTTOMRIGHT", -20, 20);
-    sharebuttonlist:SetText("Export/Share");
-    sharebuttonlist:RegisterForClicks("LeftButtonDown");
+local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButton", MysticMaestro_ListFrame, "OptionsButtonTemplate")
+    sharebuttonlist:SetSize(133,30)
+    sharebuttonlist:SetPoint("BOTTOMRIGHT", MysticMaestro_ListFrame, "BOTTOMRIGHT", -20, 20)
+    sharebuttonlist:SetText("Export/Share")
+    sharebuttonlist:RegisterForClicks("LeftButtonDown")
     sharebuttonlist:SetScript("OnClick", function(self)
         if MM.dewdrop:IsOpen() then
-            MM.dewdrop:Close();
+            MM.dewdrop:Close()
         else
-            MM:ListFrameMenuRegister(self);
-            MM.dewdrop:Open(self);
+            MM:ListFrameMenuRegister(self)
+            MM.dewdrop:Open(self)
         end
-    end);
+    end)
     collectionOverlay.sharebuttonlist = sharebuttonlist
 
 
 
 --Show/Hide button in main list view
-    collectionOverlay.showFrameBttn  = CreateFrame("Button", nil, collectionOverlay, "FilterDropDownMenuTemplate");
-    collectionOverlay.showFrameBttn :SetSize(80,24);
+    collectionOverlay.showFrameBttn  = CreateFrame("Button", nil, collectionOverlay, "FilterDropDownMenuTemplate")
+    collectionOverlay.showFrameBttn :SetSize(80,24)
     collectionOverlay.showFrameBttn :SetPoint("BOTTOMRIGHT", collectionOverlay, -5, 3)
     collectionOverlay.showFrameBttn :SetScript("OnClick", function()
         if listFrame:IsVisible() then
-            listFrame:Hide();
-            MM.db.char.ListFrameLastState = false;
-            collectionOverlay.showFrameBttn:SetText("Show");
+            listFrame:Hide()
+            MM.db.char.ListFrameLastState = false
+            collectionOverlay.showFrameBttn:SetText("Show")
         else
-            collectionOverlay.showFrameBttn:SetText("Hide");
-            listFrame:Show();
-            MM.db.char.ListFrameLastState = true;
+            collectionOverlay.showFrameBttn:SetText("Hide")
+            listFrame:Show()
+            MM.db.char.ListFrameLastState = true
         end
     end)
     collectionOverlay.showFrameBttn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine(WHITE.."Shopping List");
-        GameTooltip:AddLine("Open Shopping List Frame");
-        GameTooltip:Show();
-    end);
-    collectionOverlay.showFrameBttn:SetScript("OnLeave", function() GameTooltip:Hide() end);
+        GameTooltip:AddLine(WHITE.."Shopping List")
+        GameTooltip:AddLine("Open Shopping List Frame")
+        GameTooltip:Show()
+    end)
+    collectionOverlay.showFrameBttn:SetScript("OnLeave", function() GameTooltip:Hide() end)
     if MM.db.char.ListFrameLastState then
-        collectionOverlay.showFrameBttn:SetText("Show");
+        collectionOverlay.showFrameBttn:SetText("Show")
     else
-        collectionOverlay.showFrameBttn:SetText("Hide");
+        collectionOverlay.showFrameBttn:SetText("Hide")
     end
 
     -- Reforge button in list interface
@@ -491,8 +491,8 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
         GameTooltip:AddLine("Reforges each scroll until a match")
         GameTooltip:AddLine("Configure match options in settings")
         GameTooltip:Show()
-    end);
-    collectionOverlay.reforgebuttonlist:SetScript("OnLeave", function() GameTooltip:Hide() end);
+    end)
+    collectionOverlay.reforgebuttonlist:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 
     -- Altar summon button on the enchant collection frame
@@ -505,16 +505,16 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
         collectionOverlay.altarBtn.icon:SetSize(22, 22)
         collectionOverlay.altarBtn.icon:SetPoint("CENTER")
         local _, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-        collectionOverlay.altarBtn.icon:SetTexture(icon);
-        collectionOverlay.altarBtn.Highlight = collectionOverlay.altarBtn:CreateTexture(nil, "OVERLAY");
-        collectionOverlay.altarBtn.Highlight:SetSize(23,23);
-        collectionOverlay.altarBtn.Highlight:SetPoint("CENTER");
-        collectionOverlay.altarBtn.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected");
-        collectionOverlay.altarBtn.Highlight:Hide();
-        collectionOverlay.altarBtn:SetAttribute("type", "item");
-        collectionOverlay.altarBtn:SetAttribute("item","Mystic Enchanting Altar");
+        collectionOverlay.altarBtn.icon:SetTexture(icon)
+        collectionOverlay.altarBtn.Highlight = collectionOverlay.altarBtn:CreateTexture(nil, "OVERLAY")
+        collectionOverlay.altarBtn.Highlight:SetSize(23,23)
+        collectionOverlay.altarBtn.Highlight:SetPoint("CENTER")
+        collectionOverlay.altarBtn.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
+        collectionOverlay.altarBtn.Highlight:Hide()
+        collectionOverlay.altarBtn:SetAttribute("type", "item")
+        collectionOverlay.altarBtn:SetAttribute("item","Mystic Enchanting Altar")
         collectionOverlay.altarBtn:SetScript("OnEnter", function(self)
-            collectionOverlay.altarBtn.Highlight:Show();
+            collectionOverlay.altarBtn.Highlight:Show()
             local startTime, duration = GetItemCooldown(itemID)
             local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
             GameTooltip:SetOwner(self, "ANCHOR_TOP")
@@ -528,19 +528,19 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     end
 
     -- opens the settings page
-    collectionOverlay.optionsbutton = CreateFrame("Button", nil, collectionOverlay, "SettingsGearButtonTemplate");
-    collectionOverlay.optionsbutton:SetSize(24,24);
-    collectionOverlay.optionsbutton:SetPoint("RIGHT", collectionOverlay.altarBtn, "LEFT", -5, 1.2);
-    collectionOverlay.optionsbutton:RegisterForClicks("LeftButtonDown");
-    collectionOverlay.optionsbutton:SetScript("OnClick", function() MM:OpenConfig("Reforge") end);
+    collectionOverlay.optionsbutton = CreateFrame("Button", nil, collectionOverlay, "SettingsGearButtonTemplate")
+    collectionOverlay.optionsbutton:SetSize(24,24)
+    collectionOverlay.optionsbutton:SetPoint("RIGHT", collectionOverlay.altarBtn, "LEFT", -5, 1.2)
+    collectionOverlay.optionsbutton:RegisterForClicks("LeftButtonDown")
+    collectionOverlay.optionsbutton:SetScript("OnClick", function() MM:OpenConfig("Reforge") end)
     collectionOverlay.optionsbutton:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-        GameTooltip:AddLine("Auto Reforge Settings");
-        GameTooltip:Show();
-    end);
+        GameTooltip:AddLine("Auto Reforge Settings")
+        GameTooltip:Show()
+    end)
     collectionOverlay.optionsbutton:SetScript("OnLeave", function(self)
-        GameTooltip:Hide();
-    end);
+        GameTooltip:Hide()
+    end)
 
     createScrollFrame()
     scrollSliderCreate()
@@ -610,7 +610,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                         'textHeight', 12,
                         'textWidth', 12,
                         "notCheckable", true
-                    );
+                    )
                     MM.dewdrop:AddLine(
                         "text", LIGHTBLUE.."Party",
                         "func", function() MM:Chatlink(spellID,"PARTY") end,
@@ -618,7 +618,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                         'textHeight', 12,
                         'textWidth', 12,
                         "notCheckable", true
-                    );
+                    )
                     MM.dewdrop:AddLine(
                         "text", ORANGE2.."Raid",
                         "func", function() MM:Chatlink(spellID,"RAID") end,
@@ -626,7 +626,7 @@ function MM:ItemContextMenu(spellID, itemID, self)
                         'textHeight', 12,
                         'textWidth', 12,
                         "notCheckable", true
-                    );
+                    )
                     --MM:AddDividerLine(35)
             elseif level == 2 then
                 if value == "OwnWishlists" then

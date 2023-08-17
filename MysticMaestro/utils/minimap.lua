@@ -1,5 +1,5 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
-local icon = LibStub('LibDBIcon-1.0');
+local icon = LibStub('LibDBIcon-1.0')
 local addonName = ...
 MYSTICMAESTRO_MINIMAP = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
     type = 'data source',
@@ -13,10 +13,10 @@ function minimap.OnClick(self, button)
     GameTooltip:Hide()
     if button == "RightButton" then
         if MM.dewdrop:IsOpen() then
-            MM.dewdrop:Close();
+            MM.dewdrop:Close()
         else
-            MM:MiniMapMenuRegister(self);
-            MM.dewdrop:Open(this);
+            MM:MiniMapMenuRegister(self)
+            MM.dewdrop:Open(this)
         end
     elseif button == 'LeftButton' then
 

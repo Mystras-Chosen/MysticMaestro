@@ -10,10 +10,10 @@ function MM:guildBankFrameOpened()
         toPointX, toPointY = -80, 25
         fromPointX, fromPointY = 80, 25
     end
-    local moveReItemsTobank = CreateFrame("Button", nil, gFrame, "OptionsButtonTemplate");
-    moveReItemsTobank:SetSize(135, 26);
-    moveReItemsTobank:SetPoint("TOP", gFrame, "TOP", toPointX, toPointY);
-    moveReItemsTobank:SetText("Move To Bank");
+    local moveReItemsTobank = CreateFrame("Button", nil, gFrame, "OptionsButtonTemplate")
+    moveReItemsTobank:SetSize(135, 26)
+    moveReItemsTobank:SetPoint("TOP", gFrame, "TOP", toPointX, toPointY)
+    moveReItemsTobank:SetText("Move To Bank")
     moveReItemsTobank:SetScript("OnClick", function()
         for bagID = 0, 4 do
             for slotID = 1, GetContainerNumSlots(bagID) do
@@ -25,10 +25,10 @@ function MM:guildBankFrameOpened()
             end
         end
     end)
-    local moveReItemsFrombank = CreateFrame("Button", nil, gFrame, "OptionsButtonTemplate");
-    moveReItemsFrombank:SetSize(135, 26);
-    moveReItemsFrombank:SetPoint("TOP", gFrame, "TOP", fromPointX, fromPointY);
-    moveReItemsFrombank:SetText("Move To Inventory");
+    local moveReItemsFrombank = CreateFrame("Button", nil, gFrame, "OptionsButtonTemplate")
+    moveReItemsFrombank:SetSize(135, 26)
+    moveReItemsFrombank:SetPoint("TOP", gFrame, "TOP", fromPointX, fromPointY)
+    moveReItemsFrombank:SetText("Move To Inventory")
     moveReItemsFrombank:SetScript("OnClick", function()
         for c = 1, 112 do
             if GetGuildBankItemLink(GetCurrentGuildBankTab(), c) then
@@ -40,5 +40,5 @@ function MM:guildBankFrameOpened()
             end
         end
     end)
-     MM:UnregisterEvent("GUILDBANKFRAME_OPENED");
+     MM:UnregisterEvent("GUILDBANKFRAME_OPENED")
 end

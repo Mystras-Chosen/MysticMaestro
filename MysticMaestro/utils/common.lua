@@ -1,12 +1,12 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 -- Colours stored for code readability
-local WHITE = "|cffFFFFFF";
-local GREEN = "|cff1eff00";
-local BLUE = "|cff0070dd";
-local ORANGE = "|cffFF8400";
-local GOLD  = "|cffffcc00";
-local LIGHTBLUE = "|cFFADD8E6";
-local ORANGE2 = "|cFFFFA500";
+local WHITE = "|cffFFFFFF"
+local GREEN = "|cff1eff00"
+local BLUE = "|cff0070dd"
+local ORANGE = "|cffFF8400"
+local GOLD  = "|cffffcc00"
+local LIGHTBLUE = "|cFFADD8E6"
+local ORANGE2 = "|cFFFFA500"
 local CYAN =  "|cff00ffff"
 
 -- API for other addons to get information about an RE
@@ -487,7 +487,7 @@ function MM:AddDividerLine(maxLenght)
       'textWidth', 12,
       'isTitle', true,
       "notCheckable", true
-  );
+  )
 end
 
 --pre built dewdrop close button with dividerline
@@ -509,16 +509,16 @@ end
 
 -- open browser link base on type or id/string
 function MM:OpenDBURL(ID, Type)
-  OpenAscensionDBURL("?"..Type.."="..ID);
+  OpenAscensionDBURL("?"..Type.."="..ID)
 end
 
 -- for sending links to party/raid/guild chat
 function MM:Chatlink(ID,chatType)
   local spellLink = LinkUtil:GetSpellLink(ID)
   if spellLink then
-      SendChatMessage(spellLink ,chatType);
+      SendChatMessage(spellLink ,chatType)
   else
-      SendChatMessage(select(2,GetItemInfo(ID)) ,chatType);
+      SendChatMessage(select(2,GetItemInfo(ID)) ,chatType)
   end
 end
 
