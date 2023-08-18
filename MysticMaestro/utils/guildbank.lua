@@ -17,9 +17,9 @@ function MM:guildBankFrameOpened()
     moveReItemsTobank:SetScript("OnClick", function()
         for bagID = 0, 4 do
             for slotID = 1, GetContainerNumSlots(bagID) do
-                local enchantID = GetREInSlot(bagID, slotID)
-                if enchantID and getItemID(bagID, slotID) and
-                (MM:SearchLists(enchantID, "Keep") or (MM:DoRarity(enchantID,1) and not MM:SearchLists(enchantID, "Ignore"))) then
+                local enchant = GetREInSlot(bagID, slotID)
+                if enchant and getItemID(bagID, slotID) 
+                and (MM:SearchLists(enchant.SpellID, "Keep") or (MM:DoRarity(enchant.SpellID,1) and not MM:SearchLists(enchant.SpellID, "Ignore"))) then
                     UseContainerItem(bagID, slotID)
                 end
             end

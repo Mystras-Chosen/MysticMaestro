@@ -134,7 +134,7 @@ function MM:GetREInSlot(bag,slot)
   local itemID = GetItemInfoFromHyperlink(itemLink)
   if not itemID then return end
   local enchant = C_MysticEnchant.GetEnchantInfoByItem(itemID)
-  return enchant and enchant.SpellID
+  return enchant
 end
 
 -- Find Untarnished Mystic Scroll to use in crafting
@@ -175,11 +175,11 @@ function MM:UpdateSellableREsCache(bagID)
   local itemName
   for containerIndex=1, GetContainerNumSlots(bagID) do
     local _,count,_,_,_,_,itemLink = GetContainerItemInfo(bagID, containerIndex)
-    local SpellID = MM:GetREInSlot(bagID, containerIndex)
+    local enchant = MM:GetREInSlot(bagID, containerIndex)
     if itemLink then
       itemName = GetItemInfo(itemLink)
-      if SpellID then
-        newContainerCache[SpellID] = (newContainerCache[SpellID] or 0) + (count or 1)
+      if enchant and not enchant.IsWorldforged then
+        newContainerCache[enchant.SpellID] = (newContainerCache[enchant.SpellID] or 0) + (count or 1)
       elseif MM:IsUntarnished(itemName) then
         newContainerCache["blanks"] = (newContainerCache["blanks"] or 0) + 1
       end
