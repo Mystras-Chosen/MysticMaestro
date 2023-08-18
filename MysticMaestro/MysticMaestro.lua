@@ -13,6 +13,7 @@ function MM:OnInitialize()
   MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
   MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE")
   MM:RegisterEvent("GUILDBANKFRAME_OPENED");
+
   if MM.sbSettings.Citys then
     MM:RegisterEvent("ZONE_CHANGED");
     MM:RegisterEvent("ZONE_CHANGED_NEW_AREA");

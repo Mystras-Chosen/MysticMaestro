@@ -1,4 +1,5 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local AceGUI = LibStub("AceGUI-3.0")
 -- Localized functions
 local CreateListFrame, setCurrentSelectedList, createScrollFrame, scrollSliderCreate
 -- Colours stored for code readability
@@ -154,8 +155,6 @@ function MM:ListFrameMenuRegister(self)
 	)
 end
 
-
-
 ------------------ScrollFrameTooltips---------------------------
 local function ItemTemplate_OnEnter(self)
     if self.link == nil then return end
@@ -170,22 +169,20 @@ end
 ---------------------ScrollFrame----------------------------------
 --Check to see if the enchant is allreay on the list
 local function GetSavedEnchant(SpellID)
-
     if MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][SpellID] then
         return SpellID
     end
 end
 
 local ROW_HEIGHT = 16   -- How tall is each row?
-local MAX_ROWS = 23      -- How many rows can be shown at once?
+local MAX_ROWS = 26      -- How many rows can be shown at once?
 local scrollFrame
 createScrollFrame = function()
 scrollFrame = CreateFrame("Frame", "MysticMaestro_ListFrame_ScrollFrame", MysticMaestro_ListFrame)
     scrollFrame:EnableMouse(true)
-    scrollFrame:SetSize(265, ROW_HEIGHT * MAX_ROWS + 16)
-    scrollFrame:SetPoint("LEFT",20,-8)
+    scrollFrame:SetSize(313, ROW_HEIGHT * MAX_ROWS + 16)
+    scrollFrame:SetPoint("LEFT",20,0)
     scrollFrame:SetBackdrop({
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", tile = true, tileSize = 16,
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
         insets = { left = 4, right = 4, top = 4, bottom = 4 },
     })
@@ -403,6 +400,12 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
     listFrame.TitleText:SetText("Enchant Shoping List")
     listFrame.TitleText:SetPoint("TOP", 0, -9)
     listFrame.TitleText:SetShadowOffset(1,-1)
+    listFrame.tex = listFrame:CreateTexture(nil, "ARTWORK")
+    listFrame.tex:SetPoint("CENTER",0,-35)
+    local tex = AtlasUtil:GetAtlasInfo("Enchant-Slot-Frame-Background")
+    listFrame.tex:SetTexture(tex.filename)
+    listFrame.tex:SetTexCoord(tex.leftTexCoord, tex.rightTexCoord, tex.topTexCoord, tex.bottomTexCoord)
+    listFrame.tex:SetSize(345, listFrame:GetHeight()+10)
     listFrame:Hide()
     listFrame:SetScript("OnHide",
     function()
@@ -460,6 +463,66 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
 	removelistbtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 ------------------------------------------------------------------
+local enableCheck = AceGUI:Create("CheckBox")
+    enableCheck.frame:SetParent(MysticMaestro_ListFrame)
+    enableCheck:SetPoint("BOTTOMLEFT", MysticMaestro_ListFrame, 35, 60)
+    enableCheck:SetHeight(25)
+    enableCheck:SetWidth(80)
+    enableCheck:SetLabel("Enable")
+    enableCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable)
+    enableCheck:SetCallback("OnValueChanged",
+    function(self, event, key)
+        MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable = not MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable
+    end
+    )
+    enableCheck:SetCallback("OnEnter", function()
+        GameTooltip:SetOwner(enableCheck.frame, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Enable this list for auto reforging")
+        GameTooltip:Show()
+    end)
+    enableCheck:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+    enableCheck.frame:Show()
+    MM.enableCheck = enableCheck
+
+local extractCheck = AceGUI:Create("CheckBox")
+    extractCheck.frame:SetParent(MysticMaestro_ListFrame)
+    extractCheck:SetPoint("LEFT", enableCheck.frame, "RIGHT", 10, 0)
+    extractCheck:SetHeight(25)
+    extractCheck:SetWidth(80)
+    extractCheck:SetLabel("Extract")
+    extractCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract)
+    extractCheck:SetCallback("OnValueChanged",
+    function(self, event, key)
+        MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract = not MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract
+    end
+    )
+    extractCheck:SetCallback("OnEnter", function()
+        GameTooltip:SetOwner(extractCheck.frame, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Auto extract enchants on this list if unknown")
+        GameTooltip:Show()
+    end)
+    extractCheck:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+    extractCheck.frame:Show()
+
+local reforgeCheck = AceGUI:Create("CheckBox")
+    reforgeCheck.frame:SetParent(MysticMaestro_ListFrame)
+    reforgeCheck:SetPoint("LEFT", extractCheck.frame, "RIGHT", 10, 0)
+    reforgeCheck:SetHeight(25)
+    reforgeCheck:SetWidth(80)
+    reforgeCheck:SetLabel("Reforge")
+    reforgeCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge)
+    reforgeCheck:SetCallback("OnValueChanged",
+    function(self, event, key)
+        MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge = not MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge
+    end
+    )
+    reforgeCheck:SetCallback("OnEnter", function(self)
+        GameTooltip:SetOwner(reforgeCheck.frame, "ANCHOR_RIGHT")
+        GameTooltip:AddLine("Set list to reforge any item found on this list")
+        GameTooltip:Show()
+    end)
+    reforgeCheck:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+    reforgeCheck.frame:Show()
 
 --Shows a menu with options and sharing options
 local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButton", MysticMaestro_ListFrame, "OptionsButtonTemplate")
