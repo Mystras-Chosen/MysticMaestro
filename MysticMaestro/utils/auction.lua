@@ -258,13 +258,9 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 ---------------------------------
 
 function MM:AuctionListStringToList(listString)
-  local left, right = string.split(":", listString)
-  local list = { ["other"] = {}}
-  for buyout in left:gmatch("%d+") do
+  local list = {}
+  for buyout in listString:gmatch("%d+") do
     table.insert(list, tonumber(buyout))
-  end
-  for buyout in right:gmatch("%d+") do
-    table.insert(list.other, tonumber(buyout))
   end
   return list
 end
