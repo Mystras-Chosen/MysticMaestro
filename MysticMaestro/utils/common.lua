@@ -503,17 +503,20 @@ function MM:CloseDewDrop(divider, maxLenght)
 end
 
 -- open browser link base on type or id/string
-function MM:OpenDBURL(ID, Type)
-  OpenAscensionDBURL("?"..Type.."="..ID)
+function MM:OpenDBURL(self, Type)
+  OpenAscensionDBURL("?"..Type.."="..self.enchantInfo.ItemID)
 end
 
 -- for sending links to party/raid/guild chat
-function MM:Chatlink(ID,chatType)
-  local spellLink = LinkUtil:GetSpellLink(ID)
-  if spellLink then
+function MM:Chatlink(self, chatType, button)
+  print(button)
+  local spellLink = LinkUtil:GetSpellLink(self.enchantInfo.SpellID)
+  local itemID = self.enchantInfo.ItemID
+  print(itemID)
+  if type == "spell" then
       SendChatMessage(spellLink ,chatType)
-  else
-      SendChatMessage(select(2,GetItemInfo(ID)) ,chatType)
+  elseif type == "item" then
+      SendChatMessage(select(2,GetItemInfo(itemID)) ,chatType)
   end
 end
 

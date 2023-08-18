@@ -324,9 +324,9 @@ function MM:CollectionSetup(addon)
     if setupLoaded then return end
         for i = 1, 18 do
             local button = _G["EnchantCollection"]["Collection"]["CollectionTab"]["buttonIDToButton"][i]
-                button:HookScript("OnMouseDown", function(self, arg1)
-                    if arg1 == "RightButton" then
-                        MM:ItemContextMenu(self.enchantInfo.SpellID, self.enchantInfo.ItemID, self)
+                button:HookScript("OnMouseDown", function(self, button)
+                    if button == "RightButton" then
+                        MM:ItemContextMenu(self)
                     end
                 end)
         end
@@ -615,9 +615,9 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
   MM:ListFrameEnable()
 end
 
-
 -- Right Click context menu in the enchanting frame
-function MM:ItemContextMenu(SpellID, itemID, self)
+function MM:ItemContextMenu(self)
+
     if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
     MM.dewdrop:Register(self,
         'point', function(parent)
@@ -650,7 +650,7 @@ function MM:ItemContextMenu(SpellID, itemID, self)
                 )
                 MM.dewdrop:AddLine(
                     'text', ORANGE.."Open In AscensionDB",
-                    'func', function() MM:OpenDBURL(SpellID ,"spell") end,
+                    'func', function() MM:OpenDBURL(self, "spell") end,
                     'textHeight', 12,
                     'textWidth', 12,
                     'notCheckable', true,
@@ -658,7 +658,7 @@ function MM:ItemContextMenu(SpellID, itemID, self)
                 )
                 MM.dewdrop:AddLine(
                         "text", GREEN.."Guild",
-                        "func", function() MM:Chatlink(SpellID,"GUILD") end,
+                        "func", function() MM:Chatlink(self,"GUILD", button) end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -666,7 +666,7 @@ function MM:ItemContextMenu(SpellID, itemID, self)
                     )
                     MM.dewdrop:AddLine(
                         "text", LIGHTBLUE.."Party",
-                        "func", function() MM:Chatlink(SpellID,"PARTY") end,
+                        "func", function() MM:Chatlink(self,"PARTY", button) end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -674,7 +674,7 @@ function MM:ItemContextMenu(SpellID, itemID, self)
                     )
                     MM.dewdrop:AddLine(
                         "text", ORANGE2.."Raid",
-                        "func", function() MM:Chatlink(SpellID,"RAID") end,
+                        "func", function() MM:Chatlink(self,"RAID", button) end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
