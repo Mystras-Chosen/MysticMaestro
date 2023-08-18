@@ -569,7 +569,7 @@ function MM:initAHTab()
       end
     end)
 
-  MM:HookScript("OnHide", function(self)
+  MM.OnUpdateFrame:HookScript("OnHide", function(self)
     if self:IsEmbeddedMenuOpen() then
       self:HideMysticMaestroMenu()
       self:HideAHExtension()

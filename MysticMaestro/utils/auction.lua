@@ -575,32 +575,25 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
   enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-local function findSellableScrollWithSpellID(SpellID,listMode)
+function findSellableScrollWithSpellID(spellID, listMode)
+	if not spellID then return end
   local items = {}
-  for bagID=0, 4 do
-    for slotIndex=1, GetContainerNumSlots(bagID) do
-      local _,count,_,_,_,_,_,_,_,itemID = GetContainerItemInfo(bagID, slotIndex)
-      if itemID then
-        local query = C_MysticEnchant.GetEnchantInfoByItem(itemID)
-        local re
-        if query then
-          re = query.SpellID
-        end
-        if re == SpellID then
-          for i=1, count do
-            table.insert(items, {bagID, slotIndex})
-          end
-        end
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+	for _, scroll in ipairs(inventoryList) do
+		local enchant = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
+		if enchant and not enchant.IsWorldforged
+    and enchant.SpellID == spellID then
+      if not listMode then return scroll.Bag, scroll.Slot end
+      local count = select(2,GetContainerItemInfo(scroll.Bag, scroll.Slot))
+      for i=1, count do
+        table.insert(items, {scroll.Bag, scroll.Slot})
       end
-    end
-  end
-  if listMode then
-    return items ~= {} and items or false
-  elseif #items > 0 then
-    return unpack(items[1])
-  else
-    return
-  end
+		end
+	end
+  -- Without any items, we return false
+  if #items <= 0 then return false end
+  -- We have a request for the list
+  if listMode then return items end
 end
 
 local bagClear, isFetching, fetchBag, fetchSlot, autoPosting, autoPostingTimer
@@ -688,13 +681,15 @@ end
 function MM:ListAuctionQueue(SpellID,price)
   if not auctionQueueAdded[SpellID] then
     local itemList = findSellableScrollWithSpellID(SpellID,true)
-    for _, entry in ipairs(itemList) do
-      entry.price = price
-      entry.SpellID = SpellID
-      table.insert(auctionQueue,entry)
+    if itemList then
+      for _, entry in ipairs(itemList) do
+        entry.price = price
+        entry.SpellID = SpellID
+        table.insert(auctionQueue,entry)
+      end
+      autoPosting = true
+      auctionQueueAdded[SpellID] = true
     end
-    autoPosting = true
-    auctionQueueAdded[SpellID] = true
   end
 end
 

@@ -109,7 +109,7 @@ local function extract(enchant)
 	if enchant.Known then return end
 	if GetItemCount(98463) and (GetItemCount(98463) > 0) then
 			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchant.SpellID))
-			local itemGuid = MM:FindSpecificScroll(enchant.ItemID)
+			local itemGuid = MM:FindScrollByItem(enchant.ItemID)
 			C_MysticEnchant.DisenchantItem(itemGuid)
 	end
 end
@@ -182,7 +182,7 @@ function MM:FindNextScroll()
 	end
 end
 
-function MM:FindSpecificScroll(itemID)
+function MM:FindScrollByItem(itemID)
 	if not itemID then return end
 
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()
