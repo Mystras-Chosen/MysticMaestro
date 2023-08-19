@@ -68,6 +68,7 @@ function MM:AUCTION_ITEM_LIST_UPDATE(event, arg1, arg2, arg3)
   if event == "AUCTION_ITEM_LIST_UPDATE" then
     MM:GetAllScan_AUCTION_ITEM_LIST_UPDATE()
     MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
+    MM:BatchScan_AUCTION_ITEM_LIST_UPDATE()
     MM:BuyCancel_AUCTION_ITEM_LIST_UPDATE()
   end
 end

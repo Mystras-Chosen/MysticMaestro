@@ -26,9 +26,10 @@ collectionExtensionFrame.lua
 standaloneRegforgeButton.lua
 automation\AutomationManager.lua
 automation\automationCommon.lua
-automation\functions\scan.lua
+automation\functions\queuescan.lua
 automation\functions\getallscan.lua
 automation\functions\post.lua
 automation\functions\cancel.lua
 automation\functions\undercut.lua
 automation\functions\craft.lua
+automation\functions\batchscan.lua

@@ -1,6 +1,6 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local automationName = "Scan"
+local automationName = "Queue Scan"
 
 local isPaused
 

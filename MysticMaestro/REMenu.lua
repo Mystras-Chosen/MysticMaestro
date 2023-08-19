@@ -600,7 +600,8 @@ local statsContainerWidgets = {}
 do -- show and hide MysticMaestroMenu
 
   local automationFunctionNames = {
-    "Scan",
+    "Batch Scan",
+    "Queue Scan",
     "GetAll Scan",
     "Post"
   }

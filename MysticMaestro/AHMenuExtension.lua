@@ -394,7 +394,7 @@ local function setUpButtonWidgets()
   scanButton:SetText("Scan")
   scanButton:SetCallback("OnClick",
     function(self, event)
-      MM.AutomationManager:ShowAutomationPrompt("Scan")
+      MM.AutomationManager:ShowAutomationPrompt("Batch Scan")
     end
   )
   scanButton.frame:Show()

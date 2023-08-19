@@ -59,7 +59,7 @@ function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
     local listings, expectedSpellID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
     local listingData = listings[expectedSpellID]
     results = {}
-    local temp = ":"
+    local temp = ""
     awaitingResults = false
     for i=1, GetNumAuctionItems("list") do
       local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo("list", i)
