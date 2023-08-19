@@ -356,10 +356,16 @@ end
 function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2, arg3)
 	if not autoReforgeEnabled then return end
 	if arg1 ~= "player" or arg2 ~= "Reforge Mystic Enchant" then return end
+	MM:RegisterEvent("BAG_UPDATE")
 
-	Timer.NextFrame(MM.RequestReforge)
 	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+end
+
+function MM:BAG_UPDATE()
+	MM:UnregisterEvent("BAG_UPDATE")
+	--Timer.NextFrame(MM.RequestReforge)
+	MM:RequestReforge()
 end
 
 function MM:UNIT_SPELLCAST_INTERRUPTED()
