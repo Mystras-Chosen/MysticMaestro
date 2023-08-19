@@ -329,9 +329,9 @@ function MM:RequestReforge()
 	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 
-	MM.retryTimer = MM:ScheduleTimer("Repeat", 3)
+	MM.retryTimer = MM:ScheduleTimer("Repeat", 2)
 
-	reforgeHandle = Timer.NewTicker(.05, function()
+	reforgeHandle = Timer.NewTicker(.1, function()
 		if GetUnitSpeed("player") ~= 0 then
 			StopCraftingAttemptTimer()
 			StopAutoReforge("Player Moving")
