@@ -1,7 +1,7 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local AceGUI = LibStub("AceGUI-3.0")
 -- Localized functions
-local CreateListFrame, setCurrentSelectedList, createScrollFrame, scrollSliderCreate
+local CreateListFrame, setCurrentSelectedList, createScrollFrame, scrollSliderCreate, reforgeCheck, extractCheck, enableCheck
 -- Colours stored for code readability
 local WHITE = "|cffFFFFFF"
 local GREEN = "|cff1eff00"
@@ -166,27 +166,6 @@ end
 local function ItemTemplate_OnLeave()
     GameTooltip:Hide()
 end
----------------------ScrollFrame----------------------------------
---Check to see if the enchant is allreay on the list
-local function GetSavedEnchant(SpellID)
-    if MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][SpellID] then
-        return SpellID
-    end
-end
-
-local ROW_HEIGHT = 16   -- How tall is each row?
-local MAX_ROWS = 26      -- How many rows can be shown at once?
-local scrollFrame
-createScrollFrame = function()
-scrollFrame = CreateFrame("Frame", "MysticMaestro_ListFrame_ScrollFrame", MysticMaestro_ListFrame)
-    scrollFrame:EnableMouse(true)
-    scrollFrame:SetSize(313, ROW_HEIGHT * MAX_ROWS + 16)
-    scrollFrame:SetPoint("LEFT",20,0)
-    scrollFrame:SetBackdrop({
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
-        insets = { left = 4, right = 4, top = 4, bottom = 4 },
-    })
-end
 
 -- Sorts tables alphabetically
 local function pairsByKeys(t)
@@ -206,6 +185,28 @@ local function pairsByKeys(t)
       end
     end
     return iter
+end
+
+--Check to see if the enchant is allreay on the list
+local function GetSavedEnchant(SpellID)
+    if MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"][SpellID] then
+        return true
+    end
+end
+
+---------------------ScrollFrame----------------------------------
+local ROW_HEIGHT = 16   -- How tall is each row?
+local MAX_ROWS = 26      -- How many rows can be shown at once?
+local scrollFrame
+createScrollFrame = function()
+scrollFrame = CreateFrame("Frame", "MysticMaestro_ListFrame_ScrollFrame", MysticMaestro_ListFrame)
+    scrollFrame:EnableMouse(true)
+    scrollFrame:SetSize(MysticMaestro_ListFrame:GetWidth() - 30, ROW_HEIGHT * MAX_ROWS + 16)
+    scrollFrame:SetPoint("CENTER",.5,0)
+    scrollFrame:SetBackdrop({
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 },
+    })
 end
 
 function MysticMaestro_ListFrame_ScrollFrameUpdate()
@@ -371,6 +372,9 @@ local collectionOverlay = CreateFrame("FRAME", "MysticMaestro_Collection_Overlay
     collectionOverlay.ListFrameText:SetPoint("TOPRIGHT", -70, -11)
     collectionOverlay.ListFrameText:SetShadowOffset(1,-1)
  ]]
+
+
+
     -- moves enchant page buttons to better fit our known count
     EnchantCollection.Collection.CollectionTab.PageText:SetPoint("BOTTOM",0,50)
     EnchantCollection.Collection.CollectionTab:EnableMouse()
@@ -407,10 +411,9 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
     listFrame.tex:SetTexCoord(tex.leftTexCoord, tex.rightTexCoord, tex.topTexCoord, tex.bottomTexCoord)
     listFrame.tex:SetSize(345, listFrame:GetHeight()+10)
     listFrame:Hide()
-    listFrame:SetScript("OnHide",
-    function()
+    listFrame:SetScript("OnHide", function()
         if _G["EnchantCollection"]:IsVisible() then
-            MM.db.ListFrameLastState = false
+            MM.db.char.ListFrameLastState = false
         end
     end)
 
@@ -423,6 +426,9 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
     listDropdown.EnchantNumber:SetFont("Fonts\\FRIZQT__.TTF", 11)
     listDropdown:SetScript("OnUpdate", function()
             listDropdown.EnchantNumber:SetText("|cff00ff00"..#showtable)
+            reforgeCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge)
+            extractCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract)
+            enableCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable)
         end)
 
 local editlistnamebtn = CreateFrame("Button", "MysticMaestro_ListFrame_EditListBtn", MysticMaestro_ListFrame, "OptionsButtonTemplate")
@@ -463,7 +469,7 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
 	removelistbtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 ------------------------------------------------------------------
-local enableCheck = AceGUI:Create("CheckBox")
+    enableCheck = AceGUI:Create("CheckBox")
     enableCheck.frame:SetParent(MysticMaestro_ListFrame)
     enableCheck:SetPoint("BOTTOMLEFT", MysticMaestro_ListFrame, 35, 60)
     enableCheck:SetHeight(25)
@@ -484,7 +490,7 @@ local enableCheck = AceGUI:Create("CheckBox")
     enableCheck.frame:Show()
     MM.enableCheck = enableCheck
 
-local extractCheck = AceGUI:Create("CheckBox")
+    extractCheck = AceGUI:Create("CheckBox")
     extractCheck.frame:SetParent(MysticMaestro_ListFrame)
     extractCheck:SetPoint("LEFT", enableCheck.frame, "RIGHT", 10, 0)
     extractCheck:SetHeight(25)
@@ -504,7 +510,7 @@ local extractCheck = AceGUI:Create("CheckBox")
     extractCheck:SetCallback("OnLeave", function() GameTooltip:Hide() end)
     extractCheck.frame:Show()
 
-local reforgeCheck = AceGUI:Create("CheckBox")
+    reforgeCheck = AceGUI:Create("CheckBox")
     reforgeCheck.frame:SetParent(MysticMaestro_ListFrame)
     reforgeCheck:SetPoint("LEFT", extractCheck.frame, "RIGHT", 10, 0)
     reforgeCheck:SetHeight(25)
@@ -674,13 +680,24 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
         elseif (delta == 1) then
            PreviousPage(self)
         end
-  end)
-  MM:ListFrameEnable()
+    end)
+
+    _G["EnchantCollection"].Collection:HookScript("OnShow", function() 
+        if MM.db.char.ListFrameLastState then
+            listFrame:Show();
+            collectionOverlay.showFrameBttn:SetText("Hide");
+        else
+            listFrame:Hide();
+            collectionOverlay.showFrameBttn:SetText("Show");
+        end
+    end)
+
+    MM:ListFrameEnable()
 end
 
 -- Right Click context menu in the enchanting frame
 function MM:ItemContextMenu(self)
-
+    local type = "spell"
     if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
     MM.dewdrop:Register(self,
         'point', function(parent)
@@ -721,7 +738,7 @@ function MM:ItemContextMenu(self)
                 )
                 MM.dewdrop:AddLine(
                         "text", GREEN.."Guild",
-                        "func", function() MM:Chatlink(self,"GUILD", button) end,
+                        "func", function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "GUILD", type) end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -729,7 +746,7 @@ function MM:ItemContextMenu(self)
                     )
                     MM.dewdrop:AddLine(
                         "text", LIGHTBLUE.."Party",
-                        "func", function() MM:Chatlink(self,"PARTY", button) end,
+                        "func", function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "PARTY", type) end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,
@@ -737,7 +754,7 @@ function MM:ItemContextMenu(self)
                     )
                     MM.dewdrop:AddLine(
                         "text", ORANGE2.."Raid",
-                        "func", function() MM:Chatlink(self,"RAID", button) end,
+                        "func", function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "RAID", type) end,
                         'closeWhenClicked', true,
                         'textHeight', 12,
                         'textWidth', 12,

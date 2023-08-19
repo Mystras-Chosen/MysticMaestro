@@ -508,15 +508,20 @@ function MM:OpenDBURL(self, Type)
 end
 
 -- for sending links to party/raid/guild chat
-function MM:Chatlink(self, chatType, button)
-  print(button)
+function MM:Chatlink(self, chatType, type)
   local spellLink = LinkUtil:GetSpellLink(self.enchantInfo.SpellID)
   local itemID = self.enchantInfo.ItemID
-  print(itemID)
   if type == "spell" then
       SendChatMessage(spellLink ,chatType)
   elseif type == "item" then
+    local item = Item:CreateFromID(itemID)
+    if not (item:GetInfo()) then
+      item:ContinueOnLoad(function(itemId)
+        SendChatMessage(select(2,GetItemInfo(itemID)) ,chatType)
+      end)
+    else
       SendChatMessage(select(2,GetItemInfo(itemID)) ,chatType)
+    end
   end
 end
 
