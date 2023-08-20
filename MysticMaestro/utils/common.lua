@@ -504,7 +504,9 @@ end
 
 -- open browser link base on type or id/string
 function MM:OpenDBURL(self, Type)
-  OpenAscensionDBURL("?"..Type.."="..self.enchantInfo.ItemID)
+  local ID = self.enchantInfo.ItemID
+  if Type == "spell" then ID = self.enchantInfo.SpellID end
+  OpenAscensionDBURL("?"..Type.."="..ID)
 end
 
 -- for sending links to party/raid/guild chat

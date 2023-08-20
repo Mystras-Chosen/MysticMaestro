@@ -108,51 +108,50 @@ StaticPopupDialogs["MysticMaestro_ListFrame_DELETELIST"] = {
     enterClicksFirstButton = true,
 }
 
-local function exportString()
-    MM.dewdrop:Close()
-    local data = {}
-    for i,v in ipairs(MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"]) do
-        tinsert(data,{v[1]})
-    end
-    data["Name"] = MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Name"]
-    Internal_CopyToClipboard("MMXT:"..MM:Serialize(data))
-end
-
+local exportMenuLoaded
 function MM:ListFrameMenuRegister(self)
-	MM.dewdrop:Register(self,
-        'point', function(parent)
-            return "TOP", "BOTTOM"
-        end,
-        'children', function(level, value)
-            if level == 1 then
-                MM.dewdrop:AddLine(
-                    'text', "Send Current List",
-                    'func', function() StaticPopup_Show("MysticMaestro_ListFrame_SEND_ENCHANTLIST",MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name) end,
-                    'notCheckable', true
-                )
-                MM.dewdrop:AddLine(
-                    'text', "Export List",
-                    'func', exportString,
-                    'tooltip', "Exports a string to clipboard",
-                    'notCheckable', true
-                )
-                MM.dewdrop:AddLine(
-                    'text', "Import List",
-                    'func', function() StaticPopup_Show("MysticMaestro_ListFrame_IMPORT_ENCHANTLIST") end,
-                    'notCheckable', true
-                )
-                MM.dewdrop:AddLine(
-					'text', "Close Menu",
-                    'textR', 0,
-                    'textG', 1,
-                    'textB', 1,
-					'func', function() MM.dewdrop:Close() end,
-					'notCheckable', true
-				)
-            end
-		end,
-		'dontHook', true
-	)
+    if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
+    if not exportMenuLoaded then
+        MM.dewdrop:Register(self,
+           'point', function(parent)
+               return "TOP", "BOTTOM"
+           end,
+           'children', function(level, value)
+               if level == 1 then
+                   MM.dewdrop:AddLine(
+                       'text', "Send Current List",
+                       'func', function() StaticPopup_Show("MYSTICMAESTRO_SEND_SHOPPINGLIST",MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name) end,
+                       'closeWhenClicked', true,
+                       'notCheckable', true
+                   )
+                   MM.dewdrop:AddLine(
+                       'text', "Export List",
+                       'func', MM.exportString,
+                       'closeWhenClicked', true,
+                       'tooltip', "Exports a string to clipboard",
+                       'notCheckable', true
+                   )
+                   MM.dewdrop:AddLine(
+                       'text', "Import List",
+                       'func', function() StaticPopup_Show("MYSTICMAESTRO_IMPORT_SHOPPINGLIST") end,
+                       'closeWhenClicked', true,
+                       'notCheckable', true
+                   )
+                   MM.dewdrop:AddLine(
+        				'text', "Close Menu",
+                       'textR', 0,
+                       'textG', 1,
+                       'textB', 1,
+        				'closeWhenClicked', true,
+        				'notCheckable', true
+        			)
+               end
+        	end,
+        	'dontHook', true
+        )
+        exportMenuLoaded = true
+    end
+    MM.dewdrop:Open(self)
 end
 
 ------------------ScrollFrameTooltips---------------------------
@@ -318,16 +317,23 @@ local function enchantButtonClick(self)
 end
 
 local setupLoaded
+local buttonsLoaded = {}
 function MM:CollectionSetup(addon)
     if setupLoaded then return end
+    EnchantCollection.Collection.CollectionTab:HookScript("OnUpdate", function()
+        if buttonsLoaded[18] then return end
         for i = 1, 18 do
             local button = _G["EnchantCollection"]["Collection"]["CollectionTab"]["buttonIDToButton"][i]
+            if button and not buttonsLoaded[i] then
                 button:HookScript("OnMouseDown", function(self, button)
                     if button == "RightButton" then
                         MM:ItemContextMenu(self)
                     end
                 end)
+            buttonsLoaded[i] = true
+            end
         end
+    end)
 
     CreateListFrame()
     setupLoaded = true
@@ -364,16 +370,6 @@ local enchantCounts
 local collectionOverlay = CreateFrame("FRAME", "MysticMaestro_Collection_Overlay", _G["EnchantCollection"])
     collectionOverlay:SetSize(_G["EnchantCollection"]:GetWidth(), _G["EnchantCollection"]:GetHeight())
     collectionOverlay:SetPoint("CENTER", _G["EnchantCollection"])
-
---[[     collectionOverlay.ListFrameText = collectionOverlay:CreateFontString()
-    collectionOverlay.ListFrameText:SetFont("Fonts\\FRIZQT__.TTF", 12)
-    collectionOverlay.ListFrameText:SetFontObject(GameFontNormal)
-    collectionOverlay.ListFrameText:SetText("Mystic Extended")
-    collectionOverlay.ListFrameText:SetPoint("TOPRIGHT", -70, -11)
-    collectionOverlay.ListFrameText:SetShadowOffset(1,-1)
- ]]
-
-
 
     -- moves enchant page buttons to better fit our known count
     EnchantCollection.Collection.CollectionTab.PageText:SetPoint("BOTTOM",0,50)
@@ -426,6 +422,7 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
     listDropdown.EnchantNumber:SetFont("Fonts\\FRIZQT__.TTF", 11)
     listDropdown:SetScript("OnUpdate", function()
             listDropdown.EnchantNumber:SetText("|cff00ff00"..#showtable)
+            if not MM.shoppingLists.currentSelectedList then return end 
             reforgeCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge)
             extractCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract)
             enableCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable)
@@ -475,7 +472,10 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
     enableCheck:SetHeight(25)
     enableCheck:SetWidth(80)
     enableCheck:SetLabel("Enable")
-    enableCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable)
+    enableCheck:SetValue( function() 
+        if not MM.shoppingLists.currentSelectedList then return end
+        return MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable
+    end)
     enableCheck:SetCallback("OnValueChanged",
     function(self, event, key)
         MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable = not MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable
@@ -496,7 +496,10 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
     extractCheck:SetHeight(25)
     extractCheck:SetWidth(80)
     extractCheck:SetLabel("Extract")
-    extractCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract)
+    extractCheck:SetValue( function() 
+        if not MM.shoppingLists.currentSelectedList then return end
+        return MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract
+    end)
     extractCheck:SetCallback("OnValueChanged",
     function(self, event, key)
         MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract = not MM.shoppingLists[MM.shoppingLists.currentSelectedList].extract
@@ -516,7 +519,10 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
     reforgeCheck:SetHeight(25)
     reforgeCheck:SetWidth(80)
     reforgeCheck:SetLabel("Reforge")
-    reforgeCheck:SetValue(MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge)
+    reforgeCheck:SetValue( function() 
+        if not MM.shoppingLists.currentSelectedList then return end
+        return MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge
+    end)
     reforgeCheck:SetCallback("OnValueChanged",
     function(self, event, key)
         MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge = not MM.shoppingLists[MM.shoppingLists.currentSelectedList].reforge
@@ -536,14 +542,7 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
     sharebuttonlist:SetPoint("BOTTOMRIGHT", MysticMaestro_ListFrame, "BOTTOMRIGHT", -20, 20)
     sharebuttonlist:SetText("Export/Share")
     sharebuttonlist:RegisterForClicks("LeftButtonDown")
-    sharebuttonlist:SetScript("OnClick", function(self)
-        if MM.dewdrop:IsOpen() then
-            MM.dewdrop:Close()
-        else
-            MM:ListFrameMenuRegister(self)
-            MM.dewdrop:Open(self)
-        end
-    end)
+    sharebuttonlist:SetScript("OnClick", function(self) MM:ListFrameMenuRegister(self) end)
     collectionOverlay.sharebuttonlist = sharebuttonlist
 
 

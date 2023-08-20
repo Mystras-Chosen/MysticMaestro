@@ -55,6 +55,9 @@ local defaultDB = {
 
       minimap = {hide = false},
 
+      enableShare = false,
+      enableShareCombat = false,
+
       stopIfNoRunes = true,
       stopForNothing = true,
       shoppingListsDropdown = 1,

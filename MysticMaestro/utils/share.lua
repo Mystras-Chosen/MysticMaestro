@@ -2,7 +2,7 @@
 -- EnchantListShare:
 --	<local>SpamProtect(name)
 -- 	MM:OnEnable()
---	MysticMaestro_GetEnchantList(wlstrg,sendername)
+--	MM:GetEnchantList(wlstrg,sendername)
 --	MM:OnCommReceived(prefix, message, distribution, sender)
 -- **********************************************************************
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
@@ -40,36 +40,33 @@ local function SpamProtect(name)
 end
 
 --[[
-MysticMaestro_GetEnchantList(wlstrg,sendername)
+MM:GetEnchantList(wlstrg,sendername)
 Get the EnchantList, Deserialize it and save it in the savedvariables table
 ]]
-function MysticMaestro_GetEnchantList(wlstrg,sendername)
+function MM:GetEnchantList(wlstrg,sendername)
 	local success, wltab = MM:Deserialize(wlstrg)
 	if success then
-		tinsert(MM.shoppingLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}})
-		for i,v in ipairs(wltab) do
-			tinsert(MM.shoppingLists[#MM.shoppingLists], v)
-		end
+		tinsert(MM.shoppingLists, {Name = wltab.Name, extract = false, enable = false, reforge = false, Enchants = wltab.Enchants})
 		MM:MenuInitialize()
 	end
 end
 
 --[[
-StaticPopupDialogs["MysticMaestro_GET_ENCHANTLIST"]
+StaticPopupDialogs["MYSTICMAESTRO_GET_SHOPPINGLIST"]
 This is shown, if someone send you a Enchantlist
 ]]
-StaticPopupDialogs["MysticMaestro_GET_ENCHANTLIST"] = {
-	text = "%s sends you an Enchantlist. Accept?",
+StaticPopupDialogs["MYSTICMAESTRO_GET_SHOPPINGLIST"] = {
+	text = "%s sends you an Shopping list. Accept?",
 	button1 = ACCEPT,
 	button2 = CANCEL,
 	OnShow = function()
 		this:SetFrameStrata("TOOLTIP")
 	end,
 	OnAccept = function(self,data)
-		MM:SendCommMessage("MysticMaestroEnchantList", "AcceptEnchantList", "WHISPER", data)
+		MM:SendCommMessage("MysticMaestroShoppingList", "AcceptShoppingList", "WHISPER", data)
 	end,
 	OnCancel = function (self,data)
-		MM:SendCommMessage("MysticMaestroEnchantList", "CancelEnchantlist", "WHISPER", data)
+		MM:SendCommMessage("MysticMaestroShoppingList", "CancelShoppingList", "WHISPER", data)
 	end,
 	timeout = 15,
 	whileDead = 1,
@@ -81,71 +78,68 @@ MM:OnCommReceived(prefix, message, distribution, sender)
 Incomming messages from AceComm
 ]]
 function MM:OnCommReceived(prefix, message, distribution, sender)
-	if prefix ~= "MysticMaestroEnchantList" then return end
+	if prefix ~= "MysticMaestroShoppingList" then return end
 	if message == "SpamProtect" then
-		--local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(sender)]), "(%d+)%.")
-		--DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList too "..WHITE..sender..RED..".")
+		local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(sender)]), "(%d+)%.")
+		DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList too "..WHITE..sender..RED..".")
 	elseif message == "FinishSend" then
 		SpamFilter[string.lower(sender)] = GetTime()
-	elseif message == "AcceptEnchantList" then
+	elseif message == "AcceptShoppingList" then
 		local wsltable = {}
-			for i,v in ipairs(MM.shoppingLists[MM.db.currentSelectedList]) do
-				tinsert(wsltable,{v[1]})
-			end
-			wsltable.Name = MM.shoppingLists[MM.db.currentSelectedList].Name
+			wsltable.Enchants = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Enchants
+			wsltable.Name = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name
 		local sendData = MM:Serialize(wsltable)
-		MM:SendCommMessage("MysticMaestroEnchantList", sendData, "WHISPER", sender)
-	elseif message == "EnchantListRequest" then
-		if MM.db.AllowShareEnchantList then
-			if MM.db.AllowShareEnchantListInCombat then
+		MM:SendCommMessage("MysticMaestroShoppingList", sendData, "WHISPER", sender)
+	elseif message == "ShoppingListRequest" then
+		if MM.db.realm.OPTIONS.enableShare then
+			if MM.db.realm.OPTIONS.enableShareCombat then
 				if UnitAffectingCombat("player") then
-					MM:SendCommMessage("MysticMaestroEnchantList", "CancelEnchantList", "WHISPER", sender)
-					DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..WHITE..sender..RED.." tried to send you a EnchantList. Rejected because you are in combat.")
+					MM:SendCommMessage("MysticMaestroShoppingList", "CancelShoppingList", "WHISPER", sender)
+					DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..WHITE..sender..RED.." tried to send you a shopping list. Rejected because you are in combat.")
 				else
-					local dialog = StaticPopup_Show("MysticMaestro_GET_ENCHANTLIST", sender)
+					local dialog = StaticPopup_Show("MYSTICMAESTRO_GET_SHOPPINGLIST", sender)
 					if ( dialog ) then
 						dialog.data = sender
 					end
 				end
 			else
-				local dialog = StaticPopup_Show("MysticMaestro_GET_ENCHANTLIST", sender)
+				local dialog = StaticPopup_Show("MYSTICMAESTRO_GET_SHOPPINGLIST", sender)
 				if ( dialog ) then
 					dialog.data = sender
 				end
 			end
 		else
-			MM:SendCommMessage("MysticMaestroEnchantList", "CancelEnchantList", "WHISPER", sender)
+			MM:SendCommMessage("MysticMaestroShoppingList", "CancelShoppingList", "WHISPER", sender)
 		end
 
-	elseif message == "CancelEnchantList" then
-		DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..WHITE..sender..RED.." rejects your EnchantList.")
+	elseif message == "CancelShoppingList" then
+		DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..WHITE..sender..RED.." rejects your Shopping List.")
 	else
 		SpamFilter[string.lower(sender)] = GetTime()
-		MysticMaestro_GetEnchantList(message,sender)
-		MM:SendCommMessage("MysticMaestroEnchantList", "FinishSend", "WHISPER", sender)
+		MM:GetEnchantList(message,sender)
+		MM:SendCommMessage("MysticMaestroShoppingList", "FinishSend", "WHISPER", sender)
 	end
 end
 
 --[[
-StaticPopupDialogs["MysticMaestro_SEND_ENCHANTLIST"]
+StaticPopupDialogs["MYSTICMAESTRO_SEND_SHOPPINGLIST"]
 This is shown, if you want too share a EnchantList
 ]]
-StaticPopupDialogs["MysticMaestro_SEND_ENCHANTLIST"] = {
-	text = "Send Enchant List (%s)",
+StaticPopupDialogs["MYSTICMAESTRO_SEND_SHOPPINGLIST"] = {
+	text = "Send Shopping List (%s)",
 	button1 = "Send",
 	button2 = "Cancel",
 	OnShow = function(self)
-		dewdrop:Close()
 		self:SetFrameStrata("TOOLTIP")
 	end,
 	OnAccept = function()
 		local name = _G[this:GetParent():GetName().."EditBox"]:GetText()
 		if name == "" then return end
 		if string.lower(name) == string.lower(playerName) then
-			DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You can't send EnchantLists to yourself.")
+			DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You can't send ShoppingLists to yourself.")
 		else
 			if SpamProtect(string.lower(name)) then
-				MM:SendCommMessage("MysticMaestroEnchantList", "EnchantListRequest", "WHISPER", name)
+				MM:SendCommMessage("MysticMaestroShoppingList", "ShoppingListRequest", "WHISPER", name)
 			else
 				local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(name)]), "(%d+)%.")
 				DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList to "..WHITE..name..RED..".")
@@ -159,10 +153,10 @@ StaticPopupDialogs["MysticMaestro_SEND_ENCHANTLIST"] = {
 }
 
 --[[
-StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"]
+StaticPopupDialogs["MYSTICMAESTRO_IMPORT_SHOPPINGLIST"]
 This is shown, if you want too import an EnchantList
 ]]
-StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"] = {
+StaticPopupDialogs["MYSTICMAESTRO_IMPORT_SHOPPINGLIST"] = {
 	text = "Paste List String To Import",
 	button1 = "Import",
 	button2 = "Cancel",
@@ -174,10 +168,7 @@ StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"] = {
 		local data = string.sub(_G[this:GetParent():GetName().."EditBox"]:GetText(), 5)
 		local success, wltab = MM:Deserialize(data)
 	if success then
-		tinsert(MM.shoppingLists, {Name = wltab.Name, [realmName] = {["enableDisenchant"] = false, ["enableRoll"] = false, ["ignoreList"] = false}})
-		for i,v in ipairs(wltab) do
-			tinsert(MM.shoppingLists[#MM.shoppingLists], v)
-		end
+		tinsert(MM.shoppingLists, {Name = wltab.Name, enable = false, reforge = false, extract = false, Enchants = wltab.Enchants})
 		MM:MenuInitialize()
 	end
 	end,
@@ -186,3 +177,10 @@ StaticPopupDialogs["MysticMaestro_IMPORT_ENCHANTLIST"] = {
 	whileDead = 1,
 	hideOnEscape = 1
 }
+
+function MM:exportString()
+    local data = {};
+    data.Enchants = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Enchants
+    data.Name = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name;
+    Internal_CopyToClipboard("MMSL:"..MM:Serialize(data));
+end

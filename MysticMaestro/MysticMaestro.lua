@@ -18,6 +18,7 @@ function MM:OnInitialize()
     MM:RegisterEvent("ZONE_CHANGED");
     MM:RegisterEvent("ZONE_CHANGED_NEW_AREA");
   end
+  MM:RegisterComm("MysticMaestroShoppingList")
 
   MM.RE_CACHE = {}
   local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})

@@ -792,6 +792,30 @@ local function createConfig()
 			},
 		}
 	}
+	-- Share settings
+	options.args.share = {
+		name = "Share",
+		type = "group",
+		order = 3,
+		get = get,
+		set = set,
+		args = {
+			enableShare = {
+				order = 1,
+				name = "Enable Shopping list sharing",
+				desc = "Enable shopping list sharing",
+				type = "toggle",
+				width = 6
+			},
+			enableShareCombat = {
+				order = 2,
+				name = "Auto reject in combat",
+				desc = "Auto reject in combat",
+				type = "toggle",
+				width = 6
+			},
+		}
+	}
 	return options
 end
 
@@ -826,6 +850,9 @@ local function createBlizzOptions()
 	-- Reforge
 	config:RegisterOptionsTable("MysticMaestro-Reforge", options.args.reforge)
 	dialog:AddToBlizOptions("MysticMaestro-Reforge", options.args.reforge.name, "Mystic Maestro")
+	-- Share
+	config:RegisterOptionsTable("MysticMaestro-Share", options.args.share)
+	dialog:AddToBlizOptions("MysticMaestro-Share", options.args.share.name, "Mystic Maestro")
 end
 
 function MM:OpenConfig(panel)
