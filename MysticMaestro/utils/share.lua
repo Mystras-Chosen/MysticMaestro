@@ -77,8 +77,7 @@ StaticPopupDialogs["MYSTICMAESTRO_GET_SHOPPINGLIST"] = {
 MM:OnCommReceived(prefix, message, distribution, sender)
 Incomming messages from AceComm
 ]]
-function MM:OnCommReceived(prefix, message, distribution, sender)
-	if prefix ~= "MysticMaestroShoppingList" then return end
+function MM:ShareComm(prefix, message, distribution, sender)
 	if message == "SpamProtect" then
 		local _,_,timeleft = string.find( 10-(GetTime() - SpamFilter[string.lower(sender)]), "(%d+)%.")
 		DEFAULT_CHAT_FRAME:AddMessage(BLUE.."MysticMaestro"..": "..RED.."You must wait "..WHITE..timeleft..RED.." seconds before you can send a new EnchantList too "..WHITE..sender..RED..".")

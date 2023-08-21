@@ -13,12 +13,16 @@ function MM:OnInitialize()
   MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
   MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE")
   MM:RegisterEvent("GUILDBANKFRAME_OPENED");
+  MM:RegisterEvent("GUILD_ROSTER_UPDATE")
 
   if MM.sbSettings.Citys then
     MM:RegisterEvent("ZONE_CHANGED");
     MM:RegisterEvent("ZONE_CHANGED_NEW_AREA");
   end
   MM:RegisterComm("MysticMaestroShoppingList")
+
+  MM:EnableGuildTooltips()
+
 
   MM.RE_CACHE = {}
   local enchantList = C_MysticEnchant.QueryEnchants(9999,1,"",{})
@@ -30,6 +34,9 @@ end
 function MM:OnEnable()
   MM:StandaloneCityReforgeToggle()
   MM:MinimapIconSetup()
+  MM:GetPlayerDetails()
+  MM:GuildTooltips_Setup()
+  MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
 
   MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
@@ -83,5 +90,26 @@ end
 function MM:GUILDBANKFRAME_OPENED(event, arg1, arg2, arg3)
   if event == "GUILDBANKFRAME_OPENED" then
     MM:guildBankFrameOpened()
+  end
+end
+
+function MM:GUILD_ROSTER_UPDATE(event, arg1, arg2, arg3)
+  if event == "GUILD_ROSTER_UPDATE" then
+    MM:GetPlayerDetails()
+    if MM.guildName then
+      MM:UnregisterEvent("GUILD_ROSTER_UPDATE")
+    end
+  end
+end
+
+--[[
+MM:OnCommReceived(prefix, message, distribution, sender)
+Incomming messages from AceComm
+]]
+function MM:OnCommReceived(prefix, message, distribution, sender)
+  if prefix == "MysticMaestroShoppingList" then
+    MM:ShareComm(prefix, message, distribution, sender)
+  elseif MM.db.realm.OPTIONS.ttGuildEnable and (prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" or prefix == "MAESTRO_GUILD_REQUEST_UPDATE" or prefix == "MAESTRO_GUILD_DISPLAYNAME_UPDATE" or prefix == "MAESTRO_GUILD_NEWENCHANT_UPDATE") then
+	  MM:EnchantCom(prefix, message, distribution, sender)
   end
 end

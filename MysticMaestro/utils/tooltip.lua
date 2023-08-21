@@ -1,7 +1,7 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local WHITE = "|cffFFFFFF"
 
-local function addLinesTooltip(tt, SpellID)
+local function addLinesTooltip(tt, SpellID, Known)
   if not MM.db.realm.OPTIONS.ttEnable then return end
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if not enchant then return end
@@ -60,6 +60,13 @@ local function addLinesTooltip(tt, SpellID)
     end
   end
   tt:AddLine(" ")
+  if MM.db.realm.OPTIONS.ttGuildEnable and not Known then
+    local knownBye = MM:GetMysticCharList(SpellID)
+    if knownBye then
+      tt:AddDoubleLine("Enchant Known By:", WHITE.. knownBye)
+      tt:AddLine(" ")
+    end
+  end
 end
 
 function MM:TooltipHandlerItem(tooltip)
@@ -97,9 +104,174 @@ function MM:TooltipHandlerSpell(tooltip)
   local worldForgedTip = MM:WorldforgedTooltips(SpellName)
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if enchant then
-    addLinesTooltip(tooltip, SpellID)
+    addLinesTooltip(tooltip, SpellID, enchant.Known)
   elseif MM.db.realm.OPTIONS.worldforgedTooltip and worldForgedTip then
     tooltip:AddLine(" ")
     tooltip:AddLine(worldForgedTip)
+  end
+end
+
+
+
+-------------------------------------------------------------------------------------
+---------------------------- Guild Tooltips------------------------------------------
+-------------------------------------------------------------------------------------
+local guildName
+local playerName = UnitName("player")
+function MM:GetPlayerDetails()
+  guildName = GetGuildInfo("Player")
+  MM.guildName = guildName
+  MM.playerName = playerName
+end
+
+--Setup for addon database
+function MM:GuildTooltips_Setup()
+    if not MM.guildTooltips.Accounts[guildName] and guildName then
+      MM.guildTooltips.Accounts[guildName] = { accountKey = playerName , charList = {playerName}, displayName = playerName }
+    end
+
+    if not MM.guildTooltips.Guilds[guildName] and guildName then
+        MM.guildTooltips.Guilds[guildName] = {}
+    end
+
+    if guildName then
+        if MM.guildTooltips.Accounts[guildName].accountKey ~= playerName then
+            local nameChecked = false
+                for i , v in pairs(MM.guildTooltips.Accounts[guildName].charList) do
+                    if v == playerName then
+                        nameChecked = true
+                    end
+                end
+            if not nameChecked then
+            table.insert(MM.guildTooltips.Accounts[guildName].charList, playerName)
+            end
+        end
+    end
+end
+
+function MM:BuildKnownList()
+  local enchants = C_MysticEnchant.QueryEnchants(9999, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})
+  local knownList = {}
+    for _, enchant in pairs(enchants) do
+      knownList[enchant.SpellID] = true
+    end
+    return knownList
+end
+
+--Sends enchant list to people with addon in guild
+function MM:GuildTooltipsBroadcast(ComID, nameUpdate)
+  local knownList = MM:BuildKnownList()
+  local sendData = {}
+  if guildName ~= nil then
+  sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
+  sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
+  if not nameUpdate then
+    sendData.knownList = knownList
+  end
+  sendData = MM:Serialize(sendData)
+  MM:SendCommMessage(ComID, sendData, "GUILD", playerName)
+  end
+end
+
+--Receive enchant list of other people with the addon in guild
+function MM:EnchantCom(prefix, message, distribution, sender)
+
+    if prefix ==  "MAESTRO_GUILD_TOOLTIPS_SEND" or prefix == "MAESTRO_GUILD_REQUEST_UPDATE" then
+      if sender ~= playerName  then
+      local success, data = MM:Deserialize(message)
+          if success then
+              if not MM.guildTooltips.Guilds[guildName][data.accountKey] then
+                  MM.guildTooltips.Guilds[guildName][data.accountKey] = {}
+              end
+                  MM.guildTooltips.Guilds[guildName][data.accountKey].displayName = data.displayName
+                  MM.guildTooltips.Guilds[guildName][data.accountKey].knownList = data.knownList
+          end
+          --print("Mystic Enchant List Received")
+          if prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" then
+            MM:GuildTooltipsBroadcast("MAESTRO_GUILD_REQUEST_UPDATE")
+          end
+      end
+    --Update of display name received
+    elseif prefix ==  "MAESTRO_GUILD_DISPLAYNAME_UPDATE" then
+      if sender ~= playerName  then
+          local success, data = MM:Deserialize(message)
+          if success then
+              if not MM.guildTooltips.Guilds[guildName][data.accountKey] then
+                  MM.guildTooltips.Guilds[guildName][data.accountKey] = {}
+              end
+                  MM.guildTooltips.Guilds[guildName][data.accountKey].displayName = data.displayName
+          end
+          --print("Mystic Enchant List Received")
+      end
+  --Receive new enchants as there learned
+  elseif prefix ==  "MAESTRO_GUILD_NEWENCHANT_UPDATE" then
+      if sender ~= playerName  then
+          local success, data = MM:Deserialize(message)
+          if success then
+              if not MM.guildTooltips.Guilds[guildName][data.accountKey] then
+                  MM.guildTooltips.Guilds[guildName][data.accountKey] = {}
+              end
+                  MM.guildTooltips.Guilds[guildName][data.accountKey].displayName = data.displayName
+                  MM.guildTooltips.Guilds[guildName][data.accountKey].knownList[data.newEnchant] = true
+          end
+          --print("Mystic Enchant List Received")
+      end
+  end
+
+end
+
+--Gets the list of people with that enchant to add to tooltip
+function MM:GetMysticCharList(SpellID)
+local returnNames
+  if MM.guildTooltips.Guilds[guildName] then
+    for _, char in pairs(MM.guildTooltips.Guilds[guildName]) do
+      if char.knownList[SpellID] then
+          if returnNames then
+              returnNames = "|cffffffff" .. returnNames .. "|cFF66CDAA||" .. "|cffffffff".. char.displayName
+          else
+              returnNames = "|cffffffff" .. char.displayName
+          end
+      end
+    end
+    return returnNames
+  end
+end
+
+--Sends updated display name to other addons if its swaped
+function MM:GuildTooltips_DisplayNameUpdate(name, key)
+  local sendData = {}
+  if guildName ~= nil then
+      sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
+      sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
+      sendData = MM:Serialize(sendData)
+      MM:SendCommMessage("MAESTRO_GUILD_DISPLAYNAME_UPDATE", sendData, "GUILD", playerName)
+  end
+end
+
+-- Sends new learned enchant to other addons
+function MM:GuildTooltipsEnchantLearned(event, SpellID)
+  if event == "MYSTIC_ENCHANT_LEARNED" then
+      if SpellID and guildName then
+          local sendData = {}
+              sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
+              sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
+              sendData.newEnchant = SpellID
+              sendData = MM:Serialize(sendData)
+              MM:SendCommMessage("MAESTRO_GUILD_NEWENCHANT_UPDATE", sendData, "GUILD", playerName)
+      end
+  end
+end
+
+function MM:EnableGuildTooltips()
+  if MM.db.realm.OPTIONS.ttGuildEnable then
+    MM:RegisterComm("MAESTRO_GUILD_TOOLTIPS_SEND")
+    MM:RegisterComm("MAESTRO_GUILD_REQUEST_UPDATE")
+    MM:RegisterComm("MAESTRO_GUILD_DISPLAYNAME_UPDATE")
+    MM:RegisterComm("MAESTRO_GUILD_NEWENCHANT_UPDATE")
+  else
+    MM:UnregisterComm("MAESTRO_GUILD_TOOLTIPS_SEND")
+    MM:UnregisterComm("MAESTRO_GUILD_REQUEST_UPDATE")
+    MM:UnregisterComm("MAESTRO_GUILD_DISPLAYNAME_UPDATE")
+    MM:UnregisterComm("MAESTRO_GUILD_NEWENCHANT_UPDATE")
   end
 end

@@ -429,6 +429,30 @@ local function createConfig()
 				desc = "Show 10 day Maximum value in tooltip",
 				type = "toggle"
 			},
+			ttGuildHeader = {
+				order = 15,
+				name = "Guild Tooltips",
+				type = "header"
+			},
+			ttGuildEnable = {
+				order = 16,
+				name = "Enable",
+				desc = "Shows in the tooltips of mystic enchants who in your guild has this enchant if they also have the addon",
+				type = "toggle",
+				func = function() MM:EnableGuildTooltips() end,
+			},
+			ttGuildDisplayName = {
+				order = 17,
+				name = "Set Display Name",
+				desc = "Lets you set the display name sent if you have more then one character in the guild.",
+				type = "select",
+				values = MM.guildTooltips.Accounts[MM.guildName].charList,
+				get =  function()
+					MM.guildTooltips.Accounts[MM.guildName].displayName = MM.guildTooltips.Accounts[MM.guildName].charList[MM.db.realm.OPTIONS.ttGuildDisplayName]
+					MM:GuildTooltipsBroadcast("MAESTRO_GUILD_DISPLAYNAME_UPDATE", true)
+					return MM.db.realm.OPTIONS.ttGuildDisplayName
+				end,
+			},
 		}
 	}
 	-- Reforge

@@ -434,7 +434,8 @@ function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
 end
 
 -- Notification function for the LEARNED event
-function MM:MYSTIC_ENCHANT_LEARNED(this, SpellID)
+function MM:MYSTIC_ENCHANT_LEARNED(event, SpellID)
+  MM:GuildTooltipsEnchantLearned(event, SpellID)
   if not self.db.realm.OPTIONS.notificationLearned then return end
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if not enchant then return end

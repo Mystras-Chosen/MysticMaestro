@@ -30,6 +30,7 @@ local defaultDB = {
       ttKnownIndicator = true,
       ttEnable = true,
       worldforgedTooltip = true,
+      ttGuildEnable = true,
       
       ttMin = true,
       ttGPO = true,
@@ -128,6 +129,10 @@ local defaultDB = {
       }
     },
     SHOPPING_LISTS = {},
+    GUILD_TOOLTIPS = {
+      Accounts = {},
+      Guilds = {}
+    },
   }
 }
 
@@ -199,4 +204,5 @@ function MM:SetupDatabase()
 	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
   MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
   MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
+  MM.guildTooltips = MM.db.realm.GUILD_TOOLTIPS
 end
