@@ -29,6 +29,7 @@ local defaultDB = {
 
       ttKnownIndicator = true,
       ttEnable = true,
+      worldforgedTooltip = true,
       
       ttMin = true,
       ttGPO = true,

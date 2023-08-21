@@ -1,4 +1,5 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local WHITE = "|cffFFFFFF"
 
 local function addLinesTooltip(tt, SpellID)
   if not MM.db.realm.OPTIONS.ttEnable then return end
@@ -71,9 +72,34 @@ function MM:TooltipHandlerItem(tooltip)
   addLinesTooltip(tooltip, enchant.SpellID)
 end
 
+-- adds to a spells tooltip what rare worldforged enchants you are missing for it
+-- lable for the type is removed if you have it unlearned in your inventory as well
+function MM:WorldforgedTooltips(SpellName)
+  local worldForgedList = ""
+  -- get list of scrolls and turn it into a keyd table to make it eaiser to check
+  local scrolls = {}
+  for _, scroll in pairs(C_MysticEnchant.GetMysticScrolls()) do
+    scrolls[scroll.Entry] = true
+  end
+  -- query enchant by spell name only returns if there rare/worldforged and unlearned
+  local enchants = C_MysticEnchant.QueryEnchants(9999, 1, SpellName, {Enum.ECFilters.RE_FILTER_UNKNOWN ,Enum.ECFilters.RE_FILTER_WORLDFORGED,Enum.ECFilters.RE_FILTER_RARE})
+  if #enchants == 0 then return end
+    for _, enchant in pairs(enchants) do
+      if not scrolls[enchant.ItemID] then
+        worldForgedList = worldForgedList..gsub(enchant.SpellName, " "..SpellName, "")..", "
+      end
+    end
+    return "Missing WorldForged Enchants: "..WHITE..worldForgedList
+end
+
 function MM:TooltipHandlerSpell(tooltip)
-  local SpellID = select(3 , tooltip:GetSpell())
+  local SpellName, _, SpellID = tooltip:GetSpell()
+  local worldForgedTip = MM:WorldforgedTooltips(SpellName)
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
-  if not enchant then return end
-  addLinesTooltip(tooltip, SpellID)
+  if enchant then
+    addLinesTooltip(tooltip, SpellID)
+  elseif MM.db.realm.OPTIONS.worldforgedTooltip and worldForgedTip then
+    tooltip:AddLine(" ")
+    tooltip:AddLine(worldForgedTip)
+  end
 end

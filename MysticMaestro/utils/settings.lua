@@ -352,6 +352,13 @@ local function createConfig()
 				desc = "Enable or disable tooltip information for Mystic Enchants.",
 				type = "toggle"
 			},
+			worldforgedTooltip = {
+				order = 2,
+				name = "Missing Worldforged Tooltip",
+				desc = "Shows a list of missing rare worldforged enchants on spell tooltips also checks inventory to see if there is one there unlearned",
+				type = "toggle",
+				width = 1
+			},
 			ttLatestHeader = {
 				order = 3,
 				name = "Last Scan Values",
