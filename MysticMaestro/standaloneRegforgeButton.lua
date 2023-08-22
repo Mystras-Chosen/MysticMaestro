@@ -128,7 +128,7 @@ standaloneReforgeBtn = function(self, arg1)
         MM.dewdrop:Close()
     else
         if (arg1 == "LeftButton") then
-            MM:ReforgeButtonClick()
+            MM:ReforgeToggle()
         elseif (arg1 == "RightButton") then
             MM:RollMenuRegister(self)
             MM.dewdrop:Open(self)

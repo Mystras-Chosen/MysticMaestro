@@ -57,7 +57,7 @@ function MM:MiniMapMenuRegister(self)
                 end
                 MM.dewdrop:AddLine(
                     'text', text,
-                    'func', MM.ReforgeButtonClick,
+                    'func', MM.ReforgeToggle,
                     'notCheckable', true,
                     'closeWhenClicked', true
                 )

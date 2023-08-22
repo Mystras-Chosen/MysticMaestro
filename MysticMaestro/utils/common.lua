@@ -425,6 +425,39 @@ function MM:IsREKnown(SpellID)
   return enchant and enchant.Known or false
 end
 
+function MM:IsMoving()
+	return GetUnitSpeed("player") ~= 0
+end
+
+-- determine if an enchant is extractable
+function MM:Extract(enchant)
+	if enchant.Known then return end
+	if GetItemCount(98463) and (GetItemCount(98463) > 0) then
+		MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchant.SpellID))
+		local itemGuid = MM:FindScrollByItem(enchant.ItemID)
+		C_MysticEnchant.DisenchantItem(itemGuid)
+		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+		return true
+	else
+		MM:Print("Out of extracts for:" .. MM:ItemLinkRE(enchant.SpellID))
+	end
+end
+
+-- Return the item GUID of a reforgable scroll
+function MM:FindReforgableScroll()
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+
+	for _, scroll in ipairs(inventoryList) do
+		local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
+
+		if scroll.Entry == 992720 -- Untarnished Mystic Scroll
+		or enchantInfo and not MM:MatchConfiguration(enchantInfo) then
+			return scroll.Guid
+		end
+	end
+end
+
 function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
   if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
     and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
