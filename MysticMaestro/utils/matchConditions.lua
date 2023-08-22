@@ -12,6 +12,7 @@ local otherGreens = {
 }
 
 function MM:MatchNoRunes()
+	if not options then options = MM.db.realm.OPTIONS end
 	local eval = options.stopIfNoRunes and GetItemCount(98462) <= 0
 	return eval and "No Runes" or nil
 end
