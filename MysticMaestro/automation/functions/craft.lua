@@ -5,14 +5,14 @@ local automationName = "Craft"
 local automationTable = {}
 
 function automationTable.GetName()
-  return automationName
+	return automationName
 end
 
 local options
 
 function automationTable.ShowInitPrompt()
-  options = options or MM.db.realm.OPTIONS
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+	options = options or MM.db.realm.OPTIONS
+	MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
 end
 
 local running
@@ -21,8 +21,8 @@ function automationTable.Start()
 end
 
 function automationTable.Stop()
-  MM.AutomationUtil.HideAutomationPopup()
-  running = false
+	MM.AutomationUtil.HideAutomationPopup()
+	running = false
 end
 
 function automationTable.PostProcessing()

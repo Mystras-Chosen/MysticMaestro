@@ -178,8 +178,8 @@ StaticPopupDialogs["MYSTICMAESTRO_IMPORT_SHOPPINGLIST"] = {
 }
 
 function MM:exportString()
-    local data = {};
-    data.Enchants = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Enchants
-    data.Name = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name;
-    Internal_CopyToClipboard("MMSL:"..MM:Serialize(data));
+	local data = {};
+	data.Enchants = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Enchants
+	data.Name = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name;
+	Internal_CopyToClipboard("MMSL:"..MM:Serialize(data));
 end

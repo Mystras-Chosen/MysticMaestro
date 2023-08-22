@@ -7,14 +7,14 @@ local isPaused
 local automationTable = {}
 
 function automationTable.GetName()
-  return automationName
+	return automationName
 end
 
 local options
 
 function automationTable.ShowInitPrompt()
-  options = options or MM.db.realm.OPTIONS
-  MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+	options = options or MM.db.realm.OPTIONS
+	MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
 end
 
 local running
@@ -23,24 +23,24 @@ function automationTable.Start()
 end
 
 function automationTable.Pause()
-  if running then
-    isPaused = true
-    MM.AutomationUtil.HideAutomationPopup()
-  elseif isPaused then -- can be called when already paused and init prompt showing
-    MM.AutomationUtil.HideAutomationPopup()
-  else
-    MM:Print("ERROR: " .. automationName .." paused when not running")
-  end
+	if running then
+		isPaused = true
+		MM.AutomationUtil.HideAutomationPopup()
+	elseif isPaused then -- can be called when already paused and init prompt showing
+		MM.AutomationUtil.HideAutomationPopup()
+	else
+		MM:Print("ERROR: " .. automationName .." paused when not running")
+	end
 end
 
 function automationTable.IsPaused()
-  return isPaused
+	return isPaused
 end
 
 function automationTable.Stop()
-  MM.AutomationUtil.HideAutomationPopup()
-  isPaused = false
-  running = false
+	MM.AutomationUtil.HideAutomationPopup()
+	isPaused = false
+	running = false
 end
 
 function automationTable.PostProcessing()

@@ -2,162 +2,162 @@
 
 -- Options can be accessed in the table: MM.db.realm.OPTIONS
 local defaultDB = {
-  realm = {
-    OPTIONS = {
-      confirmList = true,
-      confirmBuyout = true,
-      confirmCancel = true,
-      confirmCraft = true,
+	realm = {
+		OPTIONS = {
+			confirmList = true,
+			confirmBuyout = true,
+			confirmCancel = true,
+			confirmCraft = true,
 
-      listDuration = 1,
-      
-      allowEpic = false,
-      limitIlvl = 71,
-      limitGold = 2,
+			listDuration = 1,
+			
+			allowEpic = false,
+			limitIlvl = 71,
+			limitGold = 2,
 
-      myTimeout = 15,
-      myCutoff = 30,
-      mySortAlpha = false,
+			myTimeout = 15,
+			myCutoff = 30,
+			mySortAlpha = false,
 
-      notificationLearned = true,
+			notificationLearned = true,
 
-      useGetall = true,
-      rarityMagic = true,
-      rarityRare = true,
-      rarityEpic = true,
-      rarityLegendary = true,
+			useGetall = true,
+			rarityMagic = true,
+			rarityRare = true,
+			rarityEpic = true,
+			rarityLegendary = true,
 
-      ttKnownIndicator = true,
-      ttEnable = true,
-      worldforgedTooltip = true,
-      ttGuildEnable = true,
-      
-      ttMin = true,
-      ttGPO = true,
-      ttMed = false,
-      ttMean = false,
-      ttMax = false,
+			ttKnownIndicator = true,
+			ttEnable = true,
+			worldforgedTooltip = true,
+			ttGuildEnable = true,
+			
+			ttMin = true,
+			ttGPO = true,
+			ttMed = false,
+			ttMean = false,
+			ttMax = false,
 
-      postMin = 1,
-      postMax = 400,
-      postDefault = 120,
-      postIfUnder = "IGNORE",
-      postIfOver = "MAX",
+			postMin = 1,
+			postMax = 400,
+			postDefault = 120,
+			postIfUnder = "IGNORE",
+			postIfOver = "MAX",
 
-      ttTENMin = true,
-      ttTENGPO = false,
-      ttTENMed = false,
-      ttTENMean = false,
-      ttTENMax = false,
+			ttTENMin = true,
+			ttTENGPO = false,
+			ttTENMed = false,
+			ttTENMean = false,
+			ttTENMax = false,
 
-      standaloneBtn = {
-      Citys = false,
-      Enable = true,
-      },
+			standaloneBtn = {
+			Citys = false,
+			Enable = true,
+			},
 
-      minimap = {hide = false},
+			minimap = {hide = false},
 
-      enableShare = false,
-      enableShareCombat = false,
+			enableShare = false,
+			enableShareCombat = false,
 
-      delayAfterBagUpdate = 0.3,
-      stopIfNoRunes = true,
-      shoppingListsDropdown = 1,
-      shoppingSubList = 1,
-      stopForShop = {
-        enabled = false,
-      },
-      shoppingLists = {
-      },
-      stopQuality = {
-        enabled = false,
-        [2] = true,
-        [3] = true,
-        [4] = true,
-        [5] = true
-      },
-      stopUnknown = {
-        enabled = false,
-        extract = false,
-        [2] = true,
-        [3] = true,
-        [4] = true,
-        [5] = true
-      },
-      stopPrice = {
-        enabled = false,
-        value = 3.5,
-        [2] = true,
-        [3] = true,
-        [4] = true,
-        [5] = true
-      },
-      green = {
-        enabled=false,
-        unknown=true,
-        extract=true,
-        Focused=false,
-        Concentrated=false,
-        Taunting=false,
-        Accurate=false,
-        Subtle=false,
-        Quick=false,
-        Accrual=false,
-        Brutal=false,
-        Critical=false,
-        Lengthy=false,
-        Hardy=false,
-        Steady=false,
-        Powerful=false,
-        Hasty=false,
-        Other=false,
-      },
-    },
-    VIEWS = {
-      sort = 1,
-      filter = {
-        allQualities = true,
-        uncommon = false,
-        rare = false,
-        epic = false,
-        legendary = false,
-        allKnown = true,
-        known = false,
-        unknown = false,
-        favorites = false,
-        bags = false
-      }
-    },
-    SHOPPING_LISTS = {},
-    GUILD_TOOLTIPS = {
-      Accounts = {},
-      Guilds = {}
-    },
-  }
+			delayAfterBagUpdate = 0.3,
+			stopIfNoRunes = true,
+			shoppingListsDropdown = 1,
+			shoppingSubList = 1,
+			stopForShop = {
+				enabled = false,
+			},
+			shoppingLists = {
+			},
+			stopQuality = {
+				enabled = false,
+				[2] = true,
+				[3] = true,
+				[4] = true,
+				[5] = true
+			},
+			stopUnknown = {
+				enabled = false,
+				extract = false,
+				[2] = true,
+				[3] = true,
+				[4] = true,
+				[5] = true
+			},
+			stopPrice = {
+				enabled = false,
+				value = 3.5,
+				[2] = true,
+				[3] = true,
+				[4] = true,
+				[5] = true
+			},
+			green = {
+				enabled=false,
+				unknown=true,
+				extract=true,
+				Focused=false,
+				Concentrated=false,
+				Taunting=false,
+				Accurate=false,
+				Subtle=false,
+				Quick=false,
+				Accrual=false,
+				Brutal=false,
+				Critical=false,
+				Lengthy=false,
+				Hardy=false,
+				Steady=false,
+				Powerful=false,
+				Hasty=false,
+				Other=false,
+			},
+		},
+		VIEWS = {
+			sort = 1,
+			filter = {
+				allQualities = true,
+				uncommon = false,
+				rare = false,
+				epic = false,
+				legendary = false,
+				allKnown = true,
+				known = false,
+				unknown = false,
+				favorites = false,
+				bags = false
+			}
+		},
+		SHOPPING_LISTS = {},
+		GUILD_TOOLTIPS = {
+			Accounts = {},
+			Guilds = {}
+		},
+	}
 }
 
 local realmName = GetRealmName()
 local enchantMT = {
-  __index = function(t, k)
-    local newListing = {}
-    t[k] = newListing
-    return newListing
-  end
+	__index = function(t, k)
+		local newListing = {}
+		t[k] = newListing
+		return newListing
+	end
 }
 
 local function convertListingData(listingData)
-  local results = {}
-  for scanTime, auctionList in pairs(listingData) do
-    local temp = ":"
-    for _, buyoutPrice in ipairs(auctionList) do
-      temp = buyoutPrice .. "," .. temp
-    end
-    for _, buyoutPrice in ipairs(auctionList.other) do
-      temp = temp .. buyoutPrice .. ","
-    end
-    results[scanTime] = temp
-  end
-  return results
+	local results = {}
+	for scanTime, auctionList in pairs(listingData) do
+		local temp = ":"
+		for _, buyoutPrice in ipairs(auctionList) do
+			temp = buyoutPrice .. "," .. temp
+		end
+		for _, buyoutPrice in ipairs(auctionList.other) do
+			temp = temp .. buyoutPrice .. ","
+		end
+		results[scanTime] = temp
+	end
+	return results
 end
 
 function MM:SetupDatabase()
@@ -202,7 +202,7 @@ function MM:SetupDatabase()
 	MM.db.realm.VIEWS = MM.db.realm.VIEWS or {}
 	MM.db.realm.OPTIONS = MM.db.realm.OPTIONS or {}
 	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
-  MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
-  MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
-  MM.guildTooltips = MM.db.realm.GUILD_TOOLTIPS
+	MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
+	MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
+	MM.guildTooltips = MM.db.realm.GUILD_TOOLTIPS
 end
