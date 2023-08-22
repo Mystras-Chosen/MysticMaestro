@@ -656,14 +656,15 @@ function MM:AltarLevelRequiredRolls()
 	if progressDif ~= 0 and (not MM.db.realm.ALTARLEVEL.lastProgressDif or MM.db.realm.ALTARLEVEL.lastProgressDif > progressDif) then
 		MM.db.realm.ALTARLEVEL.lastProgressDif = progressDif
 	end
-
+  local rollCorrection = 0
 	if MM.db.realm.ALTARLEVEL.lastProgressDif < progressDif then
 		progressDif = MM.db.realm.ALTARLEVEL.lastProgressDif
+    rollCorrection = 1
 	end
 
 	MM.db.realm.ALTARLEVEL.lastProgress = progress
 
 	local rollsNeeded = (100 - progress) / progressDif
 
-	MM.db.realm.ALTARLEVEL.rollsNeeded = math.ceil(rollsNeeded)
+	MM.db.realm.ALTARLEVEL.rollsNeeded = math.ceil(rollsNeeded - rollCorrection)
 end

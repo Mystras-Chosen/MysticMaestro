@@ -165,12 +165,21 @@ function MM:GuildTooltipsBroadcast(ComID, nameUpdate)
   if guildName ~= nil then
   sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
   sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
+  sendData.enchantCount = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
   if not nameUpdate then
     sendData.knownList = knownList
   end
   sendData = MM:Serialize(sendData)
   MM:SendCommMessage(ComID, sendData, "GUILD", playerName)
   end
+end
+
+function MM:EnchantCount(knownList)
+  local count = 0
+  for _,_ in pairs(knownList) do
+    count = count + 1
+  end
+  return count
 end
 
 --Receive enchant list of other people with the addon in guild
@@ -187,8 +196,11 @@ function MM:EnchantCom(prefix, message, distribution, sender)
                   MM.guildTooltips.Guilds[guildName][data.accountKey].knownList = data.knownList
           end
           --print("Mystic Enchant List Received")
-          if prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" then
+          if prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" and  data.enchantCount and data.enchantCount ~= MM:EnchantCount(MM.guildTooltips.Guilds[guildName][data.accountKey].knownList) then
             MM:GuildTooltipsBroadcast("MAESTRO_GUILD_REQUEST_UPDATE")
+          end
+          if prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" and message ~= "NO_REPEAT" then
+            MM:SendCommMessage("MAESTRO_GUILD_TOOLTIPS_SEND", "NO_REPEAT", "GUILD", playerName)
           end
       end
     --Update of display name received
