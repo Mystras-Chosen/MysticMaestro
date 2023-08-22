@@ -482,10 +482,9 @@ function MM:MYSTIC_ENCHANT_LEARNED(event, SpellID)
   local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
   if not enchant then return end
   local icon = select(3, GetSpellInfo(SpellID))
-  local texture = CreateTextureMarkup(icon, 64, 64, 64, 64, 0, 1, 0, 1)
+  local wrapper = IconClass(icon)
   local enchantColor = colors[enchant.Quality]
-  MM:Print(format("|Hspell:%s|h%s[%s]|r|h%s", SpellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
-  DEFAULT_CHAT_FRAME:AddMessage(texture)
+  MM:Print(format("%s |Hspell:%s|h%s[%s]|r|h%s", wrapper:GetIconString(), SpellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
 end
 
 -- determine the count of Mystic Orbs
