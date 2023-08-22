@@ -35,8 +35,6 @@ function MM:OnEnable()
   MM:StandaloneCityReforgeToggle()
   MM:MinimapIconSetup()
   MM:GetPlayerDetails()
-  MM:GuildTooltips_Setup()
-  MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
 
   MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
   MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
@@ -97,6 +95,8 @@ function MM:GUILD_ROSTER_UPDATE(event, arg1, arg2, arg3)
   if event == "GUILD_ROSTER_UPDATE" then
     MM:GetPlayerDetails()
     if MM.guildName then
+      MM:GuildTooltips_Setup()
+      MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
       MM:UnregisterEvent("GUILD_ROSTER_UPDATE")
     end
   end
