@@ -469,11 +469,16 @@ local function createConfig()
 				desc = "Stop reforging when you have run out of Mystic Runes",
 				type = "toggle"
 			},
-			stopForNothing = {
+			delayAfterBagUpdate = {
+				name = "Delay after Reforge result",
 				order = 2,
-				name = "The Rune Waster",
-				desc = "Continue to spam reforge until you run out of runes. This will ignore all the options below and just roll on the first scroll in your inventory.",
-				type = "toggle"
+				type = "range",
+				step = 0.01,
+				min = 0.1,
+				max = 2,
+				softMin = 0.2,
+				softMax = 1,
+				desc = "Set the amount of time to elapse after each reforge, too low of a value will cause blocked casts.",
 			},
 			qualityHeader = {
 				order = 33,

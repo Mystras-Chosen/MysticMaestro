@@ -132,7 +132,7 @@ end
 
 function MM:BAG_UPDATE()
 	MM:UnregisterEvent("BAG_UPDATE")
-	Timer.After(.2, MM.ActivateReforge)
+	Timer.After(MM.db.realm.OPTIONS.delayAfterBagUpdate, MM.ActivateReforge)
 end
 
 function MM:UNIT_SPELLCAST_INTERRUPTED(event, arg1, arg2)

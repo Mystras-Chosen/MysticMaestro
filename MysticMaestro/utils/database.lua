@@ -60,8 +60,8 @@ local defaultDB = {
       enableShare = false,
       enableShareCombat = false,
 
+      delayAfterBagUpdate = 0.3,
       stopIfNoRunes = true,
-      stopForNothing = true,
       shoppingListsDropdown = 1,
       shoppingSubList = 1,
       stopForShop = {
