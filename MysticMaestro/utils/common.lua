@@ -444,6 +444,15 @@ function MM:Extract(enchant)
 	end
 end
 
+function MM:FindScrollByItem(itemID)
+	if not itemID then return end
+
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+	for _, scroll in ipairs(inventoryList) do
+		if scroll.Entry == itemID then return scroll.Guid end
+	end
+end
+
 -- Return the item GUID of a reforgable scroll
 function MM:FindReforgableScroll()
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()

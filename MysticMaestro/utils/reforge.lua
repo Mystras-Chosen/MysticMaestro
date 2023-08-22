@@ -104,7 +104,7 @@ end
 
 function MM:BAG_UPDATE()
 	MM:UnregisterEvent("BAG_UPDATE")
-	Timer.NextFrame(MM.ActivateReforge)
+	Timer.After(.2, MM.ActivateReforge)
 end
 
 function MM:UNIT_SPELLCAST_INTERRUPTED(event, arg1, arg2)
