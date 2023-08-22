@@ -1,5 +1,6 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
-local reforgeActive, waitingAltar
+local reforgeActive
+local buttonTextTimerHandle
 local disenchantingItem, reforgingItem
 local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
@@ -36,8 +37,18 @@ function MM:TerminateReforge(reason)
 	disenchantingItem = nil
 	reforgingItem = nil
 
+	if buttonTextTimerHandle then
+		buttonTextTimerHandle:Cancel()
+		buttonTextTimerHandle = nil
+		MysticMaestro_CollectionsFrame_ReforgeButton:SetText("Auto Reforge")
+	end
+
+	-- Hide screen text count down
+	MM:ToggleScreenReforgeText()
+	MM:StandaloneReforgeText()
+	
 	if reason then
-		MM:Print("Reforge stopped for " .. result)
+		MM:Print("Reforge stopped for " .. reason)
 	else
 		MM:Print("Reforge has been stopped")
 	end
@@ -63,9 +74,21 @@ function MM:ReforgeToggle()
 
 	if not reforgeActive then
 		MM:ActivateReforge()
+
+		-- Set the button text to indicate reforge began
+		local button = MysticMaestro_CollectionsFrame_ReforgeButton
+		if button then 
+			button:SetText("Reforging" .. MM:Dots())
+			buttonTextTimerHandle = Timer.NewTicker(1, function() button:SetText("Reforging".. MM:Dots()) end)
+		end
+
+		-- Show floating rune count down
+		MM:ToggleScreenReforgeText(true)
+		MM:StandaloneReforgeText(true)
 	else
 		MM:TerminateReforge("Button Pressed")
 	end
+
 end
 
 
@@ -146,4 +169,6 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 	else
 		MM:Print("Skipping " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID))
 	end
+	MM:AltarLevelRequiredRolls()
+	MM:UpdateScreenReforgeText()
 end

@@ -270,6 +270,10 @@ function MM:ToggleScreenReforgeText(show)
     MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
     MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.ALTARLEVEL.rollsNeeded).." Enchants")
 end
+function MM:UpdateScreenReforgeText()
+    MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
+    MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.ALTARLEVEL.rollsNeeded).." Enchants")
+end
 
 function MM:StandaloneReforgeShow()
     if MysticMaestro_ReforgeFrame:IsVisible() then

@@ -633,3 +633,38 @@ function MM:GetAuctionMysticEnchantInfo(listingType, index)
   local icon = select(2, GetAuctionItemInfo(listingType, index))
   return itemLink, enchantData, buyoutPrice, seller, duration, icon
 end
+
+function MM:Dots()
+	local floorTime = math.floor(GetTime())
+	return floorTime % 3 == 0 and "." or (floorTime % 3 == 1 and ".." or "...")
+end
+
+function MM:AltarLevelRequiredRolls()
+	if not MM.db.realm.ALTARLEVEL then MM.db.realm.ALTARLEVEL = {} end
+
+	--works out how many rolls on the current item type it will take to get the next altar level
+    local progress, level = C_MysticEnchant.GetProgress()
+
+	if MM.db.realm.ALTARLEVEL.lastLevel ~= level or not MM.db.realm.ALTARLEVEL.lastProgress then
+		MM.db.realm.ALTARLEVEL.lastLevel = level
+		MM.db.realm.ALTARLEVEL.lastProgress = progress
+	end
+
+	local progressDif = progress - MM.db.realm.ALTARLEVEL.lastProgress
+
+	if progressDif == 0 then return end
+
+	if progressDif ~= 0 and (not MM.db.realm.ALTARLEVEL.lastProgressDif or MM.db.realm.ALTARLEVEL.lastProgressDif > progressDif) then
+		MM.db.realm.ALTARLEVEL.lastProgressDif = progressDif
+	end
+
+	if MM.db.realm.ALTARLEVEL.lastProgressDif < progressDif then
+		progressDif = MM.db.realm.ALTARLEVEL.lastProgressDif
+	end
+
+	MM.db.realm.ALTARLEVEL.lastProgress = progress
+
+	local rollsNeeded = (100 - progress) / progressDif
+
+	MM.db.realm.ALTARLEVEL.rollsNeeded = math.ceil(rollsNeeded)
+end
