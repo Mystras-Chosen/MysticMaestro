@@ -1,10 +1,13 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local reforgeActive, waitingAltar
 local disenchantingItem, reforgingItem
+local strKnown = "|cff00ff00known|r"
+local strUnknown = "|cffff0000unknown|r"
 
 -- We set an entry point for any reforge requests
 function MM:ActivateReforge()
 	reforgeActive = true
+	MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
 
 	-- Stop attempting if player is moving
 	if MM:IsMoving() then MM:TerminateReforge("Player Moving") return end
@@ -33,11 +36,13 @@ function MM:TerminateReforge(reason)
 	disenchantingItem = nil
 	reforgingItem = nil
 
-	if result then
+	if reason then
 		MM:Print("Reforge stopped for " .. result)
 	else
 		MM:Print("Reforge has been stopped")
 	end
+
+	MM:UnregisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
 end
 
 function MM:ReforgeItem(itemGuid)
@@ -123,4 +128,22 @@ function MM:UNIT_SPELLCAST_INTERRUPTED(event, arg1, arg2)
 
 	-- The altar has likely expired, so we put a timer to continue next frame
 	Timer.NextFrame(MM.ActivateReforge)
+end
+
+function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
+	if not reforgeActive
+	or result ~= "RE_REFORGE_OK"
+	or SpellID == 0 then return end
+
+	-- Fetch the resulting enchant information
+	local currentEnchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+	if not currentEnchant then MM:Print("Error in returning the enchant info for " .. SpellID) return end
+
+	local knownState = currentEnchant.Known and strKnown or strUnknown
+	local result = MM:MatchConfiguration(currentEnchant)
+	if result then
+		MM:Print("Stopped on " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
+	else
+		MM:Print("Skipping " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID))
+	end
 end

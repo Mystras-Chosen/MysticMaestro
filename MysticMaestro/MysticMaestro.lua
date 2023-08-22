@@ -8,7 +8,6 @@ function MM:OnInitialize()
   MM:SetupDatabase()
 
   MM:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
-  -- MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
   MM:RegisterEvent("ADDON_LOADED")
   MM:RegisterEvent("AUCTION_ITEM_LIST_UPDATE")
   MM:RegisterEvent("AUCTION_OWNED_LIST_UPDATE")
