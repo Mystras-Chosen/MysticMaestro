@@ -53,51 +53,50 @@ function MM:GetSingleScanResults()
 end
 
 function MM:SingleScan_AUCTION_ITEM_LIST_UPDATE()
-	if not awaitingResults then
-		local currentTime = GetTime()
-		self.lastSelectScanTime = currentTime
-		local listings, expectedSpellID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
-		local listingData = listings[expectedSpellID]
-		results = {}
-		local temp = ""
-		awaitingResults = false
-		for i=1, GetNumAuctionItems("list") do
-			local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo("list", i)
+	if not awaitingResults then return end
+	local currentTime = GetTime()
+	self.lastSelectScanTime = currentTime
+	local listings, expectedSpellID, sTime = self.data.RE_AH_LISTINGS, enchantToQuery, selectedScanTime
+	local listingData = listings[expectedSpellID]
+	results = {}
+	local temp = ""
+	awaitingResults = false
+	for i=1, GetNumAuctionItems("list") do
+		local itemLink, enchantData, buyoutPrice, seller, duration, icon = MM:GetAuctionMysticEnchantInfo("list", i)
 
-			if seller == nil and currentTime < timeoutTime then
-				awaitingResults = true
-			end
+		if seller == nil and currentTime < timeoutTime then
+			awaitingResults = true
+		end
 
-			if enchantData and enchantData.SpellID == expectedSpellID
-			and buyoutPrice and buyoutPrice > 0 then
-				table.insert(results, {
-					id = i,
-					SpellID = enchantData.SpellID,
-					seller = seller,
-					buyoutPrice = buyoutPrice,
-					yours = seller == UnitName("player"),
-					icon = icon,
-					link = itemLink,
-					duration = duration
-				})
-				temp = buyoutPrice .. "," .. temp
-			end
+		if enchantData and enchantData.SpellID == expectedSpellID
+		and buyoutPrice and buyoutPrice > 0 then
+			table.insert(results, {
+				id = i,
+				SpellID = enchantData.SpellID,
+				seller = seller,
+				buyoutPrice = buyoutPrice,
+				yours = seller == UnitName("player"),
+				icon = icon,
+				link = itemLink,
+				duration = duration
+			})
+			temp = buyoutPrice .. "," .. temp
 		end
-		listings[expectedSpellID][sTime] = temp
-		self:CalculateREStats(expectedSpellID, listingData)
-		table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
-		if self:IsEmbeddedMenuOpen() and not self.AutomationManager:IsRunning() then
-			self:PopulateSelectedEnchantAuctions(results)
-			self:SetMyAuctionLastScanTime(expectedSpellID)
-			self:SetMyAuctionBuyoutStatus(expectedSpellID)
-			self:RefreshMyAuctionsScrollFrame()
-			self:EnableListButton()
-			self:EnableAuctionRefreshButton()
-			self:PopulateGraph(expectedSpellID)
-			self:ShowStatistics(expectedSpellID)
-		end
-		timeoutTime = (awaitingResults and currentTime < timeoutTime) and timeoutTime or nil
 	end
+	listings[expectedSpellID][sTime] = temp
+	self:CalculateREStats(expectedSpellID, listingData)
+	table.sort(results, function(k1, k2) return k1.buyoutPrice < k2.buyoutPrice end)
+	if self:IsEmbeddedMenuOpen() and not self.AutomationManager:IsRunning() then
+		self:PopulateSelectedEnchantAuctions(results)
+		self:SetMyAuctionLastScanTime(expectedSpellID)
+		self:SetMyAuctionBuyoutStatus(expectedSpellID)
+		self:RefreshMyAuctionsScrollFrame()
+		self:EnableListButton()
+		self:EnableAuctionRefreshButton()
+		self:PopulateGraph(expectedSpellID)
+		self:ShowStatistics(expectedSpellID)
+	end
+	timeoutTime = (awaitingResults and currentTime < timeoutTime) and timeoutTime or nil
 end
 
 local function collectMyAuctionData(results)
