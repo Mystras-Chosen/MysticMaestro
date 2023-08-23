@@ -285,10 +285,10 @@ function MM:StdDev(tbl,mean)
 end
 
 local qualityCost = {
-	[2] = 3,
-	[3] = 6,
-	[4] = 10,
-	[5] = 25
+	[2] = 6,
+	[3] = 12,
+	[4] = 20,
+	[5] = 50
 }
 
 -- return an orb cost for each quality of enchants
