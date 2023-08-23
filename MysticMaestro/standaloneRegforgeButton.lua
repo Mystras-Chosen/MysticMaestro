@@ -1,6 +1,5 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local standaloneReforgeBtn
 local realmName = GetRealmName()
 local reFound = false
 
@@ -28,111 +27,18 @@ local citysList = {
 	["Dalaran"] = true,
 }
 
-local function rollMenuLevel1(value,frame)
-	if frame == "MysticMaestro_ReforgeFrame" then
-		local itemID = 1903513
-		if MM:HasItem(itemID) then
-			local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-			local startTime, duration = GetItemCooldown(itemID)
-			local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-			local text = name
-			if cooldown > 0 then
-			  text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
-			end
-			local secure = {
-			  type1 = 'item',
-			  item = name
-			}
-			MM.dewdrop:AddLine(
-			  'text', text,
-			  'secure', secure,
-			  'icon', icon,
-			  'closeWhenClicked', true
-			)
-		end
-		MM.dewdrop:AddLine(
-			'text', "Options",
-			'func', function() MM:OpenConfig("General") end,
-			'notCheckable', true,
-			'closeWhenClicked', true
-		)
-		MM.dewdrop:AddLine(
-			'text', "Unlock Frame",
-			'func', MM.UnlockFrame,
-			'notCheckable', true,
-			'closeWhenClicked', true
-		)
-	end
-	MM.dewdrop:AddLine(
-		'text', "Close Menu",
-		'textR', 0,
-		'textG', 1,
-		'textB', 1,
-		'closeWhenClicked', true,
-		'notCheckable', true
-	)
-end
-
-local function rollMenuLevel2(value)
-	if value == "extractUnknown" then
-		MM.dewdrop:AddLine(
-			'text', "Enable",
-			'func', QualityEnable,
-			'arg1', "UnknownAutoExtract",
-			'checked', MM.db.UnknownAutoExtract
-		)
-	end
-	MM.dewdrop:AddLine(
-		'text', "Close Menu",
-		'textR', 0,
-		'textG', 1,
-		'textB', 1,
-		'closeWhenClicked', true,
-		'notCheckable', true
-	)
-end
-
-local function rollMenuLevel3(value)
-	MM.dewdrop:AddLine(
-		'text', "Close Menu",
-		'textR', 0,
-		'textG', 1,
-		'textB', 1,
-		'closeWhenClicked', true,
-		'notCheckable', true
-	)
-end
-
-
+local menuSetup
 function MM:RollMenuRegister(self)
-	MM.dewdrop:Register(self,
-		'point', function(parent)
-			return "TOP", "BOTTOM"
-		end,
-		'children', function(level, value)
-			if level == 1 then
-				rollMenuLevel1(value, "MysticMaestro_ReforgeFrame")
-			elseif level == 2 then
-				rollMenuLevel2(value)
-			elseif level == 3 then
-				rollMenuLevel3(value)
-			end
-		end,
-		'dontHook', true
-	)
-end
-
-standaloneReforgeBtn = function(self, arg1)
-	if MM.dewdrop:IsOpen() then
-		MM.dewdrop:Close()
-	else
-		if (arg1 == "LeftButton") then
-			MM:ReforgeToggle()
-		elseif (arg1 == "RightButton") then
-			MM:RollMenuRegister(self)
-			MM.dewdrop:Open(self)
-		end
-	end
+	local altar = MM:AddAltar()
+	local menuList = {
+		[1] = {
+			altar,
+			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{close = true, divider = 35}
+		},
+	}
+	menuSetup = MM:OpenDewdropMenu(self, menuList, menuSetup)
 end
 
 -- Used to show highlight as a frame mover
@@ -203,7 +109,13 @@ local reforgebutton = CreateFrame("Button", "MysticMaestro_ReforgeFrame_Menu", M
 	reforgebutton.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
 	reforgebutton.Highlight:Hide()
 	reforgebutton:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	reforgebutton:SetScript("OnClick", function(self, btnclick) standaloneReforgeBtn(self,btnclick) end)
+	reforgebutton:SetScript("OnClick", function(self, button) 
+		if (button == "LeftButton") then
+			MM:ReforgeToggle()
+		elseif (button == "RightButton") then
+			MM:RollMenuRegister(self)
+		end
+	end)
 	reforgebutton:SetScript("OnEnter", function(self)
 		reforgebutton.Highlight:Show()
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")

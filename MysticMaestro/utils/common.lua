@@ -515,33 +515,78 @@ function MM:HasItem(itemID)
 	return false
 end
 
---for a adding a divider to dew drop menus 
-function MM:AddDividerLine(maxLenght)
-	local text = WHITE.."----------------------------------------------------------------------------------------------------"
-	MM.dewdrop:AddLine(
-		'text' , text:sub(1, maxLenght),
-		'textHeight', 12,
-		'textWidth', 12,
-		'isTitle', true,
-		"notCheckable", true
-	)
+-- Used to create a dewdrop menu from a table
+function MM:OpenDewdropMenu(self, menuList, skipRegister)
+	if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
+	if not skipRegister then
+		MM.dewdrop:Register(self,
+			'point', function(parent)
+				return "TOP", "BOTTOM"
+			end,
+			'children', function(level, value)
+			for _, menu in pairs(menuList[level]) do
+				if menu then
+					if menu.divider then
+						local text = WHITE.."----------------------------------------------------------------------------------------------------"
+						MM.dewdrop:AddLine(
+							'text' , text:sub(1, menu.divider),
+							'textHeight', 13,
+							'textWidth', 13,
+							'isTitle', true,
+							'notCheckable', true
+						)
+					else
+						MM.dewdrop:AddLine(
+						'text', menu.text,
+						'func', menu.func,
+						'closeWhenClicked', menu.closeWhenClicked,
+						'textHeight', menu.textHeight,
+						'textWidth', menu.textWidth,
+						'notCheckable', menu.notCheckable,
+						'tooltip', menu.tooltip,
+						'secure', menu.secure,
+						'icon', menu.icon
+					)
+					end
+					-- create close button
+					if menu.close then
+						MM.dewdrop:AddLine(
+							'text', "Close Menu",
+							'textR', 0,
+							'textG', 1,
+							'textB', 1,
+							'textHeight', 12,
+							'textWidth', 12,
+							'closeWhenClicked', true,
+							'notCheckable', true
+						)
+					end
+				end
+			end
+		end,
+		'dontHook', true
+		)
+	end
+	MM.dewdrop:Open(self)
+	return true
 end
 
---pre built dewdrop close button with dividerline
-function MM:CloseDewDrop(divider, maxLenght)
-	if divider then
-		MM:AddDividerLine(maxLenght)
-	end
-	MM.dewdrop:AddLine(
-		'text', "Close Menu",
-		'textR', 0,
-		'textG', 1,
-		'textB', 1,
-		'textHeight', 12,
-		'textWidth', 12,
-		'closeWhenClicked', true,
-		'notCheckable', true
-	)
+-- add altar summon button via dewdrop secure
+function MM:AddAltar()
+	local itemID = 1903513
+	if not MM:HasItem(itemID) then return end
+		local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
+		local startTime, duration = GetItemCooldown(itemID)
+		local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+		local text = name
+		if cooldown > 0 then
+		text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
+		end
+		local secure = {
+		type1 = 'item',
+		item = name
+		}
+		return {text = text, secure = secure, icon = icon, closeWhenClicked = true, textHeight = 12, textWidth = 12}
 end
 
 -- open browser link base on type or id/string

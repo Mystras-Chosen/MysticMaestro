@@ -44,75 +44,20 @@ function minimap.OnEnter(self)
 	GameTooltip:Show()
 end
 
+local menuSetup
 function MM:MiniMapMenuRegister(self)
-	MM.dewdrop:Register(self,
-		'point', function(parent)
-			return "TOP", "BOTTOM"
-		end,
-		'children', function(level, value)
-			if level == 1 then
-				local text = "Start Reforge"
-				if MM.AutoRolling then
-					text = "Reforging"
-				end
-				MM.dewdrop:AddLine(
-					'text', text,
-					'func', MM.ReforgeToggle,
-					'notCheckable', true,
-					'closeWhenClicked', true
-				)
-				local itemID = 1903513
-				if MM:HasItem(itemID) then
-					local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-					local startTime, duration = GetItemCooldown(itemID)
-					local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-					local text = name
-					if cooldown > 0 then
-					  text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
-					end
-					local secure = {
-					  type1 = 'item',
-					  item = name
-					}
-					MM.dewdrop:AddLine(
-					  'text', text,
-					  'secure', secure,
-					  'icon', icon,
-					  'closeWhenClicked', true
-					)
-				end
-				MM.dewdrop:AddLine(
-					'text', "Show/Hide Floating Button",
-					'func', MM.StandaloneReforgeShow,
-					'notCheckable', true,
-					'closeWhenClicked', true
-				)
-				MM.dewdrop:AddLine(
-					'text', "Options",
-					'func', function() MM:OpenConfig("General") end,
-					'notCheckable', true,
-					'closeWhenClicked', true
-				)
-				MM.dewdrop:AddLine(
-					'text', "Close Menu",
-					'textR', 0,
-					'textG', 1,
-					'textB', 1,
-					'closeWhenClicked', true,
-					'notCheckable', true
-				)
-			elseif level == 2 then
-				if value == "Roll Options" then
-					rollMenuLevel1(value)
-				end
-			elseif level == 3 then
-				rollMenuLevel2(value)
-			elseif level == 4 then
-				rollMenuLevel3(value)
-			end
-		end,
-		'dontHook', true
-	)
+	local altar = MM:AddAltar()
+	local menuList = {
+		[1] = {
+			{text = MM.rollState, func = MM.ReforgeToggle, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			altar,
+			{text = "Show/Hide Floating Button", func = MM.StandaloneReforgeShow, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{close = true, divider = 35}
+		},
+	}
+	menuSetup = MM:OpenDewdropMenu(self, menuList, menuSetup)
 end
 
 function MM:MinimapIconSetup()

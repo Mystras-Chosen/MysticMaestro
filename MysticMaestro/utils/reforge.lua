@@ -46,6 +46,7 @@ function MM:TerminateReforge(reason)
 	-- Hide screen text count down
 	MM:ToggleScreenReforgeText()
 	MM:StandaloneReforgeText()
+	MM.rollState = "Start Reforge"
 	
 	if reason then
 		MM:Print("Reforge stopped for " .. reason)
@@ -85,6 +86,7 @@ function MM:ReforgeToggle()
 		-- Show floating rune count down
 		MM:ToggleScreenReforgeText(true)
 		MM:StandaloneReforgeText(true)
+		MM.rollState = "Reforging"
 	else
 		MM:TerminateReforge("Button Pressed")
 	end

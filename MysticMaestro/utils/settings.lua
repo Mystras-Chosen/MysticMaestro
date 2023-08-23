@@ -832,19 +832,16 @@ local function createConfig()
 	options.args.share = {
 		name = "Share",
 		type = "group",
-		order = 3,
 		get = get,
 		set = set,
 		args = {
 			enableShare = {
-				order = 1,
 				name = "Enable Shopping list sharing",
 				desc = "Enable shopping list sharing",
 				type = "toggle",
 				width = 6
 			},
 			enableShareCombat = {
-				order = 2,
 				name = "Auto reject in combat",
 				desc = "Auto reject in combat",
 				type = "toggle",

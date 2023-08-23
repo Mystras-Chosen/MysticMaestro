@@ -108,52 +108,17 @@ StaticPopupDialogs["MysticMaestro_ListFrame_DELETELIST"] = {
 	enterClicksFirstButton = true,
 }
 
-local exportMenuLoaded
+local menuSetup
 function MM:ListFrameMenuRegister(self)
-	if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
-	if not exportMenuLoaded then
-		MM.dewdrop:Register(self,
-			'point',
-			function(parent)
-				return "TOP", "BOTTOM"
-			end,
-			'children',
-			function(level, value)
-				if level == 1 then
-					MM.dewdrop:AddLine(
-						'text', "Send Current List",
-						'func', function() StaticPopup_Show("MYSTICMAESTRO_SEND_SHOPPINGLIST",MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name) end,
-						'closeWhenClicked', true,
-						'notCheckable', true
-					)
-					MM.dewdrop:AddLine(
-						'text', "Export List",
-						'func', MM.exportString,
-						'closeWhenClicked', true,
-						'tooltip', "Exports a string to clipboard",
-						'notCheckable', true
-					)
-					MM.dewdrop:AddLine(
-						'text', "Import List",
-						'func', function() StaticPopup_Show("MYSTICMAESTRO_IMPORT_SHOPPINGLIST") end,
-						'closeWhenClicked', true,
-						'notCheckable', true
-					)
-					MM.dewdrop:AddLine(
-					'text', "Close Menu",
-						'textR', 0,
-						'textG', 1,
-						'textB', 1,
-					'closeWhenClicked', true,
-					'notCheckable', true
-					)
-				end
-			end,
-			'dontHook', true
-		)
-		exportMenuLoaded = true
-	end
-	MM.dewdrop:Open(self)
+	local menuList = {
+		[1] = {
+		{text = "Send Current List", func = function() StaticPopup_Show("MYSTICMAESTRO_SEND_SHOPPINGLIST", MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name) end, closeWhenClicked = true, notCheckable = true, textHeight = 12, textWidth = 12},
+		{text = "Export List", func = MM.exportString, closeWhenClicked = true, tooltip = "Exports a string to clipboard", notCheckable = true, textHeight = 12, textWidth = 12},
+		{text = "Import List", func = function() StaticPopup_Show("MYSTICMAESTRO_IMPORT_SHOPPINGLIST") end, closeWhenClicked = true, notCheckable = true, textHeight = 12, textWidth = 12},
+		{close = true, divider = 35}
+		},
+	}
+	menuSetup = MM:OpenDewdropMenu(self, menuList, menuSetup)
 end
 
 ------------------ScrollFrameTooltips---------------------------
@@ -698,79 +663,19 @@ end
 
 -- Right Click context menu in the enchanting frame
 function MM:ItemContextMenu(self)
-	local type = "spell"
-	if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
-	MM.dewdrop:Register(self,
-		'point', function(parent)
-			return "TOP", "BOTTOM"
-		end,
-		'children', function(level, value)
-			if level == 1 then
-				MM.dewdrop:AddLine(
-					'text', "Shopping Lists",
-					'notCheckable', true,
-					'isTitle', true,
-					'textHeight', 13,
-					'textWidth', 13
-				)
-				MM.dewdrop:AddLine(
-					'text', "Add to current list",
-					'func', function() enchantButtonClick(self) end,
-					'textHeight', 12,
-					'textWidth', 12,
-					'notCheckable', true,
-					'closeWhenClicked', true
-				)
-				MM:AddDividerLine(35)
-				MM.dewdrop:AddLine(
-					'text', "Links",
-					'notCheckable', true,
-					'isTitle', true,
-					'textHeight', 13,
-					'textWidth', 13
-				)
-				MM.dewdrop:AddLine(
-					'text', ORANGE.."Open In AscensionDB",
-					'func', function() MM:OpenDBURL(self, "spell") end,
-					'textHeight', 12,
-					'textWidth', 12,
-					'notCheckable', true,
-					'closeWhenClicked', true
-				)
-				MM.dewdrop:AddLine(
-						"text", GREEN.."Guild",
-						"func", function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "GUILD", type) end,
-						'closeWhenClicked', true,
-						'textHeight', 12,
-						'textWidth', 12,
-						"notCheckable", true
-					)
-					MM.dewdrop:AddLine(
-						"text", LIGHTBLUE.."Party",
-						"func", function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "PARTY", type) end,
-						'closeWhenClicked', true,
-						'textHeight', 12,
-						'textWidth', 12,
-						"notCheckable", true
-					)
-					MM.dewdrop:AddLine(
-						"text", ORANGE2.."Raid",
-						"func", function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "RAID", type) end,
-						'closeWhenClicked', true,
-						'textHeight', 12,
-						'textWidth', 12,
-						"notCheckable", true
-					)
-					--MM:AddDividerLine(35)
-			elseif level == 2 then
-				if value == "OwnWishlists" then
-				end
-			end
-			--Close button
-			MM:CloseDewDrop(true,35)
-		end,
-		'dontHook', true
-	)
-	MM.dewdrop:Open(self)
+	local menulist = {
+		[1] = {
+		{text = "Shopping Lists", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
+		{text = "Add to current list", func = function() enchantButtonClick(self) end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+		{divider = 35},
+		{text = "Links", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
+		{text = ORANGE.."Open In AscensionDB", func = function() if IsShiftKeyDown() then type = "item" end MM:OpenDBURL(self, "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = GREEN.."Guild", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "GUILD", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = LIGHTBLUE.."Party", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "PARTY", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = ORANGE2.."Raid", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "RAID", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{divider = 35, close = true}
+		}
+	}
+	MM:OpenDewdropMenu(self, menulist)
 end
 

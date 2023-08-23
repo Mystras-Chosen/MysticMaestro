@@ -205,4 +205,5 @@ function MM:SetupDatabase()
 	MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
 	MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
 	MM.guildTooltips = MM.db.realm.GUILD_TOOLTIPS
+	MM.rollState = "Start Reforge"
 end
