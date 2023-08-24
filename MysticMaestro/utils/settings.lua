@@ -850,6 +850,13 @@ local function createConfig()
 		}
 	}
 	local serverSelect
+	local function getServerNames()
+		local serverNames = {}
+		for name, _ in pairs(MysticMaestroData) do
+			table.insert(serverNames,name)
+		end
+		return serverNames
+	end
 	-- DB Management
 	options.args.manage = {
 		name = "Manage Data",
@@ -861,13 +868,7 @@ local function createConfig()
 				desc = "Select a server to wipe its data.",
 				type = "select",
 				width = 2,
-				values = function()
-					local serverNames = {}
-					for name, _ in pairs(MysticMaestroData) do
-						table.insert(serverNames,name)
-					end
-					return serverNames
-				end,
+				values = getServerNames,
 				get = function() return serverSelect end,
 				set = function(info,val) serverSelect = val end 
 			},
@@ -878,7 +879,11 @@ local function createConfig()
 				type = "execute",
 				func = function()
 					if serverSelect then
-						rawset(MysticMaestroData,serverSelect,nil)
+						local serverNames = getServerNames()
+						local selection = serverNames[serverSelect]
+						MysticMaestroData[selection] = nil
+						MysticMaestroDB.realm[selection] = nil
+						MM:Print(selection .. " options and scan data has been wiped.")
 						serverSelect = nil
 					end
 				end
