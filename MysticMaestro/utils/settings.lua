@@ -481,9 +481,18 @@ local function createConfig()
 				desc = "Set the amount of time to elapse after each reforge, too low of a value will cause blocked casts.",
 			},
 			qualityHeader = {
-				order = 33,
+				order = 30,
 				name = "Stop for specific qualities of enchants",
 				type = "header"
+			},
+			qualityEnabled = {
+				order = 31,
+				name = "Enabled",
+				desc = "Stop reforging items with an enchant of any enabled quality",
+				type = "toggle",
+				width = 2,
+				get = function(info) return MM.db.realm.OPTIONS.stopQuality.enabled end,
+				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
 			},
 			qualityUncommon = {
 				order = 34,
