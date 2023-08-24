@@ -1,15 +1,5 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local realmName = GetRealmName()
-local reFound = false
-
-MM.QualityList = {
-	[1] = {"Uncommon",2},
-	[2] = {"Rare",3},
-	[3] = {"Epic",4},
-	[4] = {"Legendary",5}
-}
-
 local citysList = {
 	["Stormwind City"] = true,
 	["Ironforge"] = true,
