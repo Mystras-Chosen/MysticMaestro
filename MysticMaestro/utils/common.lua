@@ -330,15 +330,17 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	return enchants
 end
 
-function MM:Clone(orig)
-	-- Clone for simple table copy
-	local copy
-	if type(orig) == 'table' then
-		return {table.unpack(orig)}
-	else
-		copy = orig
+function MM:Clone(t)				-- return a copy of the table t
+	local new = {};					-- create a new table
+	local i, v = next(t, nil);		-- i is an index of t, v = t[i]
+	while i do
+		if type(v)=="table" then 
+			v=MM:Clone(v);
+		end
+		new[i] = v;
+		i, v = next(t, i);			-- get next index
 	end
-	return copy
+	return new;
 end
 
 function MM:DeepClone(orig, copies)

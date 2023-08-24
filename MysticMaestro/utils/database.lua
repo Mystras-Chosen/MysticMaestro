@@ -129,6 +129,11 @@ local defaultDB = {
 			}
 		},
 		SHOPPING_LISTS = {},
+	}
+}
+
+local guildDB = {
+	realm = {
 		GUILD_TOOLTIPS = {
 			Accounts = {},
 			Guilds = {}
@@ -201,9 +206,15 @@ function MM:SetupDatabase()
 	MM.db.realm.FAVORITE_ENCHANTS = MM.db.realm.FAVORITE_ENCHANTS or {}
 	MM.db.realm.VIEWS = MM.db.realm.VIEWS or {}
 	MM.db.realm.OPTIONS = MM.db.realm.OPTIONS or {}
-	MM.db.realm.OPTIONS.shoppingLists = MM.db.realm.OPTIONS.shoppingLists or {}
 	MM.sbSettings = MM.db.realm.OPTIONS.standaloneBtn
 	MM.shoppingLists = MM.db.realm.SHOPPING_LISTS
-	MM.guildTooltips = MM.db.realm.GUILD_TOOLTIPS
+	
 	MM.rollState = "Start Reforge"
+
+	MM.guidldb = LibStub("AceDB-3.0"):New("MysticMaestroGuildEnchants", guildDB, true)
+	if MM.db.realm.GUILD_TOOLTIPS then
+		MM.guidldb.realm.GUILD_TOOLTIPS = MM:Clone(MM.db.realm.GUILD_TOOLTIPS)
+		MM.db.realm.GUILD_TOOLTIPS = nil
+	end
+	MM.guildTooltips = MM.guidldb.realm.GUILD_TOOLTIPS
 end

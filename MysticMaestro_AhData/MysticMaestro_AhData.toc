@@ -1,0 +1,6 @@
+﻿## Interface: 30300
+## Title: MysticMaestro AhData
+## Notes: AH data for Mystic Maestro
+## Dependencies: MysticMaestro
+## LoadOnDemand: 0
+## SavedVariables: MysticMaestroData
