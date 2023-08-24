@@ -44,20 +44,18 @@ function minimap.OnEnter(self)
 	GameTooltip:Show()
 end
 
-local menuSetup
 function MM:MiniMapMenuRegister(self)
-	local altar = MM:AddAltar()
 	local menuList = {
 		[1] = {
 			{text = MM.rollState, func = MM.ReforgeToggle, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			altar,
+			{altar = true},
 			{text = "Show/Hide Floating Button", func = MM.StandaloneReforgeShow, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{close = true, divider = 35}
 		},
 	}
-	menuSetup = MM:OpenDewdropMenu(self, menuList, menuSetup)
+	MM:OpenDewdropMenu(self, menuList)
 end
 
 function MM:MinimapIconSetup()

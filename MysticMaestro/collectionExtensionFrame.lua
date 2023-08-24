@@ -549,10 +549,7 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 	collectionOverlay.reforgebuttonlist.Icon:Hide()
 	collectionOverlay.reforgebuttonlist.Text:SetPoint("CENTER", 0, 0)
 	collectionOverlay.reforgebuttonlist:SetText("Auto Reforge")
-	collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick)
-		-- if btnclick ~= "LeftButton" then return end
-		MM:ReforgeToggle()
-	end)
+	collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick) MM:ReforgeToggle() end)
 	collectionOverlay.reforgebuttonlist:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		GameTooltip:AddLine(WHITE.."Bulk Reforging")
