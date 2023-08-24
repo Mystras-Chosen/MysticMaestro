@@ -862,8 +862,15 @@ local function createConfig()
 		name = "Manage Data",
 		type = "group",
 		args = {
-			serverSelect = {
+			header = {
 				order = 1,
+				name = "As we move from one server to the next,"
+				.. " we end up with stray data remaining from servers which are no longer active."
+				.. " This is a way for you to manually purge that data from old servers.",
+				type = "header"
+			},
+			serverSelect = {
+				order = 2,
 				name = "Select a Server",
 				desc = "Select a server to wipe its data.",
 				type = "select",
@@ -873,7 +880,7 @@ local function createConfig()
 				set = function(info,val) serverSelect = val end 
 			},
 			wipeButton = {
-				order = 2,
+				order = 3,
 				name = "Wipe Data",
 				desc = "Wipes the data for the selected server.",
 				type = "execute",
