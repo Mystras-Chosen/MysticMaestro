@@ -150,21 +150,6 @@ local enchantMT = {
 	end
 }
 
-local function convertListingData(listingData)
-	local results = {}
-	for scanTime, auctionList in pairs(listingData) do
-		local temp = ":"
-		for _, buyoutPrice in ipairs(auctionList) do
-			temp = buyoutPrice .. "," .. temp
-		end
-		for _, buyoutPrice in ipairs(auctionList.other) do
-			temp = temp .. buyoutPrice .. ","
-		end
-		results[scanTime] = temp
-	end
-	return results
-end
-
 function MM:SetupDatabase()
 	if not MysticMaestroData then
 		MysticMaestroData = MysticMaestroData or {}
