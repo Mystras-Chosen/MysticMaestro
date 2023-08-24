@@ -849,6 +849,42 @@ local function createConfig()
 			},
 		}
 	}
+	local serverSelect
+	-- DB Management
+	options.args.manage = {
+		name = "Manage Data",
+		type = "group",
+		args = {
+			serverSelect = {
+				order = 1,
+				name = "Select a Server",
+				desc = "Select a server to wipe its data.",
+				type = "select",
+				width = 2,
+				values = function()
+					local serverNames = {}
+					for name, _ in pairs(MysticMaestroData) do
+						table.insert(serverNames,name)
+					end
+					return serverNames
+				end,
+				get = function() return serverSelect end,
+				set = function(info,val) serverSelect = val end 
+			},
+			wipeButton = {
+				order = 2,
+				name = "Wipe Data",
+				desc = "Wipes the data for the selected server.",
+				type = "execute",
+				func = function()
+					if serverSelect then
+						table.remove(MysticMaestroData,serverSelect)
+						serverSelect = nil
+					end
+				end
+			}
+		}
+	}
 	return options
 end
 
@@ -886,6 +922,9 @@ local function createBlizzOptions()
 	-- Share
 	config:RegisterOptionsTable("MysticMaestro-Share", options.args.share)
 	dialog:AddToBlizOptions("MysticMaestro-Share", options.args.share.name, "Mystic Maestro")
+	-- Manage
+	config:RegisterOptionsTable("MysticMaestro-Manage", options.args.manage)
+	dialog:AddToBlizOptions("MysticMaestro-Manage", options.args.manage.name, "Mystic Maestro")
 end
 
 function MM:OpenConfig(panel)
