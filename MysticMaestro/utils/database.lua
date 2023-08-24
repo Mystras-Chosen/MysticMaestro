@@ -166,22 +166,7 @@ local function convertListingData(listingData)
 end
 
 function MM:SetupDatabase()
-	if MysticMaestroDB and not MysticMaestroData then
-		MysticMaestroData = {}
-		for realmName, realmTable in pairs(MysticMaestroDB.realm) do
-			MysticMaestroData[realmName] = {
-				RE_AH_LISTINGS = realmTable.RE_AH_LISTINGS,
-				RE_AH_STATISTICS = realmTable.RE_AH_STATISTICS
-			}
-			realmTable.RE_AH_LISTINGS = nil
-			realmTable.RE_AH_STATISTICS = nil
-			local temp = {}
-			for enchantID, listingData in pairs(MysticMaestroData[realmName].RE_AH_LISTINGS) do
-				temp[enchantID] = convertListingData(listingData)
-			end
-			MysticMaestroData[realmName].RE_AH_LISTINGS = temp
-		end
-	elseif not MysticMaestroData then
+	if not MysticMaestroData then
 		MysticMaestroData = MysticMaestroData or {}
 	end
 
