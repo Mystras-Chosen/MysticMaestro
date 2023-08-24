@@ -878,7 +878,7 @@ local function createConfig()
 				type = "execute",
 				func = function()
 					if serverSelect then
-						table.remove(MysticMaestroData,serverSelect)
+						rawset(MysticMaestroData,serverSelect,nil)
 						serverSelect = nil
 					end
 				end
