@@ -364,7 +364,7 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
 	listFrame.TitleText = listFrame:CreateFontString()
 	listFrame.TitleText:SetFont("Fonts\\FRIZQT__.TTF", 12)
 	listFrame.TitleText:SetFontObject(GameFontNormal)
-	listFrame.TitleText:SetText("Enchant Shoping List")
+	listFrame.TitleText:SetText("Enchant Shopping List")
 	listFrame.TitleText:SetPoint("TOP", 0, -9)
 	listFrame.TitleText:SetShadowOffset(1,-1)
 	listFrame.tex = listFrame:CreateTexture(nil, "ARTWORK")
