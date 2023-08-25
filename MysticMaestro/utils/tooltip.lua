@@ -84,12 +84,12 @@ local spellBlacklist = {
 	[818011] = true -- Rest
 }
 
-local lastLook
+local lastLook = {}
 -- adds to a spells tooltip what rare worldforged enchants you are missing for it
 -- lable for the type is removed if you have it unlearned in your inventory as well
 function MM:WorldforgedTooltips(SpellName, SpellID)
 	if spellBlacklist[SpellID] then return end
-	if UnitAffectingCombat("player") then return lastLook end
+	if UnitAffectingCombat("player") and lastLook[SpellID] then return lastLook[SpellID] elseif UnitAffectingCombat("player") then return end
 	local worldForgedList = ""
 	-- get list of scrolls and turn it into a keyd table to make it eaiser to check
 	local scrolls = {}
@@ -104,7 +104,7 @@ function MM:WorldforgedTooltips(SpellName, SpellID)
 				worldForgedList = worldForgedList..gsub(enchant.SpellName, " "..SpellName, "")..", "
 			end
 		end
-		lastLook = "Missing WorldForged Enchants: "..WHITE..worldForgedList
+		lastLook[SpellID] = "Missing WorldForged Enchants: "..WHITE..worldForgedList
 		return "Missing WorldForged Enchants: "..WHITE..worldForgedList
 end
 
