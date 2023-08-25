@@ -526,14 +526,16 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 				return "TOP", "BOTTOM"
 			end,
 			'children', function(level, value)
+				local altar
 			for _, menu in pairs(menuList[level]) do
-				if menu and menu.altar then
-					local altar = MM:AddAltar()
+					
+				if menu.altar then
+					altar = MM:AddAltar()
 					if altar then
 						menu = altar
 					end
-				
-				elseif menu and not menu.altar then
+				end
+				if (menu and not menu.altar) or (altar and menu.altar) then
 
 					if menu.divider then
 						local text = WHITE.."----------------------------------------------------------------------------------------------------"
