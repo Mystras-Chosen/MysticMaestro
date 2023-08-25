@@ -95,7 +95,7 @@ function MM:GUILD_ROSTER_UPDATE(event, arg1, arg2, arg3)
 		MM:GetPlayerDetails()
 		if MM.guildName then
 			MM:GuildTooltips_Setup()
-			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
+			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
 			MM:UnregisterEvent("GUILD_ROSTER_UPDATE")
 		end
 	end
@@ -108,7 +108,7 @@ Incomming messages from AceComm
 function MM:OnCommReceived(prefix, message, distribution, sender)
 	if prefix == "MysticMaestroShoppingList" then
 		MM:ShareComm(prefix, message, distribution, sender)
-	elseif MM.db.realm.OPTIONS.ttGuildEnable and (prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" or prefix == "MAESTRO_GUILD_REQUEST_UPDATE" or prefix == "MAESTRO_GUILD_DISPLAYNAME_UPDATE" or prefix == "MAESTRO_GUILD_NEWENCHANT_UPDATE") then
+	elseif MM.db.realm.OPTIONS.ttGuildEnable and (prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" or prefix == "MAESTRO_GUILD_ENCHANT_UPDATE") then
 		MM:EnchantCom(prefix, message, distribution, sender)
 	end
 end
