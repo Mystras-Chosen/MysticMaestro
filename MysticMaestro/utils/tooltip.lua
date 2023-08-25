@@ -107,13 +107,15 @@ end
 
 function MM:TooltipHandlerSpell(tooltip)
 	local SpellName, _, SpellID = tooltip:GetSpell()
-	local worldForgedTip = MM:WorldforgedTooltips(SpellName, SpellID)
 	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	if enchant then
 		addLinesTooltip(tooltip, SpellID, enchant.Known)
-	elseif MM.db.realm.OPTIONS.worldforgedTooltip and worldForgedTip then
-		tooltip:AddLine(" ")
-		tooltip:AddLine(worldForgedTip)
+	elseif MM.db.realm.OPTIONS.worldforgedTooltip then
+		local worldForgedTip = MM:WorldforgedTooltips(SpellName, SpellID)
+		if worldForgedTip then
+			tooltip:AddLine(" ")
+			tooltip:AddLine(worldForgedTip)
+		end
 	end
 end
 
