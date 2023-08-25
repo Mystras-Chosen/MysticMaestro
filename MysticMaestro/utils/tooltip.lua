@@ -79,33 +79,42 @@ function MM:TooltipHandlerItem(tooltip)
 	addLinesTooltip(tooltip, enchant.SpellID)
 end
 
--- blacklist of spells for the worldforged tooltip system to ignore
-local spellBlacklist = {
-	[818011] = true -- Rest
-}
-
 local lastLook = {}
 -- adds to a spells tooltip what rare worldforged enchants you are missing for it
 -- lable for the type is removed if you have it unlearned in your inventory as well
 function MM:WorldforgedTooltips(SpellName, SpellID)
-	if spellBlacklist[SpellID] then return end
-	if UnitAffectingCombat("player") and lastLook[SpellID] then return lastLook[SpellID] elseif UnitAffectingCombat("player") then return end
-	local worldForgedList = ""
+	local inCombat = UnitAffectingCombat("player")
+	if inCombat and lastLook[SpellID] then
+		return lastLook[SpellID]
+	elseif inCombat then return end
+
 	-- get list of scrolls and turn it into a keyd table to make it eaiser to check
 	local scrolls = {}
 	for _, scroll in pairs(C_MysticEnchant.GetMysticScrolls()) do
 		scrolls[scroll.Entry] = true
 	end
 	-- query enchant by spell name only returns if there rare/worldforged and unlearned
-	local enchants = C_MysticEnchant.QueryEnchants(9999, 1, SpellName, {Enum.ECFilters.RE_FILTER_UNKNOWN ,Enum.ECFilters.RE_FILTER_WORLDFORGED,Enum.ECFilters.RE_FILTER_RARE})
+	local wfList = ""
+	local gathered = {}
+	local enchants = C_MysticEnchant.QueryEnchants(99, 1, SpellName, {
+		Enum.ECFilters.RE_FILTER_UNKNOWN,
+		Enum.ECFilters.RE_FILTER_WORLDFORGED,
+		Enum.ECFilters.RE_FILTER_RARE
+	})
 	if #enchants == 0 then return end
 		for _, enchant in pairs(enchants) do
 			if not scrolls[enchant.ItemID] then
-				worldForgedList = worldForgedList..gsub(enchant.SpellName, " "..SpellName, "")..", "
+				local name = string.match(enchant.SpellName,"^[a-zA-Z'-]+")
+				
+				if gathered[name] then return end
+				gathered[name] = true
+
+				wfList = wfList == "" and name or wfList..", "..name
 			end
 		end
-		lastLook[SpellID] = "Missing WorldForged Enchants: "..WHITE..worldForgedList
-		return "Missing WorldForged Enchants: "..WHITE..worldForgedList
+		wfList = WHITE..wfList
+		lastLook[SpellID] = "Missing WorldForged Enchants: "..wfList
+		return "Missing WorldForged Enchants: "..wfList
 end
 
 function MM:TooltipHandlerSpell(tooltip)
