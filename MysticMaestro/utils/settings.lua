@@ -446,10 +446,16 @@ local function createConfig()
 				name = "Set Display Name",
 				desc = "Lets you set the display name sent if you have more then one character in the guild.",
 				type = "select",
-				values = MM.guildTooltips.Accounts[MM.guildName].charList,
+				values = function() 
+					if MM.guildTooltips.Accounts[MM.guildName] and MM.guildTooltips.Accounts[MM.guildName].charList then
+						return MM.guildTooltips.Accounts[MM.guildName].charList 
+					else 
+						return {[1] = "No Guild"} end 
+					end,
 				get =  function()
+					if not MM.guildTooltips.Accounts[MM.guildName] then return end
 					MM.guildTooltips.Accounts[MM.guildName].displayName = MM.guildTooltips.Accounts[MM.guildName].charList[MM.db.realm.OPTIONS.ttGuildDisplayName]
-					MM:GuildTooltipsBroadcast("MAESTRO_GUILD_DISPLAYNAME_UPDATE", true)
+					MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
 					return MM.db.realm.OPTIONS.ttGuildDisplayName
 				end,
 			},
