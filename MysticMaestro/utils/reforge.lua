@@ -25,7 +25,18 @@ function MM:ActivateReforge()
 	-- Make sure we have an item to reforge
 	local item = MM:FindReforgableScroll()
 	if not item then MM:TerminateReforge("Out of Scrolls") return end
+		-- Set the button text to indicate reforge began
+		local button = MysticMaestro_CollectionsFrame_ReforgeButton
+		if button then 
+			button:SetText("Reforging" .. MM:Dots())
+			buttonTextTimerHandle = Timer.NewTicker(1, function() button:SetText("Reforging".. MM:Dots()) end)
+		end
 
+		-- Show floating rune count down
+		MM:ToggleScreenReforgeText(true)
+		MM:StandaloneReforgeText(true)
+		MM.rollState = "Reforging"
+		if IsMounted() then Dismount() end
 	-- All validations have passed, so we can safely proceed to reforge
 	MM:ReforgeItem(item)
 end
@@ -75,18 +86,6 @@ function MM:ReforgeToggle()
 
 	if not reforgeActive then
 		MM:ActivateReforge()
-
-		-- Set the button text to indicate reforge began
-		local button = MysticMaestro_CollectionsFrame_ReforgeButton
-		if button then 
-			button:SetText("Reforging" .. MM:Dots())
-			buttonTextTimerHandle = Timer.NewTicker(1, function() button:SetText("Reforging".. MM:Dots()) end)
-		end
-
-		-- Show floating rune count down
-		MM:ToggleScreenReforgeText(true)
-		MM:StandaloneReforgeText(true)
-		MM.rollState = "Reforging"
 	else
 		MM:TerminateReforge("Button Pressed")
 	end
