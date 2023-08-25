@@ -200,7 +200,7 @@ function MM:EnchantCom(prefix, message, distribution, sender)
 			if not MM.guildTooltips.Guilds[guildName].enchants[data.newEnchant] then MM.guildTooltips.Guilds[guildName].enchants[data.newEnchant] = {} end
 			MM.guildTooltips.Guilds[guildName].enchants[data.newEnchant][data.accountKey] = true
 		end
-		if prefix == "MAESTRO_GUILD_ENCHANT_UPDATE" and data.knownList then
+		if prefix == "MAESTRO_GUILD_ENCHANT_UPDATE" and data.knownList and  data.enchantCount and data.enchantCount ~= MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey].enchantCount then
 			for enchant, _ in pairs(data.knownList) do
 				if not MM.guildTooltips.Guilds[guildName].enchants[enchant] then MM.guildTooltips.Guilds[guildName].enchants[enchant] = {} end
 				MM.guildTooltips.Guilds[guildName].enchants[enchant][data.accountKey] = true
