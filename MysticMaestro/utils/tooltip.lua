@@ -188,28 +188,31 @@ end
 function MM:EnchantCom(prefix, message, distribution, sender)
 	if sender == playerName  then return end
 	if not MM.guildTooltips.Guilds[guildName].enchants then MM.guildTooltips.Guilds[guildName].enchants = {} end
-	if not MM.guildTooltips.Guilds[guildName].Accounts then MM.guildTooltips.Guilds[guildName].Accounts = {} end
+	local gAccounts = MM.guildTooltips.Guilds[guildName].Accounts
+	local enchants = MM.guildTooltips.Guilds[guildName].enchants
+	
+	if not gAccounts then gAccounts = {} end
 	local success, data = MM:Deserialize(message)
 	if success then
-		if not MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey] then MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey] = {} end
-		MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey].displayName = data.displayName
+		if not gAccounts[data.accountKey] then gAccounts[data.accountKey] = {} end
+		gAccounts[data.accountKey].displayName = data.displayName
 		if data.newEnchant then
-			if not MM.guildTooltips.Guilds[guildName].enchants[data.newEnchant] then MM.guildTooltips.Guilds[guildName].enchants[data.newEnchant] = {} end
-			MM.guildTooltips.Guilds[guildName].enchants[data.newEnchant][data.accountKey] = true
+			if not enchants[data.newEnchant] then enchants[data.newEnchant] = {} end
+			enchants[data.newEnchant][data.accountKey] = true
 		end
-		if prefix == "MAESTRO_GUILD_ENCHANT_UPDATE" and data.knownList and  data.enchantCount and data.enchantCount ~= MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey].enchantCount then
+		if prefix == "MAESTRO_GUILD_ENCHANT_UPDATE" and data.knownList and  data.enchantCount and data.enchantCount ~= gAccounts[data.accountKey].enchantCount then
 			for enchant, _ in pairs(data.knownList) do
-				if not MM.guildTooltips.Guilds[guildName].enchants[enchant] then MM.guildTooltips.Guilds[guildName].enchants[enchant] = {} end
-				MM.guildTooltips.Guilds[guildName].enchants[enchant][data.accountKey] = true
+				if not enchants[enchant] then enchants[enchant] = {} end
+				enchants[enchant][data.accountKey] = true
 			end
 		end
-		if prefix ==  "MAESTRO_GUILD_TOOLTIPS_SEND" and  data.enchantCount and data.enchantCount ~= MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey].enchantCount and not data.newEnchant then
+		if prefix ==  "MAESTRO_GUILD_TOOLTIPS_SEND" and  data.enchantCount and data.enchantCount ~= gAccounts[data.accountKey].enchantCount and not data.newEnchant then
 			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_ENCHANT_UPDATE")
 		end
 		if prefix ==  "MAESTRO_GUILD_TOOLTIPS_SEND" and not data.dontUpdate then
 			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
 		end
-		MM.guildTooltips.Guilds[guildName].Accounts[data.accountKey].enchantCount = data.enchantCount
+		gAccounts[data.accountKey].enchantCount = data.enchantCount
 	end
 end
 
