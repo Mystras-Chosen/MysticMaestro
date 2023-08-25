@@ -79,6 +79,7 @@ function MM:TooltipHandlerItem(tooltip)
 	addLinesTooltip(tooltip, enchant.SpellID)
 end
 
+-- blacklist of spells for the worldforged tooltip system to ignore
 local spellBlacklist = {
 	[818011] = true -- Rest
 }
