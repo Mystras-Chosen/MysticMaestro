@@ -25,7 +25,7 @@ local running
 local enchantQueue
 
 local function queryMysticScrollPage(page)
-	QueryAuctionItems("Mystic Scroll", nil, nil, 0, 0, 0, page)
+	QueryAuctionItems("Mystic Scroll: ", nil, nil, 0, 0, 0, page)
 end
 
 local collectingData, recordingStartTime, listingRecordTime, currentIndex, calcStartTime
