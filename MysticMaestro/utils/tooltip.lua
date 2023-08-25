@@ -166,25 +166,17 @@ end
 function MM:GuildTooltipsBroadcast(ComID, dontUpdate, SpellID)
 	local sendData = {}
 	if guildName ~= nil then
-	sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
-	sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
-	sendData.enchantCount = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
-	sendData.newEnchant = SpellID
-	sendData.dontUpdate = dontUpdate
-	if not dontUpdate then
-		sendData.knownList = MM:BuildKnownList()
+		sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
+		sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
+		sendData.enchantCount = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
+		sendData.newEnchant = SpellID
+		sendData.dontUpdate = dontUpdate
+		if not dontUpdate then
+			sendData.knownList = MM:BuildKnownList()
+		end
+		sendData = MM:Serialize(sendData)
+		MM:SendCommMessage(ComID, sendData, "GUILD", playerName)
 	end
-	sendData = MM:Serialize(sendData)
-	MM:SendCommMessage(ComID, sendData, "GUILD", playerName)
-	end
-end
-
-function MM:EnchantCount(knownList)
-	local count = 0
-	for _,_ in pairs(knownList) do
-		count = count + 1
-	end
-	return count
 end
 
 --Receive enchant list of other people with the addon in guild
