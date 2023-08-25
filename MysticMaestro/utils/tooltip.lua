@@ -147,9 +147,9 @@ function MM:GuildTooltips_Setup()
 		if MM.guildTooltips.Accounts[guildName].accountKey ~= playerName then
 			local nameChecked = false
 				for i , v in pairs(MM.guildTooltips.Accounts[guildName].charList) do
-						if v == playerName then
-								nameChecked = true
-						end
+					if v == playerName then
+							nameChecked = true
+					end
 				end
 			if not nameChecked then
 			table.insert(MM.guildTooltips.Accounts[guildName].charList, playerName)
@@ -216,12 +216,12 @@ end
 --Gets the list of people with that enchant to add to tooltip
 function MM:GetMysticCharList(SpellID)
 local returnNames
-	if MM.guildTooltips.Guilds[guildName] and MM.guildTooltips.Guilds[guildName].enchants[SpellID] then
+	if MM.guildTooltips.Guilds[guildName] and MM.guildTooltips.Guilds[guildName].enchants and MM.guildTooltips.Guilds[guildName].enchants[SpellID] then
 		for char, _ in pairs(MM.guildTooltips.Guilds[guildName].enchants[SpellID]) do
 			if returnNames then
-					returnNames = "|cffffffff" .. returnNames .. "|cFF66CDAA||" .. "|cffffffff".. MM.guildTooltips.Guilds[guildName].Accounts[char].displayName
+				returnNames = "|cffffffff" .. returnNames .. "|cFF66CDAA||" .. "|cffffffff".. MM.guildTooltips.Guilds[guildName].Accounts[char].displayName
 			else
-					returnNames = "|cffffffff" .. MM.guildTooltips.Guilds[guildName].Accounts[char].displayName
+				returnNames = "|cffffffff" .. MM.guildTooltips.Guilds[guildName].Accounts[char].displayName
 			end
 		end
 		return returnNames
