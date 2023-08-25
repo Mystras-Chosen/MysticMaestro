@@ -218,13 +218,14 @@ end
 
 --Gets the list of people with that enchant to add to tooltip
 function MM:GetMysticCharList(SpellID)
-local returnNames
-	if MM.guildTooltips.Guilds[guildName] and MM.guildTooltips.Guilds[guildName].enchants and MM.guildTooltips.Guilds[guildName].enchants[SpellID] then
-		for char, _ in pairs(MM.guildTooltips.Guilds[guildName].enchants[SpellID]) do
+	local returnNames
+	local guildInfo = MM.guildTooltips.Guilds[guildName]
+	if guildInfo and guildInfo.enchants and guildInfo.enchants[SpellID] then
+		for char, _ in pairs(guildInfo.enchants[SpellID]) do
 			if returnNames then
-				returnNames = "|cffffffff" .. returnNames .. "|cFF66CDAA||" .. "|cffffffff".. MM.guildTooltips.Guilds[guildName].Accounts[char].displayName
+				returnNames = "|cffffffff" .. returnNames .. "|cFF66CDAA||" .. "|cffffffff".. guildInfo.Accounts[char].displayName
 			else
-				returnNames = "|cffffffff" .. MM.guildTooltips.Guilds[guildName].Accounts[char].displayName
+				returnNames = "|cffffffff" .. guildInfo.Accounts[char].displayName
 			end
 		end
 		return returnNames
