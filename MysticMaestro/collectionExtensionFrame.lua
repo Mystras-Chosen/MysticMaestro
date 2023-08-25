@@ -662,10 +662,10 @@ end
 function MM:ItemContextMenu(self)
 	local menulist = {
 		[1] = {
-		{text = "Shopping Lists", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
+		{text = GOLD.."Shopping Lists", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
 		{text = "Add to current list", func = function() enchantButtonClick(self) end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 		{divider = 35},
-		{text = "Links", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
+		{text = GOLD.."Links", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
 		{text = ORANGE.."Open In AscensionDB", func = function() if IsShiftKeyDown() then type = "item" end MM:OpenDBURL(self, "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
 		{text = GREEN.."Guild", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "GUILD", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
 		{text = LIGHTBLUE.."Party", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "PARTY", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},

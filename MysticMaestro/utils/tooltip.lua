@@ -79,9 +79,14 @@ function MM:TooltipHandlerItem(tooltip)
 	addLinesTooltip(tooltip, enchant.SpellID)
 end
 
+local spellBlacklist = {
+	[818011] = true -- Rest
+}
+
 -- adds to a spells tooltip what rare worldforged enchants you are missing for it
 -- lable for the type is removed if you have it unlearned in your inventory as well
-function MM:WorldforgedTooltips(SpellName)
+function MM:WorldforgedTooltips(SpellName, SpellID)
+	if spellBlacklist[SpellID] then return end
 	local worldForgedList = ""
 	-- get list of scrolls and turn it into a keyd table to make it eaiser to check
 	local scrolls = {}
@@ -101,7 +106,7 @@ end
 
 function MM:TooltipHandlerSpell(tooltip)
 	local SpellName, _, SpellID = tooltip:GetSpell()
-	local worldForgedTip = MM:WorldforgedTooltips(SpellName)
+	local worldForgedTip = MM:WorldforgedTooltips(SpellName, SpellID)
 	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	if enchant then
 		addLinesTooltip(tooltip, SpellID, enchant.Known)
