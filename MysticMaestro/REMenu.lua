@@ -226,26 +226,11 @@ do -- functions to initialize menu and menu container
 		end
 	end
 
-	local awaitingRECraftResults, craftTime, pendingCraftedEnchantID, pendingCraftedEnchantCount
-	local function onUpdate()
-		if awaitingRECraftResults and craftTime + 1 < GetTime() then
-			awaitingRECraftResults = nil
-			craftTime = nil
-			pendingCraftedEnchantCount = nil
-			pendingCraftedEnchantID = nil
-			MM:Print("WARNING: Enchant not applied")
-		end
-	end
-
-	MM.OnUpdateFrame:HookScript("OnUpdate", onUpdate)
-
-	local enchantToCraft, insigniaBagID, insigniaContainerIndex
+	local enchantToCraft, craftingItem
 	local function attemptCraftingRE()
-		awaitingRECraftResults = true
-		craftTime = GetTime()
-		pendingCraftedEnchantID = enchantToCraft
-		pendingCraftedEnchantCount = MM:CountSellableREInBags(enchantToCraft)
-		RequestSlotReforgeEnchantment(insigniaBagID, insigniaContainerIndex, enchantToCraft)
+		if C_MysticEnchant.CanReforgeItem(craftingItem) then
+			C_MysticEnchant.CollectionReforgeItem(craftingItem, enchantToCraft)
+		end
 	end
 	
 	StaticPopupDialogs["MM_CRAFT_RE"] = {
@@ -265,7 +250,7 @@ do -- functions to initialize menu and menu container
 	
 	local function craftButton_OnClick(self, button, down)
 		enchantToCraft = nil
-		
+		local issue = false
 		local SpellID = self:GetParent().SpellID
 		if not SpellID then
 			error("No SpellID on enchant button")
@@ -273,20 +258,27 @@ do -- functions to initialize menu and menu container
 
 		if not MM:IsREKnown(SpellID) then
 			UIErrorsFrame:AddMessage("Mystic enchant is not known", 1, 0, 0)
-			return
+			issue = true
 		end
 
 		local orbCost = MM:OrbCost(SpellID)
 		if orbCost > MM:GetOrbCurrency() then
 			UIErrorsFrame:AddMessage("Not enough mystic orbs", 1, 0, 0)
-			return
+			issue = true
 		end
 
-		insigniaBagID, insigniaContainerIndex = MM:FindBlankScrolls()
-		if not insigniaBagID then
-			UIErrorsFrame:AddMessage("No blank trinkets in bags", 1, 0, 0)
-			return
+		if not C_MysticEnchant.HasNearbyMysticAltar() then
+			UIErrorsFrame:AddMessage("Requires an altar nearby.", 1, 0, 0)
+			issue = true
 		end
+
+		craftingItem = MM:FindScrollByItem(992720) -- Untarnished Mystic Scroll
+		if not craftingItem then
+			UIErrorsFrame:AddMessage("No Untarnished Mystic Scroll in bags", 1, 0, 0)
+			issue = true
+		end
+
+		if issue then return end
 
 		enchantToCraft = SpellID
 		if MM.db.realm.OPTIONS.confirmCraft then
@@ -472,20 +464,10 @@ do -- functions to initialize menu and menu container
 	end
 
 	local function bagUpdateHandler(bagIDs)
-		if MM:IsMenuOpen() or awaitingRECraftResults then
+		if MM:IsMenuOpen() then
 			updateSellableREsCache(bagIDs)
 		end
 
-		if awaitingRECraftResults then
-			local newCount = MM:CountSellableREInBags(pendingCraftedEnchantID)
-			if newCount > pendingCraftedEnchantCount then
-				awaitingRECraftResults = nil
-				craftTime = nil
-				pendingCraftedEnchantCount = nil
-				pendingCraftedEnchantID = nil
-				MM:Print("Applied to insignia: "..MM:ItemLinkRE(enchantToCraft))
-			end
-		end
 		if MM:IsMenuOpen() then
 			MM:UpdateCurrencyDisplay()
 			updateCraftIndicators()
