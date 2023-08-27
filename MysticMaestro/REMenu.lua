@@ -227,7 +227,7 @@ do -- functions to initialize menu and menu container
 	end
 
 	local enchantToCraft
-	local function attemptCraftingRE()
+	local function canReforge()
 		if not MM:IsREKnown(enchantToCraft) then
 			UIErrorsFrame:AddMessage("Mystic Enchant is not known.", 1, 0, 0)
 			issue = true
@@ -257,7 +257,11 @@ do -- functions to initialize menu and menu container
 		end
 
 		if issue then return end
+		return true
+	end
 
+	local function attemptCraftingRE()
+		if not canReforge() then return end
 		C_MysticEnchant.CollectionReforgeItem(craftingItem, enchantToCraft)
 	end
 	
@@ -283,9 +287,11 @@ do -- functions to initialize menu and menu container
 		if not SpellID then
 			error("No SpellID on enchant button")
 		end
-
 		enchantToCraft = SpellID
+
+
 		if MM.db.realm.OPTIONS.confirmCraft then
+			if not canReforge() then return end
 			StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
 		else
 			attemptCraftingRE()
