@@ -226,11 +226,39 @@ do -- functions to initialize menu and menu container
 		end
 	end
 
-	local enchantToCraft, craftingItem
+	local enchantToCraft
 	local function attemptCraftingRE()
-		if C_MysticEnchant.CanReforgeItem(craftingItem) then
-			C_MysticEnchant.CollectionReforgeItem(craftingItem, enchantToCraft)
+		if not MM:IsREKnown(enchantToCraft) then
+			UIErrorsFrame:AddMessage("Mystic Enchant is not known.", 1, 0, 0)
+			issue = true
 		end
+
+		local orbCost = MM:OrbCost(enchantToCraft)
+		if orbCost > MM:GetOrbCurrency() then
+			UIErrorsFrame:AddMessage("Not enough Mystic Orbs.", 1, 0, 0)
+			issue = true
+		end
+
+		local craftingItem = MM:FindScrollByItem(992720) -- Untarnished Mystic Scroll
+		if not craftingItem then
+			UIErrorsFrame:AddMessage("No Untarnished Mystic Scroll in bags.", 1, 0, 0)
+			issue = true
+		elseif not C_MysticEnchant.HasNearbyMysticAltar() then
+			UIErrorsFrame:AddMessage("Requires an Altar nearby.", 1, 0, 0)
+			issue = true
+		elseif not C_MysticEnchant.CanReforgeItem(craftingItem) then
+			UIErrorsFrame:AddMessage("Cannot reforge the item at this time.", 1, 0, 0)
+			issue = true
+		end
+		
+		if UnitCastingInfo("player") ~= nil then
+			UIErrorsFrame:AddMessage("Finish casting before trying again.", 1, 0, 0)
+			issue = true
+		end
+
+		if issue then return end
+
+		C_MysticEnchant.CollectionReforgeItem(craftingItem, enchantToCraft)
 	end
 	
 	StaticPopupDialogs["MM_CRAFT_RE"] = {
@@ -255,30 +283,6 @@ do -- functions to initialize menu and menu container
 		if not SpellID then
 			error("No SpellID on enchant button")
 		end
-
-		if not MM:IsREKnown(SpellID) then
-			UIErrorsFrame:AddMessage("Mystic enchant is not known", 1, 0, 0)
-			issue = true
-		end
-
-		local orbCost = MM:OrbCost(SpellID)
-		if orbCost > MM:GetOrbCurrency() then
-			UIErrorsFrame:AddMessage("Not enough mystic orbs", 1, 0, 0)
-			issue = true
-		end
-
-		if not C_MysticEnchant.HasNearbyMysticAltar() then
-			UIErrorsFrame:AddMessage("Requires an altar nearby.", 1, 0, 0)
-			issue = true
-		end
-
-		craftingItem = MM:FindScrollByItem(992720) -- Untarnished Mystic Scroll
-		if not craftingItem then
-			UIErrorsFrame:AddMessage("No Untarnished Mystic Scroll in bags", 1, 0, 0)
-			issue = true
-		end
-
-		if issue then return end
 
 		enchantToCraft = SpellID
 		if MM.db.realm.OPTIONS.confirmCraft then
