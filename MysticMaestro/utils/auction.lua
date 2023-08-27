@@ -241,7 +241,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 	function()
 		if pendingQuery and CanSendAuctionQuery() then
 			local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantToQuery)
-			QueryAuctionItems(enchant.SpellName)
+			QueryAuctionItems("Mystic Scroll: " .. enchant.SpellName)
 			pendingQuery = false
 			awaitingResults = true
 			timeoutTime = GetTime() + 1
@@ -753,7 +753,7 @@ MM.OnUpdateFrame:HookScript("OnUpdate",
 			if enchantToRestoreIsStillSelected() then
 				MM:InitializeSingleScan(enchantToRestore)
 				local enchant = C_MysticEnchant.GetEnchantInfoBySpell(enchantToRestore)
-				QueryAuctionItems(enchant.SpellName)
+				QueryAuctionItems("Mystic Scroll: " .. enchant.SpellName)
 				local results = MM:GetSortedMyAuctionResults()
 				for _, result in ipairs(results) do
 					if enchantToRestore == result.SpellID then
