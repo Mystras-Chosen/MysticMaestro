@@ -137,21 +137,6 @@ function MM:GetREInSlot(bag,slot)
 	return enchant
 end
 
--- Find Untarnished Mystic Scroll to use in crafting
-function MM:FindBlankScrolls()
-	for bagID=0, 4 do
-		for containerIndex=1, GetContainerNumSlots(bagID) do
-			local itemLink = select(7, GetContainerItemInfo(bagID, containerIndex))
-			if itemLink then
-				local itemName = GetItemInfo(itemLink)
-				if MM:IsUntarnished(itemName) then
-					return bagID, containerIndex
-				end
-			end
-		end
-	end
-end
-
 -- split up cache by bagID so BAG_UPDATE doesn't have to refresh the entire cache every time
 local sellableREsInBagsCache = setmetatable({ [0] = {}, [1] = {}, [2] = {}, [3] = {}, [4] = {} }, {
 	__index = function(t, SpellID)
