@@ -226,7 +226,7 @@ do -- functions to initialize menu and menu container
 		end
 	end
 
-	local enchantToCraft
+	local enchantToCraft, craftingItem
 	local function canReforge()
 		local issue = false
 		if not MM:IsREKnown(enchantToCraft) then
@@ -240,7 +240,7 @@ do -- functions to initialize menu and menu container
 			issue = true
 		end
 
-		local craftingItem = MM:FindScrollByItem(992720) -- Untarnished Mystic Scroll
+		craftingItem = MM:FindScrollByItem(992720) -- Untarnished Mystic Scroll
 		if not craftingItem then
 			UIErrorsFrame:AddMessage("No Untarnished Mystic Scroll in bags.", 1, 0, 0)
 			issue = true
