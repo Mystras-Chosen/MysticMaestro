@@ -1300,7 +1300,11 @@ do -- show/hide statistics functions
 
 			local daysAgo = MM:DaysAgoString(info.Last)
 			if daysAgo == "" then daysAgo = "Just Now" end
+			local outliers = (info.Total or 0) - (info.Count or 0)
+			local totalText = info.Total
+			if outliers > 0 then totalText = totalText .. " (" .. outliers .. " Outliers)" end
 
+			-- Fill each component of the grid with its data
 			statsContainerWidgets[ 1]:SetText("")
 			statsContainerWidgets[ 2]:SetText(MM:cTxt("Minimum:","yellow"))
 			statsContainerWidgets[ 3]:SetText(MM:cTxt("Gold Per Orb:","yellow"))
@@ -1308,20 +1312,20 @@ do -- show/hide statistics functions
 			statsContainerWidgets[ 5]:SetText(MM:cTxt("Last Seen:","yellow").."\n"..(daysAgo or "No Data"))
 			statsContainerWidgets[ 6]:SetText(coinStr.min)
 			statsContainerWidgets[ 7]:SetText(gpoStr.min)
-			statsContainerWidgets[ 8]:SetText(info.Count .. " (" .. info.Trinkets .. " Trinkets)")
+			statsContainerWidgets[ 8]:SetText(totalText)
 			statsContainerWidgets[ 9]:SetText(MM:cTxt("10-Day Average:","yellow").."\n")
 			statsContainerWidgets[10]:SetText(coinStr.d_min)
 			statsContainerWidgets[11]:SetText(gpoStr.d_min)
-			statsContainerWidgets[12]:SetText(MM:cTxt(info["10d_Count"] .. " (" .. info["10d_Trinkets"] .. " Trinkets)","min"))
+			statsContainerWidgets[12]:SetText(MM:cTxt(info["10d_Total"],"min"))
 
+			-- Tooltips for each data point
 			statsContainerWidgets[6].tip = BuildTipTable("Current Scan Values","Minimum",coinStr.min,"Median",coinStr.med,"Mean",coinStr.mean,"Max",coinStr.max,"Deviation",coinStr.dev)
 			statsContainerWidgets[10].tip = BuildTipTable("10 Day Scan Values","Minimum",coinStr.d_min,"Median",coinStr.d_med,"Mean",coinStr.d_mean,"Max",coinStr.d_max,"Deviation",coinStr.d_dev)
 			statsContainerWidgets[7].tip = BuildTipTable("Current Gold Per Orb","Minimum",gpoStr.min,"Median",gpoStr.med,"Mean",gpoStr.mean,"Max",gpoStr.max)
 			statsContainerWidgets[11].tip = BuildTipTable("10 Day Gold Per Orb","Minimum",gpoStr.d_min,"Median",gpoStr.d_med,"Mean",gpoStr.d_mean,"Max",gpoStr.d_max)
-			local outliers = (info.Total or 0) - (info.Count or 0)
-			statsContainerWidgets[8].tip = BuildTipTable("Current Counts","Total Items",info.Total,"Trinkets",info.Trinkets,"Market Value",info.Count,"Outliers",outliers)
-			outliers = (info["10d_Total"] or 0) - (info["10d_Count"] or 0)
-			statsContainerWidgets[12].tip = BuildTipTable("10 Day Counts","Total Items",info["10d_Total"],"Trinkets",info["10d_Trinkets"],"Market Value",info["10d_Count"],"Outliers",outliers)
+			statsContainerWidgets[8].tip = BuildTipTable("Current Counts","Total Items",info.Total,"Market Value",info.Count,"Outliers",outliers)
+			tOutliers = (info["10d_Total"] or 0) - (info["10d_Count"] or 0)
+			statsContainerWidgets[12].tip = BuildTipTable("10 Day Counts","Total Items",info["10d_Total"],"Market Value",info["10d_Count"],"Outliers",tOutliers)
 		end
 
 		for i=1, #statsContainerWidgets do
