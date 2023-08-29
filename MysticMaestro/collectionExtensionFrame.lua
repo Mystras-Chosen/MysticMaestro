@@ -295,6 +295,8 @@ function MM:CollectionSetup(addon)
 				button:HookScript("OnMouseDown", function(self, button)
 					if button == "RightButton" then
 						MM:ItemContextMenu(self)
+					elseif button == "LeftButton" and IsAltKeyDown() then
+						enchantButtonClick(self)
 					end
 				end)
 			buttonsLoaded[i] = true
@@ -305,30 +307,6 @@ function MM:CollectionSetup(addon)
 	CreateListFrame()
 	setupLoaded = true
 end
-
---[[ hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(self)
-	if MysticMaestro_ListFrame:IsVisible() and IsAltKeyDown() then
-		local bagID, slotID = self:GetParent():GetID(), self:GetID()
-		local enchant = GetREInSlot(bagID, slotID)
-			if enchant and not GetSavedEnchant(enchant) then
-				tinsert(MM.shoppingLists[MM.shoppingLists.currentSelectedList],{enchant})
-				MysticMaestro_ListFrame_ScrollFrameUpdate()
-			else
-				local itemLink = MM:CreateItemLink(enchant)
-				DEFAULT_CHAT_FRAMM:AddMessage(itemLink .. " Is already on this list.")
-			end
-	end
-end) ]]
-
---[[ hooksecurefunc("ContainerFrameItemButton_OnClick", function(self, button)
-	if _G["EnchantCollection"]["Collection"]["CollectionTab"]:IsVisible() then
-		local bagID, slotID = self:GetParent():GetID(), self:GetID()
-		MysticMaestro_ListFrame_BAGID = bagID
-		MysticMaestro_ListFrame_SLOTID = slotID
-		MysticMaestro_ListFrame_ITEMSET = false
-		MM:StopAutoRoll()
-	end
-end) ]]
 
 -- Creates all our frames the first time the enchanting collections window is opened
 CreateListFrame = function()
@@ -377,6 +355,14 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
 	listFrame:SetScript("OnHide", function()
 		if _G["EnchantCollection"]:IsVisible() then
 			MM.db.char.ListFrameLastState = false
+		end
+	end)
+
+	hooksecurefunc("ContainerFrameItemButton_OnModifiedClick", function(self)
+		if MysticMaestro_ListFrame:IsVisible() and IsAltKeyDown() then
+			local bagID, slotID = self:GetParent():GetID(), self:GetID()
+			self.enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(GetContainerItemID(bagID, slotID))
+			enchantButtonClick(self)
 		end
 	end)
 
@@ -547,6 +533,7 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 	collectionOverlay.reforgebuttonlist:SetSize(100,24)
 	collectionOverlay.reforgebuttonlist:SetPoint("RIGHT", collectionOverlay.showFrameBttn, "LEFT", 0, 0)
 	collectionOverlay.reforgebuttonlist.Icon:Hide()
+	collectionOverlay.reforgebuttonlist.Text:ClearAllPoints()
 	collectionOverlay.reforgebuttonlist.Text:SetPoint("CENTER", 0, 0)
 	collectionOverlay.reforgebuttonlist:SetText("Auto Reforge")
 	collectionOverlay.reforgebuttonlist:SetScript("OnClick", function(self, btnclick) MM:ReforgeToggle() end)
