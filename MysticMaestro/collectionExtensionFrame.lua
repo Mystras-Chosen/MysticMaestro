@@ -362,6 +362,7 @@ local listFrame = CreateFrame("FRAME", "MysticMaestro_ListFrame", collectionOver
 		if MysticMaestro_ListFrame:IsVisible() and IsAltKeyDown() then
 			local bagID, slotID = self:GetParent():GetID(), self:GetID()
 			self.enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(GetContainerItemID(bagID, slotID))
+			if not self.enchantInfo then return end
 			enchantButtonClick(self)
 		end
 	end)
