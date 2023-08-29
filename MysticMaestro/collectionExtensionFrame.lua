@@ -647,16 +647,17 @@ end
 
 -- Right Click context menu in the enchanting frame
 function MM:ItemContextMenu(self)
+	local itemType = "spell"
 	local menulist = {
 		[1] = {
 		{text = GOLD.."Shopping Lists", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
 		{text = "Add to current list", func = function() enchantButtonClick(self) end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 		{divider = 35},
 		{text = GOLD.."Links", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
-		{text = ORANGE.."Open In AscensionDB", func = function() if IsShiftKeyDown() then type = "item" end MM:OpenDBURL(self, "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
-		{text = GREEN.."Guild", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "GUILD", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
-		{text = LIGHTBLUE.."Party", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "PARTY", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
-		{text = ORANGE2.."Raid", func = function() if IsShiftKeyDown() then type = "item" end MM:Chatlink(self, "RAID", "spell") end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = ORANGE.."Open In AscensionDB", func = function() if IsShiftKeyDown() then itemType = "item" end MM:OpenDBURL(self, itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = GREEN.."Guild", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "GUILD", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = LIGHTBLUE.."Party", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "PARTY", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{text = ORANGE2.."Raid", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "RAID", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
 		{divider = 35, close = true}
 		}
 	}
