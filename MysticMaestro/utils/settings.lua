@@ -30,50 +30,50 @@ local function createConfig()
 				set = function() MM:ToggleMinimap() end
 			},
 			confirmHeader = {
-				order = 2,
+				order = 5,
 				name = "Confirmations",
 				type = "header"
 			},
 			confirmDescription = {
-				order = 3,
+				order = 6,
 				name = "Check the box for each type of confirmation you would like to enable.",
 				type = "description"
 			},
 			confirmList = {
-				order = 4,
+				order = 7,
 				name = "Listing",
 				desc = "Enables a confirmation before making a listing.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmBuyout = {
-				order = 5,
+				order = 8,
 				name = "Buyout",
 				desc = "Enables a confirmation before buying an auction.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmCancel = {
-				order = 6,
+				order = 9,
 				name = "Cancel",
 				desc = "Enables a confirmation before canceling your auction.",
 				type = "toggle",
 				width = 0.5,
 			},
 			confirmCraft = {
-				order = 7,
+				order = 15,
 				name = "Craft",
 				desc = "Enables a confirmation before crafting an enchant onto a trinket.",
 				type = "toggle",
 				width = 0.5,
 			},
 			durationHeader = {
-				order = 8,
+				order = 16,
 				name = "Auction Duration",
 				type = "header"
 			},
 			listDuration = {
-				order = 9,
+				order = 17,
 				name = "Listing Duration Index",
 				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
 				type = "range",
@@ -82,46 +82,13 @@ local function createConfig()
 				max = 3,
 				width = 2
 			},
-			limitsHeader = {
-				order = 10,
-				name = "Item Limits",
-				type = "header"
-			},
-			allowEpic = {
-				order = 11,
-				name = "Allow Epic",
-				desc = "Allow epic items to be considered for listing.",
-				type = "toggle"
-			},
-			limitIlvl = {
-				order = 12,
-				name = "Limit by Item Level",
-				desc = "Define the highest allowable item level that is considered for listing.",
-				type = "range",
-				step = 1,
-				min = 15,
-				max = 999,
-				softMin = 15,
-				softMax = 120
-			},
-			limitGold = {
-				order = 13,
-				name = "Limit by Vendor Value",
-				desc = "Define the highest allowable vendor value that is considered for listing.",
-				type = "range",
-				step = .1,
-				min = 0,
-				max = 15,
-				softMin = 1,
-				softMax = 10
-			},
 			myHeader = {
-				order = 20,
+				order = 25,
 				name = "My Auctions",
 				type = "header"
 			},
 			myTimeout = {
-				order = 21,
+				order = 26,
 				name = "Recent Scan Timeout",
 				desc = "Set the duration the addon will wait before considering the last scan old, this will turn the color from green/red to yellow.",
 				type = "range",
@@ -132,7 +99,7 @@ local function createConfig()
 				softMax = 15
 			},
 			myCutoff = {
-				order = 22,
+				order = 27,
 				name = "Recent Scan Cutoff",
 				desc = "Set the duration the addon will wait before considering the last scan completely stale, this will turn the color from yellow to red.",
 				type = "range",
@@ -143,18 +110,18 @@ local function createConfig()
 				softMax = 40
 			},
 			mySortAlpha = {
-				order = 23,
+				order = 28,
 				name = "Sort Alphabetically",
 				desc = "Enable to sort alphabetically, disable to sort based on the number of listed enchants.",
 				type = "toggle"
 			},
 			notificationHeader = {
-				order = 30,
+				order = 29,
 				name = "Notifications",
 				type = "header"
 			},
 			notificationLearned = {
-				order = 31,
+				order = 30,
 				name = "Enchant Learned",
 				desc = "Enable chat output when you learn an enchant, or if you use an epic or legendary mystic scroll.",
 				type = "toggle"
@@ -174,7 +141,7 @@ local function createConfig()
 				set = function() MM:StandaloneCityReforgeToggle("enable") end
 			},
 			reforgeStandaloneCitys = {
-				order = 38,
+				order = 37,
 				name = "Only In Major Citys",
 				desc = "Only show while in major citys",
 				type = "toggle",
