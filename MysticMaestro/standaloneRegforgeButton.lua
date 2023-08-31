@@ -159,7 +159,7 @@ local countDownFrame = CreateFrame("Frame", "MysticMaestroCountDownFrame", UIPar
 function MM:ToggleScreenReforgeText(show)
 	if not MM.db.realm.ALTARLEVEL or not MM.db.realm.ALTARLEVEL.rollsNeeded then return end
 	if show then
-	--show run count down
+		--show rune count down
 		MysticMaestroCountDownFrame:Show()
 		MysticMaestroNextLevelText:Show()
 	else
