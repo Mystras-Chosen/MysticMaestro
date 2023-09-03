@@ -633,7 +633,8 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 		end
 	end)
 
-	_G["EnchantCollection"].Collection:HookScript("OnShow", function() 
+	_G["EnchantCollection"].Collection:HookScript("OnShow", function()
+		Collections:SetScale(MM.db.realm.OPTIONS.enchantWindowScale)
 		if MM.db.char.ListFrameLastState then
 			listFrame:Show();
 			collectionOverlay.showFrameBttn:SetText("Hide");
@@ -641,6 +642,10 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 			listFrame:Hide();
 			collectionOverlay.showFrameBttn:SetText("Show");
 		end
+	end)
+
+	_G["EnchantCollection"].Collection:HookScript("OnHide", function()
+		Collections:SetScale(1)
 	end)
 
 	MM:ListFrameEnable()

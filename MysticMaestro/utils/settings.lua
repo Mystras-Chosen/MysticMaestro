@@ -149,6 +149,25 @@ local function createConfig()
 				get = function() return MM.sbSettings.Citys end,
 				set = function() MM:StandaloneCityReforgeToggle("city") end
 			},
+			enchantWindowScaleHeader = {
+				order = 38,
+				name = "Window Scale",
+				type = "header"
+			},
+			enchantWindowScale = {
+				order = 39,
+				name = "Enchant Window",
+				desc = "Sets the size scale of the enchant frame",
+				type = "range",
+				step = .01,
+				min = .25,
+				max = 1.5,
+				width = 2,
+				get = function()
+					Collections:SetScale(MM.db.realm.OPTIONS.enchantWindowScale)
+					return MM.db.realm.OPTIONS.enchantWindowScale
+				end
+			},
 		}
 	}
 	-- Scan
