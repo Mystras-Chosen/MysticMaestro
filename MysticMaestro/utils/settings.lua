@@ -168,6 +168,20 @@ local function createConfig()
 					return MM.db.realm.OPTIONS.enchantWindowScale
 				end
 			},
+			standAloneButtonScale = {
+				order = 39,
+				name = "Standalone Reforge Button",
+				desc = "Sets the size standalone reforge button",
+				type = "range",
+				step = .01,
+				min = .25,
+				max = 1.5,
+				width = 2,
+				get = function()
+					MysticMaestro_ReforgeFrame:SetScale(MM.db.realm.OPTIONS.standAloneButtonScale)
+					return MM.db.realm.OPTIONS.standAloneButtonScale
+				end
+			},
 		}
 	}
 	-- Scan

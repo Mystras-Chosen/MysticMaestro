@@ -9,6 +9,7 @@ local defaultDB = {
 			confirmCancel = true,
 			confirmCraft = true,
 			enchantWindowScale = 1,
+			standAloneButtonScale = 1,
 
 			listDuration = 1,
 			
