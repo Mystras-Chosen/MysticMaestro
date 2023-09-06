@@ -87,6 +87,7 @@ function MM:TerminateReforge(reason)
 	waitingAltar = nil
 	disenchantingItem = nil
 	reforgingItem = nil
+	purchaseScrolls = nil
 
 	if buttonTextTimerHandle then
 		buttonTextTimerHandle:Cancel()
