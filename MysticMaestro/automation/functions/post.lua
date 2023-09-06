@@ -34,7 +34,11 @@ local running, currentIndex, scanResultSet
 
 function automationTable.Start()
 	collectSellableEnchantItems()
-	if #enchantScanList <= 0 then return end
+	if #enchantScanList <= 0 then
+		MM:Print("No sellable scrolls in inventory.")
+		MM.AutomationManager:Inform(automationTable, "finished")
+		return
+	end
 	MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "value")
 	MM.AutomationUtil.SetProgressBarMinMax(automationTable, 0, #enchantScanList)
 	MM.AutomationUtil.ShowAutomationPopup(automationTable, "running")
@@ -92,7 +96,9 @@ local function assembleQueFromResults()
 end
 
 function automationTable.PostProcessing()
-	assembleQueFromResults()
+	if scanResultSet then
+		assembleQueFromResults()
+	end
 	MM.AutomationUtil.ShowAutomationPopup(automationTable, "noPostProcessing")
 end
 

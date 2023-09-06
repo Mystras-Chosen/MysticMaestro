@@ -384,32 +384,36 @@ local function undercut(SpellID, buyoutPrice, yours)
 	end
 end
 
-local listButton, buyCancelbutton, scanButton, getAllScanButton
+local listButton, buyCancelbutton, postButton, getAllScanButton
 local function setUpButtonWidgets()
+	postButton = AceGUI:Create("Button")
+	postButton.frame:SetParent(ahExtensionMenu)
+	postButton:SetPoint("TOPLEFT", ahExtensionMenu, "TOPLEFT", 4, 28)
+	postButton:SetWidth(82)
+	postButton:SetHeight(22)
+	postButton:SetText("Post")
+	postButton:SetCallback("OnClick",
+		function(self, event)
+			MM.AutomationManager:ShowAutomationPrompt("Post")
+		end
+	)
+	postButton.frame:Show()
+
 	scanButton = AceGUI:Create("Button")
 	scanButton.frame:SetParent(ahExtensionMenu)
-	scanButton:SetPoint("TOPLEFT", ahExtensionMenu, "TOPLEFT", 4, 28)
-	scanButton:SetWidth(82)
+	scanButton:SetPoint("TOPRIGHT", ahExtensionMenu, "TOPRIGHT", -12, 28)
+	scanButton:SetWidth(106)
 	scanButton:SetHeight(22)
-	scanButton:SetText("Scan")
 	scanButton:SetCallback("OnClick",
 		function(self, event)
-			MM.AutomationManager:ShowAutomationPrompt("Batch Scan")
+			if MM.db.realm.OPTIONS.useGetall then
+				MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
+			else
+				MM.AutomationManager:ShowAutomationPrompt("Batch Scan")
+			end
 		end
 	)
 	scanButton.frame:Show()
-
-	getAllScanButton = AceGUI:Create("Button")
-	getAllScanButton.frame:SetParent(ahExtensionMenu)
-	getAllScanButton:SetPoint("TOPRIGHT", ahExtensionMenu, "TOPRIGHT", -12, 28)
-	getAllScanButton:SetWidth(106)
-	getAllScanButton:SetHeight(22)
-	getAllScanButton:SetCallback("OnClick",
-		function(self, event)
-			MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
-		end
-	)
-	getAllScanButton.frame:Show()
 
 	listButton = AceGUI:Create("Button")
 	listButton.frame:SetParent(ahExtensionMenu)
@@ -469,31 +473,32 @@ end
 local time, CanSendAuctionQuery = time, CanSendAuctionQuery
 MM.OnUpdateFrame:HookScript("OnUpdate",
 	function()
-		if getAllScanButton then
-			if select(2, CanSendAuctionQuery()) then
-				getAllScanButton:SetText("GetAll Scan")
-				getAllScanButton:SetDisabled(false)
+		if not scanButton then return end
+		if not MM.db.realm.OPTIONS.useGetall then return end
+		
+		if select(2, CanSendAuctionQuery()) then
+			scanButton:SetText("GetAll Scan")
+			scanButton:SetDisabled(false)
+		else
+			local secondsRemaining = math.floor(900 - (time() - (MM.db.char.lastGetAllScanTime or 0)))
+			secondsRemaining = secondsRemaining >= 0 and secondsRemaining or 0
+			if secondsRemaining == 0 then
+				scanButton:SetText("GetAll Scan")
 			else
-				local secondsRemaining = math.floor(900 - (time() - (MM.db.char.lastGetAllScanTime or 0)))
-				secondsRemaining = secondsRemaining >= 0 and secondsRemaining or 0
-				if secondsRemaining == 0 then
-					getAllScanButton:SetText("GetAll Scan")
-				else
-					getAllScanButton.text:SetFormattedText("%d:%02d", math.floor(secondsRemaining/60), secondsRemaining%60)
-				end
-				getAllScanButton:SetDisabled(true)
+				scanButton.text:SetFormattedText("%d:%02d", math.floor(secondsRemaining/60), secondsRemaining%60)
 			end
+			scanButton:SetDisabled(true)
 		end
 	end
 )
 
 local function tearDownButtonWidgets()
 	scanButton:Release()
-	getAllScanButton:Release()
+	postButton:Release()
 	listButton:Release()
 	buyCancelbutton:Release()
 	scanButton = nil
-	getAllScanButton = nil
+	postButton = nil
 	listButton = nil
 	buyCancelbutton = nil
 end
