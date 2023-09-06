@@ -1,7 +1,7 @@
-local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local reforgeActive
 local buttonTextTimerHandle
-local disenchantingItem, reforgingItem
+local disenchantingItem, reforgingItem, purchasingScroll
 local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
 
@@ -12,6 +12,13 @@ local function FindEmptySlot()
 			if not item then return true end
 		end
 	end
+end
+
+local function PurchaseScroll()
+	if purchasingScroll then return end
+	purchasingScroll = C_MysticEnchant.PurchaseMysticScroll()
+	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 end
 
 -- We set an entry point for any reforge requests
@@ -42,7 +49,12 @@ function MM:ActivateReforge()
 	
 	-- Make sure we have an item to reforge
 	local item = MM:FindReforgableScroll()
-	if not item then MM:TerminateReforge("Out of Scrolls") return end
+	if not item then
+		PurchaseScroll()
+		if purchasingScroll then return end
+		MM:TerminateReforge("Out of Scrolls")
+		return
+	end
 
 	-- Ensure we are not mounted
 	if IsMounted() then Dismount() end
@@ -140,12 +152,15 @@ function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
 	if not reforgeActive then return end
 	if arg1 ~= "player" then return end
 	if arg2 ~= "Reforge Mystic Enchant"
-	and arg2 ~= "Disenchant Mystic Enchant" then return end
+	and arg2 ~= "Disenchant Mystic Enchant"
+	and arg2 ~= "Purchase Mystic Scroll" then return end
 	MM:RegisterEvent("BAG_UPDATE")
 	unregisterSpellCast()
-	
 	if arg2 == "Disenchant Mystic Enchant" then
 		disenchantingItem = nil
+	end
+	if arg2 == "Purchase Mystic Scroll" then
+		purchasingScroll = nil
 	end
 end
 
@@ -158,10 +173,14 @@ function MM:UNIT_SPELLCAST_INTERRUPTED(event, arg1, arg2)
 	if not reforgeActive then return end
 	if arg1 ~= "player" then return end
 	if arg2 ~= "Reforge Mystic Enchant"
-	and arg2 ~= "Disenchant Mystic Enchant" then return end
+	and arg2 ~= "Disenchant Mystic Enchant"
+	and arg2 ~= "Purchase Mystic Scroll" then return end
 
 	if arg2 == "Disenchant Mystic Enchant" then
 		disenchantingItem = nil
+	end
+	if arg2 == "Purchase Mystic Scroll" then
+		purchasingScroll = nil
 	end
 
 	unregisterSpellCast()
