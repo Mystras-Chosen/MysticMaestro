@@ -1,4 +1,4 @@
-﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
+local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local reforgeActive
 local buttonTextTimerHandle
 local disenchantingItem, reforgingItem
@@ -6,7 +6,7 @@ local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
 
 local function FindEmptySlot()
-	for i=bagID, 4 do
+	for i=1, 4 do
 		for j=1, GetContainerNumSlots(i) do
 			local item = GetContainerItemID(i, j)
 			if not item then return true end
@@ -37,6 +37,9 @@ function MM:ActivateReforge()
 	-- Stop attempting if out of runes and configured to do so
 	if MM:MatchNoRunes() then MM:TerminateReforge("No Runes") return end
 
+	-- Ensure we have an empty slot to craft into
+	if not FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
+	
 	-- Make sure we have an item to reforge
 	local item = MM:FindReforgableScroll()
 	if not item then MM:TerminateReforge("Out of Scrolls") return end
@@ -44,9 +47,6 @@ function MM:ActivateReforge()
 	-- Ensure we are not mounted
 	if IsMounted() then Dismount() end
 
-	-- Ensure we have an empty slot to craft into
-	if not FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
-	
 	-- Set the button text to indicate reforge began
 	MM.rollState = "Reforging"
 	local button = MysticMaestro_CollectionsFrame_ReforgeButton
