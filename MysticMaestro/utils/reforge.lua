@@ -5,6 +5,15 @@ local disenchantingItem, reforgingItem
 local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
 
+local function FindEmptySlot()
+	for i=bagID, 4 do
+		for j=1, GetContainerNumSlots(i) do
+			local item = GetContainerItemID(i, j)
+			if not item then return true end
+		end
+	end
+end
+
 -- We set an entry point for any reforge requests
 function MM:ActivateReforge()
 	reforgeActive = true
@@ -35,6 +44,9 @@ function MM:ActivateReforge()
 	-- Ensure we are not mounted
 	if IsMounted() then Dismount() end
 
+	-- Ensure we have an empty slot to craft into
+	if not FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
+	
 	-- Set the button text to indicate reforge began
 	MM.rollState = "Reforging"
 	local button = MysticMaestro_CollectionsFrame_ReforgeButton
@@ -42,7 +54,7 @@ function MM:ActivateReforge()
 		button:SetText("Reforging" .. MM:Dots())
 		buttonTextTimerHandle = Timer.NewTicker(1, function() button:SetText("Reforging".. MM:Dots()) end)
 	end
-	
+
 	-- All validations have passed, so we can safely proceed to reforge
 	MM:ReforgeItem(item)
 end
@@ -80,8 +92,8 @@ function MM:ReforgeItem(itemGuid)
 		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	else
-		MM:Print("Was unable to reforge item, setting timer for next frame")
-		Timer.NextFrame(MM.ActivateReforge)
+		MM:Print("Was unable to reforge item, trying again in one second")
+		Timer.After(1,MM.ActivateReforge)
 	end
 end
 
