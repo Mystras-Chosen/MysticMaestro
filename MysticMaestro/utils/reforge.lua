@@ -5,11 +5,19 @@ local disenchantingItem, reforgingItem, purchasingScroll
 local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
 
-local function FindEmptySlot()
+local function FindEmptySlot(needTwo)
+	local count = 0
 	for i=1, 4 do
 		for j=1, GetContainerNumSlots(i) do
 			local item = GetContainerItemID(i, j)
-			if not item then return true end
+			if not item then
+				if needTwo then
+					count = count + 1
+					if count >= 2 then return true end
+				else
+					return true
+				end
+			end
 		end
 	end
 end
@@ -50,8 +58,10 @@ function MM:ActivateReforge()
 	-- Make sure we have an item to reforge
 	local item = MM:FindReforgableScroll()
 	if not item then
-		PurchaseScroll()
-		if purchasingScroll then return end
+		if MM.db.realm.OPTIONS.purchaseScrolls then
+			if FindEmptySlot(true) then PurchaseScroll() end
+			if purchasingScroll then return end
+		end
 		MM:TerminateReforge("Out of Scrolls")
 		return
 	end

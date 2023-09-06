@@ -486,6 +486,12 @@ local function createConfig()
 				softMax = 1,
 				desc = "Set the amount of time to elapse after each reforge, too low of a value will cause blocked casts.",
 			},
+			purchaseScrolls = {
+				order = 3,
+				name = "Purchase Mystic Scrolls",
+				desc = "Automatically purchase required mystic scrolls during the reforge loop",
+				type = "toggle"
+			},
 			qualityHeader = {
 				order = 30,
 				name = "Stop for specific qualities of enchants",
