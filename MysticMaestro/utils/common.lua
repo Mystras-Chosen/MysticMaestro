@@ -709,3 +709,8 @@ function MM:AltarLevelRequiredRolls()
 
 	MM.db.realm.ALTARLEVEL.rollsNeeded = math.ceil(rollsNeeded - rollCorrection)
 end
+
+function MM:CheckRealmA52()
+	local realm = GetRealmMask()
+	return realm == Enum.RealmMask.Area52
+end

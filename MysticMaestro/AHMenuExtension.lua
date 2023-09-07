@@ -406,7 +406,7 @@ local function setUpButtonWidgets()
 	scanButton:SetHeight(22)
 	scanButton:SetCallback("OnClick",
 		function(self, event)
-			if MM.db.realm.OPTIONS.useGetall then
+			if MM.db.realm.OPTIONS.useGetall and MM:CheckRealmA52() then
 				MM.AutomationManager:ShowAutomationPrompt("GetAll Scan")
 			else
 				MM.AutomationManager:ShowAutomationPrompt("Batch Scan")
@@ -474,7 +474,7 @@ local time, CanSendAuctionQuery = time, CanSendAuctionQuery
 MM.OnUpdateFrame:HookScript("OnUpdate",
 	function()
 		if not scanButton then return end
-		if not MM.db.realm.OPTIONS.useGetall then return end
+		if not MM.db.realm.OPTIONS.useGetall or not MM:CheckRealmA52() then return end
 		
 		if select(2, CanSendAuctionQuery()) then
 			scanButton:SetText("GetAll Scan")
