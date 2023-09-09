@@ -50,8 +50,14 @@ function MM:MatchGreen(currentEnchant)
 end
 
 function MM:MatchShopping(currentEnchant)
-	local enabled = options.stopForShop.enabled and MM.shopEnabledList[currentEnchant.SpellID]
-	return enabled and "Shopping Match" or nil
+	if not MM.db.realm.SHOPPING_LISTS then return end
+	for _, list in ipairs (MM.db.realm.SHOPPING_LISTS) do
+		if list.enable and not list.reforge and list.Enchants and list.Enchants[currentEnchant.SpellID] then
+			return true, true
+		elseif list.enable and list.reforge and list.Enchants and list.Enchants[currentEnchant.SpellID] then
+			return true, false
+		end
+	end
 end
 
 function MM:MatchExtractable(currentEnchant)
@@ -66,12 +72,12 @@ function MM:MatchExtractable(currentEnchant)
 end
 
 function MM:MatchConfiguration(currentEnchant)
-	if not MM.shoppingListInitialized then MM:BuildWorkingShopList() end
 	if not options then options = MM.db.realm.OPTIONS end
-
+	local enable, forgeType = MM:MatchShopping(currentEnchant)
+	if enable then return forgeType end
+	
 	-- Evaluate the enchant against our options
 	return MM:MatchQuality(currentEnchant)
-	or MM:MatchShopping(currentEnchant)
 	or MM:MatchUnknown(currentEnchant)
 	or MM:MatchGreen(currentEnchant)
 	or MM:MatchPrice(currentEnchant)
