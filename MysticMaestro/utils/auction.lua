@@ -24,6 +24,26 @@ function MM:CollectSpecificREData(scanTime, expectedSpellID)
 	return enchantFound
 end
 
+function MM:FetchRecentListings(spellID)
+	local listings = self.data.RE_AH_LISTINGS
+	local recentTime = 0
+	if not listings[spellID] then return end
+	for time, _ in pairs(listings[spellID]) do
+		if time >= recentTime then recentTime = time end
+	end
+	if recentTime == 0 then return end
+
+	local compare = MM:CompareTime(time(),recentTime)
+	if (compare.year or 0) > 0
+	or (compare.day or 0) > 0
+	or (compare.hour or 0) > 0
+	or (compare.minute or 0) >= 15 then return end
+	
+	local entries = MM:AuctionListStringToList(listings[spellID][recentTime])
+	table.sort(entries, function(a,b) return a < b end )
+	return entries
+end
+
 local pendingQuery, awaitingResults, timeoutTime, enchantToQuery, selectedScanTime
 
 function MM:InitializeSingleScan(SpellID)

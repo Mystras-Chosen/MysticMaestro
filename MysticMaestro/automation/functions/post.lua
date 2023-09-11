@@ -55,14 +55,23 @@ local function undercut(enchantID, buyoutPrice, yours)
 	end
 end
 
+local fetchData
 local function postScan_OnUpdate()
 	if running and not MM:AwaitingSingleScanResults() then
 		if currentIndex ~= 0 then
-			scanResultSet[enchantScanList[currentIndex]] = MM:GetSingleScanResults()
+			if not fetchData then
+				scanResultSet[enchantScanList[currentIndex]] = MM:GetSingleScanResults()
+			else
+				scanResultSet[enchantScanList[currentIndex]] = fetchData[1]
+			end
+			fetchData = nil
 		end
 		if currentIndex < #enchantScanList and CanSendAuctionQuery() then
 			currentIndex = currentIndex + 1
-			MM:InitializeSingleScan(enchantScanList[currentIndex])
+			fetchData = MM:FetchRecentListings(enchantScanList[currentIndex])
+			if not fetchData then
+				MM:InitializeSingleScan(enchantScanList[currentIndex])
+			end
 			MM.AutomationUtil.SetProgressBarValues(automationTable, currentIndex-1, #enchantScanList)
 		elseif currentIndex == #enchantScanList then
 			MM.AutomationUtil.SetProgressBarValues(automationTable, currentIndex, #enchantScanList)
