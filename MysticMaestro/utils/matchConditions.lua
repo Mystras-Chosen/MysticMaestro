@@ -60,13 +60,22 @@ function MM:MatchShopping(currentEnchant)
 	end
 end
 
+function MM:MatchShoppingExtract(currentEnchant)
+	if not MM.db.realm.SHOPPING_LISTS then return end
+	for _, list in ipairs (MM.db.realm.SHOPPING_LISTS) do
+		if list.enable and list.extract and list.Enchants and list.Enchants[currentEnchant.SpellID] then
+			return true
+		end
+	end
+end
+
 function MM:MatchExtractable(currentEnchant)
 	if not MM.shoppingListInitialized then MM:BuildWorkingShopList() end
 	if not options then options = MM.db.realm.OPTIONS end
 
 	if (MM:MatchUnknown(currentEnchant) and options.stopUnknown.extract)
 	or (MM:MatchGreen(currentEnchant) and options.green.extract)
-	or MM.shopExtractList[currentEnchant.enchantID] then
+	or MM:MatchShoppingExtract(currentEnchant.enchantID) then
 		return true
 	end
 end
