@@ -448,7 +448,7 @@ function MM:FindReforgableScroll()
 		local enchantInfo = C_MysticEnchant.GetEnchantInfoByItem(scroll.Entry)
 
 		if scroll.Entry == 992720 -- Untarnished Mystic Scroll
-		or enchantInfo and not MM:MatchConfiguration(enchantInfo) then
+		or enchantInfo and not enchantInfo.Worldforged and not MM:MatchConfiguration(enchantInfo) then
 			return scroll.Guid
 		end
 	end
