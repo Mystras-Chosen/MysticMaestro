@@ -192,7 +192,7 @@ function automationTable.Start()
 	end
 	isPaused = false
 	MM.AutomationUtil.SetProgressBarMinMax(automationTable, 0, totalPages or 1)
-	MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "percent")
+	MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "both")
 	MM.AutomationUtil.ShowAutomationPopup(automationTable, "running")
 	running = true
 end
