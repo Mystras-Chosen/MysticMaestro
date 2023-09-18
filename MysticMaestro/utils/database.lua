@@ -63,6 +63,7 @@ local defaultDB = {
 			enableShareCombat = false,
 
 			purchaseScrolls = true,
+			removeFound = true,
 			delayAfterBagUpdate = 0.3,
 			stopIfNoRunes = true,
 			shoppingListsDropdown = 1,

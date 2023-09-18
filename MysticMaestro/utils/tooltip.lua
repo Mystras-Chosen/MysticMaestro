@@ -249,11 +249,9 @@ function MM:GuildTooltips_DisplayNameUpdate(name, key)
 end
 
 -- Sends new learned enchant to other addons
-function MM:GuildTooltipsEnchantLearned(event, SpellID)
-	if event == "MYSTIC_ENCHANT_LEARNED" then
-		if SpellID and guildName then
-			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true, SpellID)
-		end
+function MM:GuildTooltipsEnchantLearned(SpellID)
+	if SpellID and guildName then
+		MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true, SpellID)
 	end
 end
 

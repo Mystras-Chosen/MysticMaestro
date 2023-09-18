@@ -492,6 +492,12 @@ local function createConfig()
 				desc = "Automatically purchase required mystic scrolls during the reforge loop",
 				type = "toggle"
 			},
+			removeFound = {
+				order = 3,
+				name = "Remove Found",
+				desc = "Automatically remove found enchants on an auto extract shopping list that is enabled",
+				type = "toggle"
+			},
 			qualityHeader = {
 				order = 30,
 				name = "Stop for specific qualities of enchants",
@@ -502,7 +508,7 @@ local function createConfig()
 				name = "Enabled",
 				desc = "Stop reforging items with an enchant of any enabled quality",
 				type = "toggle",
-				width = 2,
+				width = 1,
 				get = function(info) return MM.db.realm.OPTIONS.stopQuality.enabled end,
 				set = function(info,val) MM.db.realm.OPTIONS.stopQuality.enabled = val end
 			},

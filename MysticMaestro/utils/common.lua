@@ -454,6 +454,36 @@ function MM:FindReforgableScroll()
 	end
 end
 
+-- Remove extracted enchant from extract list
+function MM:RemoveExtractedFromList(SpellID)
+	if not self.db.realm.OPTIONS.removeFound then return end
+	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+	if not enchant then return end
+	for _, list in ipairs(MM.shoppingLists) do
+		if list.enable and list.extract then
+			list.Enchants[SpellID] = nil
+			local icon = select(3, GetSpellInfo(SpellID))
+			local wrapper = IconClass(icon)
+			local enchantColor = colors[enchant.Quality]
+			MM:Print(format("%s |Hspell:%s|h%s[%s]|r|h%s", wrapper:GetIconString(), SpellID, enchantColor, enchant.SpellName, " Mystic Enchant has been removed from shopping list "..list.Name))
+			if MysticMaestro_ListFrame_ScrollFrame and MysticMaestro_ListFrame_ScrollFrame:IsVisible() then
+				MysticMaestro_ListFrame_ScrollFrameUpdate()
+			end
+		end
+	end
+end
+
+-- Display msg on new enchant learned
+function MM:EnchantLearnedMsg(SpellID)
+	if not self.db.realm.OPTIONS.notificationLearned then return end
+	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
+	if not enchant then return end
+	local icon = select(3, GetSpellInfo(SpellID))
+	local wrapper = IconClass(icon)
+	local enchantColor = colors[enchant.Quality]
+	MM:Print(format("%s |Hspell:%s|h%s[%s]|r|h%s", wrapper:GetIconString(), SpellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
+end
+
 function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
 	if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
 		and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
@@ -464,14 +494,9 @@ end
 
 -- Notification function for the LEARNED event
 function MM:MYSTIC_ENCHANT_LEARNED(event, SpellID)
-	MM:GuildTooltipsEnchantLearned(event, SpellID)
-	if not self.db.realm.OPTIONS.notificationLearned then return end
-	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
-	if not enchant then return end
-	local icon = select(3, GetSpellInfo(SpellID))
-	local wrapper = IconClass(icon)
-	local enchantColor = colors[enchant.Quality]
-	MM:Print(format("%s |Hspell:%s|h%s[%s]|r|h%s", wrapper:GetIconString(), SpellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
+	MM:GuildTooltipsEnchantLearned(SpellID)
+	MM:RemoveExtractedFromList(SpellID)
+	MM:EnchantLearnedMsg(SpellID)
 end
 
 -- determine the count of Mystic Orbs
