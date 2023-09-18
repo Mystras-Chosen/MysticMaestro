@@ -683,6 +683,7 @@ end
 -- itemLink, enchantData, buyoutPrice, seller, duration, icon
 function MM:GetAuctionMysticEnchantInfo(listingType, index)
 	local itemLink = GetAuctionItemLink(listingType, index)
+	if not itemLink then return end
 	local itemID = GetItemInfoFromHyperlink(itemLink)
 	local enchantData = C_MysticEnchant.GetEnchantInfoByItem(itemID)
 	local buyoutPrice, _, _, seller = select(9, GetAuctionItemInfo(listingType, index))

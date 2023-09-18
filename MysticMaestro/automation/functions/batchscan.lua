@@ -169,11 +169,11 @@ function MM:BatchScan_AUCTION_ITEM_LIST_UPDATE()
 			if enchantData and buyoutPrice and buyoutPrice > 0 then
 				pendingResults[enchantData.SpellID] = (pendingResults[enchantData.SpellID] or "") .. buyoutPrice .. ","
 			end
-			if seller == nil and currentTime < timeoutTime then
+			if itemLink == nil and currentTime < timeoutTime then
 				awaitingResults = true
-				return
 			end
 		end
+		if awaitingResults then return end
 		timeoutTime = (awaitingResults and currentTime < timeoutTime) and timeoutTime or nil
 		if timeoutTime == nil then
 			cacheResults()
