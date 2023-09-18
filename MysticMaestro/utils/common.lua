@@ -484,14 +484,6 @@ function MM:EnchantLearnedMsg(SpellID)
 	MM:Print(format("%s |Hspell:%s|h%s[%s]|r|h%s", wrapper:GetIconString(), SpellID, enchantColor, enchant.SpellName, " RE has been unlocked!"))
 end
 
-function MM:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(this, event, entry, data)
-	if event ~= "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" 
-		and event ~= "ASCENSION_REFORGE_ENCHANT_RESULT"
-		and event ~= "ASCENSION_REFORGE_PROGRESS_UPDATE" then return end
-	MM:ASCENSION_REFORGE_ENCHANT_RESULT(this, event, entry, data)
-	MM:ASCENSION_REFORGE_PROGRESS_UPDATE(this, event, entry, data)
-end
-
 -- Notification function for the LEARNED event
 function MM:MYSTIC_ENCHANT_LEARNED(event, SpellID)
 	MM:GuildTooltipsEnchantLearned(SpellID)
