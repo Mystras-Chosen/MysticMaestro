@@ -197,10 +197,10 @@ end
 function MM:EnchantCom(prefix, message, distribution, sender)
 	if sender == playerName  then return end
 	if not MM.guildTooltips.Guilds[guildName].enchants then MM.guildTooltips.Guilds[guildName].enchants = {} end
+	if not MM.guildTooltips.Guilds[guildName].Accounts then MM.guildTooltips.Guilds[guildName].Accounts = {} end
 	local gAccounts = MM.guildTooltips.Guilds[guildName].Accounts
 	local enchants = MM.guildTooltips.Guilds[guildName].enchants
 	
-	if not gAccounts then gAccounts = {} end
 	local success, data = MM:Deserialize(message)
 	if success then
 		if not gAccounts[data.accountKey] then gAccounts[data.accountKey] = {} end
