@@ -45,6 +45,10 @@ local defaultDB = {
 			postDefault = 120,
 			postIfUnder = "IGNORE",
 			postIfOver = "MAX",
+			postUncommon = true,
+			postRare = true,
+			postEpic = true,
+			postLegendary = true,
 
 			ttTENMin = true,
 			ttTENGPO = false,

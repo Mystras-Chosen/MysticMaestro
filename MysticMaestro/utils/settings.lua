@@ -330,6 +330,39 @@ local function createConfig()
 				},
 				sorting = {"UNDERCUT","DEFAULT","MAX","MEAN10","MEDIAN10","MAX10"},
 			},
+			postQualityHeader = {
+				order = 8,
+				name = "Post Qualitys",
+				type = "header"
+			},
+			postUncommon = {
+				order = 10,
+				name = "Uncommon",
+				desc = "Post enchants of this quality",
+				type = "toggle",
+				width = .7,
+			},
+			postRare = {
+				order = 11,
+				name = "Rare",
+				desc = "Post enchants of this quality",
+				type = "toggle",
+				width = .5,
+			},
+			postEpic = {
+				order = 12,
+				name = "Epic",
+				desc = "Post enchants of this quality",
+				type = "toggle",
+				width = .5,
+			},
+			postLegendary = {
+				order = 13,
+				name = "Legendary",
+				desc = "Post enchants of this quality",
+				type = "toggle",
+				width = .7,
+			},
 		}
 	}
 	-- Tooltip

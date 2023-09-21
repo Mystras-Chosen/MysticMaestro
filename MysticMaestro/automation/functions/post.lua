@@ -6,6 +6,13 @@ local isPaused
 
 local automationTable = {}
 
+local quality = {
+	["RE_QUALITY_UNCOMMON"] = "postUncommon",
+	["RE_QUALITY_RARE"] = "postRare",
+	["RE_QUALITY_EPIC"] = "postEpic",
+	["RE_QUALITY_LEGENDARY"] = "postLegendary",
+}
+
 function automationTable.GetName()
 	return automationName
 end
@@ -81,15 +88,18 @@ end
 
 local function assembleQueFromResults()
 	for enchantID, results in pairs(scanResultSet) do
-		if #results > 0 then
-			local price, yours = MM:PriceCorrection(results[1],results)
-			if not price then
-				MM:Print("Price is below Minimum, leaving in inventory.")
+		local enchantInfo = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
+		if MM.db.realm.OPTIONS[quality[enchantInfo.Quality]] then
+			if #results > 0 then
+				local price, yours = MM:PriceCorrection(results[1],results)
+				if not price then
+					MM:Print("Price is below Minimum, leaving in inventory.")
+				else
+					undercut(enchantID, price, yours)
+				end
 			else
-				undercut(enchantID, price, yours)
+				MM:ListAuctionQueue(enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
 			end
-		else
-			MM:ListAuctionQueue(enchantID, MM.db.realm.OPTIONS.postDefault * 10000)
 		end
 	end
 	scanResultSet = nil
