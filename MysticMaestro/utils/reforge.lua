@@ -34,6 +34,9 @@ function MM:ActivateReforge()
 	reforgeActive = true
 	MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
 
+	-- Ensure we are not mounted
+	if IsMounted() then Dismount() end
+
 	-- Show floating rune count down
 	if MM.rollState ~= "Reforging" then
 		MM:ToggleScreenReforgeText(true)
@@ -65,9 +68,6 @@ function MM:ActivateReforge()
 		MM:TerminateReforge("Out of Scrolls")
 		return
 	end
-
-	-- Ensure we are not mounted
-	if IsMounted() then Dismount() end
 
 	-- Set the button text to indicate reforge began
 	MM.rollState = "Reforging"
