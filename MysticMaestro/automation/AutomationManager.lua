@@ -97,11 +97,25 @@ end
 
 	-- called by Scan button or automation function dropdown
 function MM.AutomationManager:ShowAutomationPrompt(automationName)
+	-- if canStartAutomation(automationName) then
+	-- 	setCurrentAutomation(automationName)
+	-- 	currentTask = "init"
+	-- 	setMenuLocked(true)
+	-- 	currentAutomationTable.ShowInitPrompt()
+	-- end
+	MM.AutomationManager:StartWithoutPrompt(automationName)
+end
+
+function MM.AutomationManager:StartWithoutPrompt(automationName)
 	if canStartAutomation(automationName) then
 		setCurrentAutomation(automationName)
-		currentTask = "init"
 		setMenuLocked(true)
+		if currentAutomationName == pausedAutomationName then
+			pausedAutomationName = nil
+		end
+		currentTask = "running"
 		currentAutomationTable.ShowInitPrompt()
+		currentAutomationTable.Start()
 	end
 end
 
