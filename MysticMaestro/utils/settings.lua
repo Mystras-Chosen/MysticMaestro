@@ -70,7 +70,7 @@ local function createConfig()
 			confirmAutomation = {
 				order = 16,
 				name = "Automation",
-				desc = "Enables a confirmation before starting Automation functions.",
+				desc = "Enables a confirmation before starting Automation functions. This applies to Post and Scan automations as well as any others added in the future.",
 				type = "toggle",
 				width = 0.5,
 			},
