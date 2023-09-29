@@ -67,13 +67,20 @@ local function createConfig()
 				type = "toggle",
 				width = 0.5,
 			},
-			durationHeader = {
+			confirmAutomation = {
 				order = 16,
+				name = "Automation",
+				desc = "Enables a confirmation before starting Automation functions.",
+				type = "toggle",
+				width = 0.5,
+			},
+			durationHeader = {
+				order = 17,
 				name = "Auction Duration",
 				type = "header"
 			},
 			listDuration = {
-				order = 17,
+				order = 18,
 				name = "Listing Duration Index",
 				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
 				type = "range",

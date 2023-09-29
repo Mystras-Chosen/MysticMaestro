@@ -8,6 +8,7 @@ local defaultDB = {
 			confirmBuyout = true,
 			confirmCancel = true,
 			confirmCraft = true,
+			confirmAutomation = true,
 			enchantWindowScale = 1,
 			standAloneButtonScale = 1,
 

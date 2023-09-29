@@ -102,6 +102,10 @@ function MM.AutomationManager:ShowAutomationPrompt(automationName)
 		currentTask = "init"
 		setMenuLocked(true)
 		currentAutomationTable.ShowInitPrompt()
+		if not MM.db.realm.OPTIONS.confirmAutomation then
+			currentTask = "running"
+			currentAutomationTable.Start()
+		end
 	end
 end
 
