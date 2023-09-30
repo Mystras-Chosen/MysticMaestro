@@ -538,6 +538,12 @@ local function createConfig()
 				desc = "Automatically remove found enchants on an auto extract shopping list that is enabled",
 				type = "toggle"
 			},
+			noChatResult = {
+				order = 4,
+				name = "Hide chat result text",
+				desc = "Don't show result text in chat window ",
+				type = "toggle"
+			},
 			qualityHeader = {
 				order = 30,
 				name = "Stop for specific qualities of enchants",

@@ -213,10 +213,12 @@ function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
 
 	local knownState = currentEnchant.Known and strKnown or strUnknown
 	local result = MM:MatchConfiguration(currentEnchant)
-	if result then
-		MM:Print("Stopped on " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
-	else
-		MM:Print("Skipping " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID))
+	if not MM.db.realm.OPTIONS.noChatResult then
+		if result then
+			MM:Print("Stopped on " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID) .. " because of " .. result)
+		else
+			MM:Print("Skipping " .. knownState .. " enchant:" .. MM:ItemLinkRE(SpellID))
+		end
 	end
 	MM:AltarLevelRequiredRolls()
 	MM:UpdateScreenReforgeText()

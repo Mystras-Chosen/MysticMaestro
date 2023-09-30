@@ -69,6 +69,7 @@ local defaultDB = {
 
 			purchaseScrolls = true,
 			removeFound = true,
+			noChatResult = false,
 			delayAfterBagUpdate = 0.3,
 			stopIfNoRunes = true,
 			shoppingListsDropdown = 1,
