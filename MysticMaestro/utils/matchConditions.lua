@@ -53,7 +53,7 @@ function MM:MatchShopping(currentEnchant)
 	if not MM.db.realm.SHOPPING_LISTS then return end
 	for _, list in ipairs (MM.db.realm.SHOPPING_LISTS) do
 		if list.enable and not list.reforge and list.Enchants and list.Enchants[currentEnchant.SpellID] then
-			return true, true
+			return true, "Shopping List"
 		elseif list.enable and list.reforge and list.Enchants and list.Enchants[currentEnchant.SpellID] then
 			return true, false
 		end
