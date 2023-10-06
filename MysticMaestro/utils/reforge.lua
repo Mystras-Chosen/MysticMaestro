@@ -24,6 +24,7 @@ end
 
 local function PurchaseScroll()
 	if purchasingScroll then return end
+	MM:RegisterEvent("UNIT_SPELLCAST_FAILED")
 	purchasingScroll = C_MysticEnchant.PurchaseMysticScroll()
 	MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
@@ -111,6 +112,7 @@ end
 
 function MM:ReforgeItem(itemGuid)
 	if C_MysticEnchant.CanReforgeItem(itemGuid) then
+		MM:RegisterEvent("UNIT_SPELLCAST_FAILED")
 		C_MysticEnchant.ReforgeItem(itemGuid)
 		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
@@ -157,6 +159,7 @@ end
 local function unregisterSpellCast()
 	MM:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	MM:UnregisterEvent("UNIT_SPELLCAST_FAILED")
 end
 
 function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
@@ -173,6 +176,26 @@ function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
 	if arg2 == "Purchase Mystic Scroll" then
 		purchasingScroll = nil
 	end
+end
+
+function MM:UNIT_SPELLCAST_FAILED(event, arg1, arg2)
+	if not reforgeActive then return end
+	if arg1 ~= "player" then return end
+	if arg2 ~= "Reforge Mystic Enchant"
+	and arg2 ~= "Disenchant Mystic Enchant"
+	and arg2 ~= "Purchase Mystic Scroll" then return end
+
+	unregisterSpellCast()
+
+	if arg2 == "Disenchant Mystic Enchant" then
+		disenchantingItem = nil
+	end
+	if arg2 == "Purchase Mystic Scroll" then
+		purchasingScroll = nil
+	end
+	
+	if MM:IsMoving() then MM:TerminateReforge("Player Moving") return end
+	Timer.After(MM.db.realm.OPTIONS.delayAfterBagUpdate, MM.ActivateReforge)
 end
 
 function MM:BAG_UPDATE()
