@@ -417,11 +417,16 @@ function MM:IsMoving()
 end
 
 -- determine if an enchant is extractable
+local lastExtracted = 0
 function MM:Extract(enchant)
 	if enchant.Known then return end
 	if GetItemCount(98463) and (GetItemCount(98463) > 0) then
-		MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchant.SpellID))
+		if lastExtracted ~= enchant.SpellID then
+			MM:Print("Extracting enchant:" .. MM:ItemLinkRE(enchant.SpellID))
+			lastExtracted = enchant.SpellID
+		end
 		local itemGuid = MM:FindScrollByItem(enchant.ItemID)
+		MM:RegisterEvent("UNIT_SPELLCAST_FAILED")
 		C_MysticEnchant.DisenchantItem(itemGuid)
 		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
