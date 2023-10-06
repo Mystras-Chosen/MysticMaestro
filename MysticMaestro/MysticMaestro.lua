@@ -85,9 +85,8 @@ function MM:AUCTION_OWNED_LIST_UPDATE(event, arg1, arg2, arg3)
 end
 
 function MM:GUILDBANKFRAME_OPENED(event, arg1, arg2, arg3)
-	if event == "GUILDBANKFRAME_OPENED" then
-		MM:guildBankFrameOpened()
-	end
+	MM:guildBankFrameOpened()
+	MM.bankMoverOnlyMatched:SetValue(MM.db.realm.OPTIONS.onlyMatching)
 end
 
 function MM:GUILD_ROSTER_UPDATE(event, arg1, arg2, arg3)

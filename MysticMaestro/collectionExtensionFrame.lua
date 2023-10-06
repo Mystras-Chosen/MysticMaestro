@@ -426,7 +426,7 @@ local removelistbtn = CreateFrame("Button", "MysticMaestro_ListFrame_RemoveListB
 	enableCheck:SetHeight(25)
 	enableCheck:SetWidth(80)
 	enableCheck:SetLabel("Enable")
-	enableCheck:SetValue( function() 
+	enableCheck:SetValue( function()
 		if not MM.shoppingLists.currentSelectedList then return end
 		return MM.shoppingLists[MM.shoppingLists.currentSelectedList].enable
 	end)

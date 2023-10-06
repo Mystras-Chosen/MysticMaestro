@@ -1,8 +1,10 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local AceGUI = LibStub("AceGUI-3.0")
 local bagnonGuildbank
+local frameLoaded
 --adds a move to and from buttons to realm/personal/guild bank for auto moving mystic enchanted trinkets 
 function MM:guildBankFrameOpened()
+	if frameLoaded then return end
 	local gFrame = GuildBankFrame
 	local toPointX, toPointY = -55,-40
 	if select(4,GetAddOnInfo("Bagnon_GuildBank")) then
@@ -31,14 +33,6 @@ function MM:guildBankFrameOpened()
 			end
 		end
 	end)
-	moveReItemsTobank:SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:SetText("Move all Mystic Scrolls into bank that are\n on a list of meet your set roll conditions")
-		GameTooltip:Show()
-	end)
-	moveReItemsTobank:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	MM.bankMoverIn = moveReItemsTobank
-
 
 	local moveReItemsFrombank = CreateFrame("BUTTON", nil, gFrame)
 	moveReItemsFrombank:SetSize(26,26)
@@ -64,5 +58,29 @@ function MM:guildBankFrameOpened()
 	end)
 	moveReItemsFrombank:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	MM.bankMoverOut = moveReItemsFrombank
-	MM:UnregisterEvent("GUILDBANKFRAME_OPENED")
+
+	moveReItemsTobank:SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+		GameTooltip:SetText("Move Mystic Scrolls into bank")
+		GameTooltip:Show()
+	end)
+	moveReItemsTobank:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	MM.bankMoverIn = moveReItemsTobank
+
+	local moveOnlyMatched = AceGUI:Create("CheckBox")
+	moveOnlyMatched.frame:SetParent(gFrame)
+	moveOnlyMatched:SetPoint("RIGHT", moveReItemsTobank, "LEFT", 0, 0)
+	moveOnlyMatched:SetHeight(25)
+	moveOnlyMatched:SetWidth(25)
+	moveOnlyMatched:SetCallback("OnValueChanged", function() MM.db.realm.OPTIONS.onlyMatching = not MM.db.realm.OPTIONS.onlyMatching end)
+	moveOnlyMatched:SetCallback("OnEnter", function()
+		GameTooltip:SetOwner(moveOnlyMatched.frame, "ANCHOR_RIGHT")
+		GameTooltip:SetText("Only move enchants matching my rolling criteria")
+		GameTooltip:Show()
+	end)
+	moveOnlyMatched.frame:Show()
+	moveOnlyMatched:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+	MM.bankMoverOnlyMatched = moveOnlyMatched
+
+
 end
