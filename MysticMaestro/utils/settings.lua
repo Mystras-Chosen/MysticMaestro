@@ -922,6 +922,27 @@ local function createConfig()
 			},
 		}
 	}
+	-- Share settings
+	options.args.bank = {
+		name = "Bank Functions",
+		type = "group",
+		get = get,
+		set = set,
+		args = {
+			ttGuildHeader = {
+				order = 1,
+				name = "Guild/Personal/Realm Bank",
+				type = "header"
+			},
+			onlyMatching = {
+				order = 2,
+				name = "Only move matching",
+				desc = "Only move enchants matching my rolling criteria",
+				type = "toggle",
+				width = 6
+			},
+		}
+	}
 	local serverSelect
 	local function getServerNames()
 		local serverNames = {}
@@ -1007,6 +1028,9 @@ local function createBlizzOptions()
 	-- Share
 	config:RegisterOptionsTable("MysticMaestro-Share", options.args.share)
 	dialog:AddToBlizOptions("MysticMaestro-Share", options.args.share.name, "Mystic Maestro")
+	-- Share
+	config:RegisterOptionsTable("MysticMaestro-Bank", options.args.bank)
+	dialog:AddToBlizOptions("MysticMaestro-Bank", options.args.bank.name, "Mystic Maestro")
 	-- Manage
 	config:RegisterOptionsTable("MysticMaestro-Manage", options.args.manage)
 	dialog:AddToBlizOptions("MysticMaestro-Manage", options.args.manage.name, "Mystic Maestro")

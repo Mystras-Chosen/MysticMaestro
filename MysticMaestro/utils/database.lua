@@ -67,6 +67,8 @@ local defaultDB = {
 			enableShare = false,
 			enableShareCombat = false,
 
+			onlyMatching = false,
+
 			purchaseScrolls = true,
 			removeFound = true,
 			noChatResult = false,

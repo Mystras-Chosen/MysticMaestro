@@ -58,51 +58,6 @@ end
 
 local function initOptions()
 	options = MM.db.realm.OPTIONS
-	MM:BuildWorkingShopList()
-end
-
-function MM:BuildWorkingShopList()
-	if not options then initOptions() end
-	local enabledList = {}
-	local extractList = {}
-	local reserveList = {}
-	local unknownList = {}
-	for _, list in ipairs(options.shoppingLists) do
-		if list.enabled then
-			for _, enchantName in ipairs(list) do
-				if enchantName ~= "" then
-					local n = enchantName:lower()
-					local standardStr = select(3, n:find("%[(.-)%]")) or select(3, n:find("(.+)"))
-					local enchantList = C_MysticEnchant.QueryEnchants(99,1,standardStr,{})
-					local enchant, SpellID
-					if enchantList then
-						for _, enchant in ipairs(enchantList) do
-							if enchant.SpellName == standardStr then
-								SpellID = enchant.SpellID
-								do break end
-							end
-						end
-					end
-					if SpellID then
-						enabledList[SpellID] = true
-						if list.extract then
-							extractList[SpellID] = true
-						end
-						if list.reserve then
-							reserveList[SpellID] = true
-						end
-						if list.unknown then
-							unknownList[SpellID] = true
-						end
-					end
-				end
-			end
-		end
-	end
-	shopEnabledList = enabledList
-	shopExtractList = extractList
-	shopReserveList = reserveList
-	shopUnknownList = unknownList
 end
 
 local function extract(enchant)

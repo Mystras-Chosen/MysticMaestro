@@ -23,8 +23,10 @@ function MM:guildBankFrameOpened()
 		for bagID = 0, 4 do
 			for slotID = 1, GetContainerNumSlots(bagID) do
 				local enchant = MM:GetREInSlot(bagID, slotID)
-				if enchant then --and (MM:SearchLists(enchant.SpellID, "Keep") or (MM:DoRarity(enchant.SpellID,1) and not MM:SearchLists(enchant.SpellID, "Ignore"))) then
-					UseContainerItem(bagID, slotID)
+				if enchant then
+					if (MM.db.realm.OPTIONS.onlyMatching and MM:MatchConfiguration(enchant)) or not MM.db.realm.OPTIONS.onlyMatching then
+						UseContainerItem(bagID, slotID)
+					end
 				end
 			end
 		end

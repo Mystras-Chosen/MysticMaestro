@@ -125,8 +125,6 @@ end
 -- This is our entry point for reforge loop
 -- We use this with our reforge buttons
 function MM:ReforgeToggle()
-	if not MM.shoppingListInitialized then MM:BuildWorkingShopList() end
-
 	if not reforgeActive then
 		MM:ActivateReforge()
 	else
