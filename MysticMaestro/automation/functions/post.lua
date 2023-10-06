@@ -33,7 +33,10 @@ local function collectSellableEnchantItems()
 	sellableEnchants = MM:GetSellableREs()
 	enchantScanList = {}
 	for enchantID in pairs(sellableEnchants) do
-		table.insert(enchantScanList, enchantID)
+		local enchantInfo = C_MysticEnchant.GetEnchantInfoBySpell(enchantID)
+		if MM.db.realm.OPTIONS[quality[enchantInfo.Quality]] then
+			table.insert(enchantScanList, enchantID)
+		end
 	end
 end
 
