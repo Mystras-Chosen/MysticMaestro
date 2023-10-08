@@ -16,6 +16,7 @@ jobs:
       - name: Create zip file
         run: |
           zip -r MysticMaestro_v${{ github.ref_name }}.zip MysticMaestro MysticMaestro_AhData MysticMaestro_GuildData
+
       - name: Create release notes
         id: release_notes
         run: echo "::set-output name=notes::$(git log $(git describe --tags --abbrev=0)..HEAD --pretty=format:'- %s')"
