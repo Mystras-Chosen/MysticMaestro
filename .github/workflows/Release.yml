@@ -4,7 +4,11 @@ on:
   push:
     tags:
       - 'v*.*.*' # Trigger on tags like v1.2.3
-
+  workflow_dispatch: # Enable manual triggering
+    inputs:
+      tag_name:
+        description: 'Enter the tag name (e.g., v1.2.3)'
+        required: true
 jobs:
   build:
     runs-on: ubuntu-latest
