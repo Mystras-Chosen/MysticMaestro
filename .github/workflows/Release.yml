@@ -31,7 +31,6 @@ jobs:
         release_name: Release ${{ github.ref_name }}
         body: |
           Release ${{ github.ref_name }}
-          -----------------------
           ${{ steps.release_notes.outputs.notes }}
         draft: false
         prerelease: false
