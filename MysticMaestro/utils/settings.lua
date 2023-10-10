@@ -63,7 +63,7 @@ local function createConfig()
 			confirmCraft = {
 				order = 15,
 				name = "Craft",
-				desc = "Enables a confirmation before crafting an enchant onto a trinket.",
+				desc = "Enables a confirmation before crafting an enchant onto a Untarnished Mystic Scroll.",
 				type = "toggle",
 				width = 0.5,
 			},
@@ -934,10 +934,24 @@ local function createConfig()
 				name = "Guild/Personal/Realm Bank",
 				type = "header"
 			},
-			onlyMatching = {
+			enableMatching = {
 				order = 2,
-				name = "Only move matching",
-				desc = "Only move enchants matching my rolling criteria",
+				name = "Enable",
+				desc = "Enable moving enchants matching my rolling criteria",
+				type = "toggle",
+				width = 6
+			},
+			matchingToBank = {
+				order = 3,
+				name = "Move matching to bank",
+				desc = "Move enchants matching my rolling criteria to bank",
+				type = "toggle",
+				width = 6
+			},
+			mathcingFromBank = {
+				order = 4,
+				name = "Move matching from bank",
+				desc = "Move enchants matching my rolling criteria from bank",
 				type = "toggle",
 				width = 6
 			},

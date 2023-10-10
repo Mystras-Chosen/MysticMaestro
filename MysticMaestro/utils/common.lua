@@ -315,17 +315,17 @@ function MM:GetAlphabetizedEnchantList(qualityName)
 	return enchants
 end
 
-function MM:Clone(t)				-- return a copy of the table t
-	local new = {};					-- create a new table
-	local i, v = next(t, nil);		-- i is an index of t, v = t[i]
-	while i do
-		if type(v)=="table" then 
-			v=MM:Clone(v);
+-- return a copy of the table table
+function MM:Clone(table)
+	if type(table) ~= "table" then return end
+	local new = {}	-- create a new table
+	for i, v in pairs(table) do
+		if type(v) == "table" then
+			v = AtlasLoot:CloneTable(v)
 		end
-		new[i] = v;
-		i, v = next(t, i);			-- get next index
+		new[i] = v
 	end
-	return new;
+	return new
 end
 
 function MM:DeepClone(orig, copies)
@@ -457,6 +457,18 @@ function MM:FindReforgableScroll()
 			return scroll.Guid
 		end
 	end
+end
+
+-- Return the item GUID of a runtarnished scroll or buy new one
+function MM:FindUntarnishedScroll()
+	local inventoryList = C_MysticEnchant.GetMysticScrolls()
+	for _, scroll in ipairs(inventoryList) do
+		if scroll.Entry == 992720 then -- Untarnished Mystic Scroll
+			return true
+		end
+	end
+	MM.enchantScroll = true
+	MM:PurchaseScroll()
 end
 
 -- Remove extracted enchant from extract list

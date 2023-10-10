@@ -26,7 +26,7 @@ function MM:guildBankFrameOpened()
 			for slotID = 1, GetContainerNumSlots(bagID) do
 				local enchant = MM:GetREInSlot(bagID, slotID)
 				if enchant then
-					if (MM.db.realm.OPTIONS.onlyMatching and MM:MatchConfiguration(enchant)) or not MM.db.realm.OPTIONS.onlyMatching then
+					if (MM.db.realm.OPTIONS.enableMatching and MM.db.realm.OPTIONS.matchingToBank and MM:MatchConfiguration(enchant)) or not MM.db.realm.OPTIONS.enableMatching or not MM.db.realm.OPTIONS.matchingToBank then
 						UseContainerItem(bagID, slotID)
 					end
 				end
@@ -45,8 +45,11 @@ function MM:guildBankFrameOpened()
 		for c = 1, 112 do
 			if GetGuildBankItemLink(GetCurrentGuildBankTab(), c) then
 				local itemID = tonumber(select(3, strfind(GetGuildBankItemLink(GetCurrentGuildBankTab(), c), "^|%x+|Hitem:(%-?%d+).*")))
-				if C_MysticEnchant.GetEnchantInfoByItem(itemID) then
-					AutoStoreGuildBankItem(GetCurrentGuildBankTab(), c)
+				local enchant = C_MysticEnchant.GetEnchantInfoByItem(itemID)
+				if enchant then
+					if (MM.db.realm.OPTIONS.enableMatching and MM.db.realm.OPTIONS.mathcingFromBank and MM:MatchConfiguration(enchant)) or not MM.db.realm.OPTIONS.enableMatching or not MM.db.realm.OPTIONS.mathcingFromBank then
+						AutoStoreGuildBankItem(GetCurrentGuildBankTab(), c)
+					end
 				end
 			end
 		end
@@ -72,7 +75,7 @@ function MM:guildBankFrameOpened()
 	moveOnlyMatched:SetPoint("RIGHT", moveReItemsTobank, "LEFT", 0, 0)
 	moveOnlyMatched:SetHeight(25)
 	moveOnlyMatched:SetWidth(25)
-	moveOnlyMatched:SetCallback("OnValueChanged", function() MM.db.realm.OPTIONS.onlyMatching = not MM.db.realm.OPTIONS.onlyMatching end)
+	moveOnlyMatched:SetCallback("OnValueChanged", function() MM.db.realm.OPTIONS.enableMatching = not MM.db.realm.OPTIONS.enableMatching end)
 	moveOnlyMatched:SetCallback("OnEnter", function()
 		GameTooltip:SetOwner(moveOnlyMatched.frame, "ANCHOR_RIGHT")
 		GameTooltip:SetText("Only move enchants matching my rolling criteria")

@@ -227,7 +227,9 @@ do -- functions to initialize menu and menu container
 	end
 
 	local enchantToCraft, craftingItem
-	local function canReforge()
+	function MM:canReforge(toCraft)
+		if toCraft then enchantToCraft = toCraft end
+		
 		local issue = false
 		if not MM:IsREKnown(enchantToCraft) then
 			UIErrorsFrame:AddMessage("Mystic Enchant is not known.", 1, 0, 0)
@@ -257,20 +259,28 @@ do -- functions to initialize menu and menu container
 			issue = true
 		end
 
-		if not issue then return true end
+		if not issue then return true, craftingItem, orbCost end
 	end
 
-	local function attemptCraftingRE()
-		if not canReforge() then return end
+	function MM:AttemptCraftingRE(reData)
+		if reData then
+			craftingItem, enchantToCraft = unpack(reData)
+		end
+		if not MM:canReforge() then return end
 		C_MysticEnchant.CollectionReforgeItem(craftingItem, enchantToCraft)
+		reData = nil
 	end
-	
+
 	StaticPopupDialogs["MM_CRAFT_RE"] = {
 		text = "Craft mystic enchant?\n\n%s\n\n|cffffff00Cost:|r %s " .. CreateTextureMarkup("Interface\\Icons\\inv_custom_CollectionRCurrency", 64, 64, enchantContainerHeight+8, enchantContainerHeight+8, 0, 1, 0, 1),
 		button1 = ACCEPT,
 		button2 = CANCEL,
 		OnAccept = function(self)
-			attemptCraftingRE()
+			local reData
+			if self.reData then
+				reData = self.reData
+			end
+			MM:AttemptCraftingRE(reData)
 		end,
 		showAlert = 1,
 		timeout = 0,
@@ -289,10 +299,10 @@ do -- functions to initialize menu and menu container
 		enchantToCraft = SpellID
 
 		if MM.db.realm.OPTIONS.confirmCraft then
-			if not canReforge() then return end
+			if not MM:canReforge() then return end
 			StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
 		else
-			attemptCraftingRE()
+			MM:AttemptCraftingRE()
 		end
 	end
 

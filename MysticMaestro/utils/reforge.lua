@@ -1,11 +1,11 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local reforgeActive
 local buttonTextTimerHandle
-local disenchantingItem, reforgingItem, purchasingScroll
+local disenchantingItem, purchasingScroll
 local strKnown = "|cff00ff00known|r"
 local strUnknown = "|cffff0000unknown|r"
 
-local function FindEmptySlot(needTwo)
+function MM:FindEmptySlot(needTwo)
 	local count = 0
 	for i=1, 4 do
 		for j=1, GetContainerNumSlots(i) do
@@ -22,7 +22,7 @@ local function FindEmptySlot(needTwo)
 	end
 end
 
-local function PurchaseScroll()
+function MM:PurchaseScroll()
 	if purchasingScroll then return end
 	MM:RegisterEvent("UNIT_SPELLCAST_FAILED")
 	purchasingScroll = C_MysticEnchant.PurchaseMysticScroll()
@@ -57,13 +57,13 @@ function MM:ActivateReforge()
 	if MM:MatchNoRunes() then MM:TerminateReforge("No Runes") return end
 
 	-- Ensure we have an empty slot to craft into
-	if not FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
+	if not MM:FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
 	
 	-- Make sure we have an item to reforge
 	local item = MM:FindReforgableScroll()
 	if not item then
 		if MM.db.realm.OPTIONS.purchaseScrolls then
-			if FindEmptySlot(true) then PurchaseScroll() end
+			if MM:FindEmptySlot(true) then MM:PurchaseScroll() end
 			if purchasingScroll then return end
 		end
 		MM:TerminateReforge("Out of Scrolls")
@@ -85,10 +85,8 @@ end
 function MM:TerminateReforge(reason)
 	if not reforgeActive then return end
 	reforgeActive = nil
-	waitingAltar = nil
 	disenchantingItem = nil
-	reforgingItem = nil
-	purchaseScrolls = nil
+	purchasingScroll = nil
 
 	if buttonTextTimerHandle then
 		buttonTextTimerHandle:Cancel()
@@ -161,7 +159,7 @@ local function unregisterSpellCast()
 end
 
 function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
-	if not reforgeActive then return end
+	if not reforgeActive and not MM.enchantScroll then return end
 	if arg1 ~= "player" then return end
 	if arg2 ~= "Reforge Mystic Enchant"
 	and arg2 ~= "Disenchant Mystic Enchant"
@@ -198,6 +196,12 @@ end
 
 function MM:BAG_UPDATE()
 	MM:UnregisterEvent("BAG_UPDATE")
+	if MM.enchantScroll then
+		Timer.After(MM.db.realm.OPTIONS.delayAfterBagUpdate, MM.CreateScroll)
+		MM.enchantScroll = false
+		return
+	end
+	if not reforgeActive then return end
 	Timer.After(MM.db.realm.OPTIONS.delayAfterBagUpdate, MM.ActivateReforge)
 end
 

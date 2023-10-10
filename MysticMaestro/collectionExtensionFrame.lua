@@ -664,9 +664,26 @@ function MM:ItemContextMenu(self)
 		{text = GREEN.."Guild", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "GUILD", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
 		{text = LIGHTBLUE.."Party", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "PARTY", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
 		{text = ORANGE2.."Raid", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "RAID", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
+		{divider = 35},
+		{text = GOLD.."Enchanting", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
+		{text = "Create Mystic Scroll", func = function() MM:CreateScroll(self) end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 		{divider = 35, close = true}
 		}
 	}
 	MM:OpenDewdropMenu(self, menulist)
 end
-
+local spellID
+function MM:CreateScroll(self)
+	if self then spellID = self.enchantInfo.SpellID end
+	local scroll = MM:FindUntarnishedScroll()
+	if not scroll then return end
+	local canCraft, craftingItem, orbCost =  MM:canReforge(spellID)
+	if canCraft then
+		if MM.db.realm.OPTIONS.confirmCraft then
+			StaticPopupDialogs["MM_CRAFT_RE"].reData = {craftingItem, spellID}
+			StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(spellID), orbCost)
+		else
+			MM:AttemptCraftingRE({craftingItem, spellID})
+		end
+	end
+end

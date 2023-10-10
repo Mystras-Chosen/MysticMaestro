@@ -86,7 +86,7 @@ end
 
 function MM:GUILDBANKFRAME_OPENED(event, arg1, arg2, arg3)
 	MM:guildBankFrameOpened()
-	MM.bankMoverOnlyMatched:SetValue(MM.db.realm.OPTIONS.onlyMatching)
+	MM.bankMoverOnlyMatched:SetValue(MM.db.realm.OPTIONS.enableMatching)
 end
 
 function MM:GUILD_ROSTER_UPDATE(event, arg1, arg2, arg3)

@@ -67,7 +67,9 @@ local defaultDB = {
 			enableShare = false,
 			enableShareCombat = false,
 
-			onlyMatching = false,
+			enableMatching = false,
+			matchingToBank = true,
+			mathcingFromBank = true,
 
 			purchaseScrolls = true,
 			removeFound = true,
