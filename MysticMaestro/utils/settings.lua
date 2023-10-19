@@ -74,21 +74,6 @@ local function createConfig()
 				type = "toggle",
 				width = 0.5,
 			},
-			durationHeader = {
-				order = 17,
-				name = "Auction Duration",
-				type = "header"
-			},
-			listDuration = {
-				order = 18,
-				name = "Listing Duration Index",
-				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
-				type = "range",
-				step = 1,
-				min = 1,
-				max = 3,
-				width = 2
-			},
 			myHeader = {
 				order = 25,
 				name = "My Auctions",
@@ -261,13 +246,28 @@ local function createConfig()
 		get = get,
 		set = set,
 		args = {
-			postHeader = {
+			durationHeader = {
 				order = 1,
+				name = "Auction Duration",
+				type = "header"
+			},
+			listDuration = {
+				order = 2,
+				name = "Listing Duration Index",
+				desc = "The duration to create listings. A value of 1 is 12 hours, 2 is 24 hours, 3 is 48 hours.",
+				type = "range",
+				step = 1,
+				min = 1,
+				max = 3,
+				width = 2
+			},
+			postHeader = {
+				order = 10,
 				name = "Post Values",
 				type = "header"
 			},
 			postMin = {
-				order = 2,
+				order = 11,
 				name = "Minimum Value",
 				desc = "Define the minimum value which will be considered a valid price.",
 				type = "range",
@@ -278,7 +278,7 @@ local function createConfig()
 				softMax = 20
 			},
 			postMax = {
-				order = 3,
+				order = 12,
 				name = "Maximum Value",
 				desc = "Define the maximum value which will be considered a valid price.",
 				type = "range",
@@ -289,7 +289,7 @@ local function createConfig()
 				softMax = 500
 			},
 			postDefault = {
-				order = 4,
+				order = 13,
 				name = "Default Value",
 				desc = "Define the default value which will be used for enchants without any listings.",
 				type = "range",
@@ -300,13 +300,13 @@ local function createConfig()
 				softMax = 300
 			},
 			postUnderOverDesc = {
-				order = 5,
+				order = 20,
 				type = "description",
 				name = "Determine posting behavior when competition is outside your set price bounds. Options calling for unavailable data will fall back to one of the above settings.",
 				width = "full",
 			},
 			postIfUnder = {
-				order = 6,
+				order = 21,
 				name = "When Under Min",
 				desc = "Decide how to post when the value is under your minimum.",
 				type = "select",
@@ -323,7 +323,7 @@ local function createConfig()
 				sorting = {"UNDERCUT","IGNORE","DEFAULT","MAX","KEEP","MEAN10","MEDIAN10","MAX10"},
 			},
 			postIfOver = {
-				order = 7,
+				order = 22,
 				name = "When Over Max",
 				desc = "Decide how to post when the value is over your maximum.",
 				type = "select",
@@ -338,33 +338,33 @@ local function createConfig()
 				sorting = {"UNDERCUT","DEFAULT","MAX","MEAN10","MEDIAN10","MAX10"},
 			},
 			postQualityHeader = {
-				order = 8,
+				order = 30,
 				name = "Post Qualitys",
 				type = "header"
 			},
 			postUncommon = {
-				order = 10,
+				order = 31,
 				name = "Uncommon",
 				desc = "Post enchants of this quality",
 				type = "toggle",
 				width = .7,
 			},
 			postRare = {
-				order = 11,
+				order = 32,
 				name = "Rare",
 				desc = "Post enchants of this quality",
 				type = "toggle",
 				width = .5,
 			},
 			postEpic = {
-				order = 12,
+				order = 33,
 				name = "Epic",
 				desc = "Post enchants of this quality",
 				type = "toggle",
 				width = .5,
 			},
 			postLegendary = {
-				order = 13,
+				order = 34,
 				name = "Legendary",
 				desc = "Post enchants of this quality",
 				type = "toggle",
