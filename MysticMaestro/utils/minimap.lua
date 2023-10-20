@@ -49,6 +49,7 @@ function MM:MiniMapMenuRegister(self)
 		[1] = {
 			{text = MM.rollState, func = MM.ReforgeToggle, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{altar = true},
+			{text = "Enchant Collection", func = function() MM:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Show/Hide Floating Button", func = MM.StandaloneReforgeShow, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},

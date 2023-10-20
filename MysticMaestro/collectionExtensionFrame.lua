@@ -552,27 +552,28 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 
 
 	-- Altar summon button on the enchant collection frame
-	local itemID = 1903513
-	if MM:HasItem(itemID) then
+	local altar = MM:ReturnAltar()
+	if altar then
 		collectionOverlay.altarBtn = CreateFrame("Button", nil, collectionOverlay, "SecureActionButtonTemplate")
 		collectionOverlay.altarBtn:SetSize(22, 22)
 		collectionOverlay.altarBtn:SetPoint("RIGHT", collectionOverlay.reforgebuttonlist, "LEFT", -5, 0)
 		collectionOverlay.altarBtn.icon = collectionOverlay.altarBtn:CreateTexture(nil, "ARTWORK")
 		collectionOverlay.altarBtn.icon:SetSize(22, 22)
 		collectionOverlay.altarBtn.icon:SetPoint("CENTER")
-		local _, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-		collectionOverlay.altarBtn.icon:SetTexture(icon)
+		collectionOverlay.altarBtn.icon:SetTexture(altar[3])
 		collectionOverlay.altarBtn.Highlight = collectionOverlay.altarBtn:CreateTexture(nil, "OVERLAY")
 		collectionOverlay.altarBtn.Highlight:SetSize(23,23)
 		collectionOverlay.altarBtn.Highlight:SetPoint("CENTER")
 		collectionOverlay.altarBtn.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
 		collectionOverlay.altarBtn.Highlight:Hide()
 		collectionOverlay.altarBtn:SetAttribute("type", "item")
-		collectionOverlay.altarBtn:SetAttribute("item","Mystic Enchanting Altar")
+		collectionOverlay.altarBtn:SetAttribute("item",altar[1])
 		collectionOverlay.altarBtn:SetScript("OnEnter", function(self)
 			collectionOverlay.altarBtn.Highlight:Show()
-			local startTime, duration = GetItemCooldown(itemID)
-			local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+			local altar = MM:ReturnAltar()
+			local name, cooldown, icon, itemLink = unpack(altar)
+			collectionOverlay.altarBtn.icon:SetTexture(icon)
+			collectionOverlay.altarBtn:SetAttribute("item",name)
 			GameTooltip:SetOwner(self, "ANCHOR_TOP")
 			GameTooltip:SetHyperlink(itemLink)
 			if cooldown > 0 then

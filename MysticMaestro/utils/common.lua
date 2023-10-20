@@ -601,13 +601,47 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 	return true
 end
 
+local altarItemIDs = {
+	1903513, -- Normal Altar
+	8210192, -- Build Master's Mystic Enchanting Altar
+	406, -- Felforged Enchanting Altar
+	8210195, -- Mystic Enchating Altar (League 4 - Druid)
+	8210196, -- Mystic Enchating Altar (League 4 - Hunter)
+	8210197, -- Mystic Enchating Altar (League 4 - Mage)
+	8210198, -- Mystic Enchating Altar (League 4 - Paladin)
+	8210199, -- Mystic Enchating Altar (League 4 - Priest)
+	8210200, -- Mystic Enchating Altar (League 4 - Rogue)
+	8210201, -- Mystic Enchating Altar (League 4 - Shaman)
+	8210202, -- Mystic Enchating Altar (League 4 - Warlock)
+	8210203, -- Mystic Enchating Altar (League 4 - Warrior)
+}
+
+function MM:ReturnAltar()
+	local list
+	for _, altarID in pairs(altarItemIDs) do
+		if MM:HasItem(altarID) then
+			if not list then list = {} end
+			local name, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(altarID)
+			local startTime, duration = GetItemCooldown(altarID)
+			local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+			tinsert(list,{name,cooldown,icon,itemLink})
+		end
+	end
+	if not list then return end
+	local lowestCD
+	for _, altar in pairs(list) do
+		if not lowestCD or altar[2] > lowestCD[2] then
+			lowestCD = altar
+		end
+	end
+	return lowestCD
+end
+
 -- add altar summon button via dewdrop secure
 function MM:AddAltar()
-	local itemID = 1903513
-	if not MM:HasItem(itemID) then return end
-		local name, _, _, _, _, _, _, _, _, icon = GetItemInfo(itemID)
-		local startTime, duration = GetItemCooldown(itemID)
-		local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+	local altar = MM:ReturnAltar()
+	if not altar then return end
+		local name, cooldown, icon = unpack(altar)
 		local text = name
 		if cooldown > 0 then
 		text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
