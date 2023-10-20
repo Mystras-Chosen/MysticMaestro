@@ -21,6 +21,7 @@ function MM:RollMenuRegister(self)
 	local menuList = {
 		[1] = {
 			{altar = true},
+			{text = "Enchant Collection", func = function() MM:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{close = true, divider = 35}
@@ -81,6 +82,13 @@ local mainframe = CreateFrame("Button", "MysticMaestro_ReforgeFrame", UIParent, 
 	end)
 	mainframe:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
+function MM:ToggleEnchantCollection()
+	if Collections:IsShown() then
+		HideUIPanel(Collections)
+	else
+		Collections:GoToTab(Collections.Tabs.MysticEnchants)
+	end
+end
 
 local reforgebutton = CreateFrame("Button", "MysticMaestro_ReforgeFrame_Menu", MysticMaestro_ReforgeFrame)
 	reforgebutton:SetSize(55,55)
@@ -101,7 +109,11 @@ local reforgebutton = CreateFrame("Button", "MysticMaestro_ReforgeFrame_Menu", M
 		if (button == "LeftButton") then
 			MM:ReforgeToggle()
 		elseif (button == "RightButton") then
-			MM:RollMenuRegister(self)
+			if IsAltKeyDown() then
+				MM:ToggleEnchantCollection()
+			else
+				MM:RollMenuRegister(self)
+			end
 		end
 	end)
 	reforgebutton:SetScript("OnEnter", function(self)
