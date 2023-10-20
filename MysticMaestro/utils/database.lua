@@ -12,6 +12,8 @@ local defaultDB = {
 			enchantWindowScale = 1,
 			standAloneButtonScale = 1,
 
+			deleteAltar = false,
+
 			listDuration = 1,
 			
 			allowEpic = false,

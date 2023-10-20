@@ -568,6 +568,18 @@ local sharebuttonlist = CreateFrame("Button", "MysticMaestro_ListFrame_MenuButto
 		collectionOverlay.altarBtn.Highlight:Hide()
 		collectionOverlay.altarBtn:SetAttribute("type", "item")
 		collectionOverlay.altarBtn:SetAttribute("item",altar[1])
+		collectionOverlay.altarBtn:SetScript("OnMouseDown", function(self)
+			local altar = MM:ReturnAltar()
+			local _, _, _, _, itemID = unpack(altar)
+			if not MM:HasItem(itemID) then
+				RequestDeliverVanityCollectionItem(itemID)
+			else
+				if MM.db.realm.OPTIONS.deleteAltar then
+					MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+				end
+				MM.dewdrop:Close()
+			end
+		end)
 		collectionOverlay.altarBtn:SetScript("OnEnter", function(self)
 			collectionOverlay.altarBtn.Highlight:Show()
 			local altar = MM:ReturnAltar()

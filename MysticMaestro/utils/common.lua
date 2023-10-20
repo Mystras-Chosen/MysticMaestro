@@ -528,7 +528,7 @@ function MM:HasItem(itemID)
 			if item then
 				found, _, id = item:find('^|c%x+|Hitem:(%d+):.+')
 				if found and tonumber(id) == itemID then
-					return true
+					return true, bag, slot
 				end
 			end
 		end
@@ -619,12 +619,12 @@ local altarItemIDs = {
 function MM:ReturnAltar()
 	local list
 	for _, altarID in pairs(altarItemIDs) do
-		if MM:HasItem(altarID) then
+		if C_VanityCollection.IsCollectionItemOwned(altarID) then
 			if not list then list = {} end
 			local name, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(altarID)
 			local startTime, duration = GetItemCooldown(altarID)
 			local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
-			tinsert(list,{name,cooldown,icon,itemLink})
+			tinsert(list,{name,cooldown,icon,itemLink, altarID})
 		end
 	end
 	if not list then return end
@@ -637,11 +637,24 @@ function MM:ReturnAltar()
 	return lowestCD
 end
 
+function MM:RemoveAltars(arg2)
+	if arg2 ~= "Summon Mystic Altar" or not MM.db.realm.OPTIONS.deleteAltar then return end
+	for _, itemID in pairs(altarItemIDs) do
+		local found, bag, slot = MM:HasItem(itemID)
+		if found then
+			PickupContainerItem(bag, slot)
+			DeleteCursorItem()
+		end
+	end
+	MM:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+end
+
+
 -- add altar summon button via dewdrop secure
 function MM:AddAltar()
 	local altar = MM:ReturnAltar()
 	if not altar then return end
-		local name, cooldown, icon = unpack(altar)
+		local name, cooldown, icon, itemLink, itemID = unpack(altar)
 		local text = name
 		if cooldown > 0 then
 		text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
@@ -650,7 +663,7 @@ function MM:AddAltar()
 		type1 = 'item',
 		item = name
 		}
-		return {text = text, secure = secure, icon = icon, closeWhenClicked = true, textHeight = 12, textWidth = 12}
+		return {text = text, secure = secure, func = function() if not MM:HasItem(itemID) then RequestDeliverVanityCollectionItem(itemID) else if MM.db.realm.OPTIONS.deleteAltar then MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED") end MM.dewdrop:Close() end end, icon = icon, textHeight = 12, textWidth = 12}
 end
 
 -- open browser link base on type or id/string

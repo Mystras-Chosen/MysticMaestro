@@ -159,6 +159,7 @@ local function unregisterSpellCast()
 end
 
 function MM:UNIT_SPELLCAST_SUCCEEDED(event, arg1, arg2)
+	MM:RemoveAltars(arg2)
 	if not reforgeActive and not MM.enchantScroll then return end
 	if arg1 ~= "player" then return end
 	if arg2 ~= "Reforge Mystic Enchant"

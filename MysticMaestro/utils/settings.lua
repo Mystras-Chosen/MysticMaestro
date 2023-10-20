@@ -29,6 +29,13 @@ local function createConfig()
 				get = function() return MM.db.realm.OPTIONS.minimap.hide end,
 				set = function() MM:ToggleMinimap() end
 			},
+			deleteAltar = {
+				order = 2,
+				name = "Delete Enchanting Altar",
+				desc = "Deletes the enchanting altar after you summon it to save on bag space a new altar will be pulled from collection on first click off the next summon",
+				type = "toggle",
+				width = 2,
+			},
 			confirmHeader = {
 				order = 5,
 				name = "Confirmations",
