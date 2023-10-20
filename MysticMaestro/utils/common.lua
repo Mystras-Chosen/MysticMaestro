@@ -630,7 +630,7 @@ function MM:ReturnAltar()
 	if not list then return end
 	local lowestCD
 	for _, altar in pairs(list) do
-		if not lowestCD or altar[2] > lowestCD[2] then
+		if not lowestCD or altar[2] < lowestCD[2] then
 			lowestCD = altar
 		end
 	end
