@@ -177,19 +177,18 @@ function MM:BuildKnownList()
 end
 
 --Sends enchant list to people with addon in guild
-function MM:GuildTooltipsBroadcast(ComID, dontUpdate, SpellID)
+function MM:GuildTooltipsBroadcast(ComID, SpellID, throttle)
 	local sendData = {}
 	if guildName ~= nil then
 		sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
 		sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
 		sendData.enchantCount = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
 		sendData.newEnchant = SpellID
-		sendData.dontUpdate = dontUpdate
-		if not dontUpdate then
+		if ComID == "MAESTRO_GUILD_ENCHANT_UPDATE" then
 			sendData.knownList = MM:BuildKnownList()
 		end
 		sendData = MM:Serialize(sendData)
-		MM:SendCommMessage(ComID, sendData, "GUILD", playerName)
+		MM:SendCommMessage(ComID, sendData, "GUILD", playerName, throttle)
 	end
 end
 
@@ -208,20 +207,22 @@ function MM:EnchantCom(prefix, message, distribution, sender)
 		if data.newEnchant then
 			if not enchants[data.newEnchant] then enchants[data.newEnchant] = {} end
 			enchants[data.newEnchant][data.accountKey] = true
+			gAccounts[data.accountKey].enchantCount = data.enchantCount
 		end
-		if prefix == "MAESTRO_GUILD_ENCHANT_UPDATE" and data.knownList and  data.enchantCount and data.enchantCount ~= gAccounts[data.accountKey].enchantCount then
+		local function countCheck()
+			if not gAccounts[data.accountKey].enchantCount then return true end
+			if data.enchantCount and data.enchantCount ~= gAccounts[data.accountKey].enchantCount then return true end
+		end
+		if prefix == "MAESTRO_GUILD_ENCHANT_UPDATE" and data.knownList and countCheck() then
 			for enchant, _ in pairs(data.knownList) do
 				if not enchants[enchant] then enchants[enchant] = {} end
 				enchants[enchant][data.accountKey] = true
 			end
+			gAccounts[data.accountKey].enchantCount = data.enchantCount
 		end
-		if prefix ==  "MAESTRO_GUILD_TOOLTIPS_SEND" and  data.enchantCount and data.enchantCount ~= gAccounts[data.accountKey].enchantCount and not data.newEnchant then
+		if prefix == "MAESTRO_GUILD_TOOLTIPS_SEND" then
 			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_ENCHANT_UPDATE")
 		end
-		if prefix ==  "MAESTRO_GUILD_TOOLTIPS_SEND" and not data.dontUpdate then
-			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
-		end
-		gAccounts[data.accountKey].enchantCount = data.enchantCount
 	end
 end
 
@@ -244,14 +245,14 @@ end
 --Sends updated display name to other addons if its swaped
 function MM:GuildTooltips_DisplayNameUpdate(name, key)
 	if guildName ~= nil then
-		MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
+		MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
 	end
 end
 
 -- Sends new learned enchant to other addons
 function MM:GuildTooltipsEnchantLearned(SpellID)
 	if SpellID and guildName then
-		MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true, SpellID)
+		MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", SpellID)
 	end
 end
 

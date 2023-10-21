@@ -94,7 +94,7 @@ function MM:GUILD_ROSTER_UPDATE(event, arg1, arg2, arg3)
 		MM:GetPlayerDetails()
 		if MM.guildName then
 			MM:GuildTooltips_Setup()
-			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
+			MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
 			MM:UnregisterEvent("GUILD_ROSTER_UPDATE")
 		end
 	end

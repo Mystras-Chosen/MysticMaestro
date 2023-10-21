@@ -502,7 +502,7 @@ local function createConfig()
 				get =  function()
 					if not MM.guildTooltips.Accounts[MM.guildName] then return end
 					MM.guildTooltips.Accounts[MM.guildName].displayName = MM.guildTooltips.Accounts[MM.guildName].charList[MM.db.realm.OPTIONS.ttGuildDisplayName]
-					MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND", true)
+					MM:GuildTooltipsBroadcast("MAESTRO_GUILD_TOOLTIPS_SEND")
 					return MM.db.realm.OPTIONS.ttGuildDisplayName
 				end,
 			},
