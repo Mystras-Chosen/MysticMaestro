@@ -679,15 +679,15 @@ function MM:ItemContextMenu(self)
 		{text = ORANGE2.."Raid", func = function() if IsShiftKeyDown() then itemType = "item" end MM:Chatlink(self, "RAID", itemType) end, closeWhenClicked = true, textHeight = 12, textWidth = 12, notCheckable = true},
 		{divider = 35},
 		{text = GOLD.."Enchanting", notCheckable = true, isTitle = true, textHeight = 13, textWidth = 13},
-		{text = "Create Mystic Scroll", func = function() MM:CreateScroll(self) end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+		{text = "Create Mystic Scroll", func = function() MM:CreateScroll(self.enchantInfo.SpellID) end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 		{divider = 35, close = true}
 		}
 	}
 	MM:OpenDewdropMenu(self, menulist)
 end
 local spellID
-function MM:CreateScroll(self)
-	if self then spellID = self.enchantInfo.SpellID end
+function MM:CreateScroll(SpellID)
+	if SpellID then spellID = SpellID end
 	local scroll = MM:FindUntarnishedScroll()
 	if not scroll then return end
 	local canCraft, craftingItem, orbCost =  MM:canReforge(spellID)
