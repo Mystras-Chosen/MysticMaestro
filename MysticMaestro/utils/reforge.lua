@@ -225,7 +225,7 @@ function MM:UNIT_SPELLCAST_INTERRUPTED(event, arg1, arg2)
 	if MM:IsMoving() then MM:TerminateReforge("Player Moving") return end
 
 	-- The altar has likely expired, so we put a timer to continue next frame
-	Timer.NextFrame(MM.ActivateReforge)
+	Timer.After(1, MM.ActivateReforge)
 end
 
 function MM:MYSTIC_ENCHANT_REFORGE_RESULT(event, result, SpellID)
