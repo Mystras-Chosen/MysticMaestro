@@ -459,7 +459,7 @@ function MM:FindReforgableScroll()
 	end
 end
 
--- Return the item GUID of a runtarnished scroll or buy new one
+-- Return determine if scroll exists, or buy new one
 function MM:FindUntarnishedScroll()
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()
 	for _, scroll in ipairs(inventoryList) do
