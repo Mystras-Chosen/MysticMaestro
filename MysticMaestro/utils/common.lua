@@ -616,14 +616,29 @@ local altarItemIDs = {
 	8210203, -- Mystic Enchating Altar (League 4 - Warrior)
 }
 
+-- caches and returns an items cooldown 
+function MM:ReturnItemCooldown(itemID)
+	if not MM.db.char.SavedCooldown then MM.db.char.SavedCooldown = {} end
+	local sCd = MM.db.char.SavedCooldown
+	local startTime, duration = GetItemCooldown(itemID)
+
+	if not sCd[itemID] or GetTime() > (sCd[itemID][1] + sCd[itemID][2]) or sCd[itemID][1] == 0 or sCd[itemID][2] == 0  then
+		sCd[itemID] = {startTime, duration}
+	elseif GetTime() < (sCd[itemID][1] + sCd[itemID][2]) then
+		startTime = sCd[itemID][1]
+		duration = sCd[itemID][2]
+	end
+	return math.ceil(((duration - (GetTime() - startTime))/60))
+end
+
+-- returns the mystic enchanting altar with the lowest cooldown remaining
 function MM:ReturnAltar()
 	local list
 	for _, altarID in pairs(altarItemIDs) do
 		if C_VanityCollection.IsCollectionItemOwned(altarID) then
 			if not list then list = {} end
 			local name, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(altarID)
-			local startTime, duration = GetItemCooldown(altarID)
-			local cooldown = math.ceil(((duration - (GetTime() - startTime))/60))
+			local cooldown = MM:ReturnItemCooldown(altarID)
 			tinsert(list,{name,cooldown,icon,itemLink, altarID})
 		end
 	end
@@ -637,6 +652,7 @@ function MM:ReturnAltar()
 	return lowestCD
 end
 
+-- deletes any mystic altars in the players inventory
 function MM:RemoveAltars(arg2)
 	if arg2 ~= "Summon Mystic Altar" or not MM.db.realm.OPTIONS.deleteAltar then return end
 	for _, itemID in pairs(altarItemIDs) do
