@@ -232,7 +232,7 @@ function MM:GetMysticCharList(SpellID)
 	local guildInfo = MM.guildTooltips.Guilds[guildName]
 	if guildInfo and guildInfo.enchants and guildInfo.enchants[SpellID] then
 		for char, _ in pairs(guildInfo.enchants[SpellID]) do
-			if returnNames then
+			if returnNames and guildInfo.Accounts[char].displayName then
 				returnNames = "|cffffffff" .. returnNames .. "|cFF66CDAA||" .. "|cffffffff".. guildInfo.Accounts[char].displayName
 			elseif guildInfo.Accounts[char] and guildInfo.Accounts[char].displayName then
 				returnNames = "|cffffffff" .. guildInfo.Accounts[char].displayName
