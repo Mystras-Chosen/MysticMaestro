@@ -133,7 +133,9 @@ function MM.AutomationUtil.CreateButtonWidget(automationTable, text, informStatu
 	button:SetPoint("TOP", automationPopupFrame, "TOP", xOffset, yOffset)
 	button:SetCallback("OnClick",
 		function()
-			MM.AutomationUtil.HideAutomationPopup(currentAutomationTable)
+			if informStatus ~= "nextBatchClicked" then
+				MM.AutomationUtil.HideAutomationPopup(currentAutomationTable)
+			end
 			MM.AutomationManager:Inform(automationTable, informStatus)
 		end
 	)

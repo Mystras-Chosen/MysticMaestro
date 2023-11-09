@@ -28,7 +28,7 @@ local function initCanceling()
 		local scrollName=data[1]:match("^Mystic Scroll: ([%w%s'-]+)")
 		local bid=data[10]
 		local timeIndex=GetAuctionItemTimeLeft("owner",i)
-		if (timeIndex<=4 and bid==0 and scrollName) then
+		if (timeIndex<4 and bid==0 and scrollName) then
 			 table.insert(cancelList,i)
 		end
 		table.sort(cancelList, function(a,b) return a > b end)
@@ -36,15 +36,13 @@ local function initCanceling()
 end
 
 local function nilCancelScanVariables()
-	MM:Print("Setting Cancel variables to nil")
 	running = false
 	currentCancel = nil
 	totalCanceled = nil
 	cancelList = nil
 end
 
-
-local function Process()
+function automationTable.ProcessBatch()
 	if running then
 		if totalCanceled < #cancelList then
 			local tally = 0
@@ -57,21 +55,14 @@ local function Process()
 			end
 			MM.AutomationUtil.SetProgressBarValues(automationTable, currentCancel, #cancelList)
 			if totalCanceled >= #cancelList then
-				MM:Print("totalCanceled is greater than or equal to the cancelList length")
 				nilCancelScanVariables()
 				MM.AutomationManager:Inform(automationTable, "finished")
 			end
 		else
-				MM:Print("Batch Attempted but totalCanceled >= cancelList length")
 				nilCancelScanVariables()
 				MM.AutomationManager:Inform(automationTable, "finished")
 		end
-
 	end
-end
-
-function automationTable.ProcessBatch()
-	Process()
 end
 
 function automationTable.Start()
@@ -84,11 +75,10 @@ function automationTable.Start()
 	if #cancelList <= 0 then
 		MM:Print("Nothing within cancel duration")
 	end
-	-- automationTable.ProcessBatch()
+	automationTable.ProcessBatch()
 end
 
 function automationTable.Stop()
-	MM:Print("Automation is stopped")
 	MM.AutomationUtil.HideAutomationPopup(automationTable)
 	nilCancelScanVariables()
 end
