@@ -1,8 +1,6 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 
-local automationName = "Cancel"
-
-local isPaused
+local automationName = "Cancel Auctions"
 
 local automationTable = {}
 
@@ -14,36 +12,89 @@ local options
 
 function automationTable.ShowInitPrompt()
 	options = options or MM.db.realm.OPTIONS
-	MM.AutomationUtil.ShowAutomationPopup(automationName, automationTable, "prompt")
+	MM.AutomationUtil.SetPopupTitle(automationTable, automationName)
+	MM.AutomationUtil.ShowAutomationPopup(automationTable, "prompt")
 end
 
 local running
+local currentCancel, totalCanceled, cancelList
 
-function automationTable.Start()
-end
-
-function automationTable.Pause()
-	if running then
-		isPaused = true
-		MM.AutomationUtil.HideAutomationPopup()
-	elseif isPaused then -- can be called when already paused and init prompt showing
-		MM.AutomationUtil.HideAutomationPopup()
-	else
-		MM:Print("ERROR: " .. automationName .." paused when not running")
+local function initCanceling()
+	currentCancel = 1
+	totalCanceled = 0
+	cancelList = {}
+	for i=1, GetNumAuctionItems("owner") do
+		local data={GetAuctionItemInfo("owner",i)}
+		local scrollName=data[1]:match("^Mystic Scroll: ([%w%s'-]+)")
+		local bid=data[10]
+		local timeIndex=GetAuctionItemTimeLeft("owner",i)
+		if (timeIndex<=4 and bid==0 and scrollName) then
+			 table.insert(cancelList,i)
+		end
+		table.sort(cancelList, function(a,b) return a > b end)
 	end
 end
 
-function automationTable.IsPaused()
-	return isPaused
+local function nilCancelScanVariables()
+	MM:Print("Setting Cancel variables to nil")
+	running = false
+	currentCancel = nil
+	totalCanceled = nil
+	cancelList = nil
+end
+
+
+local function Process()
+	if running then
+		if totalCanceled < #cancelList then
+			local tally = 0
+			for i = currentCancel, #cancelList do
+				tally = tally + 1
+				totalCanceled = totalCanceled + 1
+				currentCancel = currentCancel + 1
+				CancelAuction(cancelList[i])
+				if tally >= 100 then break end
+			end
+			MM.AutomationUtil.SetProgressBarValues(automationTable, currentCancel, #cancelList)
+			if totalCanceled >= #cancelList then
+				MM:Print("totalCanceled is greater than or equal to the cancelList length")
+				nilCancelScanVariables()
+				MM.AutomationManager:Inform(automationTable, "finished")
+			end
+		else
+				MM:Print("Batch Attempted but totalCanceled >= cancelList length")
+				nilCancelScanVariables()
+				MM.AutomationManager:Inform(automationTable, "finished")
+		end
+
+	end
+end
+
+function automationTable.ProcessBatch()
+	Process()
+end
+
+function automationTable.Start()
+	initCanceling()
+	MM.AutomationUtil.SetProgressBarDisplayMode(automationTable, "both")
+	MM.AutomationUtil.SetProgressBarMinMax(automationTable, 0, cancelList and #cancelList or 1)
+	MM.AutomationUtil.SetProgressBarValues(automationTable, currentCancel, #cancelList)
+	MM.AutomationUtil.ShowAutomationPopup(automationTable, "running")
+	running = true
+	if #cancelList <= 0 then
+		MM:Print("Nothing within cancel duration")
+	end
+	-- automationTable.ProcessBatch()
 end
 
 function automationTable.Stop()
-	MM.AutomationUtil.HideAutomationPopup()
-	isPaused = false
-	running = false
+	MM:Print("Automation is stopped")
+	MM.AutomationUtil.HideAutomationPopup(automationTable)
+	nilCancelScanVariables()
 end
 
 function automationTable.PostProcessing()
+	MM.AutomationUtil.ShowAutomationPopup(automationTable, "noPostProcessing")
 end
 
 MM.AutomationManager:RegisterAutomation(automationName, automationTable)

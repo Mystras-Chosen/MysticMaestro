@@ -304,8 +304,10 @@ MM.AutomationUtil.RegisterPopupTemplate("prompt",
 local function createRunningWidgets(self)
 	if currentAutomationTable.Pause then
 		MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Pause", "pauseClicked", -45, -70)
+	elseif currentAutomationTable.ProcessBatch then
+		MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Next", "nextBatchClicked", -45, -70)
 	end
-	MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Stop", "stopClicked", currentAutomationTable.Pause and 45 or 0, -70)
+	MM.AutomationUtil.CreateButtonWidget(self, currentAutomationTable, "Stop", "stopClicked", currentAutomationTable.Pause or currentAutomationTable.ProcessBatch and 45 or 0, -70)
 end
 
 MM.AutomationUtil.RegisterPopupTemplate("running",

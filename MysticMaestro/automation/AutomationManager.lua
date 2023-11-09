@@ -180,6 +180,8 @@ local function handleRunningStatus(status)
 		terminateAutomation()
 	elseif status == "pauseClicked" then
 		pauseAutomation()
+	elseif status == "nextBatchClicked" then
+		currentAutomationTable.ProcessBatch()
 	else
 		logStatusError(status)
 	end
