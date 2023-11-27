@@ -384,7 +384,7 @@ local function undercut(SpellID, buyoutPrice, yours)
 	end
 end
 
-local listButton, buyCancelbutton, postButton, getAllScanButton
+local listButton, buyCancelbutton, postButton, scanButton 
 local function setUpButtonWidgets()
 	postButton = AceGUI:Create("Button")
 	postButton.frame:SetParent(ahExtensionMenu)

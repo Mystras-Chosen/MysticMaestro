@@ -291,19 +291,12 @@ do -- functions to initialize menu and menu container
 
 	
 	local function craftButton_OnClick(self, button, down)
-		enchantToCraft = nil
 		local SpellID = self:GetParent().SpellID
 		if not SpellID then
 			error("No SpellID on enchant button")
 		end
-		enchantToCraft = SpellID
 
-		if MM.db.realm.OPTIONS.confirmCraft then
-			if not MM:canReforge() then return end
-			StaticPopup_Show("MM_CRAFT_RE", MM:ItemLinkRE(enchantToCraft), orbCost)
-		else
-			MM:AttemptCraftingRE()
-		end
+		MM:CreateScroll(SpellID)
 	end
 
 	local function craftButton_OnEnter(self)
