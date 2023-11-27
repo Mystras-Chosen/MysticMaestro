@@ -179,11 +179,11 @@ do -- functions to initialize menu and menu container
 		currencyContainer.Blank:SetPoint("RIGHT", currencyContainer.Orb.Text, "LEFT", -8, 0)
 		currencyContainer.Blank.Icon = currencyContainer.Blank:CreateTexture(nil, "ARTWORK")
 		currencyContainer.Blank.Icon:SetAllPoints()
-		currencyContainer.Blank.Icon:SetTexture(UnitFactionGroup("player") == "Alliance" and "Interface\\Icons\\INV_Jewelry_TrinketPVP_01" or "Interface\\Icons\\INV_Jewelry_TrinketPVP_02")
+		currencyContainer.Blank.Icon:SetTexture("Interface\\Icons\\inv_misc_scrollunrolled01c")
 		currencyContainer.Blank:SetScript("OnEnter",
 			function(self)
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
-				GameTooltip:SetHyperlink(UnitFactionGroup("player") == "Alliance" and "|Hitem:18863|h[test]|h" or "|Hitem:18853|h[test]|h")
+				GameTooltip:SetHyperlink("|Hitem:992720|h[test]|h")
 				GameTooltip:Show()
 			end
 		)
