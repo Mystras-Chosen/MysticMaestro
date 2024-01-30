@@ -602,12 +602,14 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 end
 
 local altarItemIDs = {
-	1903513, -- Normal Altar
-	8210192, -- Build Master's Mystic Enchanting Altar
 	406, -- Felforged Enchanting Altar
+	1903513, -- Normal Altar
+	2903513, -- Mechanical Mystic Altar
+	8210192, -- Build Master's Mystic Enchanting Altar
 	8210195, -- Mystic Enchating Altar (League 4 - Druid)
 	8210196, -- Mystic Enchating Altar (League 4 - Hunter)
-	8210197, -- Mystic Enchating Altar (League 4 - Mage)
+	-- 8210197, -- Mystic Enchating Altar (League 4 - Mage)
+	8210197, -- Destined Mystic Enchanting Altar
 	8210198, -- Mystic Enchating Altar (League 4 - Paladin)
 	8210199, -- Mystic Enchating Altar (League 4 - Priest)
 	8210200, -- Mystic Enchating Altar (League 4 - Rogue)
