@@ -24,6 +24,7 @@
     <Script file="DewdropLib\Dewdrop-2.0\Dewdrop-2.0.lua"/>
     <Script file="LG\LibGraph-2.0.lua" />
     <Script file="IconClass\IconClass.lua" />
+    <Include file="lib-ScrollingTable\lib-st.xml" />
 
 
     <Script file="init.lua" />
