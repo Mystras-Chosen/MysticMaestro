@@ -46,9 +46,9 @@ function MM:ActivateReforge()
 	
 	-- Stop attempting if player is moving
 	if MM:IsMoving() then MM:TerminateReforge("Player Moving") return end
-
+	
 	-- Retry next frame if we have no altar
-	if not C_MysticEnchant.HasNearbyMysticAltar() then Timer.NextFrame(MM.ActivateReforge) return end
+	if not C_MysticEnchant.HasNearbyMysticAltar() then Timer.After(1, MM.ActivateReforge) return end
 
 	-- Return if we are currently extracting
 	if MM:FindExtractable() then return end

@@ -17,18 +17,20 @@ local citysList = {
 	["Dalaran"] = true,
 }
 
-function MM:RollMenuRegister(self)
+function MM:RollMenuRegister(button)
+	local text = self.db.realm.OPTIONS.purchaseScrolls and "Auto Buy Scrolls |cFF32CD32(On)" or "Auto Buy Scrolls |cffff0000(Off)"
 	local menuList = {
 		[1] = {
 			{altar = true},
-			{text = "Enchant Collection", func = function() MM:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Mystic Maestro Standalone", func = function() MM:HandleMenuSlashCommand() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Enchant Collection", func = function() self:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Mystic Maestro Standalone", func = function() self:HandleMenuSlashCoselfand() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Options", func = function() self:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Unlock Frame", func = self.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = text, func = function() self.db.realm.OPTIONS.purchaseScrolls = not self.db.realm.OPTIONS.purchaseScrolls end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{close = true, divider = 35}
 		},
 	}
-	MM:OpenDewdropMenu(self, menuList)
+	self:OpenDewdropMenu(button, menuList)
 end
 
 -- Used to show highlight as a frame mover

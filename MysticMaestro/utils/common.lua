@@ -620,23 +620,14 @@ local altarItemIDs = {
 
 -- caches and returns an items cooldown 
 function MM:ReturnItemCooldown(itemID)
-	if not MM.db.char.SavedCooldown then MM.db.char.SavedCooldown = {} end
-	local sCd = MM.db.char.SavedCooldown
 	local startTime, duration = GetItemCooldown(itemID)
-
-	if not sCd[itemID] or GetTime() > (sCd[itemID][1] + sCd[itemID][2]) or sCd[itemID][1] == 0 or sCd[itemID][2] == 0  then
-		sCd[itemID] = {startTime, duration}
-	elseif GetTime() < (sCd[itemID][1] + sCd[itemID][2]) then
-		startTime = sCd[itemID][1]
-		duration = sCd[itemID][2]
-	end
 	return math.ceil(((duration - (GetTime() - startTime))/60))
 end
 
 -- returns the mystic enchanting altar with the lowest cooldown remaining
 function MM:ReturnAltar()
 	local list
-	for _, altarID in pairs(altarItemIDs) do
+	for _, altarID in ipairs(altarItemIDs) do
 		if C_VanityCollection.IsCollectionItemOwned(altarID) then
 			if not list then list = {} end
 			local name, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(altarID)
@@ -646,7 +637,7 @@ function MM:ReturnAltar()
 	end
 	if not list then return end
 	local lowestCD
-	for _, altar in pairs(list) do
+	for _, altar in ipairs(list) do
 		if not lowestCD or altar[2] < lowestCD[2] then
 			lowestCD = altar
 		end
@@ -657,7 +648,7 @@ end
 -- deletes any mystic altars in the players inventory
 function MM:RemoveAltars(arg2)
 	if arg2 ~= "Summon Mystic Altar" or not MM.db.realm.OPTIONS.deleteAltar then return end
-	for _, itemID in pairs(altarItemIDs) do
+	for _, itemID in ipairs(altarItemIDs) do
 		local found, bag, slot = MM:HasItem(itemID)
 		if found then
 			PickupContainerItem(bag, slot)
@@ -812,4 +803,10 @@ end
 function MM:CheckRealmA52()
 	local realm = GetRealmMask()
 	return realm == Enum.RealmMask.Area52
+end
+
+function MM:LoadAltarItemData()
+	for _, itemID in ipairs(altarItemIDs) do
+		Item:CreateFromID(itemID)
+	end
 end

@@ -34,6 +34,7 @@ function MM:OnEnable()
 	MM:StandaloneCityReforgeToggle()
 	MM:MinimapIconSetup()
 	MM:GetPlayerDetails()
+	MM:LoadAltarItemData()
 
 	MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
 	MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")

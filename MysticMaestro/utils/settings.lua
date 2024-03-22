@@ -1075,6 +1075,10 @@ function MM:ProcessSlashCommand(input)
 		MM:HandleScan(input:match("^%w+%s+(.+)"))
 	elseif lowerInput:match("^calc") then
 		MM:CalculateAllStats()
+	elseif lowerInput:match("^buy") then
+		MM.db.realm.OPTIONS.purchaseScrolls = not MM.db.realm.OPTIONS.purchaseScrolls
+		local text = MM.db.realm.OPTIONS.purchaseScrolls and "On" or "Off"
+		MM:Print("Auto purchase scrolls is now "..text)
 	elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
 		MM:OpenConfig("Mystic Maestro")
 	elseif lowerInput:match("^reforgebutton") then

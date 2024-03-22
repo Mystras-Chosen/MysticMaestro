@@ -1,6 +1,7 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local icon = LibStub('LibDBIcon-1.0')
 local addonName = ...
+
 MYSTICMAESTRO_MINIMAP = LibStub:GetLibrary('LibDataBroker-1.1'):NewDataObject(addonName, {
 	type = 'data source',
 	text = "MysticMaestro",
@@ -44,19 +45,21 @@ function minimap.OnEnter(self)
 	GameTooltip:Show()
 end
 
-function MM:MiniMapMenuRegister(self)
+function MM:MiniMapMenuRegister(button)
+	local text = self.db.realm.OPTIONS.purchaseScrolls and "Auto Buy Scrolls |cFF32CD32(On)" or "Auto Buy Scrolls |cffff0000(Off)"
 	local menuList = {
 		[1] = {
-			{text = MM.rollState, func = MM.ReforgeToggle, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = self.rollState, func = self.ReforgeToggle, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{altar = true},
-			{text = "Enchant Collection", func = function() MM:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Show/Hide Floating Button", func = MM.StandaloneReforgeShow, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Options", func = function() MM:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Unlock Frame", func = MM.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Enchant Collection", func = function() self:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Show/Hide Floating Button", func = self.StandaloneReforgeShow, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Options", func = function() self:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Unlock Frame", func = self.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = text, func = function() self.db.realm.OPTIONS.purchaseScrolls = not self.db.realm.OPTIONS.purchaseScrolls end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{close = true, divider = 35}
 		},
 	}
-	MM:OpenDewdropMenu(self, menuList)
+	self:OpenDewdropMenu(button, menuList)
 end
 
 function MM:MinimapIconSetup()
