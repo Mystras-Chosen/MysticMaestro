@@ -32,7 +32,7 @@ end
 
 -- We set an entry point for any reforge requests
 function MM:ActivateReforge()
-	reforgeActive = true
+	if not reforgeActive then return end
 	MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
 
 	-- Ensure we are not mounted
@@ -58,7 +58,7 @@ function MM:ActivateReforge()
 
 	-- Ensure we have an empty slot to craft into
 	if not MM:FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
-	
+
 	-- Make sure we have an item to reforge
 	local item = MM:FindReforgableScroll()
 	if not item then
@@ -124,6 +124,7 @@ end
 -- We use this with our reforge buttons
 function MM:ReforgeToggle()
 	if not reforgeActive then
+		reforgeActive = true
 		MM:ActivateReforge()
 	else
 		MM:TerminateReforge("Button Pressed")
