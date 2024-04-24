@@ -43,18 +43,18 @@ function MM:ActivateReforge()
 		MM:ToggleScreenReforgeText(true)
 		MM:StandaloneReforgeText(true)
 	end
-	
+
+	-- Stop attempting if out of runes and configured to do so
+	if MM:MatchNoRunes() then MM:TerminateReforge("No Runes") return end
+
 	-- Stop attempting if player is moving
 	if MM:IsMoving() then MM:TerminateReforge("Player Moving") return end
-	
+
 	-- Retry next frame if we have no altar
 	if not C_MysticEnchant.HasNearbyMysticAltar() then Timer.After(1, MM.ActivateReforge) return end
 
 	-- Return if we are currently extracting
 	if MM:FindExtractable() then return end
-
-	-- Stop attempting if out of runes and configured to do so
-	if MM:MatchNoRunes() then MM:TerminateReforge("No Runes") return end
 
 	-- Ensure we have an empty slot to craft into
 	if not MM:FindEmptySlot() then MM:TerminateReforge("No Inventory Space") return end
