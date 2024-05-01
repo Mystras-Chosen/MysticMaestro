@@ -395,6 +395,7 @@ local colors = {
 	["3"] = "|cff0070dd",
 	["4"] = "|cffa335ee",
 	["5"] = "|cffff8000",
+	["RE_QUALITY_COMMON"] = "|cFF808080",
 	["RE_QUALITY_UNCOMMON"] = "|cff1eff00",
 	["RE_QUALITY_RARE"] = "|cff0070dd",
 	["RE_QUALITY_EPIC"] = "|cffa335ee",

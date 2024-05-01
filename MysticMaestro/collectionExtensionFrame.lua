@@ -12,6 +12,7 @@ local LIGHTBLUE = "|cFFADD8E6"
 local ORANGE2 = "|cFFFFA500"
 
 local qualityColors = {
+["RE_QUALITY_COMMON"] = 1,
 ["RE_QUALITY_UNCOMMON"] = 2,
 ["RE_QUALITY_RARE"] = 3,
 ["RE_QUALITY_EPIC"] = 4,
@@ -179,7 +180,7 @@ function MysticMaestro_ListFrame_ScrollFrameUpdate()
 	local methods = {}
 	if MM.shoppingLists[MM.shoppingLists.currentSelectedList] and MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"] then
 		for _, enchants in pairs(MM.shoppingLists[MM.shoppingLists.currentSelectedList]["Enchants"]) do
-			local enchantInfo = C_MysticEnchant.GetEnchantInfoBySpell(enchants.SpellID)
+			local enchantInfo = C_MysticEnchant.GetEnchantInfoBySpell(enchants.SpellID) or {Quality = "RE_QUALITY_COMMON", SpellName = "There Is No Info For This Mystic Enchant"}
 			methods[enchantInfo.SpellName] = { SpellID = enchants.SpellID, Quality = enchantInfo.Quality, Name = enchantInfo.SpellName }
 		end
 		showtable = {Name = MM.shoppingLists[MM.shoppingLists.currentSelectedList].Name, MenuID = MM.shoppingLists[MM.shoppingLists.currentSelectedList].MenuID}
