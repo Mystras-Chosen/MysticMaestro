@@ -801,8 +801,7 @@ function MM:AltarLevelRequiredRolls()
 end
 
 function MM:CheckRealmA52()
-	local realm = GetRealmMask()
-	return realm == Enum.RealmMask.Area52
+	return C_Realm.IsProduction()
 end
 
 function MM:LoadAltarItemData()
