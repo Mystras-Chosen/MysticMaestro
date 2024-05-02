@@ -802,7 +802,7 @@ function MM:AltarLevelRequiredRolls()
 end
 
 function MM:CheckRealmA52()
-	return C_Realm.IsProduction()
+	return C_Realm.IsLive() and C_Realm.IsProduction()
 end
 
 function MM:LoadAltarItemData()
