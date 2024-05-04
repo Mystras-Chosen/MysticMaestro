@@ -34,7 +34,6 @@ end
 function MM:ActivateReforge()
 	if not reforgeActive then return end
 	MM:RegisterEvent("MYSTIC_ENCHANT_REFORGE_RESULT")
-
 	-- Ensure we are not mounted
 	if IsMounted() then Dismount() end
 
@@ -83,13 +82,11 @@ function MM:ActivateReforge()
 end
 
 function MM:TerminateReforge(reason)
-	if EnchantCollection then
-		EnchantCollectionMixin:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
-	end
 	if not reforgeActive then return end
 	reforgeActive = nil
 	disenchantingItem = nil
 	purchasingScroll = nil
+	EnchantCollectionUtil:HookEvent("MYSTIC_ENCHANT_LEARNED")
 
 	if buttonTextTimerHandle then
 		buttonTextTimerHandle:Cancel()
@@ -127,9 +124,7 @@ end
 -- We use this with our reforge buttons
 function MM:ReforgeToggle()
 	if not reforgeActive then
-		if (EnchantCollection and not EnchantCollection:IsVisible()) then
-			EnchantCollectionMixin:UnregisterEvent("MYSTIC_ENCHANT_LEARNED")
-		end
+		EnchantCollectionUtil:UnhookEvent("MYSTIC_ENCHANT_LEARNED")
 		reforgeActive = true
 		MM:ActivateReforge()
 	else
@@ -153,7 +148,6 @@ function MM:FindExtractable()
 		end
 	end
 end
-
 
 -- Reforge event functions
 
