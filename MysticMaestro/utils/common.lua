@@ -702,31 +702,35 @@ function MM:Chatlink(self, chatType, type)
 end
 
 function MM:CalculateKnowEnchants()
-	local enchantCount = {
-		totalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN})),
-		knownEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN})),
-		totalNormalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		knownNormalEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		totalWorldForgedEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_WORLDFORGED})),
-		knownWorldForgedEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_WORLDFORGED})),
-		totalCommonEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_UNCOMMON,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		knownCommonEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNCOMMON,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		totalRareEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_RARE,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		knownRareEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_RARE,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		totalEpicEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_EPIC,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		knownEpicEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_EPIC,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		totalLegendaryEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_UNKNOWN,Enum.ECFilters.RE_FILTER_LEGENDARY,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})),
-		knownLegendaryEnchants = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN,Enum.ECFilters.RE_FILTER_LEGENDARY,Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
+	local enchantFilters = {
+		totalEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true},
+		knownEnchants = { RE_FILTER_KNOWN = true},
+		totalNormalEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true, RE_FILTER_NOT_WORLDFORGED = true},
+		knownNormalEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_NOT_WORLDFORGED = true},
+		totalWorldForgedEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true, RE_FILTER_WORLDFORGED = true},
+		knownWorldForgedEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_WORLDFORGED = true},
+		totalCommonEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true, RE_FILTER_UNCOMMON = true, RE_FILTER_NOT_WORLDFORGED = true},
+		knownCommonEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNCOMMON = true, RE_FILTER_NOT_WORLDFORGED = true},
+		totalRareEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true, RE_FILTER_RARE = true, RE_FILTER_NOT_WORLDFORGED = true},
+		knownRareEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_RARE = true, RE_FILTER_NOT_WORLDFORGED = true},
+		totalEpicEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true, RE_FILTER_EPIC = true, RE_FILTER_NOT_WORLDFORGED = true},
+		knownEpicEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_EPIC = true, RE_FILTER_NOT_WORLDFORGED = true},
+		totalLegendaryEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_UNKNOWN = true, RE_FILTER_LEGENDARY = true, RE_FILTER_NOT_WORLDFORGED = true},
+		knownLegendaryEnchants = { RE_FILTER_KNOWN = true, RE_FILTER_LEGENDARY = true, RE_FILTER_NOT_WORLDFORGED = true}
 	}
-	enchantCount.unknownEnchants = enchantCount.totalEnchants - enchantCount.knownEnchants
-	enchantCount.unknownNormalEnchants = enchantCount.totalNormalEnchants - enchantCount.knownNormalEnchants
-	enchantCount.unknownWorldForgedEnchants = enchantCount.totalWorldForgedEnchants - enchantCount.knownWorldForgedEnchants
-	enchantCount.unknownCommonEnchants = enchantCount.totalCommonEnchants - enchantCount.knownCommonEnchants
-	enchantCount.unknownRareEnchants = enchantCount.totalRareEnchants - enchantCount.knownRareEnchants
-	enchantCount.unknownEpicEnchants = enchantCount.totalEpicEnchants - enchantCount.knownEpicEnchants
-	enchantCount.unknownLegendaryEnchants = enchantCount.totalLegendaryEnchants - enchantCount.knownLegendaryEnchants
+	local count = {}
+	for name, filter in pairs(enchantFilters) do
+		count[name] = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", filter))
+	end
+	count.unknownEnchants = count.totalEnchants - count.knownEnchants
+	count.unknownNormalEnchants = count.totalNormalEnchants - count.knownNormalEnchants
+	count.unknownWorldForgedEnchants = count.totalWorldForgedEnchants - count.knownWorldForgedEnchants
+	count.unknownCommonEnchants = count.totalCommonEnchants - count.knownCommonEnchants
+	count.unknownRareEnchants = count.totalRareEnchants - count.knownRareEnchants
+	count.unknownEpicEnchants = count.totalEpicEnchants - count.knownEpicEnchants
+	count.unknownLegendaryEnchants = count.totalLegendaryEnchants - count.knownLegendaryEnchants
 
-	return enchantCount
+	return count
 end
 
 function MM:EnchantCountTooltip(self, enchants)

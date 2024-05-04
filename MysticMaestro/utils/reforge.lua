@@ -83,6 +83,9 @@ function MM:ActivateReforge()
 end
 
 function MM:TerminateReforge(reason)
+	if EnchantCollection then
+		EnchantCollectionMixin:RegisterEvent("MYSTIC_ENCHANT_LEARNED")
+	end
 	if not reforgeActive then return end
 	reforgeActive = nil
 	disenchantingItem = nil
@@ -124,14 +127,15 @@ end
 -- We use this with our reforge buttons
 function MM:ReforgeToggle()
 	if not reforgeActive then
+		if (EnchantCollection and not EnchantCollection:IsVisible()) then
+			EnchantCollectionMixin:UnregisterEvent("MYSTIC_ENCHANT_LEARNED")
+		end
 		reforgeActive = true
 		MM:ActivateReforge()
 	else
 		MM:TerminateReforge("Button Pressed")
 	end
-
 end
-
 
 -- This will require an event function to handle the disenchantingItem reset
 function MM:FindExtractable()
