@@ -478,7 +478,7 @@ function MM:RemoveExtractedFromList(SpellID)
 	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	if not enchant then return end
 	for _, list in ipairs(MM.shoppingLists) do
-		if list.enable and list.extract and list.Enchants[SpellID] then
+		if list.enable and list.extract and list.Enchants and list.Enchants[SpellID] then
 			list.Enchants[SpellID] = nil
 			local icon = select(3, GetSpellInfo(SpellID))
 			local wrapper = IconClass(icon)
