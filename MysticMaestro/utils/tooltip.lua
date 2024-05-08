@@ -97,15 +97,15 @@ function MM:WorldforgedTooltips(SpellName, SpellID)
 	local wfList = ""
 	local gathered = {}
 	local enchants = C_MysticEnchant.QueryEnchants(99, 1, SpellName, {
-		Enum.ECFilters.RE_FILTER_UNKNOWN,
-		Enum.ECFilters.RE_FILTER_WORLDFORGED,
-		Enum.ECFilters.RE_FILTER_RARE
+		RE_FILTER_UNKNOWN = true,
+		RE_FILTER_WORLDFORGED = true,
+		RE_FILTER_RARE = true
 	})
 	if #enchants == 0 then return end
 		for _, enchant in pairs(enchants) do
 			if not scrolls[enchant.ItemID] then
 				local name = string.match(enchant.SpellName,"^[a-zA-Z'-]+")
-				
+
 				if gathered[name] then return end
 				gathered[name] = true
 
@@ -168,7 +168,7 @@ function MM:GuildTooltips_Setup()
 end
 
 function MM:BuildKnownList()
-	local enchants = C_MysticEnchant.QueryEnchants(9999, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED})
+	local enchants = C_MysticEnchant.QueryEnchants(9999, 1, "", {RE_FILTER_KNOWN = true, RE_FILTER_NOT_WORLDFORGED = true})
 	local knownList = {}
 		for _, enchant in pairs(enchants) do
 			knownList[enchant.SpellID] = 1
@@ -182,7 +182,7 @@ function MM:GuildTooltipsBroadcast(ComID, SpellID, throttle)
 	if guildName ~= nil then
 		sendData.accountKey = MM.guildTooltips.Accounts[guildName].accountKey
 		sendData.displayName = MM.guildTooltips.Accounts[guildName].displayName
-		sendData.enchantCount = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {Enum.ECFilters.RE_FILTER_KNOWN, Enum.ECFilters.RE_FILTER_NOT_WORLDFORGED}))
+		sendData.enchantCount = select(2, C_MysticEnchant.QueryEnchants(1, 1, "", {RE_FILTER_KNOWN = true, RE_FILTER_NOT_WORLDFORGED = true}))
 		sendData.newEnchant = SpellID
 		if ComID == "MAESTRO_GUILD_ENCHANT_UPDATE" then
 			sendData.knownList = MM:BuildKnownList()
