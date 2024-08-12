@@ -36,6 +36,20 @@ local function createConfig()
 				type = "toggle",
 				width = 2,
 			},
+			autoStartReforge = {
+				order = 3,
+				name = "Auto Star Reforge",
+				desc = "Start Auto Refore when you click to summon an altar",
+				type = "toggle",
+				width = 1,
+			},
+			selfCastAltar = {
+				order = 4,
+				name = "Altar Self Cast",
+				desc = "Summon altar on player position",
+				type = "toggle",
+				width = 1,
+			},
 			confirmHeader = {
 				order = 5,
 				name = "Confirmations",

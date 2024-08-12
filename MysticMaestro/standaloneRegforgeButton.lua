@@ -24,7 +24,7 @@ function MM:RollMenuRegister(button)
 			{altar = true},
 			{text = "Enchant Collection", func = function() self:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Mystic Maestro Standalone", func = function() self:HandleMenuSlashCommand() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Options", func = function() self:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Options", func = function() self:OpenConfig("Reforge") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Unlock Frame", func = self.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = text, func = function() self.db.realm.OPTIONS.purchaseScrolls = not self.db.realm.OPTIONS.purchaseScrolls end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{close = true, divider = 35}

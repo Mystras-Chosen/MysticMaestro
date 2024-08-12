@@ -631,7 +631,10 @@ function MM:ReturnAltar()
 	for _, altarID in ipairs(altarItemIDs) do
 		if C_VanityCollection.IsCollectionItemOwned(altarID) then
 			if not list then list = {} end
-			local name, itemLink, _, _, _, _, _, _, _, icon = GetItemInfo(altarID)
+			local item = Item:CreateFromID(altarID)
+			local itemLink = item:GetLink()
+			local name = item:GetName()
+			local icon = item:GetIcon()
 			local cooldown = MM:ReturnItemCooldown(altarID)
 			tinsert(list,{name,cooldown,icon,itemLink, altarID})
 		end
@@ -662,7 +665,7 @@ end
 
 -- add altar summon button via dewdrop secure
 function MM:AddAltar()
-	local altar = MM:ReturnAltar()
+	local altar = self:ReturnAltar()
 	if not altar then return end
 		local name, cooldown, icon, itemLink, itemID = unpack(altar)
 		local text = name
@@ -670,10 +673,22 @@ function MM:AddAltar()
 		text = name.." |cFF00FFFF("..cooldown.." ".. "mins" .. ")"
 		end
 		local secure = {
-		type1 = 'item',
-		item = name
+			type1 = "macro",
+			macrotext = self.db.realm.OPTIONS.selfCastAltar and "/use [@player] "..name or "/use "..name
 		}
-		return {text = text, secure = secure, func = function() if not MM:HasItem(itemID) then RequestDeliverVanityCollectionItem(itemID) else if MM.db.realm.OPTIONS.deleteAltar then MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED") end MM.dewdrop:Close() end end, icon = icon, textHeight = 12, textWidth = 12}
+		return {text = text, secure = secure, func = function()
+			if not self:HasItem(itemID) then
+				RequestDeliverVanityCollectionItem(itemID)
+			else
+				if self.db.realm.OPTIONS.deleteAltar then
+					self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+				end
+				if self.db.realm.OPTIONS.autoStartReforge then
+					self:ReforgeToggle()
+				end
+				self.dewdrop:Close()
+			end
+			end, icon = icon, textHeight = 12, textWidth = 12}
 end
 
 -- open browser link base on type or id/string
