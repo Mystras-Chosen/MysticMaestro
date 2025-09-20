@@ -1,7 +1,7 @@
 ﻿local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local WHITE = "|cffFFFFFF"
 
-local function addLinesTooltip(tt, SpellID, Known)
+local function addLinesTooltip(tt, SpellID)
 	if not MM.db.realm.OPTIONS.ttEnable then return end
 	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
 	if not enchant then return end
@@ -60,7 +60,7 @@ local function addLinesTooltip(tt, SpellID, Known)
 		end
 	end
 	tt:AddLine(" ")
-	if MM.db.realm.OPTIONS.ttGuildEnable and not Known then
+	if MM.db.realm.OPTIONS.ttGuildEnable and not enchant.Known then
 		local knownBye = MM:GetMysticCharList(SpellID)
 		if knownBye then
 			tt:AddDoubleLine("Enchant Known By:", WHITE.. knownBye)
@@ -119,10 +119,8 @@ end
 
 function MM:TooltipHandlerSpell(tooltip)
 	local SpellName, _, SpellID = tooltip:GetSpell()
-	local enchant = C_MysticEnchant.GetEnchantInfoBySpell(SpellID)
-	if enchant then
-		addLinesTooltip(tooltip, SpellID, enchant.Known)
-	elseif MM.db.realm.OPTIONS.worldforgedTooltip then
+	addLinesTooltip(tooltip, SpellID)
+	if MM.db.realm.OPTIONS.worldforgedTooltip then
 		local worldForgedTip = MM:WorldforgedTooltips(SpellName, SpellID)
 		if worldForgedTip then
 			tooltip:AddLine(" ")

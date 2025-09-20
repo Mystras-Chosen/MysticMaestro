@@ -533,12 +533,13 @@ function MM:CancelAuction(SpellID, buyoutPrice)
 end
 
 function MM:StartAuction(SpellID, price)
+	local bidPrice = price - ( price * .2 )
 	local duration = MM.db.realm.OPTIONS.listDuration
 	if CalculateAuctionDeposit(duration) > GetMoney() then
 		UIErrorsFrame:AddMessage("|cffff0000Not enough money for a deposit|r")
 		return false
 	else
-		StartAuction(price, price, duration, 1, 1)
+		StartAuction(bidPrice, price, duration, 1, 1)
 		self.listedAuctionSpellID = SpellID
 		self.listedAuctionBuyoutPrice = price
 		return true
@@ -574,7 +575,7 @@ StaticPopupDialogs["MM_LIST_AUCTION"] = {
 	enterClicksFirstButton = 1  -- doesn't cause taint for some reason
 }
 
-function findSellableScrollWithSpellID(spellID, listMode)
+local function findSellableScrollWithSpellID(spellID, listMode)
 	if not spellID then return end
 	local items = {}
 	local inventoryList = C_MysticEnchant.GetMysticScrolls()

@@ -1,6 +1,5 @@
 local MM = LibStub("AceAddon-3.0"):GetAddon("MysticMaestro")
 local AceGUI = LibStub("AceGUI-3.0")
-local bagnonGuildbank
 local frameLoaded
 --adds a move to and from buttons to realm/personal/guild bank for auto moving mystic enchanted trinkets 
 function MM:guildBankFrameOpened()
@@ -9,7 +8,7 @@ function MM:guildBankFrameOpened()
 	local toPointX, toPointY = -55,-40
 	if select(4,GetAddOnInfo("Bagnon_GuildBank")) then
 		gFrame = BagnonFrameguildbank
-		toPointX, toPointY = -90, -5
+		toPointX, toPointY = -35, -30
 	elseif select(4,GetAddOnInfo("ElvUI")) then
 		toPointX, toPointY = -80, -15
 	end

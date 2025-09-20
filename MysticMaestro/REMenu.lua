@@ -144,7 +144,7 @@ do -- functions to initialize menu and menu container
 
 	local enchantContainerHeight = 14
 	function MM:UpdateCurrencyDisplay()
-		currencyContainer.Orb.Text:SetText(string.format("Mystic Orbs: |cffffffff%d|r", self:GetOrbCurrency()))
+		currencyContainer.Orb.Text:SetText(string.format("Runes: |cffffffff%d|r", self:GetAscensionRunesCurrency()))
 		currencyContainer.Blank.Text:SetText(string.format("Blanks: |cffffffff%d|r", self:CountSellableREInBags("blanks")))
 	end
 
@@ -159,11 +159,11 @@ do -- functions to initialize menu and menu container
 		currencyContainer.Orb:SetPoint("RIGHT", currencyContainer, "RIGHT", -4, 0)
 		currencyContainer.Orb.Icon = currencyContainer.Orb:CreateTexture(nil, "ARTWORK")
 		currencyContainer.Orb.Icon:SetAllPoints()
-		currencyContainer.Orb.Icon:SetTexture("Interface\\Icons\\inv_custom_CollectionRCurrency")
+		currencyContainer.Orb.Icon:SetTexture("Interface\\Icons\\mail_gmicon")
 		currencyContainer.Orb:SetScript("OnEnter",
 			function(self)
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 0, 0)
-				GameTooltip:SetHyperlink("|Hitem:98570|h[test]|h")
+				GameTooltip:SetHyperlink("|Hitem:375250|h[test]|h")
 				GameTooltip:Show()
 			end
 		)
@@ -237,8 +237,8 @@ do -- functions to initialize menu and menu container
 		end
 
 		local orbCost = MM:OrbCost(enchantToCraft)
-		if orbCost > MM:GetOrbCurrency() then
-			UIErrorsFrame:AddMessage("Not enough Mystic Orbs.", 1, 0, 0)
+		if orbCost > MM:GeAscensionRunesCurrency() then
+			UIErrorsFrame:AddMessage("Not enough Runes of Ascension.", 1, 0, 0)
 			issue = true
 		end
 

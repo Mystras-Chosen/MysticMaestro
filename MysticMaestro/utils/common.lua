@@ -462,14 +462,9 @@ end
 
 -- Return determine if scroll exists, or buy new one
 function MM:FindUntarnishedScroll()
-	local inventoryList = C_MysticEnchant.GetMysticScrolls()
-	for _, scroll in ipairs(inventoryList) do
-		if scroll.Entry == 992720 then -- Untarnished Mystic Scroll
-			return true
-		end
-	end
-	MM.enchantScroll = true
-	MM:PurchaseScroll()
+	if GetItemCount(992720) > 0 then return true end
+	self.enchantScroll = true
+	self:PurchaseScroll()
 end
 
 -- Remove extracted enchant from extract list
@@ -509,9 +504,9 @@ function MM:MYSTIC_ENCHANT_LEARNED(event, SpellID)
 	MM:EnchantLearnedMsg(SpellID)
 end
 
--- determine the count of Mystic Orbs
-function MM:GetOrbCurrency()
-	return GetItemCount(98570)
+-- determine the count of Runes of Ascension
+function MM:GetAscensionRunesCurrency()
+	return GetItemCount(375250)
 end
 
 function MM:IsUntarnished(itemName)
@@ -605,11 +600,9 @@ end
 local altarItemIDs = {
 	406, -- Felforged Enchanting Altar
 	1903513, -- Normal Altar
-	2903513, -- Mechanical Mystic Altar
 	8210192, -- Build Master's Mystic Enchanting Altar
 	8210195, -- Mystic Enchating Altar (League 4 - Druid)
 	8210196, -- Mystic Enchating Altar (League 4 - Hunter)
-	-- 8210197, -- Mystic Enchating Altar (League 4 - Mage)
 	8210197, -- Destined Mystic Enchanting Altar
 	8210198, -- Mystic Enchating Altar (League 4 - Paladin)
 	8210199, -- Mystic Enchating Altar (League 4 - Priest)
@@ -617,6 +610,7 @@ local altarItemIDs = {
 	8210201, -- Mystic Enchating Altar (League 4 - Shaman)
 	8210202, -- Mystic Enchating Altar (League 4 - Warlock)
 	8210203, -- Mystic Enchating Altar (League 4 - Warrior)
+	2903513, -- Mechanical Mystic Altar
 }
 
 -- caches and returns an items cooldown 

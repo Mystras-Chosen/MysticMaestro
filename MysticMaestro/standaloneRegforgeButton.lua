@@ -181,13 +181,13 @@ function MM:ToggleScreenReforgeText(show)
 		MysticMaestroNextLevelText:Hide()
 		MysticMaestroCountDownFrame:Hide()
 	end
-	MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
+	MysticMaestroCountDownText:SetText("You Have " .. self:GetAscensionRunesCurrency() .. " Runes Left")
 	MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.ALTARLEVEL.rollsNeeded).." Enchants")
 end
 
 function MM:UpdateScreenReforgeText()
 	if not MM.db.realm.ALTARLEVEL or not MM.db.realm.ALTARLEVEL.rollsNeeded then return end
-	MysticMaestroCountDownText:SetText("You Have " .. GetItemCount(98462) .. " Runes Left")
+	MysticMaestroCountDownText:SetText("You Have " .. self:GetAscensionRunesCurrency() .. " Runes Left")
 	MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.ALTARLEVEL.rollsNeeded).." Enchants")
 end
 
