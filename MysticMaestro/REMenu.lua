@@ -237,7 +237,7 @@ do -- functions to initialize menu and menu container
 		end
 
 		local orbCost = MM:OrbCost(enchantToCraft)
-		if orbCost > MM:GeAscensionRunesCurrency() then
+		if orbCost > MM:GetAscensionRunesCurrency() then
 			UIErrorsFrame:AddMessage("Not enough Runes of Ascension.", 1, 0, 0)
 			issue = true
 		end
