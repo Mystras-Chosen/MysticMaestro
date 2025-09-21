@@ -13,8 +13,8 @@ local otherGreens = {
 
 function MM:MatchNoRunes()
 	if not options then options = MM.db.realm.OPTIONS end
-	local eval = options.stopIfNoRunes and self:GetAscensionRunesCurrency() <= 0
-	return eval and "No Runes" or nil
+	local eval = options.stopIfNoRunes and self:GetAscensionRunesCurrency() <= options.stopMinRunes
+	return eval and "Minimun Rearched or No Runes" or nil
 end
 
 function MM:MatchQuality(currentEnchant)

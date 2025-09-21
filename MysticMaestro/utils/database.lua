@@ -78,6 +78,7 @@ local defaultDB = {
 			noChatResult = false,
 			delayAfterBagUpdate = 0.3,
 			stopIfNoRunes = true,
+			stopMinRunes = 0,
 			shoppingListsDropdown = 1,
 			shoppingSubList = 1,
 			stopForShop = {

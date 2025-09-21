@@ -44,7 +44,7 @@ function MM:ActivateReforge()
 	end
 
 	-- Stop attempting if out of runes and configured to do so
-	if MM:MatchNoRunes() then MM:TerminateReforge("No Runes") return end
+	if MM:MatchNoRunes() then MM:TerminateReforge("Minimun or No Runes Rearched") return end
 
 	-- Stop attempting if player is moving
 	if MM:IsMoving() then MM:TerminateReforge("Player Moving") return end

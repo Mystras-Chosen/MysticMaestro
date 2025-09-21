@@ -536,9 +536,17 @@ local function createConfig()
 				desc = "Stop reforging when you have run out of Mystic Runes",
 				type = "toggle"
 			},
+			stopMinRunes = {
+				order = 2,
+				name = "Stop When Minimum Runes Reached",
+				desc = "Stop reforging when minimum Rune of Ascension is reached",
+				type = "input",
+				set = function(info,val) MM.db.realm.OPTIONS.stopMinRunes = tonumber(val) end,
+				get = function(info) return tostring(MM.db.realm.OPTIONS.stopMinRunes) end
+			},
 			delayAfterBagUpdate = {
 				name = "Delay after Reforge result",
-				order = 2,
+				order = 3,
 				type = "range",
 				step = 0.01,
 				min = 0.1,
@@ -548,19 +556,19 @@ local function createConfig()
 				desc = "Set the amount of time to elapse after each reforge, too low of a value will cause blocked casts.",
 			},
 			purchaseScrolls = {
-				order = 3,
+				order = 4,
 				name = "Purchase Mystic Scrolls",
 				desc = "Automatically purchase required mystic scrolls during the reforge loop",
 				type = "toggle"
 			},
 			removeFound = {
-				order = 3,
+				order = 5,
 				name = "Remove Found",
 				desc = "Automatically remove found enchants on an auto extract shopping list that is enabled",
 				type = "toggle"
 			},
 			noChatResult = {
-				order = 4,
+				order = 6,
 				name = "Hide chat result text",
 				desc = "Don't show result text in chat window ",
 				type = "toggle"
