@@ -13,7 +13,7 @@ local otherGreens = {
 
 function MM:MatchNoRunes()
 	if not options then options = MM.db.realm.OPTIONS end
-	local eval = options.stopIfNoRunes and self:GetAscensionRunesCurrency() <= options.stopMinRunes
+	local eval = options.stopIfNoRunes and (self:GetAscensionRunesCurrency()-250) <= options.stopMinRunes
 	return eval and "Minimun Rearched or No Runes" or nil
 end
 
