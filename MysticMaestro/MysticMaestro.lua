@@ -31,13 +31,13 @@ function MM:OnInitialize()
 end
 
 function MM:OnEnable()
-	MM:StandaloneCityReforgeToggle()
-	MM:MinimapIconSetup()
-	MM:GetPlayerDetails()
-	MM:LoadAltarItemData()
+	self:CreateUI()
+	self:MinimapIconSetup()
+	self:GetPlayerDetails()
+	self:LoadAltarItemData()
 
-	MM:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
-	MM:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
+	self:HookScript(GameTooltip, "OnTooltipSetItem", "TooltipHandlerItem")
+	self:HookScript(GameTooltip, "OnTooltipSetSpell", "TooltipHandlerSpell")
 
 end
 

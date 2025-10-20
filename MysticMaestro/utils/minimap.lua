@@ -52,7 +52,7 @@ function MM:MiniMapMenuRegister(button)
 			{text = self.rollState, func = self.ReforgeToggle, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{altar = true},
 			{text = "Enchant Collection", func = function() self:ToggleEnchantCollection() end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
-			{text = "Show/Hide Floating Button", func = self.StandaloneReforgeShow, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
+			{text = "Show/Hide Floating Button", func = self.ToggleStandaloneButton, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Options", func = function() self:OpenConfig("General") end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = "Unlock Frame", func = self.UnlockFrame, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},
 			{text = text, func = function() self.db.realm.OPTIONS.purchaseScrolls = not self.db.realm.OPTIONS.purchaseScrolls end, notCheckable = true, closeWhenClicked = true, textHeight = 12, textWidth = 12},

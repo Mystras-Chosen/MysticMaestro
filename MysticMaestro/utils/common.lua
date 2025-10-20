@@ -533,10 +533,11 @@ function MM:HasItem(itemID)
 end
 
 -- Used to create a dewdrop menu from a table
-function MM:OpenDewdropMenu(self, menuList, skipRegister)
-	if MM.dewdrop:IsOpen(self) then MM.dewdrop:Close() return end
+local worldFrameHook
+function MM:OpenDewdropMenu(button, menuList, skipRegister)
+	if self.dewdrop:IsOpen(button) then self.dewdrop:Close() return end
 	if not skipRegister then
-		MM.dewdrop:Register(self,
+		self.dewdrop:Register(button,
 			'point', function(parent)
 				return "TOP", "BOTTOM"
 			end,
@@ -545,7 +546,7 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 			for _, menu in pairs(menuList[level]) do
 					
 				if menu.altar then
-					altar = MM:AddAltar()
+					altar = self:AddAltar()
 					if altar then
 						menu = altar
 					end
@@ -554,7 +555,7 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 
 					if menu.divider then
 						local text = WHITE.."----------------------------------------------------------------------------------------------------"
-						MM.dewdrop:AddLine(
+						self.dewdrop:AddLine(
 							'text' , text:sub(1, menu.divider),
 							'textHeight', 13,
 							'textWidth', 13,
@@ -562,7 +563,7 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 							'notCheckable', true
 						)
 					else
-						MM.dewdrop:AddLine(
+						self.dewdrop:AddLine(
 						'text', menu.text,
 						'func', menu.func,
 						'closeWhenClicked', menu.closeWhenClicked,
@@ -576,7 +577,7 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 					end
 					-- create close button
 					if menu.close then
-						MM.dewdrop:AddLine(
+						self.dewdrop:AddLine(
 							'text', "Close Menu",
 							'textR', 0,
 							'textG', 1,
@@ -593,7 +594,20 @@ function MM:OpenDewdropMenu(self, menuList, skipRegister)
 		'dontHook', true
 		)
 	end
-	MM.dewdrop:Open(self)
+
+	self.dewdrop:Open(button)
+
+	if not worldFrameHook then
+      WorldFrame:HookScript("OnEnter", function()
+        Timer.After(.5, function()
+          local mFocus = GetMouseFocus()
+          if self.dewdrop:IsOpen(button) and (mFocus == WorldFrame or mFocus ~= button) then
+              self.dewdrop:Close()
+          end
+        end)
+      end)
+      worldFrameHook = true
+    end
 	return true
 end
 

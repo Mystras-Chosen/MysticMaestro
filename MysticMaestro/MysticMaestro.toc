@@ -7,6 +7,7 @@
 ## Dependencies: MysticMaestro_AhData, MysticMaestro_GuildData
 ## LoadOnDemand: 0
 ## SavedVariables: MysticMaestroDB
+## SavedVariablesPerCharacter: MysticMaestroCharDB
 
 Libs\embeds.xml
 utils\database.lua

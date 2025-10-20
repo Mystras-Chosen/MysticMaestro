@@ -72,7 +72,7 @@ function MM:ActivateReforge()
 	-- Set the button text to indicate reforge began
 	MM.rollState = "Reforging"
 	local button = MysticMaestro_CollectionsFrame_ReforgeButton
-	if button and not buttonTextTimerHandle then 
+	if button and not buttonTextTimerHandle then
 		button:SetText("Reforging" .. MM:Dots())
 		buttonTextTimerHandle = Timer.NewTicker(1, function() button:SetText("Reforging".. MM:Dots()) end)
 	end

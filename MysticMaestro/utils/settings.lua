@@ -162,13 +162,25 @@ local function createConfig()
 				get = function() return MM.sbSettings.Citys end,
 				set = function() MM:StandaloneCityReforgeToggle("city") end
 			},
-			enchantWindowScaleHeader = {
+			reforgeStandaloneEnableAutoHide = {
 				order = 38,
+				name = "Auto Hide",
+				desc = "Only show button when the mouse is hovering over the button",
+				type = "toggle",
+				width = 1,
+				get = function() return MM.sbSettings.EnableAutoHide end,
+				set = function()
+					MM.sbSettings.EnableAutoHide = not MM.sbSettings.EnableAutoHide
+					MM:SetFrameAlpha()
+				end
+			},
+			enchantWindowScaleHeader = {
+				order = 40,
 				name = "Window Scale",
 				type = "header"
 			},
 			enchantWindowScale = {
-				order = 39,
+				order = 41,
 				name = "Enchant Window",
 				desc = "Sets the size scale of the enchant frame",
 				type = "range",
@@ -182,7 +194,7 @@ local function createConfig()
 				end
 			},
 			standAloneButtonScale = {
-				order = 39,
+				order = 42,
 				name = "Standalone Reforge Button",
 				desc = "Sets the size standalone reforge button",
 				type = "range",
@@ -1104,7 +1116,7 @@ function MM:ProcessSlashCommand(input)
 	elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
 		MM:OpenConfig("Mystic Maestro")
 	elseif lowerInput:match("^reforgebutton") then
-		MM:StandaloneReforgeShow()
+		MM:ToggleStandaloneButton()
 	elseif input == "" then
 		MM:HandleMenuSlashCommand()
 	else

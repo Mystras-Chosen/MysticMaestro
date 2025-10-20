@@ -33,57 +33,161 @@ function MM:RollMenuRegister(button)
 	self:OpenDewdropMenu(button, menuList)
 end
 
--- Used to show highlight as a frame mover
-local unlocked = false
-function MM:UnlockFrame()
-	if unlocked then
-		MysticMaestro_ReforgeFrame_Menu:Show()
-		MysticMaestro_ReforgeFrame.Highlight:Hide()
-		unlocked = false
-		GameTooltip:Hide()
-	else
-		MysticMaestro_ReforgeFrame_Menu:Hide()
-		MysticMaestro_ReforgeFrame.Highlight:Show()
-		unlocked = true
-	end
+function MM:CreateUI()
+	if not MysticMaestroCharDB then MysticMaestroCharDB = {} end
+	self.charDB = MysticMaestroCharDB
+    self.reforgebutton = CreateFrame("Button", "MysticMaestro_ReforgeFrame", UIParent)
+    self.reforgebutton:SetSize(70, 70)
+    self.reforgebutton:EnableMouse(true)
+    self.reforgebutton:SetScript("OnDragStart", function() self.reforgebutton:StartMoving() end)
+    self.reforgebutton:SetScript("OnDragStop", function()
+        self.reforgebutton:StopMovingOrSizing()
+        self.charDB.menuPos = { self.reforgebutton:GetPoint() }
+        self.charDB.menuPos[2] = "UIParent"
+    end)
+    self.reforgebutton:RegisterForClicks("LeftButtonDown", "RightButtonDown")
+    self.reforgebutton.icon = self.reforgebutton:CreateTexture(nil, "ARTWORK")
+    self.reforgebutton.icon:SetSize(55, 55)
+    self.reforgebutton.icon:SetPoint("CENTER", self.reforgebutton, "CENTER", 0, 0)
+    self.reforgebutton.icon:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\inv_blacksmithing_khazgoriananvil1")
+    self.reforgebutton.Text = self.reforgebutton:CreateFontString()
+    self.reforgebutton.Text:SetFont("Fonts\\FRIZQT__.TTF", 13)
+    self.reforgebutton.Text:SetFontObject(GameFontNormal)
+    self.reforgebutton.Text:SetText("|cffffffffStart\nReforge")
+    self.reforgebutton.Text:SetPoint("CENTER", self.reforgebutton.icon, "CENTER", 0, 0)
+    self.reforgebutton.Highlight = self.reforgebutton:CreateTexture(nil, "OVERLAY")
+    self.reforgebutton.Highlight:SetSize(70, 70)
+    self.reforgebutton.Highlight:SetPoint("CENTER", self.reforgebutton, 0, 0)
+    self.reforgebutton.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
+    self.reforgebutton.Highlight:Hide()
+	self.reforgebutton.AnimatedTex = self.reforgebutton:CreateTexture(nil, "OVERLAY")
+	self.reforgebutton.AnimatedTex:SetSize(59,59)
+	self.reforgebutton.AnimatedTex:SetPoint("CENTER", self.reforgebutton.icon, 0, 0)
+	self.reforgebutton.AnimatedTex:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
+	self.reforgebutton.AnimatedTex:SetAlpha(0)
+	self.reforgebutton.AnimatedTex:Hide()
+    self.reforgebutton:SetScale(self.sbSettings.buttonScale or 1)
+    self.reforgebutton:SetScript("OnClick", function(button, btnclick)
+        if btnclick == "RightButton" then
+            if self.reforgebutton.unlocked then
+                self:UnlockFrame()
+			else
+				if IsAltKeyDown() then
+					self:ToggleEnchantCollection()
+				else
+					self:RollMenuRegister(button)
+				end
+            end
+        elseif not self.reforgebutton.unlocked and (btnclick == "LeftButton") then
+			self:ReforgeToggle()
+        end
+    end)
+	self.reforgebutton.AnimatedTex.AG = self.reforgebutton.AnimatedTex:CreateAnimationGroup()
+	self.reforgebutton.AnimatedTex.AG.Alpha0 = self.reforgebutton.AnimatedTex.AG:CreateAnimation("Alpha")
+	self.reforgebutton.AnimatedTex.AG.Alpha0:SetStartDelay(0)
+	self.reforgebutton.AnimatedTex.AG.Alpha0:SetDuration(2)
+	self.reforgebutton.AnimatedTex.AG.Alpha0:SetOrder(0)
+	self.reforgebutton.AnimatedTex.AG.Alpha0:SetEndDelay(0)
+	self.reforgebutton.AnimatedTex.AG.Alpha0:SetSmoothing("IN")
+	self.reforgebutton.AnimatedTex.AG.Alpha0:SetChange(1)
+
+	self.reforgebutton.AnimatedTex.AG.Alpha1 = self.reforgebutton.AnimatedTex.AG:CreateAnimation("Alpha")
+	self.reforgebutton.AnimatedTex.AG.Alpha1:SetStartDelay(0)
+	self.reforgebutton.AnimatedTex.AG.Alpha1:SetDuration(2)
+	self.reforgebutton.AnimatedTex.AG.Alpha1:SetOrder(0)
+	self.reforgebutton.AnimatedTex.AG.Alpha1:SetEndDelay(0)
+	self.reforgebutton.AnimatedTex.AG.Alpha1:SetSmoothing("IN_OUT")
+	self.reforgebutton.AnimatedTex.AG.Alpha1:SetChange(-1)
+
+	self.reforgebutton.AnimatedTex.AG:SetScript("OnFinished", function()
+		self.reforgebutton.AnimatedTex.AG:Play()
+	end)
+
+	self.reforgebutton.AnimatedTex.AG:Play()
+    self.reforgebutton:SetScript("OnEnter", function(button)
+        if self.reforgebutton.unlocked then
+            GameTooltip:SetOwner(button, "ANCHOR_TOP")
+            GameTooltip:AddLine("Left click to drag")
+            GameTooltip:AddLine("Right click to lock frame")
+            GameTooltip:Show()
+        else
+            self.reforgebutton.Highlight:Show()
+        end
+        if self.sbSettings.EnableAutoHide and not UnitAffectingCombat("player") then
+            self.reforgebutton:SetAlpha(10)
+        end
+    end)
+    self.reforgebutton:SetScript("OnLeave", function()
+        GameTooltip:Hide()
+        if not self.reforgebutton.unlocked then
+            self.reforgebutton.Highlight:Hide()
+        end
+        if self.sbSettings.EnableAutoHide and not self.reforgebutton.unlocked then
+            self.reforgebutton:SetAlpha(0)
+        end
+    end)
+    self:SetMenuPos()
+    self:SetFrameAlpha()
+    if self.sbSettings.Enable then
+        self.reforgebutton:Show()
+    else
+        self.reforgebutton:Hide()
+    end
+	self:StandaloneCityReforgeToggle()
 end
 
---Creates the main floating button
-local mainframe = CreateFrame("Button", "MysticMaestro_ReforgeFrame", UIParent, nil)
-	mainframe:SetPoint("CENTER",0,0)
-	mainframe:SetSize(70,70)
-	mainframe:EnableMouse(true)
-	mainframe:SetMovable(true)
-	mainframe:RegisterForDrag("LeftButton")
-	mainframe:RegisterForClicks("RightButtonDown")
-	mainframe:SetScript("OnDragStart", function(self) mainframe:StartMoving() end)
-	mainframe:SetScript("OnDragStop", function(self) mainframe:StopMovingOrSizing() end)
-	mainframe:SetScript("OnClick", function(self, btnclick) if unlocked then MM:UnlockFrame() end end)
-	mainframe:Hide()
-	mainframe.icon = mainframe:CreateTexture(nil,"ARTWORK")
-	mainframe.icon:SetSize(55,55)
-	mainframe.icon:SetPoint("CENTER", mainframe,"CENTER",0,0)
-	mainframe.icon:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\inv_blacksmithing_khazgoriananvil1")
-	mainframe.Highlight = mainframe:CreateTexture(nil, "OVERLAY")
-	mainframe.Highlight:SetSize(70,70)
-	mainframe.Highlight:SetPoint("CENTER", mainframe,"CENTER", 0, 0)
-	mainframe.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
-	mainframe.Highlight:Hide()
-	mainframe.Text = mainframe:CreateFontString()
-	mainframe.Text:SetFont("Fonts\\FRIZQT__.TTF", 12)
-	mainframe.Text:SetFontObject(GameFontNormal)
-	mainframe.Text:SetText("|cffffffffStart\nReforge")
-	mainframe.Text:SetPoint("CENTER", 0, 0)
-	mainframe.Text:SetShadowOffset(1,-1)
-	mainframe:SetScript("OnEnter", function(self)
-		if unlocked then
-			GameTooltip:SetOwner(self, "ANCHOR_TOP")
-			GameTooltip:AddLine("Left click to drag")
-			GameTooltip:AddLine("Right click to lock frame")
-			GameTooltip:Show()
-		end
-	end)
-	mainframe:SetScript("OnLeave", function() GameTooltip:Hide() end)
+--------------- Frame functions for misc menu standalone button---------------
+
+function MM:SetMenuPos()
+    if self.charDB.menuPos then
+        local pos = self.charDB.menuPos
+        self.reforgebutton:ClearAllPoints()
+        self.reforgebutton:SetPoint(pos[1], pos[2], pos[3], pos[4], pos[5])
+    else
+        self.reforgebutton:ClearAllPoints()
+        self.reforgebutton:SetPoint("CENTER", UIParent)
+    end
+end
+
+function MM:SetFrameAlpha()
+    if self.sbSettings.EnableAutoHide then
+        self.reforgebutton:SetAlpha(0)
+    else
+        self.reforgebutton:SetAlpha(10)
+    end
+end
+
+-- Used to show highlight as a frame mover
+function MM:UnlockFrame()
+	self = MM
+    if self.reforgebutton.unlocked then
+        self.reforgebutton:SetMovable(false)
+        self.reforgebutton:RegisterForDrag()
+        self.reforgebutton.Highlight:Hide()
+        if self.sbSettings.enableAutoHide then
+            self.reforgebutton:SetAlpha(0)
+        end
+        self.reforgebutton.unlocked = false
+        GameTooltip:Hide()
+    else
+        self.reforgebutton:SetMovable(true)
+        self.reforgebutton:RegisterForDrag("LeftButton")
+        self.reforgebutton.Highlight:Show()
+        if self.sbSettings.enableAutoHide then
+            self.reforgebutton:SetAlpha(10)
+        end
+        self.reforgebutton.unlocked = true
+    end
+end
+
+-- toggle the main button frame
+function MM:Togglereforgebutton()
+    if self.reforgebutton:IsVisible() then
+        self.reforgebutton:Hide()
+    else
+        self.reforgebutton:Show()
+    end
+end
 
 function MM:ToggleEnchantCollection()
 	if Collections:IsShown() then
@@ -92,69 +196,6 @@ function MM:ToggleEnchantCollection()
 		Collections:GoToTab(Collections.Tabs.MysticEnchants)
 	end
 end
-
-local reforgebutton = CreateFrame("Button", "MysticMaestro_ReforgeFrame_Menu", MysticMaestro_ReforgeFrame)
-	reforgebutton:SetSize(55,55)
-	reforgebutton:SetPoint("CENTER", mainframe, "CENTER", 0, 0)
-	reforgebutton.AnimatedTex = reforgebutton:CreateTexture(nil, "OVERLAY")
-	reforgebutton.AnimatedTex:SetSize(59,59)
-	reforgebutton.AnimatedTex:SetPoint("CENTER", mainframe.icon, 0, 0)
-	reforgebutton.AnimatedTex:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
-	reforgebutton.AnimatedTex:SetAlpha(0)
-	reforgebutton.AnimatedTex:Hide()
-	reforgebutton.Highlight = reforgebutton:CreateTexture(nil, "OVERLAY")
-	reforgebutton.Highlight:SetSize(59,59)
-	reforgebutton.Highlight:SetPoint("CENTER", mainframe.icon, 0, 0)
-	reforgebutton.Highlight:SetTexture("Interface\\AddOns\\AwAddons\\Textures\\EnchOverhaul\\Slot2Selected")
-	reforgebutton.Highlight:Hide()
-	reforgebutton:RegisterForClicks("LeftButtonDown", "RightButtonDown")
-	reforgebutton:SetScript("OnClick", function(self, button) 
-		if (button == "LeftButton") then
-			MM:ReforgeToggle()
-		elseif (button == "RightButton") then
-			if IsAltKeyDown() then
-				MM:ToggleEnchantCollection()
-			else
-				MM:RollMenuRegister(self)
-			end
-		end
-	end)
-	reforgebutton:SetScript("OnEnter", function(self)
-		reforgebutton.Highlight:Show()
-		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Left Click To Start Reforging")
-		GameTooltip:AddLine("Right Click For Context Menu")
-		GameTooltip:AddLine("Alt Right To Open Enchanting Frame")
-		GameTooltip:Show()
-	end)
-	reforgebutton:SetScript("OnLeave", function()
-		reforgebutton.Highlight:Hide()
-		GameTooltip:Hide()
-	end)
-	reforgebutton:Hide()
-
-	reforgebutton.AnimatedTex.AG = reforgebutton.AnimatedTex:CreateAnimationGroup()
-	reforgebutton.AnimatedTex.AG.Alpha0 = reforgebutton.AnimatedTex.AG:CreateAnimation("Alpha")
-	reforgebutton.AnimatedTex.AG.Alpha0:SetStartDelay(0)
-	reforgebutton.AnimatedTex.AG.Alpha0:SetDuration(2)
-	reforgebutton.AnimatedTex.AG.Alpha0:SetOrder(0)
-	reforgebutton.AnimatedTex.AG.Alpha0:SetEndDelay(0)
-	reforgebutton.AnimatedTex.AG.Alpha0:SetSmoothing("IN")
-	reforgebutton.AnimatedTex.AG.Alpha0:SetChange(1)
-
-	reforgebutton.AnimatedTex.AG.Alpha1 = reforgebutton.AnimatedTex.AG:CreateAnimation("Alpha")
-	reforgebutton.AnimatedTex.AG.Alpha1:SetStartDelay(0)
-	reforgebutton.AnimatedTex.AG.Alpha1:SetDuration(2)
-	reforgebutton.AnimatedTex.AG.Alpha1:SetOrder(0)
-	reforgebutton.AnimatedTex.AG.Alpha1:SetEndDelay(0)
-	reforgebutton.AnimatedTex.AG.Alpha1:SetSmoothing("IN_OUT")
-	reforgebutton.AnimatedTex.AG.Alpha1:SetChange(-1)
-
-	reforgebutton.AnimatedTex.AG:SetScript("OnFinished", function()
-		reforgebutton.AnimatedTex.AG:Play()
-	end)
-
-	reforgebutton.AnimatedTex.AG:Play()
 
 local countDownFrame = CreateFrame("Frame", "MysticMaestroCountDownFrame", UIParrnt, nil)
 	countDownFrame:SetPoint("CENTER",0,200)
@@ -191,47 +232,35 @@ function MM:UpdateScreenReforgeText()
 	MysticMaestroNextLevelText:SetText("Next Altar Level in "..(MM.db.realm.ALTARLEVEL.rollsNeeded).." Enchants")
 end
 
-function MM:StandaloneReforgeShow()
-	if MysticMaestro_ReforgeFrame:IsVisible() then
-		MysticMaestro_ReforgeFrame:Hide()
-		MysticMaestro_ReforgeFrame_Menu:Hide()
-	else
-		MysticMaestro_ReforgeFrame:Show()
-		MysticMaestro_ReforgeFrame_Menu:Show()
-	end
-end
-
 function MM:StandaloneCityReforgeToggle(button)
 	if button == "city" then
-		MM.sbSettings.Citys = not MM.sbSettings.Citys
-		if MM.sbSettings.Citys then
-			MM:RegisterEvent("ZONE_CHANGED");
-			MM:RegisterEvent("ZONE_CHANGED_NEW_AREA");
+		self.sbSettings.Citys = not self.sbSettings.Citys
+		if self.sbSettings.Citys then
+			self:RegisterEvent("ZONE_CHANGED");
+			self:RegisterEvent("ZONE_CHANGED_NEW_AREA");
 		else
-			MM:UnregisterEvent("ZONE_CHANGED");
-			MM:UnregisterEvent("ZONE_CHANGED_NEW_AREA");
+			self:UnregisterEvent("ZONE_CHANGED");
+			self:UnregisterEvent("ZONE_CHANGED_NEW_AREA");
 		end
 	elseif button == "enable" then
-		MM.sbSettings.Enable = not MM.sbSettings.Enable
+		self.sbSettings.Enable = not self.sbSettings.Enable
 	end
 
 	--auto show/hide in city's
-	if MM.sbSettings.Enable and MM.sbSettings.Citys and (citysList[GetMinimapZoneText()] or citysList[GetRealZoneText()])
-	or MM.sbSettings.Enable and not MM.sbSettings.Citys then
-		MysticMaestro_ReforgeFrame:Show()
-		MysticMaestro_ReforgeFrame_Menu:Show()
+	if self.sbSettings.Enable and self.sbSettings.Citys and (citysList[GetMinimapZoneText()] or citysList[GetRealZoneText()])
+	or self.sbSettings.Enable and not self.sbSettings.Citys then
+		self.reforgebutton:SetAlpha(10)
 	else
-		MysticMaestro_ReforgeFrame:Hide()
-		MysticMaestro_ReforgeFrame_Menu:Hide()
+		self.reforgebutton:SetAlpha(0)
 	end
 end
 
 function MM:StandaloneReforgeText(show)
 	if show then
-		MysticMaestro_ReforgeFrame_Menu.AnimatedTex:Show()
-		MysticMaestro_ReforgeFrame.Text:SetText("|cffffffffAuto\nForging")
+		self.reforgebutton.AnimatedTex:Show()
+		self.reforgebutton.Text:SetText("|cffffffffAuto\nForging")
 	else
-		MysticMaestro_ReforgeFrame_Menu.AnimatedTex:Hide()
-		MysticMaestro_ReforgeFrame.Text:SetText("|cffffffffStart\nReforge")
+		self.reforgebutton.AnimatedTex:Hide()
+		self.reforgebutton.Text:SetText("|cffffffffStart\nReforge")
 	end
 end
