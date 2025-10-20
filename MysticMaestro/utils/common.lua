@@ -428,7 +428,7 @@ function MM:Extract(enchant)
 		end
 		local itemGuid = MM:FindScrollByItem(enchant.ItemID)
 		MM:RegisterEvent("UNIT_SPELLCAST_FAILED")
-		C_MysticEnchant.DisenchantItem(itemGuid)
+		EnchantCollectionUtil:AttemptOperation("DisenchantItem", "CanDisenchantItem", itemGuid, MysticEnchantUtil.NeedsToPurchaseExtract())
 		MM:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		MM:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 		return true
