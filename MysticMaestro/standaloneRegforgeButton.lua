@@ -182,6 +182,7 @@ end
 
 -- toggle the main button frame
 function MM:Togglereforgebutton()
+	self = MM
     if self.reforgebutton:IsVisible() then
         self.reforgebutton:Hide()
     else

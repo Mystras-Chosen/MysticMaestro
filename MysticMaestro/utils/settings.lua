@@ -1116,7 +1116,7 @@ function MM:ProcessSlashCommand(input)
 	elseif lowerInput:match("^config") or lowerInput:match("^cfg") then
 		MM:OpenConfig("Mystic Maestro")
 	elseif lowerInput:match("^reforgebutton") then
-		MM:ToggleStandaloneButton()
+		MM:Togglereforgebutton()
 	elseif input == "" then
 		MM:HandleMenuSlashCommand()
 	else
